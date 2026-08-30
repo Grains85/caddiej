@@ -1,0 +1,35 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# Local shot history. Somebody's rounds, not the project's.
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Everything CaddieJ writes: swing footage of a person in their own garage, and
+# the rendered audio of coaching lines about their swing. Both stay on their
+# machine, and neither is something a commit can carry away by accident.
+media/
+
+# Virtual environments
+.venv/
+venv/
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,478 @@
+/* Floor overlay styling.
+ *
+ * The background stays transparent so the page composites correctly as an OBS
+ * Browser Source and as a fullscreen browser window later. Animation is limited
+ * to transform and opacity so nothing triggers layout on the projector. */
+
+:root {
+  --floor-fg: #f2fff4;
+  --floor-accent: #35ff7a;
+  --floor-warn: #ffb43a;
+  --floor-dim: rgba(242, 255, 244, 0.35);
+  --floor-driver: #35ff7a;
+  --floor-normal: #48d9ff;
+  --floor-putter: #ffd166;
+  --floor-path: #ff5fa2;
+  --floor-fine: #35ff7a;
+  --floor-watch: #48d9ff;
+  --floor-fault: #ffb43a;
+  /* Celebration colours, climbing from something almost grey to something
+     unmistakably warm, so the tier reads before the word does. */
+  --floor-par: rgba(242, 255, 244, 0.72);
+  --floor-birdie: #35ff7a;
+  --floor-eagle: #48d9ff;
+  --floor-albatross: #ffd166;
+  --floor-landmark: #ffe9a8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  color: var(--floor-fg);
+}
+
+#surface {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+}
+
+/* Any `display` rule silently defeats the `hidden` attribute, which is how an
+   empty metrics readout still showed its labels. This makes hiding work for
+   every element, not just the ones we remembered. */
+[hidden] {
+  display: none !important;
+}
+
+#floor {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Ball marker.
+ *
+ * Colour carries the club so it reads from standing height without text, and
+ * each variant is a different size: the driver zone is the widest because the
+ * ball sits furthest forward. Sizes come from the client, which knows the
+ * surface in pixels; only appearance is here. */
+.marker {
+  --marker-colour: var(--floor-normal);
+  opacity: 0;
+  transition: opacity 260ms ease-out;
+}
+
+.marker[data-visible="true"] {
+  opacity: 1;
+}
+
+.marker[data-variant="driver"] {
+  --marker-colour: var(--floor-driver);
+}
+
+.marker[data-variant="normal"] {
+  --marker-colour: var(--floor-normal);
+}
+
+.marker[data-variant="putter"] {
+  --marker-colour: var(--floor-putter);
+}
+
+.marker__halo {
+  fill: var(--marker-colour);
+  opacity: 0.12;
+}
+
+.marker__ring {
+  fill: none;
+  stroke: var(--marker-colour);
+  stroke-width: 0.35vmin;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 0.6vmin var(--marker-colour));
+}
+
+.marker__ball {
+  fill: var(--floor-fg);
+  filter: drop-shadow(0 0 0.8vmin var(--marker-colour));
+}
+
+.marker[data-visible="true"] .marker__ring {
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Club path. Drawn under the marker so the ball stays readable. */
+.club-path {
+  stroke: var(--floor-path);
+  stroke-width: 0.7vmin;
+  stroke-linecap: round;
+  opacity: 0;
+  filter: drop-shadow(0 0 0.7vmin var(--floor-path));
+  transition: opacity 220ms ease-out;
+}
+
+.club-path[data-visible="true"] {
+  opacity: 0.95;
+}
+
+/* Shot metrics. Kept to the back edge of the surface so the hitting area stays
+   clear, and large enough to read while standing over the ball. */
+.metrics {
+  position: absolute;
+  top: 4%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 6vw;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+
+.metric__label {
+  font-size: clamp(0.6rem, 1.1vw, 1.1rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--floor-dim);
+}
+
+.metric__value {
+  font-size: clamp(1.6rem, 4.4vw, 5rem);
+  font-weight: 700;
+  color: var(--floor-fg);
+  text-shadow: 0 0 0.3em rgba(72, 217, 255, 0.45);
+}
+
+.metric__unit {
+  font-size: clamp(0.55rem, 1vw, 1rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--floor-dim);
+}
+
+/* Coaching line.
+ *
+ * Placed between the metrics and the marker, and deliberately smaller than the
+ * numbers: it is one idea to read on the way back to the ball, not a headline.
+ * The band carries how bad the fault was, so severity reads from colour at
+ * standing height without anybody having to parse a sentence. */
+.advice {
+  position: absolute;
+  top: 26%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  padding: 0 6vw;
+}
+
+.advice__text {
+  font-size: clamp(1.1rem, 3vw, 3.4rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--advice-colour, var(--floor-watch));
+  text-shadow: 0 0 0.3em var(--advice-colour, var(--floor-watch));
+}
+
+.advice[data-band="fine"] {
+  --advice-colour: var(--floor-fine);
+}
+
+.advice[data-band="watch"] {
+  --advice-colour: var(--floor-watch);
+}
+
+.advice[data-band="fault"] {
+  --advice-colour: var(--floor-fault);
+}
+
+/* While a model is being asked. Dimmed and breathing, so the floor shows that
+   something is being considered rather than appearing to have finished. */
+.advice[data-pending="true"] .advice__text {
+  opacity: 0.45;
+  animation: breathe 1.6s ease-in-out infinite;
+}
+
+/* Celebration layer.
+ *
+ * Two ideas only: rings that expand out of the middle of the surface, and one
+ * word. Geometry and type, because they cost nothing, load instantly, scale to
+ * any projector, and are nobody's intellectual property.
+ *
+ * Both variables come from the server on every snapshot. `--flourish-seconds`
+ * is the duration the director is actually holding the state for, so the
+ * animation and the lights finish together instead of each running to a length
+ * of its own. `--flourish-intensity` is the same dial the lights and the voice
+ * were given, and here it grows the rings, the type and the glow together — a
+ * par is a small pale word, an ace fills the surface.
+ *
+ * Animation only runs under `.flourish--running`, which the client removes and
+ * re-adds to restart a celebration. Without that, a snapshot resent for an
+ * unrelated reason would leave the label sitting at whatever frame it reached. */
+.flourish {
+  --flourish-seconds: 2s;
+  --flourish-intensity: 1;
+  --flourish-colour: var(--floor-par);
+  --flourish-size: calc(6vmin + 10vmin * var(--flourish-intensity));
+  --flourish-spread: calc(1 + 1.7 * var(--flourish-intensity));
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* The longest label is HOLE IN ONE at the top of the intensity scale, and on a
+     tall or narrow surface it is wider than the surface is. Padding plus wrapping
+     rather than shrinking the type: two readable lines are better than one line
+     nobody can read, and better than a word running off the edge of a mat. */
+  padding: 0 4vw;
+  /* The floor is projected onto a mat somebody stands on; nothing up here may
+     ever intercept a click meant for the page behind it. */
+  pointer-events: none;
+}
+
+.flourish[data-cue="par"] {
+  --flourish-colour: var(--floor-par);
+}
+
+.flourish[data-cue="birdie"] {
+  --flourish-colour: var(--floor-birdie);
+}
+
+.flourish[data-cue="eagle"] {
+  --flourish-colour: var(--floor-eagle);
+}
+
+.flourish[data-cue="albatross"] {
+  --flourish-colour: var(--floor-albatross);
+}
+
+.flourish[data-cue="hole_in_one"] {
+  --flourish-colour: var(--floor-landmark);
+}
+
+.flourish__rings {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flourish__ring {
+  position: absolute;
+  width: 30vmin;
+  height: 30vmin;
+  border: 0.25vmin solid var(--flourish-colour);
+  border-radius: 50%;
+  opacity: 0;
+  /* Transform and opacity only, so a ring expanding across the surface never
+     asks the projector's browser to lay anything out again. */
+  transform: scale(0.4);
+  filter: drop-shadow(0 0 1vmin var(--flourish-colour));
+}
+
+/* Staggered so the rings read as one gesture leaving the centre rather than as
+   three separate circles. Fractions of the effect's own duration, so the
+   spacing holds whether the effect is a second and a half or five. */
+.flourish--running .flourish__ring {
+  animation: flourish-ring calc(var(--flourish-seconds) * 0.62) ease-out 1 both;
+}
+
+.flourish--running .flourish__ring:nth-child(2) {
+  animation-delay: calc(var(--flourish-seconds) * 0.1);
+}
+
+.flourish--running .flourish__ring:nth-child(3) {
+  animation-delay: calc(var(--flourish-seconds) * 0.2);
+}
+
+@keyframes flourish-ring {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  18% {
+    opacity: calc(0.16 + 0.34 * var(--flourish-intensity));
+  }
+  100% {
+    opacity: 0;
+    transform: scale(var(--flourish-spread));
+  }
+}
+
+.flourish__label {
+  /* Positioned so it paints above the rings. Without this the rings — which are
+     absolutely positioned and therefore win the paint order — draw their stroke
+     across the middle of the word, which reads as an artifact rather than as a
+     celebration. */
+  position: relative;
+  max-width: 100%;
+  font-size: var(--flourish-size);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.18em;
+  /* The label is authored in the effects catalogue, never by a model and never
+     by a player, so it is a fixed vocabulary — but it is still assigned with
+     textContent, because that is the rule for every string that crosses the
+     wire. */
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--flourish-colour);
+  text-shadow: 0 0 0.3em var(--flourish-colour),
+    0 0 calc(0.4em + 0.7em * var(--flourish-intensity)) var(--flourish-colour);
+  opacity: 0;
+  transform: scale(0.86);
+}
+
+.flourish--running .flourish__label {
+  animation: flourish-label var(--flourish-seconds) ease-out 1 both;
+}
+
+/* Arrives with a slight overshoot, holds for most of the effect, then leaves.
+   The hold is the part that matters: a celebration that is still moving when it
+   disappears reads as a glitch rather than as a statement. */
+@keyframes flourish-label {
+  0% {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  12% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  22% {
+    transform: scale(1);
+  }
+  76% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+}
+
+.status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4vh 4vw;
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 320ms ease-out, transform 320ms ease-out;
+}
+
+/* Only a mode sent by the server makes the surface visible. Before the first
+   snapshot arrives the overlay renders nothing at all. */
+.status[data-mode="online"],
+.status[data-mode="starting"],
+.status[data-mode="shutting_down"] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.status__text {
+  font-size: clamp(3rem, 11vw, 14rem);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.05;
+  text-transform: uppercase;
+  text-shadow: 0 0 0.28em rgba(53, 255, 122, 0.55), 0 0 1.1em rgba(53, 255, 122, 0.28);
+}
+
+.status[data-mode="online"] .status__text {
+  color: var(--floor-accent);
+  animation: breathe 3.2s ease-in-out infinite;
+}
+
+.status[data-mode="shutting_down"] .status__text {
+  color: var(--floor-warn);
+  text-shadow: 0 0 0.28em rgba(255, 180, 58, 0.5);
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.88;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.link {
+  position: absolute;
+  right: 1.2vw;
+  bottom: 1.2vh;
+  font-size: clamp(0.7rem, 1vw, 1rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--floor-dim);
+  opacity: 0;
+  transition: opacity 220ms ease-out;
+}
+
+/* Shown only while the link is actually down, and only after the client's grace
+   period, so an OBS scene switch does not flash a warning onto the floor. */
+.link[data-state="down"] {
+  opacity: 1;
+  color: var(--floor-warn);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status,
+  .status__text,
+  .marker,
+  .marker__ring,
+  .club-path,
+  .advice__text,
+  .flourish__label,
+  .flourish__ring {
+    transition: none;
+    animation: none;
+  }
+
+  /* Still says what happened, without moving. The rings are the part that is
+     purely motion, so they go entirely rather than appearing frozen mid-expand. */
+  .flourish__label {
+    opacity: 1;
+    transform: none;
+  }
+
+  .flourish__rings {
+    display: none;
+  }
+}

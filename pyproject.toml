@@ -1,0 +1,156 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "caddiej"
+version = "0.1.0"
+description = "An event-driven orchestration layer for a home golf simulator"
+readme = "README.md"
+# Modern type hints and PEP 695 generics are used throughout; 3.12 is the floor.
+requires-python = ">=3.12"
+authors = [{ name = "CaddieJ contributors" }]
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["golf", "simulator", "gspro", "obs", "projection", "asyncio"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Framework :: AsyncIO",
+    "Intended Audience :: End Users/Desktop",
+    "Natural Language :: English",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Games/Entertainment :: Simulation",
+    "Topic :: Multimedia :: Video :: Capture",
+]
+# Dependency policy (see ARCHITECTURE.md): upstream-first and minimal. Each entry
+# must justify itself against the standard library, and major versions are capped
+# so an upstream break cannot land silently.
+dependencies = [
+    # Typed configuration and secret handling.
+    "pydantic-settings>=2.0,<3",
+    # OBS WebSocket v5 transport, confined to caddiej.adapters.obs.
+    "simpleobsws>=1.4.3,<2",
+    # HUD transport only: static files plus one WebSocket feed, bound to loopback.
+    # Not an application framework; routes hold no logic (see ARCHITECTURE.md).
+    "fastapi>=0.110,<1",
+    "uvicorn>=0.30,<1",
+    # uvicorn's WebSocket protocol implementation; declared directly rather than
+    # relying on it arriving transitively.
+    "websockets>=14,<18",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+    # Required by fastapi.testclient for ASGI request and WebSocket testing.
+    "httpx>=0.27",
+    "ruff>=0.11",
+    "mypy>=1.13",
+]
+# AI coaching. Optional because CaddieJ coaches from deterministic templates with
+# nothing installed, and because a golf simulator should not require a cloud
+# account to run. Confined to caddiej.adapters.openai.
+ai = [
+    "openai>=1.60,<3",
+]
+# Local text to speech. Optional because CaddieJ says nothing by default, and
+# because this is the heaviest thing in the project by an order of magnitude:
+# Kokoro brings a machine learning framework and a few hundred megabytes of
+# model weights. Confined to caddiej.adapters.kokoro and caddiej.adapters.audio.
+tts = [
+    "kokoro>=0.9.4,<1",
+    # PortAudio bindings for playback. Separate from the engine on purpose: a
+    # headless machine can render speech with SPEECH_OUTPUT=none and never need
+    # a sound card.
+    "sounddevice>=0.4,<1",
+]
+# Philips Hue lighting. Optional because CaddieJ touches nothing in the house by
+# default, and light enough that it is only an extra to keep the promise that a
+# feature nobody uses costs nothing. Confined to caddiej.adapters.hue.
+hue = [
+    # An async HTTP client. A bridge needs concurrent requests to several lamps
+    # within one tick and TLS against a self-signed certificate, which is more
+    # than urllib does well and much less than a Hue SDK brings with it.
+    "httpx>=0.27",
+]
+# The MCP translator, so an assistant can ask CaddieJ questions. Optional
+# because it is only needed in the process the assistant runtime starts, which
+# is not the process that runs the golf simulator: CaddieJ itself serves the
+# same tools over loopback HTTP with nothing extra installed. Confined to
+# caddiej.mcp (see ASSISTANT_API.md).
+mcp = [
+    "mcp>=2.1,<3",
+]
+
+[project.scripts]
+# Mirrors `python -m caddiej`; both routes share caddiej.__main__:main.
+caddiej = "caddiej.__main__:main"
+# The MCP translator. A separate entry point because it is a separate process
+# with a separate lifetime, started by an assistant runtime rather than by
+# somebody walking into a golf room.
+caddiej-mcp = "caddiej.mcp.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/caddiej"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+# Async tests are the norm here, so they need no per-test decorator.
+asyncio_mode = "auto"
+testpaths = ["tests"]
+# Integration tests additionally self-skip unless CADDIEJ_RUN_INTEGRATION=1, so a
+# default run never touches external systems.
+markers = [
+    "integration: requires an explicitly enabled external OBS instance",
+]
+
+[tool.ruff]
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# Explicit rather than "every plugin": the codebase uses `except Exception` as
+# a degradation boundary, nested `with` for teardown order, and Protocol stubs
+# with `...`. Those are style choices, not defects.
+select = ["E4", "E7", "E9", "F", "I", "UP"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+# mypy rather than Pyright: this tree is written with Protocol method stubs
+# (`def name(self) -> str: ...`) and PEP 695 generics. Pyright treats those
+# stubs as missing returns and needs a suppression per method; mypy understands
+# them. `strict` is almost a clean pass on `src/` — the remaining issues are
+# real, and optional third-party SDKs are ignored per-module below rather than
+# with `# type: ignore` in source.
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+packages = ["caddiej"]
+explicit_package_bases = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+# Installed as a required dependency but ships no stubs. Confined to
+# adapters/obs/client.py; the override is the suppression.
+module = "simpleobsws"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Optional extras. Absence is a supported install; the adapters already
+# treat a missing import as "not configured".
+module = [
+    "kokoro",
+    "sounddevice",
+    "openai",
+    "mcp",
+    "mcp.*",
+]
+ignore_missing_imports = true

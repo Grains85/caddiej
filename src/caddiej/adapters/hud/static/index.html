@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CaddieJ Floor</title>
+    <link rel="stylesheet" href="/static/css/floor.css" />
+  </head>
+  <body>
+    <!-- Everything inside #surface arrives as calibrated surface coordinates
+         (0..1). Golf geometry is already done; the client only converts those
+         points to pixels. Diagnostics stay outside so they are never mapped. -->
+    <div id="surface">
+      <!-- The viewBox is set from the surface's pixel size, so a circle stays a
+           circle whatever aspect ratio the projector has. -->
+      <svg id="floor" preserveAspectRatio="none" aria-hidden="true">
+        <line id="club-path" class="club-path" x1="0" y1="0" x2="0" y2="0" />
+        <g id="marker" class="marker">
+          <circle id="marker-halo" class="marker__halo" cx="0" cy="0" r="0" />
+          <circle id="marker-ring" class="marker__ring" cx="0" cy="0" r="0" />
+          <circle id="marker-ball" class="marker__ball" cx="0" cy="0" r="0" />
+        </g>
+      </svg>
+
+      <div id="status" class="status" data-mode="" aria-live="polite">
+        <span id="status-text" class="status__text"></span>
+      </div>
+
+      <div id="metrics" class="metrics" hidden>
+        <div class="metric">
+          <span class="metric__label">Ball</span>
+          <span id="metric-speed" class="metric__value"></span>
+          <span class="metric__unit">mph</span>
+        </div>
+        <div class="metric">
+          <span class="metric__label">Launch</span>
+          <span id="metric-launch" class="metric__value"></span>
+          <span class="metric__unit">deg</span>
+        </div>
+        <!-- Hidden unless the launch monitor measured carry; most do not. -->
+        <div id="metric-carry-row" class="metric" hidden>
+          <span class="metric__label">Carry</span>
+          <span id="metric-carry" class="metric__value"></span>
+          <span class="metric__unit">yds</span>
+        </div>
+      </div>
+
+      <!-- One coaching line. Some of this text is written by a language model,
+           so the client assigns it with textContent and never as markup. -->
+      <div id="advice" class="advice" data-band="" data-pending="false" hidden>
+        <span id="advice-text" class="advice__text"></span>
+      </div>
+
+      <!-- The celebration layer, last so it draws over everything else.
+           Deliberately geometry and type only: expanding rings and a word. No
+           images, no video, no fonts beyond the page's own, so there is nothing
+           here anybody licenses and nothing to fail to load on a projector. -->
+      <div id="flourish" class="flourish" data-cue="" aria-live="polite" hidden>
+        <div class="flourish__rings" aria-hidden="true">
+          <span class="flourish__ring"></span>
+          <span class="flourish__ring"></span>
+          <span class="flourish__ring"></span>
+        </div>
+        <span id="flourish-label" class="flourish__label"></span>
+      </div>
+    </div>
+
+    <!-- Diagnostics live outside the surface: they are for the operator, not the
+         projected floor, and must not be calibrated or keystoned. -->
+    <div id="link" class="link" data-state="connecting">
+      <span id="link-text">connecting</span>
+    </div>
+
+    <script type="module" src="/static/js/client.js"></script>
+  </body>
+</html>
