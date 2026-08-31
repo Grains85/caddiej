@@ -112,8 +112,8 @@ async def test_stop_server_reports_a_shutdown_that_overruns_the_budget() -> None
 def test_the_presenter_is_placed_where_the_operator_configured_the_tee() -> None:
     settings = Settings(
         _env_file=None,  # type: ignore[call-arg]
-        FLOOR_TEE_X=0.4,
-        FLOOR_TEE_Y=0.9,
+        FLOOR_TEE_X_M=0.4,
+        FLOOR_TEE_Y_M=0.9,
         FLOOR_CLUB_PATH_LENGTH=0.5,
     )
     floor = FloorService()

@@ -212,16 +212,24 @@ class PlayFlow:
         # monitor names the club in its shot message, so knowing which club hit
         # this shot is knowledge only the domain has.
         shot = replace(event.shot, club=self._club)
-        self._showing_shot = True
         self._shot_id = shot.shot_id
-        self._floor.show_shot(shot)
-        # Whatever was said about the previous shot is now about the wrong swing.
-        await self._cancel_advice_timer()
-        self._floor.clear_advice()
-        self._present()
-        self._restart_display_timer()
         # The floor first, then the announcement. A player is standing in front
-        # of the projector waiting for a number; a subscriber is not.
+        # of the projector waiting for a number; a subscriber is not. A
+        # rendering failure must not erase the shot from history, video, or
+        # coaching: those subscribe to ShotCompleted, not to the projector.
+        # `_showing_shot` is set only after the floor accepts the shot, so a
+        # presentation failure cannot leave the address marker suppressed with
+        # no display timer to restore it.
+        try:
+            self._floor.show_shot(shot)
+            self._showing_shot = True
+            # Whatever was said about the previous shot is now about the wrong swing.
+            await self._cancel_advice_timer()
+            self._floor.clear_advice()
+            self._present()
+            self._restart_display_timer()
+        except Exception:
+            logger.exception("play_floor_presentation_failed")
         await self._publish(ShotCompleted(shot=shot))
 
     # --- what CaddieJ concluded -------------------------------------------

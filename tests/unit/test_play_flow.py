@@ -303,6 +303,37 @@ async def test_a_shot_is_credited_to_the_club_in_play() -> None:
     assert floor.shots[0].club == club
 
 
+async def test_a_shot_is_announced_even_when_the_floor_cannot_draw_it(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    class BrokenFloor(FloorSpy):
+        def show_shot(self, shot: Shot) -> None:
+            raise RuntimeError("the projector is unplugged")
+
+    caplog.set_level("ERROR")
+    floor = BrokenFloor()
+    announcements = Announcements()
+    subject = flow(floor, announcements=announcements)
+    club = Club(kind=ClubKind.WEDGE, vendor_code="PW")
+    await subject.on_club_selected(ClubSelected(club=club))
+    assert floor.showing_address
+
+    await subject.on_shot(ShotIngested(shot=a_shot()))
+
+    announced = announcements.shots()
+    assert len(announced) == 1
+    assert announced[0].club == club
+    assert "show_shot" not in floor.calls
+    assert any(
+        record.message == "play_floor_presentation_failed" for record in caplog.records
+    )
+    # Floor failure must not leave PlayFlow permanently in "showing shot",
+    # or the address marker would never return.
+    await subject.on_ball_cleared(BallCleared())
+    assert floor.showing_address
+    await subject.aclose()
+
+
 async def test_a_shot_is_announced_once_the_domain_has_attributed_it() -> None:
     # Anything that stores or speaks about a shot needs one that knows which
     # club hit it, which is not true of the shot as it was ingested.

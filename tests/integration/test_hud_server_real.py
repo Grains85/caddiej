@@ -1,7 +1,7 @@
 """End-to-end HUD tests over a real loopback socket.
 
-These need no external software, but they bind a port and speak real HTTP and
-WebSocket, so they are gated like the other integration tests.
+These need no external software. They bind a loopback port and speak real
+HTTP and WebSocket, and they run in ordinary CI.
 """
 
 import asyncio
@@ -22,13 +22,7 @@ from caddiej.floor import (
     ShotMetrics,
 )
 
-pytestmark = [
-    pytest.mark.integration,
-    pytest.mark.skipif(
-        os.getenv("CADDIEJ_RUN_INTEGRATION") != "1",
-        reason="set CADDIEJ_RUN_INTEGRATION=1 to bind a real loopback port",
-    ),
-]
+pytestmark = pytest.mark.loopback
 
 
 class RunningHud:

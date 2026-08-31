@@ -22,10 +22,15 @@ The default bay is 1 m × 1 m, which makes the two spaces the same number, so a
 fresh checkout looks the way it always has. Set the real bay (4 × 3 is a
 typical projected rectangle) when you want a 10° path to be 10° on the floor.
 
-Where the marker sits is still configured by eye — `FLOOR_TEE_X` and
-`FLOOR_TEE_Y` — until a wizard measures the mat. A later homography of the
-projected quadrilateral will reuse that same mapping; it is not a CSS
-transform in the browser.
+Where the marker sits is configured in metres on that same physical
+floor — `FLOOR_TEE_X_M` and `FLOOR_TEE_Y_M` — and mapped onto the surface
+the same way the club path is. The browser only ever receives surface
+coordinates. A later wizard measures the mat in this space; it is not a
+CSS transform in the browser.
+
+The old `FLOOR_TEE_X` / `FLOOR_TEE_Y` names were 0–1 fractions of the bay.
+They still convert to metres if the `_M` variables are unset. Do not set
+both. `FLOOR_CLUB_PATH_LENGTH` is metres, default 1.2 m.
 
 ## What the floor does during a shot
 

@@ -1,9 +1,10 @@
 """Application configuration loaded from environment variables."""
 
+import warnings
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Self
 
-from pydantic import BeforeValidator, Field, SecretStr
+from pydantic import BeforeValidator, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from caddiej.domain.coaching import SEVERITY_FINE
@@ -113,25 +114,41 @@ class Settings(BaseSettings):
         gt=0.0,
         validation_alias="FLOOR_DEPTH_M",
     )
-    # Where the ball goes, in calibrated surface coordinates (0..1). Set by
-    # eye for now: a later wizard will measure the mat. y is towards the
-    # player, so a value near the bottom puts the marker where someone stands.
-    floor_tee_x: float = Field(
+    # Where the ball goes, in metres on the physical floor. Origin is the
+    # far-left corner of the back of the bay; y is towards the player. The
+    # default 0.5 m × 0.72 m on the default 1 m × 1 m bay is the same visual
+    # placement CaddieJ has always used. A later wizard measures the mat in
+    # this same space.
+    floor_tee_x_m: float = Field(
         default=0.5,
+        ge=0.0,
+        validation_alias="FLOOR_TEE_X_M",
+    )
+    floor_tee_y_m: float = Field(
+        default=0.72,
+        ge=0.0,
+        validation_alias="FLOOR_TEE_Y_M",
+    )
+    # Deprecated aliases: a 0–1 fraction of the bay, converted to metres
+    # only when the corresponding _M variable is unset. Not a second source
+    # of truth after validation.
+    floor_tee_x: float | None = Field(
+        default=None,
         ge=0.0,
         le=1.0,
         validation_alias="FLOOR_TEE_X",
     )
-    floor_tee_y: float = Field(
-        default=0.72,
+    floor_tee_y: float | None = Field(
+        default=None,
         ge=0.0,
         le=1.0,
         validation_alias="FLOOR_TEE_Y",
     )
-    # How far the club-path line reaches, in metres of the physical floor.
-    # On the default 1 m × 1 m bay this is the same number it always was.
+    # How far the club-path line is drawn, in metres of the physical floor.
+    # About a pace: long enough to read at the player's feet on a real bay,
+    # short enough not to run the length of the hitting strip.
     floor_club_path_length: float = Field(
-        default=0.35,
+        default=1.2,
         gt=0.0,
         validation_alias="FLOOR_CLUB_PATH_LENGTH",
     )
@@ -847,3 +864,57 @@ class Settings(BaseSettings):
         default=False,
         validation_alias="OBS_PROVISION_FLOOR_SOURCE",
     )
+
+    @model_validator(mode="after")
+    def _resolve_physical_tee(self) -> Self:
+        """One physical tee. Legacy 0–1 values convert, they do not compete."""
+
+        x_m = self.floor_tee_x_m
+        y_m = self.floor_tee_y_m
+        if (
+            "floor_tee_x_m" not in self.model_fields_set
+            and self.floor_tee_x is not None
+        ):
+            warnings.warn(
+                "FLOOR_TEE_X is deprecated; use FLOOR_TEE_X_M (metres on the "
+                "physical floor). The 0–1 value was converted using FLOOR_WIDTH_M.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            x_m = self.floor_tee_x * self.floor_width_m
+        elif "floor_tee_x_m" in self.model_fields_set and self.floor_tee_x is not None:
+            warnings.warn(
+                "FLOOR_TEE_X is ignored because FLOOR_TEE_X_M is set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        if (
+            "floor_tee_y_m" not in self.model_fields_set
+            and self.floor_tee_y is not None
+        ):
+            warnings.warn(
+                "FLOOR_TEE_Y is deprecated; use FLOOR_TEE_Y_M (metres on the "
+                "physical floor). The 0–1 value was converted using FLOOR_DEPTH_M.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            y_m = self.floor_tee_y * self.floor_depth_m
+        elif "floor_tee_y_m" in self.model_fields_set and self.floor_tee_y is not None:
+            warnings.warn(
+                "FLOOR_TEE_Y is ignored because FLOOR_TEE_Y_M is set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        if not 0.0 <= x_m <= self.floor_width_m:
+            raise ValueError(
+                "FLOOR_TEE_X_M must lie on the configured floor "
+                f"(0..{self.floor_width_m} m), got {x_m}"
+            )
+        if not 0.0 <= y_m <= self.floor_depth_m:
+            raise ValueError(
+                "FLOOR_TEE_Y_M must lie on the configured floor "
+                f"(0..{self.floor_depth_m} m), got {y_m}"
+            )
+        self.floor_tee_x_m = x_m
+        self.floor_tee_y_m = y_m
+        return self

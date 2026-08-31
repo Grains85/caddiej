@@ -5,18 +5,23 @@ driver"; deciding that this means a wide marker at the tee position, and that a
 club path is a physical ray of a certain length at a certain angle from it, is
 a presentation decision and lives here.
 
-The tee is still placed on the calibrated surface, by eye, until a wizard
-measures the mat. The path is not: its angle is the launch-monitor number, its
-length is metres, and its endpoint is computed on the physical floor before
-anything is mapped onto the surface. Projector pixels never enter that
-calculation.
+The tee is a point on the physical floor, in metres. A later wizard measures
+the mat in that same space. The path already lives there: its angle is the
+launch-monitor number, its length is metres, and both tee and path endpoint
+are mapped onto the surface only when something is sent to the browser.
+Projector pixels never enter that calculation.
 """
 
 import logging
 
 from caddiej.domain.coaching import band_for
 from caddiej.domain.shot import Club, ClubKind, Shot
-from caddiej.floor.geometry import DEFAULT_CALIBRATION, FloorCalibration, FloorPoint
+from caddiej.floor.geometry import (
+    DEFAULT_CALIBRATION,
+    FloorCalibration,
+    FloorPoint,
+    PhysicalPoint,
+)
 from caddiej.floor.service import FloorService
 from caddiej.floor.state import (
     ClubPath,
@@ -54,8 +59,8 @@ class FloorPresenter:
     def __init__(
         self,
         floor: FloorService,
-        tee: FloorPoint,
-        club_path_length: float = 0.35,
+        tee: PhysicalPoint,
+        club_path_length: float = 1.2,
         calibration: FloorCalibration | None = None,
     ) -> None:
         self._floor = floor
@@ -63,9 +68,14 @@ class FloorPresenter:
         self._club_path_length = club_path_length
         self._calibration = DEFAULT_CALIBRATION if calibration is None else calibration
 
+    def _tee_on_surface(self) -> FloorPoint:
+        """The browser only ever sees surface coordinates."""
+
+        return self._calibration.to_surface(self._tee)
+
     def show_address(self, club: Club | None) -> None:
         self._stand_down_the_banner()
-        self._floor.show_marker(self._tee, marker_variant_for(club))
+        self._floor.show_marker(self._tee_on_surface(), marker_variant_for(club))
 
     def hide_address(self) -> None:
         self._floor.hide_marker()
@@ -115,7 +125,7 @@ class FloorPresenter:
             return
         self._floor.set_club_path(
             ClubPath(
-                start=self._tee,
+                start=self._tee_on_surface(),
                 angle_degrees=angle,
                 length=self._club_path_length,
                 calibration=self._calibration,

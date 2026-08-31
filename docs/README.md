@@ -10,6 +10,9 @@
   using OBS as the compositor.
 - [GSPro and a launch monitor](gspro.md) — how CaddieJ sees shots, and how to
   play a round without either.
+- [First hardware validation](hardware-validation.md) — the first real
+  ProTee VX + GSPro session: minimal `.env`, Windows commands, health
+  fields, and what only hardware can answer.
 - [Shot history](history.md) — the SQLite file, what is in it, and what is not.
 
 ## Optional integrations

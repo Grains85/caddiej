@@ -1,5 +1,8 @@
 from pathlib import Path
 
+import pytest
+from pydantic import ValidationError
+
 from caddiej.config import Settings
 
 
@@ -112,3 +115,50 @@ def test_video_settings_load_from_the_environment(monkeypatch) -> None:
     assert settings.video_pre_impact_seconds == 3
     assert settings.video_post_impact_seconds == 2
     assert settings.video_shot_report_lag_seconds == 0.4
+
+
+def test_the_tee_defaults_to_today_s_visual_placement() -> None:
+    settings = Settings(_env_file=None)
+
+    assert settings.floor_tee_x_m == 0.5
+    assert settings.floor_tee_y_m == 0.72
+    assert settings.floor_club_path_length == 1.2
+
+
+def test_a_physical_tee_off_the_floor_is_rejected() -> None:
+    with pytest.raises(ValidationError, match="FLOOR_TEE_X_M"):
+        Settings(
+            _env_file=None,  # type: ignore[call-arg]
+            FLOOR_WIDTH_M=2.0,
+            FLOOR_DEPTH_M=2.0,
+            FLOOR_TEE_X_M=2.5,
+            FLOOR_TEE_Y_M=0.5,
+        )
+
+
+def test_legacy_normalized_tee_converts_to_metres() -> None:
+    with pytest.warns(DeprecationWarning, match="FLOOR_TEE_X is deprecated"):
+        settings = Settings(
+            _env_file=None,  # type: ignore[call-arg]
+            FLOOR_WIDTH_M=4.0,
+            FLOOR_DEPTH_M=3.0,
+            FLOOR_TEE_X=0.5,
+            FLOOR_TEE_Y=0.72,
+        )
+
+    assert settings.floor_tee_x_m == pytest.approx(2.0)
+    assert settings.floor_tee_y_m == pytest.approx(2.16)
+
+
+def test_physical_tee_wins_when_both_forms_are_set() -> None:
+    with pytest.warns(DeprecationWarning, match="ignored"):
+        settings = Settings(
+            _env_file=None,  # type: ignore[call-arg]
+            FLOOR_TEE_X_M=0.4,
+            FLOOR_TEE_Y_M=0.6,
+            FLOOR_TEE_X=0.9,
+            FLOOR_TEE_Y=0.1,
+        )
+
+    assert settings.floor_tee_x_m == 0.4
+    assert settings.floor_tee_y_m == 0.6

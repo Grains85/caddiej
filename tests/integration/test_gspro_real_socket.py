@@ -4,12 +4,11 @@ The unit tests drive the adapter through in-memory connections, which proves the
 logic but not the plumbing. These prove the plumbing: a real listener, a real
 connection to a stand-in simulator, and real TCP framing behaviour.
 
-No external software is needed — the simulator here is CaddieJ's own fake — but
-these bind ports, so they are gated like the other integration tests.
+No external software is needed — the simulator here is CaddieJ's own fake.
+These bind loopback ports and run in ordinary CI, including on Windows.
 """
 
 import asyncio
-import os
 
 import pytest
 
@@ -41,13 +40,7 @@ from caddiej.domain.events import (
 from caddiej.domain.shot import ClubKind
 from caddiej.runtime.backoff import Backoff
 
-pytestmark = [
-    pytest.mark.integration,
-    pytest.mark.skipif(
-        os.getenv("CADDIEJ_RUN_INTEGRATION") != "1",
-        reason="set CADDIEJ_RUN_INTEGRATION=1 to bind a real loopback port",
-    ),
-]
+pytestmark = pytest.mark.loopback
 
 
 class RealBridge:

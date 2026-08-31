@@ -359,16 +359,28 @@ def test_default_club_path_endpoints_match_the_old_normalized_formula() -> None:
         assert path.end.y == pytest.approx(expected.y)
 
 
-def test_the_configured_tee_still_lands_on_the_same_surface_point() -> None:
-    # Marker placement is surface coordinates, set by eye. Changing the
-    # physical size of the bay must not slide the marker; it changes what a
-    # metre means, not where the operator put the ball.
+def test_a_physical_tee_is_mapped_onto_the_surface() -> None:
+    # The tee lives in metres. On a 4 m × 3 m bay, 0.5 m × 0.72 m is not
+    # the old 0.5 × 0.72 surface point; that was the 1 m × 1 m identity.
     floor = FloorService()
     presenter = FloorPresenter(
         floor,
-        tee=FloorPoint(x=0.5, y=0.72),
-        club_path_length=0.35,
+        tee=PhysicalPoint(x_m=0.5, y_m=0.72),
+        club_path_length=1.2,
         calibration=FOUR_BY_THREE_CAL,
+    )
+
+    presenter.show_address(None)
+
+    assert floor.state.marker.position == FloorPoint(x=0.125, y=0.24)
+
+
+def test_the_default_physical_tee_keeps_today_s_surface_point() -> None:
+    floor = FloorService()
+    presenter = FloorPresenter(
+        floor,
+        tee=PhysicalPoint(x_m=0.5, y_m=0.72),
+        club_path_length=1.2,
     )
 
     presenter.show_address(None)
@@ -380,7 +392,7 @@ def test_the_presenter_draws_a_physical_path_from_the_configured_tee() -> None:
     floor = FloorService()
     presenter = FloorPresenter(
         floor,
-        tee=FloorPoint(x=0.5, y=0.72),
+        tee=PhysicalPoint(x_m=0.5, y_m=0.72),
         club_path_length=1.0,
         calibration=FOUR_BY_THREE_CAL,
     )
@@ -389,7 +401,7 @@ def test_the_presenter_draws_a_physical_path_from_the_configured_tee() -> None:
 
     path = floor.state.club_path
     assert path is not None
-    assert path.start == FloorPoint(x=0.5, y=0.72)
+    assert path.start == FloorPoint(x=0.125, y=0.24)
     assert path.angle_degrees == 45.0
     assert abs(path.end.x - path.start.x) != pytest.approx(
         abs(path.end.y - path.start.y)

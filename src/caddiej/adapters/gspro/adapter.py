@@ -647,10 +647,16 @@ class GSProConnectAdapter:
             await self._reject(error.reason, error.detail)
             return
 
-        if response.code == _PLAYER_INFO_CODE:
+        # Player information is applied whenever GSPro sent a Player block,
+        # including on a 200 acknowledgement. The code decides what else the
+        # response means; it does not gate whether a present Player is used.
+        if response.player is not None:
             await self._apply_player_info(response)
-        elif response.code == _ACK_CODE:
+
+        if response.code == _ACK_CODE:
             await self._publish(SimulatorAcknowledgedShot())
+        elif response.code == _PLAYER_INFO_CODE:
+            pass
         elif response.code >= _ERROR_CODE_FLOOR:
             logger.warning(
                 "gspro_simulator_reported_error",

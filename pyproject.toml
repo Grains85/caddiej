@@ -104,10 +104,12 @@ addopts = "-ra"
 # Async tests are the norm here, so they need no per-test decorator.
 asyncio_mode = "auto"
 testpaths = ["tests"]
-# Integration tests additionally self-skip unless CADDIEJ_RUN_INTEGRATION=1, so a
-# default run never touches external systems.
+# Hardware and credentialed tests self-skip unless CADDIEJ_RUN_INTEGRATION=1.
+# Loopback tests bind a local port but need no external service, so they run
+# in the default suite on every CI platform, including Windows.
 markers = [
-    "integration: requires an explicitly enabled external OBS instance",
+    "integration: requires an explicitly enabled external system",
+    "loopback: binds a local TCP port; no OBS, camera, or credentials",
 ]
 
 [tool.ruff]

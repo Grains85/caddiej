@@ -701,7 +701,6 @@ async def test_readiness_repeating_is_not_a_change() -> None:
 
 
 async def test_a_club_change_from_the_simulator_is_reported() -> None:
-    # The 201 response is the only place the club in play is ever stated.
     async with Harness() as harness:
         await harness.connect_monitor()
 
@@ -715,6 +714,30 @@ async def test_a_club_change_from_the_simulator_is_reported() -> None:
         assert second.club.vendor_code == "PT"
 
 
+async def test_player_information_on_a_200_is_applied() -> None:
+    async with Harness() as harness:
+        await harness.connect_monitor()
+
+        await harness.simulator.push(shot_acknowledgement(handed="RH", club="DR"))
+        club = await harness.expect(ClubSelected)
+        await harness.expect(SimulatorAcknowledgedShot)
+
+        assert club.club.kind is ClubKind.DRIVER
+        assert club.club.vendor_code == "DR"
+
+
+async def test_a_200_without_a_player_block_is_only_an_acknowledgement() -> None:
+    async with Harness() as harness:
+        await harness.connect_monitor()
+
+        await harness.simulator.push(shot_acknowledgement())
+        await harness.expect(SimulatorAcknowledgedShot)
+        await harness.quiesce()
+
+        assert harness.of_type(ClubSelected) == []
+        assert harness.of_type(HandednessChanged) == []
+
+
 async def test_the_same_club_reported_repeatedly_is_one_change() -> None:
     async with Harness() as harness:
         await harness.connect_monitor()
@@ -726,12 +749,35 @@ async def test_the_same_club_reported_repeatedly_is_one_change() -> None:
         assert len(harness.of_type(ClubSelected)) == 1
 
 
+async def test_the_same_club_on_a_200_is_still_one_change() -> None:
+    async with Harness() as harness:
+        await harness.connect_monitor()
+
+        for _ in range(4):
+            await harness.simulator.push(shot_acknowledgement(handed="RH", club="I7"))
+        await harness.quiesce()
+
+        assert len(harness.of_type(ClubSelected)) == 1
+        assert len(harness.of_type(SimulatorAcknowledgedShot)) == 4
+
+
 async def test_handedness_is_reported_when_it_changes() -> None:
     async with Harness() as harness:
         await harness.connect_monitor()
 
         await harness.simulator.push(player_information("LH", "DR"))
         changed = await harness.expect(HandednessChanged)
+
+        assert changed.handedness is Handedness.LEFT
+
+
+async def test_handedness_on_a_200_is_applied() -> None:
+    async with Harness() as harness:
+        await harness.connect_monitor()
+
+        await harness.simulator.push(shot_acknowledgement(handed="LH", club="DR"))
+        changed = await harness.expect(HandednessChanged)
+        await harness.expect(SimulatorAcknowledgedShot)
 
         assert changed.handedness is Handedness.LEFT
 

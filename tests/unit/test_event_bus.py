@@ -9,6 +9,8 @@ from caddiej.core import (
     AsyncEventBus,
     Delivery,
     Event,
+    EventBusClosed,
+    EventBusState,
     EventClock,
     SubscriberOverrun,
 )
@@ -52,7 +54,7 @@ async def test_event_bus_dispatches_events_before_stopping() -> None:
 async def test_event_bus_requires_start_before_publish() -> None:
     bus = AsyncEventBus()
 
-    with pytest.raises(RuntimeError, match="not running"):
+    with pytest.raises(EventBusClosed, match="stopped"):
         await bus.publish(SampleEvent(value=1))
 
 
@@ -159,36 +161,38 @@ class TestDraining:
         await asyncio.wait_for(bus.stop(timeout=0.05), 2.0)
 
         # And it really is stopped, rather than left running behind a timeout.
-        with pytest.raises(RuntimeError, match="not running"):
+        with pytest.raises(EventBusClosed, match="stopped"):
             await bus.publish(SampleEvent(value=2))
 
-    async def test_a_handler_may_publish_while_the_bus_is_stopping(self) -> None:
-        """The last thing a handler does on the way out is often to announce an
-        outcome — a clip abandoned, a sentence dropped — and a bus that declared
-        itself stopped before its worker had finished would turn that into an
-        exception thrown out of shutdown.
-
-        Whether the announcement is then dispatched is a separate question, and
-        the answer is no: stop has already closed the queues. Which is
-        why `caddiej.app` drains the bus before it closes anything, rather than
-        relying on this.
+    async def test_a_handler_that_publishes_while_the_bus_is_stopping_is_refused(
+        self,
+    ) -> None:
+        """Stop has already closed the queues. Returning success for an event
+        that will not be dispatched is how an announcement disappears. Drain
+        first if the last shot still has consequences to publish.
         """
 
         bus = AsyncEventBus()
-        published: list[int] = []
+        refused: list[EventBusState] = []
+        in_handler = asyncio.Event()
 
         async def echo(event: SampleEvent) -> None:
             if event.value == 0:
-                await bus.publish(SampleEvent(value=99))
-                published.append(99)
+                in_handler.set()
+                while bus.state is not EventBusState.STOPPING:
+                    await asyncio.sleep(0)
+                try:
+                    await bus.publish(SampleEvent(value=99))
+                except EventBusClosed as error:
+                    refused.append(error.state)
 
         bus.subscribe(SampleEvent, echo)
         await bus.start()
         await bus.publish(SampleEvent(value=0))
-
+        await asyncio.wait_for(in_handler.wait(), 1.0)
         await bus.stop(timeout=2.0)
 
-        assert published == [99], "publishing from a closing handler must not raise"
+        assert refused == [EventBusState.STOPPING]
 
 
 class TestIsolation:
@@ -519,24 +523,71 @@ class TestPublishDuringShutdown:
         await bus.start()
         await bus.stop()
 
-        with pytest.raises(RuntimeError, match="not running"):
+        with pytest.raises(EventBusClosed, match="stopped"):
             await bus.publish(SampleEvent(value=1))
 
-    async def test_publish_during_stop_from_a_handler_does_not_raise(self) -> None:
+    async def test_publish_during_stop_from_a_handler_raises(self) -> None:
         bus = AsyncEventBus()
-        published = asyncio.Event()
+        seen: list[EventBusState] = []
+        in_handler = asyncio.Event()
 
         async def echo(event: SampleEvent) -> None:
             if event.value == 0:
-                await bus.publish(SampleEvent(value=99))
-                published.set()
+                in_handler.set()
+                while bus.state is not EventBusState.STOPPING:
+                    await asyncio.sleep(0)
+                try:
+                    await bus.publish(SampleEvent(value=99))
+                except EventBusClosed as error:
+                    seen.append(error.state)
 
         bus.subscribe(SampleEvent, echo)
         await bus.start()
         await bus.publish(SampleEvent(value=0))
+        await asyncio.wait_for(in_handler.wait(), 1.0)
         await bus.stop(timeout=2.0)
 
-        assert published.is_set()
+        assert seen == [EventBusState.STOPPING]
+
+    async def test_cascaded_publish_during_drain_is_accepted_and_dispatched(
+        self,
+    ) -> None:
+        bus = AsyncEventBus()
+        seen: list[int] = []
+        draining = asyncio.Event()
+        release = asyncio.Event()
+
+        async def first(event: SampleEvent) -> None:
+            if event.value == 0:
+                await draining.wait()
+                await bus.publish(SampleEvent(value=1))
+            seen.append(event.value)
+            if event.value == 1:
+                release.set()
+
+        bus.subscribe(SampleEvent, first)
+        await bus.start()
+        try:
+            await bus.publish(SampleEvent(value=0))
+            drain = asyncio.create_task(bus.drain(timeout=2.0))
+            await asyncio.sleep(0)
+            assert bus.state is EventBusState.DRAINING
+            draining.set()
+            assert await drain is True
+            await asyncio.wait_for(release.wait(), 1.0)
+            assert seen == [0, 1]
+        finally:
+            await bus.stop(timeout=1.0)
+
+    async def test_publish_never_returns_success_for_a_discarded_event(self) -> None:
+        bus = AsyncEventBus()
+        await bus.start()
+        await bus.stop()
+
+        with pytest.raises(EventBusClosed):
+            await bus.publish(SampleEvent(value=1))
+        assert bus.health().dropped == 0
+        assert bus.health().refused == 0
 
 
 def test_health_does_not_use_event_ids_as_keys() -> None:

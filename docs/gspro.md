@@ -34,6 +34,9 @@ dropped, so a launch monitor that vanished without closing its socket — a lapt
 lid, a dropped wireless link — cannot hold the single bridge slot for the rest of
 the evening.
 
+The first real ProTee VX + GSPro session has a known-minimal profile and a
+stage list in [First hardware validation](hardware-validation.md).
+
 ## Playing a round without GSPro
 
 A scripted round — driver, iron, wedge, putt, on a loop — can be played by a fake

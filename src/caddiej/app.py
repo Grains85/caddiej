@@ -12,7 +12,12 @@ from caddiej.adapters.api import (
     create_api_app,
     is_loopback_bind,
 )
-from caddiej.adapters.gspro import build_adapter, run_simulated_round
+from caddiej.adapters.gspro import (
+    GSProConnectAdapter,
+    GSProHealth,
+    build_adapter,
+    run_simulated_round,
+)
 from caddiej.adapters.hud import ConnectionRegistry, HudServer, create_app, overlay_url
 from caddiej.adapters.obs import ObsClient, ObsConnectionError
 from caddiej.assistant.commands import CommandFacade
@@ -25,11 +30,12 @@ from caddiej.core import AsyncEventBus
 from caddiej.core.events import Event
 from caddiej.domain import CoachingFocus, PlayFlow
 from caddiej.domain.event_policy import delivery_for, queue_size_for
+from caddiej.domain.events import LinkState
 from caddiej.effects import EffectDirector, build_effect_director, obs_clients
 from caddiej.floor import (
-    FloorPoint,
     FloorPresenter,
     FloorService,
+    PhysicalPoint,
     RectangularCalibration,
     rectangular_calibration,
     run_demo,
@@ -73,6 +79,12 @@ async def run(settings: Settings | None = None) -> None:
     )
     play.subscribe(event_bus)
 
+    # Built here so `/healthz` can ask it before anything is listening. `serve()`
+    # is not called until the lifecycle starts the ingestion task.
+    gspro = _GSProHealth()
+    if resolved.gspro_mode == "interpose":
+        gspro.attach(build_adapter(resolved, event_bus.publish))
+
     history = _build_history(resolved)
     # Opening cannot fail loudly: history that will not start disables itself so
     # that a locked file or a full disk never stops someone hitting balls.
@@ -97,6 +109,7 @@ async def run(settings: Settings | None = None) -> None:
                 "lighting": lambda: asdict(lighting.health()),
                 "effects": lambda: asdict(effects.health()),
                 "event_bus": lambda: asdict(event_bus.health()),
+                "gspro": gspro.snapshot,
             },
         ),
         host=resolved.hud_host,
@@ -125,6 +138,7 @@ async def run(settings: Settings | None = None) -> None:
             "speech": subsystem_probe(speech.health),
             "lighting": subsystem_probe(lighting.health),
             "effects": subsystem_probe(effects.health),
+            "gspro": gspro.subsystem,
         },
     )
     # Everything below is inside the try, including opening the subsystems. An
@@ -210,7 +224,7 @@ async def run(settings: Settings | None = None) -> None:
                         logger.warning("floor_demo_ignored_while_gspro_enabled")
                     play.start()
 
-                ingestion = _start_gspro(resolved, supervisor, event_bus)
+                ingestion = _start_gspro(resolved, supervisor, event_bus, gspro)
 
                 # Last, and on its own terms. Nothing above waits on it, and a
                 # failure to start is reported and stepped over: an assistant
@@ -669,23 +683,79 @@ def _floor_calibration(settings: Settings) -> RectangularCalibration:
 def _build_presenter(settings: Settings, floor: FloorService) -> FloorPresenter:
     return FloorPresenter(
         floor,
-        tee=FloorPoint(x=settings.floor_tee_x, y=settings.floor_tee_y),
+        tee=PhysicalPoint(x_m=settings.floor_tee_x_m, y_m=settings.floor_tee_y_m),
         club_path_length=settings.floor_club_path_length,
         calibration=_floor_calibration(settings),
     )
 
 
+def _disabled_gspro_health() -> GSProHealth:
+    return GSProHealth(
+        link_state=LinkState.DISABLED,
+        shots_ingested=0,
+        messages_rejected=0,
+        duplicates_ignored=0,
+        reused_shot_numbers=0,
+        late_data_discarded=0,
+        frames_dropped=0,
+    )
+
+
+class _GSProHealth:
+    """Holds the adapter so `/healthz` can ask it without owning its lifetime.
+
+    The adapter is the source. When there is none — `GSPRO_MODE=off`, or
+    simulate before the fake device has built one — the snapshot is the
+    disabled zero-state, not a second set of counters.
+    """
+
+    def __init__(self) -> None:
+        self.adapter: GSProConnectAdapter | None = None
+
+    def attach(self, adapter: GSProConnectAdapter) -> None:
+        self.adapter = adapter
+
+    def snapshot(self) -> dict[str, object]:
+        health = (
+            self.adapter.health()
+            if self.adapter is not None
+            else _disabled_gspro_health()
+        )
+        payload = asdict(health)
+        payload["link_state"] = health.link_state.value
+        return payload
+
+    def subsystem(self) -> SubsystemPayload:
+        adapter = self.adapter
+        if adapter is None:
+            return SubsystemPayload(enabled=False, available=False)
+        state = adapter.link_state
+        return SubsystemPayload(
+            enabled=True,
+            available=state not in {LinkState.DISABLED, LinkState.BIND_FAILED},
+        )
+
+
 def _start_gspro(
-    settings: Settings, supervisor: TaskSupervisor, event_bus: AsyncEventBus
+    settings: Settings,
+    supervisor: TaskSupervisor,
+    event_bus: AsyncEventBus,
+    gspro: _GSProHealth | None = None,
 ) -> asyncio.Task[None] | None:
     """Start whichever source of shots was asked for, if any.
 
     The task is returned as well as supervised, because shutdown has to be able
-    to stop it first rather than let the supervisor sweep it up last.
+    to stop it first rather than let the supervisor sweep it up last. The
+    adapter itself is built earlier so its health can be on `/healthz` before
+    this starts listening.
     """
 
     if settings.gspro_mode == "interpose":
-        adapter = build_adapter(settings, event_bus.publish)
+        adapter = gspro.adapter if gspro is not None else None
+        if adapter is None:
+            adapter = build_adapter(settings, event_bus.publish)
+            if gspro is not None:
+                gspro.attach(adapter)
         task = supervisor.start(adapter.serve(), name="gspro")
         logger.info(
             "gspro_interposing",
@@ -701,8 +771,9 @@ def _start_gspro(
         return task
 
     if settings.gspro_mode == "simulate":
+        on_adapter = gspro.attach if gspro is not None else None
         task = supervisor.start(
-            run_simulated_round(settings, event_bus.publish),
+            run_simulated_round(settings, event_bus.publish, on_adapter=on_adapter),
             name="gspro-simulation",
         )
         logger.info("gspro_simulating")

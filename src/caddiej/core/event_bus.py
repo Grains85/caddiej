@@ -30,6 +30,27 @@ EventHandler = Callable[[Event], Awaitable[None]]
 _STOP = object()
 
 
+class EventBusState(Enum):
+    """Publication policy depends on this, not on a boolean that lags reality."""
+
+    STOPPED = auto()
+    RUNNING = auto()
+    DRAINING = auto()
+    STOPPING = auto()
+
+
+class EventBusClosed(RuntimeError):
+    """`publish()` was refused because the bus is stopping or already stopped.
+
+    The event was not accepted and will not be dispatched. Returning success
+    for a discarded announcement is how a shot disappears without a trace.
+    """
+
+    def __init__(self, state: EventBusState) -> None:
+        self.state = state
+        super().__init__(f"Event bus is {state.name.lower()}")
+
+
 class SubscriberOverrun(RuntimeError):
     """A critical subscriber could not accept an event.
 
@@ -253,17 +274,19 @@ class AsyncEventBus:
         self._critical_timeout = critical_timeout
         self._subscribers: dict[str, _Subscriber] = {}
         self._overrides: dict[tuple[str, type[Event]], Delivery] = {}
-        self._active = False
-        self._stopping = False
+        self._state = EventBusState.STOPPED
         self._outstanding = 0
         self._idle = asyncio.Event()
         self._idle.set()
 
+    @property
+    def state(self) -> EventBusState:
+        return self._state
+
     async def start(self) -> None:
-        if self._active:
+        if self._state is EventBusState.RUNNING:
             return
-        self._active = True
-        self._stopping = False
+        self._state = EventBusState.RUNNING
         for subscriber in self._subscribers.values():
             self._spawn(subscriber)
 
@@ -277,10 +300,10 @@ class AsyncEventBus:
         stopped.
         """
 
-        if not self._active:
+        if self._state is EventBusState.STOPPED:
             return
 
-        self._stopping = True
+        self._state = EventBusState.STOPPING
         workers = [
             subscriber.worker
             for subscriber in self._subscribers.values()
@@ -310,8 +333,7 @@ class AsyncEventBus:
                 subscriber.queue.abandon()
             self._outstanding = 0
             self._idle.set()
-            self._active = False
-            self._stopping = False
+            self._state = EventBusState.STOPPED
 
     async def drain(self, timeout: float) -> bool:
         """Wait until every subscriber is idle, including handler cascades.
@@ -328,21 +350,28 @@ class AsyncEventBus:
         this wait forever; exceeding `timeout` returns False.
         """
 
-        if not self._active:
+        if self._state is EventBusState.STOPPED:
             return True
+        previous = self._state
+        if previous is EventBusState.RUNNING:
+            self._state = EventBusState.DRAINING
         try:
-            await asyncio.wait_for(self._idle.wait(), timeout)
-        except TimeoutError:
-            logger.warning(
-                "event_bus_drain_timed_out",
-                extra={"queue_depth": self._queue_depth()},
-            )
-            return False
-        return True
+            try:
+                await asyncio.wait_for(self._idle.wait(), timeout)
+            except TimeoutError:
+                logger.warning(
+                    "event_bus_drain_timed_out",
+                    extra={"queue_depth": self._queue_depth()},
+                )
+                return False
+            return True
+        finally:
+            if self._state is EventBusState.DRAINING:
+                self._state = previous
 
     async def publish(self, event: Event) -> None:
-        if not self._active:
-            raise RuntimeError("Event bus is not running")
+        if self._state in (EventBusState.STOPPED, EventBusState.STOPPING):
+            raise EventBusClosed(self._state)
 
         now_ns = self._clock.monotonic_ns()
         stamped = replace(
@@ -360,7 +389,7 @@ class AsyncEventBus:
                 result is _Offer.FULL
                 and policy is Delivery.CRITICAL
                 and self._critical_timeout > 0
-                and not self._stopping
+                and self._state in (EventBusState.RUNNING, EventBusState.DRAINING)
             ):
                 if await subscriber.queue.wait_not_full(self._critical_timeout):
                     result = await subscriber.queue.offer(
@@ -411,7 +440,7 @@ class AsyncEventBus:
                 )
                 refusals.append(subscriber.name)
             elif result is _Offer.CLOSED:
-                continue
+                raise EventBusClosed(self._state)
 
         if refusals:
             raise SubscriberOverrun(refusals[0], type(stamped).__name__)
@@ -435,7 +464,7 @@ class AsyncEventBus:
             )
             subscriber = _Subscriber(subscriber_name, size)
             self._subscribers[subscriber_name] = subscriber
-            if self._active:
+            if self._state is EventBusState.RUNNING:
                 self._spawn(subscriber)
         elif queue_size is not None and queue_size != subscriber.queue.maxsize:
             raise ValueError(
@@ -461,7 +490,8 @@ class AsyncEventBus:
             for subscriber in self._subscribers.values()
         )
         return EventBusHealth(
-            running=self._active,
+            running=self._state
+            in (EventBusState.RUNNING, EventBusState.DRAINING, EventBusState.STOPPING),
             dropped=sum(item.dropped for item in subscribers),
             coalesced=sum(item.coalesced for item in subscribers),
             refused=sum(item.refused for item in subscribers),

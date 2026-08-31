@@ -218,7 +218,7 @@ def heartbeat(
 
 
 def player_information(handed: str = "RH", club: str = "DR") -> dict[str, Any]:
-    """GSPro's 201 response, the only source of club and handedness."""
+    """GSPro's 201 response: a Player block, which 200 may also carry."""
 
     return {
         "Code": 201,
@@ -227,8 +227,23 @@ def player_information(handed: str = "RH", club: str = "DR") -> dict[str, Any]:
     }
 
 
-def shot_acknowledgement() -> dict[str, Any]:
-    return {"Code": 200, "Message": "Shot received successfully"}
+def shot_acknowledgement(
+    handed: str | None = None, club: str | None = None
+) -> dict[str, Any]:
+    """GSPro's 200 acknowledgement, optionally carrying a Player block."""
+
+    payload: dict[str, Any] = {
+        "Code": 200,
+        "Message": "Shot received successfully",
+    }
+    if handed is not None or club is not None:
+        player: dict[str, Any] = {}
+        if handed is not None:
+            player["Handed"] = handed
+        if club is not None:
+            player["Club"] = club
+        payload["Player"] = player
+    return payload
 
 
 def simulator_failure(

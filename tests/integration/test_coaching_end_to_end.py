@@ -58,14 +58,14 @@ from caddiej.domain.shot import (
     Shot,
     ShotSource,
 )
-from caddiej.floor import FloorPoint, FloorService
+from caddiej.floor import FloorService, PhysicalPoint
 from caddiej.floor.presenter import FloorPresenter
 from caddiej.persistence.service import build_history_service
 
 pytestmark = pytest.mark.asyncio
 
 NOW = datetime(2026, 4, 1, 18, 30, tzinfo=UTC)
-TEE = FloorPoint(x=0.5, y=0.72)
+TEE = PhysicalPoint(x_m=0.5, y_m=0.72)
 
 
 class Table:

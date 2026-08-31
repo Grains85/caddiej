@@ -15,7 +15,7 @@ interface.
 
 import asyncio
 import logging
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 from caddiej.adapters.gspro.adapter import GSProConnectAdapter, Publish
@@ -115,7 +115,14 @@ async def drive_device(
         raise
 
 
-async def run_simulated_round(settings: Settings, publish: Publish) -> None:
+AdapterReady = Callable[[GSProConnectAdapter], None]
+
+
+async def run_simulated_round(
+    settings: Settings,
+    publish: Publish,
+    on_adapter: AdapterReady | None = None,
+) -> None:
     """Run the adapter, a fake GSPro and a fake device until cancelled."""
 
     async with FakeGSProServer() as simulator:
@@ -128,6 +135,8 @@ async def run_simulated_round(settings: Settings, publish: Publish) -> None:
             publish,
             listener=listener,
         )
+        if on_adapter is not None:
+            on_adapter(adapter)
         async with asyncio.TaskGroup() as group:
             group.create_task(adapter.serve(), name="gspro-simulated-adapter")
             monitor = await _connect_fake_device(listener, settings)

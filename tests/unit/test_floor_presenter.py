@@ -13,11 +13,13 @@ from caddiej.domain.shot import (
     Shot,
     ShotSource,
 )
+from caddiej.floor.geometry import PhysicalPoint
 from caddiej.floor.presenter import FloorPresenter, marker_variant_for
 from caddiej.floor.service import FloorService
 from caddiej.floor.state import FloorPoint, MarkerVariant
 
-TEE = FloorPoint(x=0.5, y=0.72)
+TEE = PhysicalPoint(x_m=0.5, y_m=0.72)
+SURFACE_TEE = FloorPoint(x=0.5, y=0.72)
 
 
 def presenter(floor: FloorService) -> FloorPresenter:
@@ -79,7 +81,7 @@ def test_showing_the_address_places_the_marker_at_the_tee() -> None:
 
     presenter(floor).show_address(Club(kind=ClubKind.DRIVER))
 
-    assert floor.state.marker.position == TEE
+    assert floor.state.marker.position == SURFACE_TEE
     assert floor.state.marker.variant is MarkerVariant.DRIVER
     assert floor.state.marker.visible is True
 
@@ -113,7 +115,7 @@ def test_hiding_the_address_keeps_where_the_marker_was() -> None:
     subject.hide_address()
 
     assert floor.state.marker.visible is False
-    assert floor.state.marker.position == TEE
+    assert floor.state.marker.position == SURFACE_TEE
     assert floor.state.marker.variant is MarkerVariant.PUTTER
 
 
@@ -129,7 +131,7 @@ def test_a_shot_draws_the_club_path_from_the_tee() -> None:
 
     path = floor.state.club_path
     assert path is not None
-    assert path.start == TEE
+    assert path.start == SURFACE_TEE
     assert path.angle_degrees == -2.4
     assert path.length == 0.4
 

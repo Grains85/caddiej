@@ -48,19 +48,23 @@ Unit tests require no external systems and must always pass:
 pytest tests/unit
 ```
 
-Integration tests are skipped by default and only run when explicitly enabled.
-They need a running, configured OBS instance:
+Loopback socket tests (`-m loopback`) bind a local TCP port and need no
+external service. They run in the default suite, including on Windows CI.
+
+Hardware and credentialed integration tests are skipped by default and only
+run when explicitly enabled. They need a running, configured OBS instance,
+a camera, or similar:
 
 ```shell
 CADDIEJ_RUN_INTEGRATION=1 pytest -m integration
 ```
 
-The default `pytest` invocation runs everything, with integration tests
-reporting as skipped unless the environment variable is set. That default run is
-what CI runs, on Linux, macOS, and Windows across Python 3.12 and 3.13, so a
-pull request is expected to keep it green. Integration results should be
-mentioned in the description when the change touches an adapter, since CI
-cannot run them.
+The default `pytest` invocation runs unit tests and loopback tests, with
+hardware integration tests reporting as skipped unless the environment
+variable is set. That default run is what CI runs, on Linux, macOS, and
+Windows across Python 3.12 and 3.13, so a pull request is expected to keep
+it green. Hardware integration results should be mentioned in the
+description when the change touches an adapter, since CI cannot run them.
 
 A clean clone is also expected to pass:
 
@@ -178,9 +182,10 @@ A checklist, in the order that tends to work:
   the fix.
 - Unit tests must not require an external system, a real network, or real
   waiting. Inject a clock rather than sleeping.
-- Integration tests must be marked `integration` and skipped unless
+- Hardware integration tests must be marked `integration` and skipped unless
   `CADDIEJ_RUN_INTEGRATION=1` is set, and must leave the external system in the
-  state they found it.
+  state they found it. Tests that only bind loopback and talk to CaddieJ's
+  own fakes are marked `loopback` and run in the default suite.
 - Test the boundary you own: request mapping, error translation, and degradation
   behavior are the parts that regress.
 

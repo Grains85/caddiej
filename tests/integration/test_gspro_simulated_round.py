@@ -5,12 +5,11 @@ Open Connect JSON to a real socket, the real adapter frames and interprets it, t
 real event bus dispatches it, the real domain decides what it means, and the real
 floor state and the real SQLite file come out the other end.
 
-It binds loopback ports and writes a database under `tmp_path`, so it is gated
-like the other integration tests. No external software is involved.
+It binds loopback ports and writes a database under `tmp_path`. No
+external software is involved, so this runs in ordinary CI.
 """
 
 import asyncio
-import os
 from pathlib import Path
 
 import pytest
@@ -20,20 +19,14 @@ from caddiej.config import Settings
 from caddiej.core.event_bus import AsyncEventBus
 from caddiej.domain.play import PlayFlow
 from caddiej.domain.shot import ClubKind
-from caddiej.floor.presenter import FloorPresenter
-from caddiej.floor.service import FloorService
-from caddiej.floor.state import FloorPoint, FloorState, MarkerVariant
+from caddiej.floor import FloorPoint, FloorPresenter, FloorService, PhysicalPoint
+from caddiej.floor.state import FloorState, MarkerVariant
 from caddiej.persistence import HistoryService, build_history_service
 
-pytestmark = [
-    pytest.mark.integration,
-    pytest.mark.skipif(
-        os.getenv("CADDIEJ_RUN_INTEGRATION") != "1",
-        reason="set CADDIEJ_RUN_INTEGRATION=1 to bind a real loopback port",
-    ),
-]
+pytestmark = pytest.mark.loopback
 
-TEE = FloorPoint(x=0.5, y=0.72)
+TEE = PhysicalPoint(x_m=0.5, y_m=0.72)
+SURFACE_TEE = FloorPoint(x=0.5, y=0.72)
 
 
 class Round:
@@ -131,7 +124,7 @@ async def test_the_simulated_round_puts_a_driver_marker_on_the_floor() -> None:
             lambda s: s.marker.visible and s.marker.variant is MarkerVariant.DRIVER
         )
 
-        assert state.marker.position == TEE
+        assert state.marker.position == SURFACE_TEE
 
 
 async def test_placing_a_ball_hides_the_marker() -> None:
@@ -150,7 +143,7 @@ async def test_a_simulated_shot_reaches_the_floor_as_a_path_and_numbers() -> Non
         assert state.metrics is not None
         assert state.metrics.ball_speed_mph == pytest.approx(148.2)
         assert state.club_path is not None
-        assert state.club_path.start == TEE
+        assert state.club_path.start == SURFACE_TEE
 
 
 async def test_the_floor_returns_to_an_address_after_the_shot() -> None:

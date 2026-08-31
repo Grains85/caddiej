@@ -144,7 +144,7 @@ python -m pip install -e ".[test]"
 ```
 
 ```shell
-pytest                     # unit suite, plus integration tests that self-skip
+pytest                     # unit suite plus loopback socket tests; hardware tests self-skip
 ruff check .
 ruff format --check .
 mypy
@@ -156,9 +156,10 @@ caddiej --check-config
 pytest tests/unit          # no hardware, no network, ~20 seconds
 ```
 
-Integration tests are skipped unless explicitly enabled. They bind loopback
-ports, spawn real FFmpeg processes if it is installed, and — for the OBS tests —
-need a running, configured OBS:
+Loopback GSPro and HUD socket tests (`-m loopback`) bind a local port and run
+in the default suite. They use CaddieJ's own fakes; they need no GSPro, OBS,
+or camera. Hardware and credentialed tests are skipped unless explicitly
+enabled:
 
 ```shell
 CADDIEJ_RUN_INTEGRATION=1 pytest -m integration
@@ -182,14 +183,17 @@ cannot contain a credential.
 
 - **Imperial units only.** Speeds are mph and distances are yards throughout,
   including on the floor. There is no metric display.
-- **No floor calibration.** Where the marker sits is configured by eye with
-  `FLOOR_TEE_X` and `FLOOR_TEE_Y`; nothing yet knows where the mat is.
+- **No floor calibration.** The tee is a physical point (`FLOOR_TEE_X_M`,
+  `FLOOR_TEE_Y_M`) mapped through the same calibration as the club path;
+  nothing yet measures where the mat actually is.
 - **No scoring.** Open Connect carries shots and a club, not a scorecard, so
   celebrations are wired but nothing triggers them.
 - **Windows software path is CI-tested; real GSPro/ProTee validation pending.**
   Default tests, lint, formatting, and type checking run on Windows, macOS, and
   Linux. The camera abstraction includes DirectShow (`dshow`). Nothing here has
-  yet been run against a real GSPro machine or a ProTee launch monitor.
+  yet been run against a real GSPro machine or a ProTee launch monitor. The
+  operator workflow for that first session is
+  [docs/hardware-validation.md](docs/hardware-validation.md).
 - **English only**, in both the coaching templates and the voice.
 
 ---
@@ -215,6 +219,7 @@ secrets appear to be present in files that would be packaged.
 ## Documentation
 
 - [docs/](docs/README.md) — using CaddieJ, and every optional integration
+- [docs/hardware-validation.md](docs/hardware-validation.md) — first real ProTee VX + GSPro session
 - [docs/configuration.md](docs/configuration.md) — the full configuration reference
 - [ARCHITECTURE.md](ARCHITECTURE.md) — design, boundaries, and the rules every
   component follows

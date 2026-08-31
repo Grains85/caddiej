@@ -390,9 +390,9 @@ Remaining (**Milestone 9B**):
 
 - Verify the ProTee VX connector can be pointed at a host and port other than
   GSPro's. This is a prerequisite for using the integration on real hardware; the
-  interposer topology depends on it.
-- Opt-in raw payload recording for debugging real devices, decoupled from the
-  event bus.
+  interposer topology depends on it. The operator workflow is
+  [docs/hardware-validation.md](docs/hardware-validation.md); it has not been
+  run against real hardware.
 - Plausibility bounds on measurements. Domain models reject the impossible;
   nothing yet rejects the merely absurd.
 

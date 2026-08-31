@@ -45,9 +45,16 @@ def documented_in_reference() -> set[str]:
     return set(pattern.findall(REFERENCE.read_text()))
 
 
+# Temporary aliases kept so an old .env still starts. They are not assigned in
+# `.env.example`; the physical `_M` variables are the source of truth.
+_DEPRECATED_ALIASES = frozenset({"FLOOR_TEE_X", "FLOOR_TEE_Y"})
+
+
 class TestEverySettingIsDocumented:
     def test_env_example_sets_every_setting(self) -> None:
-        missing = sorted(settings_aliases() - assigned_in_env_example())
+        missing = sorted(
+            settings_aliases() - assigned_in_env_example() - _DEPRECATED_ALIASES
+        )
 
         assert not missing, f"settings with no line in .env.example: {missing}"
 

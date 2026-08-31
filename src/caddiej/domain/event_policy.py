@@ -54,7 +54,7 @@ EVENT_DELIVERY: dict[type[Event], Delivery] = {
     HoleCompleted: CRITICAL,
     ClubSelected: COALESCE,
     HandednessChanged: COALESCE,
-    LaunchMonitorLinkChanged: COALESCE,
+    LaunchMonitorLinkChanged: CRITICAL,
     LaunchMonitorReadinessChanged: COALESCE,
     BallDetected: COALESCE,
     BallCleared: COALESCE,

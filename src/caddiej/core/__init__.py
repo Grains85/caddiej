@@ -4,7 +4,9 @@ from caddiej.core.delivery import Delivery
 from caddiej.core.event_bus import (
     AsyncEventBus,
     EventBus,
+    EventBusClosed,
     EventBusHealth,
+    EventBusState,
     EventClock,
     SubscriberOverrun,
 )
@@ -15,7 +17,9 @@ __all__ = [
     "Delivery",
     "Event",
     "EventBus",
+    "EventBusClosed",
     "EventBusHealth",
+    "EventBusState",
     "EventClock",
     "SubscriberOverrun",
 ]
