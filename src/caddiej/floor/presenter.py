@@ -15,7 +15,9 @@ Projector pixels never enter that calculation.
 import logging
 
 from caddiej.domain.coaching import band_for
+from caddiej.domain.observation import ObservedRoundShot
 from caddiej.domain.shot import Club, ClubKind, Shot
+from caddiej.floor.flight import fit_ball_flight, relative_ball_path
 from caddiej.floor.geometry import (
     DEFAULT_CALIBRATION,
     FloorCalibration,
@@ -27,6 +29,7 @@ from caddiej.floor.state import (
     ClubPath,
     FloorAdvice,
     MarkerVariant,
+    RoundResultView,
     ShotMetrics,
 )
 
@@ -80,10 +83,40 @@ class FloorPresenter:
     def hide_address(self) -> None:
         self._floor.hide_marker()
 
+    def show_play_status(self, status: str, club: Club | None) -> None:
+        label = ""
+        if club is not None:
+            label = (
+                club.kind.value.upper()
+                if club.kind is not ClubKind.UNKNOWN
+                else (club.vendor_code or "")
+            )
+        self._floor.set_play_status(status, label)
+
     def show_shot(self, shot: Shot) -> None:
         self._stand_down_the_banner()
+        self._floor.clear_round_result()
         self._show_club_path(shot)
         self._show_metrics(shot)
+
+    def show_round_result(self, shot: ObservedRoundShot) -> None:
+        self._stand_down_the_banner()
+        self._floor.clear_metrics()
+        self._floor.clear_club_path()
+        relative = relative_ball_path(shot.ball_path, shot.ball_start)
+        self._floor.set_round_result(
+            RoundResultView(
+                shot_id=shot.shot_id,
+                player_name=shot.player_name or "",
+                hole=shot.hole,
+                hole_shot=shot.hole_shot,
+                ball_speed_raw=shot.ball_speed_raw,
+                total_distance_raw=shot.total_distance_raw,
+                starting_surface_raw=shot.starting_surface_raw,
+                ending_surface_raw=shot.ending_surface_raw,
+            ),
+            fit_ball_flight(relative) or None,
+        )
 
     def _stand_down_the_banner(self) -> None:
         """Clear the startup text, which is drawn across the whole surface.
@@ -98,6 +131,7 @@ class FloorPresenter:
     def clear_shot(self) -> None:
         self._floor.clear_club_path()
         self._floor.clear_metrics()
+        self._floor.clear_round_result()
 
     def show_advice(self, text: str, severity: float) -> None:
         """Draw one coaching line, coloured by how bad the fault was.

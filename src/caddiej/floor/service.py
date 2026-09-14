@@ -7,12 +7,14 @@ from dataclasses import replace
 from caddiej.floor.state import (
     BallMarker,
     ClubPath,
+    FlightDrawPoint,
     FloorAdvice,
     FloorFlourish,
     FloorMode,
     FloorPoint,
     FloorState,
     MarkerVariant,
+    RoundResultView,
     ShotMetrics,
 )
 
@@ -106,6 +108,19 @@ class FloorService:
         """Take the celebration away, leaving the round's own state untouched."""
 
         return self._apply(flourish=None)
+
+    def set_play_status(self, status: str, club_label: str = "") -> FloorState:
+        return self._apply(play_status=status, club_label=club_label)
+
+    def set_round_result(
+        self,
+        result: RoundResultView,
+        ball_flight: tuple[FlightDrawPoint, ...] | None,
+    ) -> FloorState:
+        return self._apply(round_result=result, ball_flight=ball_flight)
+
+    def clear_round_result(self) -> FloorState:
+        return self._apply(round_result=None, ball_flight=None)
 
     def _apply(self, **changes: object) -> FloorState:
         candidate = self._state.evolve(**changes)

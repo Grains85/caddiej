@@ -15,11 +15,19 @@ from caddiej.adapters.api import (
 from caddiej.adapters.gspro import (
     GSProConnectAdapter,
     GSProHealth,
+    GSProRoundFileAdapter,
+    GSProRoundObserverHealth,
+    RoundObserverStatus,
     build_adapter,
     run_simulated_round,
 )
 from caddiej.adapters.hud import ConnectionRegistry, HudServer, create_app, overlay_url
 from caddiej.adapters.obs import ObsClient, ObsConnectionError
+from caddiej.adapters.protee import (
+    ProTeeLogAdapter,
+    ProTeeObserverHealth,
+    ProTeeObserverStatus,
+)
 from caddiej.assistant.commands import CommandFacade
 from caddiej.assistant.contract import SubsystemPayload
 from caddiej.assistant.reads import ReadFacade, SubsystemProbe, subsystem_probe
@@ -85,6 +93,11 @@ async def run(settings: Settings | None = None) -> None:
     if resolved.gspro_mode == "interpose":
         gspro.attach(build_adapter(resolved, event_bus.publish))
 
+    round_observer = _RoundObserverHealth()
+    protee_observer = _ProTeeObserverHealth()
+    if resolved.gspro_mode == "observe":
+        _attach_observers(resolved, event_bus.publish, round_observer, protee_observer)
+
     history = _build_history(resolved)
     # Opening cannot fail loudly: history that will not start disables itself so
     # that a locked file or a full disk never stops someone hitting balls.
@@ -110,6 +123,8 @@ async def run(settings: Settings | None = None) -> None:
                 "effects": lambda: asdict(effects.health()),
                 "event_bus": lambda: asdict(event_bus.health()),
                 "gspro": gspro.snapshot,
+                "gspro_round_observer": round_observer.snapshot,
+                "protee_observer": protee_observer.snapshot,
             },
         ),
         host=resolved.hud_host,
@@ -224,7 +239,14 @@ async def run(settings: Settings | None = None) -> None:
                         logger.warning("floor_demo_ignored_while_gspro_enabled")
                     play.start()
 
-                ingestion = _start_gspro(resolved, supervisor, event_bus, gspro)
+                ingestion = _start_gspro(
+                    resolved,
+                    supervisor,
+                    event_bus,
+                    gspro,
+                    round_observer=round_observer,
+                    protee_observer=protee_observer,
+                )
 
                 # Last, and on its own terms. Nothing above waits on it, and a
                 # failure to start is reported and stepped over: an assistant
@@ -689,6 +711,85 @@ def _build_presenter(settings: Settings, floor: FloorService) -> FloorPresenter:
     )
 
 
+def _disabled_round_observer_health() -> GSProRoundObserverHealth:
+    return GSProRoundObserverHealth(
+        status=RoundObserverStatus.DISABLED,
+        file=None,
+        last_change_at=None,
+        last_shot_id=None,
+        shots_observed=0,
+        parse_failures=0,
+    )
+
+
+def _disabled_protee_observer_health() -> ProTeeObserverHealth:
+    return ProTeeObserverHealth(
+        status=ProTeeObserverStatus.DISABLED,
+        current_log=None,
+        last_event_at=None,
+    )
+
+
+class _RoundObserverHealth:
+    def __init__(self) -> None:
+        self.adapter: GSProRoundFileAdapter | None = None
+
+    def attach(self, adapter: GSProRoundFileAdapter) -> None:
+        self.adapter = adapter
+
+    def snapshot(self) -> dict[str, object]:
+        health = (
+            self.adapter.health()
+            if self.adapter is not None
+            else _disabled_round_observer_health()
+        )
+        payload = asdict(health)
+        payload["status"] = health.status.value
+        return payload
+
+
+class _ProTeeObserverHealth:
+    def __init__(self) -> None:
+        self.adapter: ProTeeLogAdapter | None = None
+
+    def attach(self, adapter: ProTeeLogAdapter) -> None:
+        self.adapter = adapter
+
+    def snapshot(self) -> dict[str, object]:
+        health = (
+            self.adapter.health()
+            if self.adapter is not None
+            else _disabled_protee_observer_health()
+        )
+        payload = asdict(health)
+        payload["status"] = health.status.value
+        return payload
+
+
+def _attach_observers(
+    settings: Settings,
+    publish: Publish,
+    round_observer: _RoundObserverHealth,
+    protee_observer: _ProTeeObserverHealth,
+) -> None:
+    if settings.gspro_round_observer_enabled:
+        round_observer.attach(
+            GSProRoundFileAdapter(
+                settings.gspro_round_file_path,
+                publish,
+                poll_interval=settings.gspro_round_poll_interval,
+            )
+        )
+    if settings.protee_observer_enabled:
+        protee_observer.attach(
+            ProTeeLogAdapter(
+                settings.protee_root_path,
+                publish,
+                poll_interval=settings.protee_log_poll_interval,
+            )
+        )
+
+
 def _disabled_gspro_health() -> GSProHealth:
     return GSProHealth(
         link_state=LinkState.DISABLED,
@@ -741,6 +842,8 @@ def _start_gspro(
     supervisor: TaskSupervisor,
     event_bus: AsyncEventBus,
     gspro: _GSProHealth | None = None,
+    round_observer: _RoundObserverHealth | None = None,
+    protee_observer: _ProTeeObserverHealth | None = None,
 ) -> asyncio.Task[None] | None:
     """Start whichever source of shots was asked for, if any.
 
@@ -779,7 +882,32 @@ def _start_gspro(
         logger.info("gspro_simulating")
         return task
 
+    if settings.gspro_mode == "observe":
+        adapters: list[GSProRoundFileAdapter | ProTeeLogAdapter] = []
+        if round_observer is not None and round_observer.adapter is not None:
+            adapters.append(round_observer.adapter)
+        if protee_observer is not None and protee_observer.adapter is not None:
+            adapters.append(protee_observer.adapter)
+        if not adapters:
+            logger.info("gspro_observe_idle")
+            return None
+        task = supervisor.start(_run_observers(adapters), name="gspro-observe")
+        logger.info("gspro_observing")
+        return task
+
     return None
+
+
+async def _run_observers(
+    adapters: list[GSProRoundFileAdapter | ProTeeLogAdapter],
+) -> None:
+    """Run every passive observer until cancelled.
+
+    One supervised task so shutdown still stops ingestion first. A missing
+    file is not a failure; each adapter waits.
+    """
+
+    await asyncio.gather(*(adapter.serve() for adapter in adapters))
 
 
 async def _stop_server(

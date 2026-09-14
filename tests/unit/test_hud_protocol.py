@@ -58,6 +58,10 @@ def test_snapshot_sequence_tracks_the_state_version() -> None:
         "club_path": None,
         "advice": None,
         "flourish": None,
+        "play_status": "",
+        "club_label": "",
+        "round_result": None,
+        "ball_flight": None,
     }
 
 

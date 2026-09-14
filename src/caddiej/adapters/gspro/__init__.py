@@ -12,6 +12,11 @@ from caddiej.adapters.gspro.errors import (
     GSProProtocolError,
 )
 from caddiej.adapters.gspro.factory import build_adapter
+from caddiej.adapters.gspro.round_file import (
+    GSProRoundFileAdapter,
+    GSProRoundObserverHealth,
+    RoundObserverStatus,
+)
 from caddiej.adapters.gspro.simulation import run_simulated_round
 
 __all__ = [
@@ -21,6 +26,9 @@ __all__ = [
     "GSProError",
     "GSProHealth",
     "GSProProtocolError",
+    "GSProRoundFileAdapter",
+    "GSProRoundObserverHealth",
+    "RoundObserverStatus",
     "build_adapter",
     "run_simulated_round",
 ]

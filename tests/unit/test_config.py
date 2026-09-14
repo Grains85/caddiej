@@ -162,3 +162,12 @@ def test_physical_tee_wins_when_both_forms_are_set() -> None:
 
     assert settings.floor_tee_x_m == 0.4
     assert settings.floor_tee_y_m == 0.6
+
+
+def test_observe_mode_is_a_valid_shot_source() -> None:
+    settings = Settings(_env_file=None, GSPRO_MODE="observe")  # type: ignore[call-arg]
+
+    assert settings.gspro_mode == "observe"
+    assert settings.gspro_round_observer_enabled is True
+    assert settings.protee_observer_enabled is True
+    assert settings.gspro_round_poll_interval == 0.1

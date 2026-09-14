@@ -8,8 +8,8 @@
   defaults to, and how settings are read.
 - [The floor overlay](floor.md) — what the projection renders, the demo, and
   using OBS as the compositor.
-- [GSPro and a launch monitor](gspro.md) — how CaddieJ sees shots, and how to
-  play a round without either.
+- [GSPro and a launch monitor](gspro.md) — passive observation of ProTee's log
+  and GSPro currentRound.dat, plus the experimental Open Connect interposer.
 - [First hardware validation](hardware-validation.md) — the first real
   ProTee VX + GSPro session: minimal `.env`, Windows commands, health
   fields, and what only hardware can answer.

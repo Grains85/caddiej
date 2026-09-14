@@ -20,6 +20,7 @@ from caddiej.domain.events import (
     ClubSelected,
     LaunchMonitorLinkChanged,
     LinkState,
+    RoundShotObserved,
     ShotCompleted,
     ShotIngested,
     SwingClipReady,
@@ -31,6 +32,7 @@ from caddiej.domain.shot import BallLaunch, ClubDelivery, Shot, ShotSource
 def test_shot_facts_are_critical_by_default() -> None:
     assert EVENT_DELIVERY[ShotIngested] is Delivery.CRITICAL
     assert EVENT_DELIVERY[ShotCompleted] is Delivery.CRITICAL
+    assert EVENT_DELIVERY[RoundShotObserved] is Delivery.CRITICAL
     assert delivery_for("play", ShotIngested) is Delivery.CRITICAL
     assert delivery_for("history", ShotCompleted) is Delivery.CRITICAL
 

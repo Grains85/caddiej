@@ -22,7 +22,8 @@ has been run against the real thing yet:
 
 | Path | Developed against | Run against the real thing |
 | --- | --- | --- |
-| GSPro and a launch monitor | a fake device and a fake GSPro | not yet |
+| GSPro Open Connect interpose | a fake device and a fake GSPro | not yet |
+| Passive ProTee log + GSPro currentRound.dat | unit/integration tests with temp files | files verified on hardware; CaddieJ observer not yet run in the bay |
 | Swing video | FFmpeg's generated picture, and a fake FFmpeg | not yet |
 | Coaching with a model | a stub SDK and a scripted provider | not yet |
 | Speech | a fake voice and a recording sink | not yet |

@@ -13,10 +13,12 @@ from pydantic import BaseModel, ConfigDict
 from caddiej.floor.state import (
     BallMarker,
     ClubPath,
+    FlightDrawPoint,
     FloorAdvice,
     FloorFlourish,
     FloorPoint,
     FloorState,
+    RoundResultView,
     ShotMetrics,
 )
 
@@ -135,6 +137,43 @@ class FlourishPayload(BaseModel):
         )
 
 
+class RoundResultPayload(BaseModel):
+    """Raw GSPro round-play numbers. No unit suffixes."""
+
+    shot_id: str
+    player_name: str = ""
+    hole: int | None = None
+    hole_shot: int | None = None
+    ball_speed_raw: float | None = None
+    total_distance_raw: float | None = None
+    starting_surface_raw: int | None = None
+    ending_surface_raw: int | None = None
+
+    @classmethod
+    def from_result(cls, result: RoundResultView) -> "RoundResultPayload":
+        return cls(
+            shot_id=result.shot_id,
+            player_name=result.player_name,
+            hole=result.hole,
+            hole_shot=result.hole_shot,
+            ball_speed_raw=result.ball_speed_raw,
+            total_distance_raw=result.total_distance_raw,
+            starting_surface_raw=result.starting_surface_raw,
+            ending_surface_raw=result.ending_surface_raw,
+        )
+
+
+class FlightDrawPointPayload(BaseModel):
+    """A point in the diagnostic ball-flight chart (0..1 of that panel)."""
+
+    x: float
+    y: float
+
+    @classmethod
+    def from_point(cls, point: FlightDrawPoint) -> "FlightDrawPointPayload":
+        return cls(x=point.x, y=point.y)
+
+
 class FloorStatePayload(BaseModel):
     """Serialised floor state. Mirrors `FloorState` exactly, with no derivation."""
 
@@ -146,6 +185,10 @@ class FloorStatePayload(BaseModel):
     club_path: ClubPathPayload | None
     advice: AdvicePayload | None = None
     flourish: FlourishPayload | None = None
+    play_status: str = ""
+    club_label: str = ""
+    round_result: RoundResultPayload | None = None
+    ball_flight: list[FlightDrawPointPayload] | None = None
 
     @classmethod
     def from_state(cls, state: FloorState) -> "FloorStatePayload":
@@ -173,6 +216,18 @@ class FloorStatePayload(BaseModel):
                 None
                 if state.flourish is None
                 else FlourishPayload.from_flourish(state.flourish)
+            ),
+            play_status=state.play_status,
+            club_label=state.club_label,
+            round_result=(
+                None
+                if state.round_result is None
+                else RoundResultPayload.from_result(state.round_result)
+            ),
+            ball_flight=(
+                None
+                if state.ball_flight is None
+                else [FlightDrawPointPayload.from_point(p) for p in state.ball_flight]
             ),
         )
 

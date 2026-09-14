@@ -12,6 +12,7 @@ a shot that has already been hit, and it must not be able to wait on a browser.
 
 from typing import Protocol
 
+from caddiej.domain.observation import ObservedRoundShot
 from caddiej.domain.shot import Club, Shot
 
 
@@ -29,8 +30,22 @@ class FloorPort(Protocol):
     def hide_address(self) -> None:
         """Stop showing where to place the ball."""
 
+    def show_play_status(self, status: str, club: Club | None) -> None:
+        """Show the launch monitor's current state, such as READY and DRIVER.
+
+        Empty `status` hides the caption. This is diagnostic text for the
+        overlay, not a substitute for the address marker.
+        """
+
     def show_shot(self, shot: Shot) -> None:
         """Show what just happened: the club's path and the launch numbers."""
+
+    def show_round_result(self, shot: ObservedRoundShot) -> None:
+        """Show a GSPro round-play result with raw values and ball flight.
+
+        Distinct from `show_shot`: those numbers have verified units, these
+        do not, and they must not be drawn with unit suffixes.
+        """
 
     def clear_shot(self) -> None:
         """Take the last shot off the floor."""

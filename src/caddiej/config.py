@@ -1,5 +1,6 @@
 """Application configuration loaded from environment variables."""
 
+import os
 import warnings
 from pathlib import Path
 from typing import Annotated, Literal, Self
@@ -27,6 +28,45 @@ def _expand(value: object) -> object:
 
 
 LocalPath = Annotated[Path, BeforeValidator(_expand)]
+
+
+def _optional_path(value: object) -> Path | None:
+    """Empty means 'derive the default', not a path named empty string."""
+
+    if value is None:
+        return None
+    if isinstance(value, str) and not value.strip():
+        return None
+    expanded = _expand(value)
+    if isinstance(expanded, Path):
+        return expanded
+    return None
+
+
+OptionalLocalPath = Annotated[Path | None, BeforeValidator(_optional_path)]
+
+
+def default_gspro_round_file() -> Path | None:
+    """GSPro's currentRound.dat, derived from %USERPROFILE% on Windows."""
+
+    profile = os.environ.get("USERPROFILE")
+    if not profile:
+        return None
+    return (
+        Path(profile) / "AppData" / "LocalLow" / "GSPro" / "GSPro" / "currentRound.dat"
+    )
+
+
+def default_protee_root() -> Path | None:
+    """ProTee United's AppData root, derived from %APPDATA% on Windows."""
+
+    appdata = os.environ.get("APPDATA")
+    if appdata:
+        return Path(appdata) / "ProTeeUnited"
+    profile = os.environ.get("USERPROFILE")
+    if not profile:
+        return None
+    return Path(profile) / "AppData" / "Roaming" / "ProTeeUnited"
 
 
 class Settings(BaseSettings):
@@ -159,15 +199,15 @@ class Settings(BaseSettings):
         validation_alias="FLOOR_SHOT_DISPLAY_SECONDS",
     )
 
-    # GSPro Open Connect. CaddieJ sits between the launch monitor connector and
-    # GSPro, because Open Connect is a feed into GSPro with no observer
-    # interface: the only way to see shots is to be in the conversation. Off by
-    # default, since enabling it means the launch monitor must be pointed at
-    # CaddieJ instead of GSPro.
+    # GSPro Open Connect. CaddieJ can sit between the launch monitor connector
+    # and GSPro (`interpose`), because Open Connect is a feed into GSPro with no
+    # official observer API. That path is experimental: production observation
+    # reads ProTee's log and GSPro's currentRound.dat instead, and is not in
+    # their traffic path at all.
     # "simulate" runs a scripted round through the real adapter against a fake
     # GSPro inside this process, so the whole path from bytes to floor can be
     # watched without a simulator, a launch monitor, or a golf swing.
-    gspro_mode: Literal["off", "interpose", "simulate"] = Field(
+    gspro_mode: Literal["off", "interpose", "simulate", "observe"] = Field(
         default="off",
         validation_alias="GSPRO_MODE",
     )
@@ -258,6 +298,34 @@ class Settings(BaseSettings):
         default=3.0,
         gt=0,
         validation_alias="GSPRO_SIMULATION_STEP_SECONDS",
+    )
+    # Passive observers. Used when GSPRO_MODE=observe. They never bind 9210,
+    # never connect to GSPconnect, and never write ProTee or GSPro files.
+    gspro_round_observer_enabled: bool = Field(
+        default=True,
+        validation_alias="GSPRO_ROUND_OBSERVER_ENABLED",
+    )
+    gspro_round_file_path: OptionalLocalPath = Field(
+        default=None,
+        validation_alias="GSPRO_ROUND_FILE_PATH",
+    )
+    gspro_round_poll_interval: float = Field(
+        default=0.1,
+        gt=0,
+        validation_alias="GSPRO_ROUND_POLL_INTERVAL",
+    )
+    protee_observer_enabled: bool = Field(
+        default=True,
+        validation_alias="PROTEE_OBSERVER_ENABLED",
+    )
+    protee_root_path: OptionalLocalPath = Field(
+        default=None,
+        validation_alias="PROTEE_ROOT_PATH",
+    )
+    protee_log_poll_interval: float = Field(
+        default=0.1,
+        gt=0,
+        validation_alias="PROTEE_LOG_POLL_INTERVAL",
     )
 
     # Local shot history in one SQLite file. On by default: a session that was
@@ -917,4 +985,8 @@ class Settings(BaseSettings):
             )
         self.floor_tee_x_m = x_m
         self.floor_tee_y_m = y_m
+        if self.gspro_round_file_path is None:
+            self.gspro_round_file_path = default_gspro_round_file()
+        if self.protee_root_path is None:
+            self.protee_root_path = default_protee_root()
         return self

@@ -29,10 +29,13 @@ from caddiej.domain.events import (
     LaunchMonitorLinkChanged,
     LaunchMonitorReadinessChanged,
     LinkState,
+    RoundShotObserved,
     ShotCompleted,
     ShotDiagnosed,
+    ShotDispatched,
     ShotIngested,
 )
+from caddiej.domain.observation import ObservedRoundShot
 from caddiej.domain.play import PlayFlow
 from caddiej.domain.shot import (
     BallLaunch,
@@ -59,6 +62,9 @@ class FloorSpy:
         self.showing_address = False
         self.showing_shot = False
         self.showing_advice = False
+        self.play_status = ""
+        self.play_club: Club | None = None
+        self.round_results: list[ObservedRoundShot] = []
 
     def show_address(self, club: Club | None) -> None:
         self.calls.append("show_address")
@@ -69,9 +75,19 @@ class FloorSpy:
         self.calls.append("hide_address")
         self.showing_address = False
 
+    def show_play_status(self, status: str, club: Club | None) -> None:
+        self.calls.append("show_play_status")
+        self.play_status = status
+        self.play_club = club
+
     def show_shot(self, shot: Shot) -> None:
         self.calls.append("show_shot")
         self.shots.append(shot)
+        self.showing_shot = True
+
+    def show_round_result(self, shot: ObservedRoundShot) -> None:
+        self.calls.append("show_round_result")
+        self.round_results.append(shot)
         self.showing_shot = True
 
     def clear_shot(self) -> None:
@@ -798,4 +814,43 @@ async def test_the_flow_subscribes_to_handedness() -> None:
 
     assert subject.handedness is Handedness.LEFT
     await bus.stop()
+    await subject.aclose()
+
+
+async def test_ready_status_and_club_are_shown_on_the_floor() -> None:
+    floor = FloorSpy()
+    subject = flow(floor)
+    subject.start()
+
+    await subject.on_readiness_changed(LaunchMonitorReadinessChanged(ready=True))
+    await subject.on_club_selected(ClubSelected(club=Club(kind=ClubKind.DRIVER)))
+
+    assert floor.play_status == "READY"
+    assert floor.play_club is not None
+    assert floor.play_club.kind is ClubKind.DRIVER
+    assert floor.showing_address is True
+    await subject.aclose()
+
+
+async def test_a_round_shot_result_is_shown_without_becoming_a_shot() -> None:
+    floor = FloorSpy()
+    announcements = Announcements()
+    subject = flow(floor, Clock(), announcements)
+
+    await subject.on_round_shot(
+        RoundShotObserved(shot=ObservedRoundShot(shot_id="D", ball_speed_raw=32.84))
+    )
+
+    assert [result.shot_id for result in floor.round_results] == ["D"]
+    assert announcements.shots() == []
+    await subject.aclose()
+
+
+async def test_shot_dispatched_updates_the_caption() -> None:
+    floor = FloorSpy()
+    subject = flow(floor)
+
+    await subject.on_shot_dispatched(ShotDispatched())
+
+    assert floor.play_status == "SHOT SENT"
     await subject.aclose()

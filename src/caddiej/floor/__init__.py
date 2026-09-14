@@ -8,6 +8,7 @@ surface coordinates the browser can draw.
 """
 
 from caddiej.floor.demo import run_demo
+from caddiej.floor.flight import fit_ball_flight, relative_ball_path
 from caddiej.floor.geometry import (
     DEFAULT_CALIBRATION,
     SURFACE_CENTRE,
@@ -33,11 +34,13 @@ from caddiej.floor.service import FloorService
 from caddiej.floor.state import (
     BallMarker,
     ClubPath,
+    FlightDrawPoint,
     FloorAdvice,
     FloorFlourish,
     FloorMode,
     FloorState,
     MarkerVariant,
+    RoundResultView,
     ShotMetrics,
 )
 
@@ -49,6 +52,7 @@ __all__ = [
     "BallMarker",
     "ClubPath",
     "DisplayPoint",
+    "FlightDrawPoint",
     "FloorAdvice",
     "FloorCalibration",
     "FloorFlourish",
@@ -63,13 +67,16 @@ __all__ = [
     "PhysicalFloor",
     "PhysicalPoint",
     "RectangularCalibration",
+    "RoundResultView",
     "ShotMetrics",
     "display_to_surface",
+    "fit_ball_flight",
     "marker_variant_for",
     "path_angle_degrees",
     "physical_endpoint",
     "project_club_path_end",
     "rectangular_calibration",
+    "relative_ball_path",
     "run_demo",
     "surface_to_display",
 ]

@@ -88,5 +88,28 @@ failure is logged and the overlay keeps serving.
 The overlay does not depend on OBS. Displaying the page fullscreen in a browser
 is a supported way to drive a projector.
 
+## Observer HUD on the floor projector
+
+The production overlay URL is:
+
+`http://127.0.0.1:8730/`
+
+OBS is output only. Add a Browser Source to the existing `CaddieJ Test` scene
+(or `OBS_FLOOR_SCENE` if you renamed it):
+
+| | |
+| --- | --- |
+| Source name | `CaddieJ Floor` (`OBS_FLOOR_SOURCE`) |
+| URL | `http://127.0.0.1:8730/` |
+| Width × height | `1920` × `1080` (`OBS_FLOOR_WIDTH` / `OBS_FLOOR_HEIGHT`) |
+
+Do not enable shutdown/refresh when not visible if you want the WebSocket to
+stay up. Then use OBS **Fullscreen Projector (Preview)** or **Fullscreen
+Projector (Program)** on the floor projector output you already have working.
+CaddieJ does not change that projector mapping.
+
+`OBS_PROVISION_FLOOR_SOURCE=1` can create or reconcile that Browser Source if
+the scene already exists. Manual setup is enough for this path.
+
 OBS Studio needs its WebSocket v5 server enabled, and the password from
 **Tools → WebSocket Server Settings** goes in `OBS_PASSWORD`.

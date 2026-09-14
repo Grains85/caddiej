@@ -184,6 +184,22 @@ def _shot_source(settings: Settings) -> str:
         )
     if settings.gspro_mode == "simulate":
         return "simulated round (development only; no launch monitor involved)"
+    if settings.gspro_mode == "observe":
+        round_file = (
+            str(settings.gspro_round_file_path)
+            if settings.gspro_round_file_path is not None
+            else "(no currentRound.dat path)"
+        )
+        protee = (
+            str(settings.protee_root_path)
+            if settings.protee_root_path is not None
+            else "(no ProTee root path)"
+        )
+        return (
+            "passive observation — ProTee log "
+            f"{protee}, GSPro currentRound.dat {round_file} "
+            "(does not listen on 9210)"
+        )
     demo = " — floor demo on" if settings.floor_demo else ""
     return f"none (GSPRO_MODE=off){demo}"
 

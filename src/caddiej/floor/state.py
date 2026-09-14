@@ -193,6 +193,42 @@ class FloorFlourish:
 
 
 @dataclass(frozen=True, slots=True)
+class FlightDrawPoint:
+    """A point in the diagnostic ball-flight chart (0..1 of that panel).
+
+    Not a calibrated floor coordinate and not a physical metre. The overlay
+    draws these inside a labelled BALL FLIGHT box; FloorCalibration never
+    sees them.
+    """
+
+    x: float
+    y: float
+
+    def __post_init__(self) -> None:
+        for name in ("x", "y"):
+            value = getattr(self, name)
+            if not math.isfinite(value):
+                raise ValueError(f"FlightDrawPoint.{name} must be a finite number")
+
+
+@dataclass(frozen=True, slots=True)
+class RoundResultView:
+    """Raw GSPro round-play numbers for the diagnostic overlay.
+
+    No unit suffixes. `hole` is the value GSPro stored; it is not adjusted.
+    """
+
+    shot_id: str
+    player_name: str = ""
+    hole: int | None = None
+    hole_shot: int | None = None
+    ball_speed_raw: float | None = None
+    total_distance_raw: float | None = None
+    starting_surface_raw: int | None = None
+    ending_surface_raw: int | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class FloorState:
     """An immutable snapshot of everything the floor surface should render.
 
@@ -217,6 +253,10 @@ class FloorState:
     club_path: ClubPath | None = None
     advice: FloorAdvice | None = None
     flourish: FloorFlourish | None = None
+    play_status: str = ""
+    club_label: str = ""
+    round_result: RoundResultView | None = None
+    ball_flight: tuple[FlightDrawPoint, ...] | None = None
 
     def evolve(self, **changes: Any) -> "FloorState":
         """Return the next version of this state with `changes` applied."""

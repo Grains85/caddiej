@@ -40,8 +40,10 @@ from caddiej.domain.events import (
     LinkState,
     PlayerEvent,
     RejectionReason,
+    RoundShotObserved,
     ShotCompleted,
     ShotDiagnosed,
+    ShotDispatched,
     ShotEvent,
     ShotIngested,
     ShotMessageRejected,
@@ -55,6 +57,11 @@ from caddiej.domain.events import (
     SwingClipReady,
 )
 from caddiej.domain.media import CaptureState, ClipFailure, ClipRef, TimeQuality
+from caddiej.domain.observation import (
+    BallPathPoint,
+    ObservedRoundShot,
+    WorldPoint,
+)
 from caddiej.domain.play import PlayFlow
 from caddiej.domain.ports import FloorPort
 from caddiej.domain.scoring import HoleCompleted, HoleResult, ScoringEvent
@@ -99,6 +106,7 @@ __all__ = [
     "BallCleared",
     "BallDetected",
     "BallLaunch",
+    "BallPathPoint",
     "CameraStateChanged",
     "CaptureEvent",
     "CaptureState",
@@ -128,13 +136,16 @@ __all__ = [
     "Metric",
     "MetricSummary",
     "Observation",
+    "ObservedRoundShot",
     "PlayFlow",
+    "RoundShotObserved",
     "PlayerEvent",
     "RejectionReason",
     "ScoringEvent",
     "SeveritySource",
     "Shot",
     "ShotCompleted",
+    "ShotDispatched",
     "ShotDiagnosed",
     "ShotEvent",
     "ShotIngested",
@@ -152,6 +163,7 @@ __all__ = [
     "SwingClipReady",
     "TimeQuality",
     "Utterance",
+    "WorldPoint",
     "band_for",
     "club_of",
     "summarise_metric",

@@ -591,23 +591,70 @@ that mapping: path endpoints must already be correct before anything is drawn.
 
 ## 7. GSPro and ProTee data path (**Implemented**)
 
-ProTee VX is the launch monitor; GSPro is the simulator. They talk over GSPro's
-Open Connect interface: a long-lived TCP connection carrying JSON.
+Production observation is **passive and read-only**. ProTee VX talks to GSPro
+directly. CaddieJ tails ProTee's semantic log and polls GSPro's
+`currentRound.dat`. It is not in their traffic path. If CaddieJ crashes or is
+stopped, both continue.
 
-The adapter described here exists and is tested end to end against a fake
-simulator. Two things remain **Intended**: it has not yet run against real GSPro
-or a real ProTee VX, and nothing consumes the shot events yet.
+```
+ProTee VX ───────────► GSPro
+    │                    │
+    │ log                │ currentRound.dat
+    │                    │
+    └───────► CaddieJ ◄──┘
+                 │
+                 ▼
+                HUD (browser)
+                 │
+                 ▼
+                OBS
+                 │
+                 ▼
+          floor projector
+```
 
-### Why CaddieJ sits in the middle
+`GSPRO_MODE=observe` enables this. It does not bind port 9210, does not connect
+to GSPconnect, and does not rewrite ProTee or GSPro configuration.
+
+What has been verified on real hardware, and what this path therefore uses:
+
+- ProTee main log (`%APPDATA%\ProTeeUnited\Logs\LogFile-YYYY-MM-DD.txt`):
+  ready for shot, finding ball, detected club/handedness, sending a shot.
+- GSPro `currentRound.dat` (UTF-8 JSON): a new `ShotID` after a round-play
+  shot, including raw numeric fields and `activeShot.sd.path` as **ball flight**.
+
+What this path does **not** claim:
+
+- Practice Range support (`currentRound.dat` was observed not to update there).
+- Units for `BallSpeed`, `TotalDistance`, and similar (kept as `*_raw`).
+- Meanings of `ClubIndex`, surface, and result integers (kept raw).
+- Launch-monitor club metrics (club path, face, attack, spin). Those need a
+  later source. This result is not filled with zeros pretending they exist.
+- OBS as a data source. OBS composites the HUD Browser Source onto the
+  projector. It is not OCR'd and not captured.
+
+Historical shots already in `currentRound.dat` when CaddieJ starts are a
+baseline and are not published. Only a later unseen `ShotID` is emitted, once.
+
+The Open Connect interposer (`GSPRO_MODE=interpose`) remains for diagnostics.
+It is **not** required for observer mode and must not be deleted.
+
+ProTee VX is the launch monitor; GSPro is the simulator. They can also talk
+over GSPro's Open Connect interface: a long-lived TCP connection carrying JSON.
+
+The interposer exists and is tested end to end against a fake simulator.
+
+### Why the interposer sits in the middle (experimental)
 
 Open Connect runs in the opposite direction to what its name suggests. **GSPro is
 the server**, listening on port 921. The launch monitor is the client: it
 connects and pushes shots. GSPro replies only to acknowledge a shot (`200`),
 report player information (`201`), or report a failure (`5xx`).
 
-There is no observer interface and no broadcast. So the only way for CaddieJ to
-see a shot is to be in the conversation: it accepts the launch monitor's
-connection, dials GSPro itself, and forwards traffic verbatim in both directions.
+There is no official observer API on that socket. The interposer accepts the
+launch monitor's connection, dials GSPro itself, and forwards traffic verbatim
+in both directions. Observer mode exists so production play does not depend on
+that.
 
 ```
 ProTee VX  --(Open Connect)-->  CaddieJ  --(Open Connect, verbatim)-->  GSPro
@@ -628,8 +675,8 @@ ProTee VX  --(Open Connect)-->  CaddieJ  --(Open Connect, verbatim)-->  GSPro
       HUD feed      history            speech (async)   lights (async)
 ```
 
-This puts CaddieJ in the path of live play, which is the single most important
-constraint on the design. It follows three rules:
+This puts the interposer in the path of live play, which is why observer mode
+is the production target. When the interposer *is* used, it follows three rules:
 
 - **Bytes are forwarded before they are understood.** Parsing, validating, and
   publishing all happen on a separate task, fed by a bounded queue. Nothing
@@ -1855,6 +1902,7 @@ src/caddiej/
 │   ├── coaching.py      # the fault vocabulary, a diagnosis, a piece of advice
 │   ├── speech.py        # what to say, how urgent it is, whether it goes stale
 │   ├── statistics.py    # golf arithmetic both history and coaching need
+│   ├── observation.py   # raw GSPro round-play result, not a launch-monitor Shot
 │   ├── events.py        # the typed vocabulary of what happened
 │   ├── event_policy.py  # which events are critical, coalesced, or droppable
 │   ├── ports.py         # FloorPort: what the domain asks of the floor
@@ -1957,8 +2005,13 @@ src/caddiej/
     │   ├── assembly.py    # split shots, duplicates, debounced flags
     │   ├── interposer.py  # the byte path: forward first, observe after
     │   ├── adapter.py     # frames to domain events
+    │   ├── round_parse.py # currentRound.dat JSON, raw values only
+    │   ├── round_file.py  # read-only poller of currentRound.dat
     │   ├── fakes.py       # a fake simulator and a fake launch monitor
     │   └── simulation.py  # a scripted round through the real adapter
+    ├── protee/
+    │   ├── log_parse.py   # verified semantic log lines
+    │   └── log_adapter.py # read-only tail of LogFile-YYYY-MM-DD.txt
     └── obs/
         └── client.py      # ObsClient + isolated simpleobsws transport
 tests/

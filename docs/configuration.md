@@ -81,7 +81,7 @@ See [GSPro and a launch monitor](gspro.md).
 
 | Variable | Default | What it does |
 | --- | --- | --- |
-| `GSPRO_MODE` | `off` | `off`, `interpose` (a real launch monitor), or `simulate` (a scripted round, development only). |
+| `GSPRO_MODE` | `off` | `off`, `observe` (read ProTee's log and GSPro currentRound.dat; not in their traffic path), `interpose` (experimental Open Connect bridge), or `simulate` (a scripted round, development only). |
 | `GSPRO_BIND_HOST` | `127.0.0.1` | Address the launch monitor connects to. |
 | `GSPRO_BIND_PORT` | `9210` | Port the launch monitor connects to, instead of GSPro's own. |
 | `GSPRO_UPSTREAM_HOST` | `127.0.0.1` | Where GSPro itself is. |
@@ -95,6 +95,12 @@ See [GSPro and a launch monitor](gspro.md).
 | `GSPRO_BALL_PRESENT_DEBOUNCE` | `0.0` | How long a ball must be seen before the marker is cleared. |
 | `GSPRO_BALL_ABSENT_DEBOUNCE` | `1.5` | How long a ball must be gone before the marker returns. |
 | `GSPRO_SIMULATION_STEP_SECONDS` | `3.0` | How long the simulated round pauses between steps. |
+| `GSPRO_ROUND_OBSERVER_ENABLED` | `true` | When `GSPRO_MODE=observe`, watch GSPro `currentRound.dat`. |
+| `GSPRO_ROUND_FILE_PATH` | *(Windows default)* | Path to `currentRound.dat`. Empty derives `%USERPROFILE%\AppData\LocalLow\GSPro\GSPro\currentRound.dat`. Never written. |
+| `GSPRO_ROUND_POLL_INTERVAL` | `0.1` | Seconds between read-only polls of the round file. |
+| `PROTEE_OBSERVER_ENABLED` | `true` | When `GSPRO_MODE=observe`, follow the ProTee semantic main log. |
+| `PROTEE_ROOT_PATH` | *(Windows default)* | ProTee United root. Empty derives `%APPDATA%\ProTeeUnited`. Never written. |
+| `PROTEE_LOG_POLL_INTERVAL` | `0.1` | Seconds between read-only tail polls of `Logs\LogFile-YYYY-MM-DD.txt`. |
 
 ## Shot history
 

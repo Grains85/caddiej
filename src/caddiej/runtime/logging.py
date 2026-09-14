@@ -76,6 +76,11 @@ class JsonFormatter(logging.Formatter):
         "gspro_bind",
         "gspro_upstream",
         "gspro_session",
+        "gspro_round_file",
+        "gspro_shot_id",
+        "gspro_parse_failures",
+        "protee_log",
+        "observer_status",
         # Local history. A database path is not a credential, and no shot
         # measurement is either.
         "history_path",

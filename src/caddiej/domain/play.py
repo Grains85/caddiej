@@ -45,8 +45,10 @@ from caddiej.domain.events import (
     LaunchMonitorLinkChanged,
     LaunchMonitorReadinessChanged,
     LinkState,
+    RoundShotObserved,
     ShotCompleted,
     ShotDiagnosed,
+    ShotDispatched,
     ShotIngested,
 )
 from caddiej.domain.ports import FloorPort
@@ -88,6 +90,7 @@ class PlayFlow:
         self._ball = Detection.UNKNOWN
         self._ready: bool | None = None
         self._handedness = Handedness.UNKNOWN
+        self._monitor_status = ""
         self._showing_shot = False
         self._display_timer: asyncio.Task[None] | None = None
         self._shot_id: UUID | None = None
@@ -104,7 +107,9 @@ class PlayFlow:
             LaunchMonitorReadinessChanged, self.on_readiness_changed, name="play"
         )
         bus.subscribe(LaunchMonitorLinkChanged, self.on_link_changed, name="play")
+        bus.subscribe(ShotDispatched, self.on_shot_dispatched, name="play")
         bus.subscribe(ShotIngested, self.on_shot, name="play")
+        bus.subscribe(RoundShotObserved, self.on_round_shot, name="play")
         bus.subscribe(ShotDiagnosed, self.on_shot_diagnosed, name="play")
         bus.subscribe(AnalysisCompleted, self.on_advice_ready, name="play")
 
@@ -195,6 +200,7 @@ class PlayFlow:
 
     async def on_readiness_changed(self, event: LaunchMonitorReadinessChanged) -> None:
         self._ready = event.ready
+        self._monitor_status = "READY" if event.ready else "FINDING BALL"
         self._present()
 
     async def on_link_changed(self, event: LaunchMonitorLinkChanged) -> None:
@@ -205,6 +211,7 @@ class PlayFlow:
         # rest of the evening, with nothing left to clear it.
         self._ball = Detection.UNKNOWN
         self._ready = None
+        self._monitor_status = ""
         self._present()
 
     async def on_shot(self, event: ShotIngested) -> None:
@@ -231,6 +238,23 @@ class PlayFlow:
         except Exception:
             logger.exception("play_floor_presentation_failed")
         await self._publish(ShotCompleted(shot=shot))
+
+    async def on_shot_dispatched(self, _event: ShotDispatched) -> None:
+        self._monitor_status = "SHOT SENT"
+        self._present()
+
+    async def on_round_shot(self, event: RoundShotObserved) -> None:
+        """Show a GSPro round-play result. Does not become a launch-monitor Shot."""
+
+        try:
+            self._floor.show_round_result(event.shot)
+            self._showing_shot = True
+            await self._cancel_advice_timer()
+            self._floor.clear_advice()
+            self._present()
+            self._restart_display_timer()
+        except Exception:
+            logger.exception("play_floor_presentation_failed")
 
     # --- what CaddieJ concluded -------------------------------------------
 
@@ -267,6 +291,7 @@ class PlayFlow:
     def _present(self) -> None:
         """Put the address marker in whichever state the situation calls for."""
 
+        self._floor.show_play_status(self._monitor_status, self._club)
         if self._should_show_address():
             self._floor.show_address(self._club)
         else:

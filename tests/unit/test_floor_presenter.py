@@ -5,6 +5,7 @@ from uuid import uuid4
 
 import pytest
 
+from caddiej.domain.observation import BallPathPoint, ObservedRoundShot, WorldPoint
 from caddiej.domain.shot import (
     BallLaunch,
     Club,
@@ -197,6 +198,7 @@ def test_clearing_a_shot_removes_both_the_path_and_the_numbers() -> None:
 
     assert floor.state.club_path is None
     assert floor.state.metrics is None
+    assert floor.state.round_result is None
 
 
 def test_a_second_shot_replaces_the_first_rather_than_adding_to_it() -> None:
@@ -212,3 +214,31 @@ def test_a_second_shot_replaces_the_first_rather_than_adding_to_it() -> None:
 
     assert floor.state.club_path is not None
     assert floor.state.club_path.angle_degrees == -10.0
+
+
+def test_a_round_result_shows_raw_numbers_and_a_flight_trace() -> None:
+    floor = FloorService()
+    presenter(floor).show_round_result(
+        ObservedRoundShot(
+            shot_id="D",
+            player_name="Johan",
+            hole=3,
+            hole_shot=2,
+            ball_speed_raw=32.84,
+            total_distance_raw=248.5,
+            starting_surface_raw=1,
+            ending_surface_raw=4,
+            ball_start=WorldPoint(x=10.0, y=1.0, z=20.0),
+            ball_path=(
+                BallPathPoint(time=0.0, x=10.0, y=1.0, z=20.0),
+                BallPathPoint(time=0.5, x=14.0, y=3.0, z=28.0),
+            ),
+        )
+    )
+
+    assert floor.state.metrics is None
+    assert floor.state.club_path is None
+    assert floor.state.round_result is not None
+    assert floor.state.round_result.ball_speed_raw == 32.84
+    assert floor.state.ball_flight is not None
+    assert len(floor.state.ball_flight) == 2

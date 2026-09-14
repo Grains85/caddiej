@@ -13,6 +13,9 @@ const surfaceEl = document.getElementById("surface");
 const floorEl = document.getElementById("floor");
 const statusEl = document.getElementById("status");
 const statusTextEl = document.getElementById("status-text");
+const playStatusEl = document.getElementById("play-status");
+const playStatusTextEl = document.getElementById("play-status-text");
+const playClubLabelEl = document.getElementById("play-club-label");
 const markerEl = document.getElementById("marker");
 const markerHaloEl = document.getElementById("marker-halo");
 const markerRingEl = document.getElementById("marker-ring");
@@ -23,6 +26,16 @@ const metricSpeedEl = document.getElementById("metric-speed");
 const metricLaunchEl = document.getElementById("metric-launch");
 const metricCarryEl = document.getElementById("metric-carry");
 const metricCarryRowEl = document.getElementById("metric-carry-row");
+const roundResultEl = document.getElementById("round-result");
+const roundPlayerEl = document.getElementById("round-player");
+const roundShotIdEl = document.getElementById("round-shot-id");
+const roundBallSpeedEl = document.getElementById("round-ball-speed");
+const roundDistanceEl = document.getElementById("round-distance");
+const roundHoleEl = document.getElementById("round-hole");
+const roundHoleShotEl = document.getElementById("round-hole-shot");
+const roundSurfaceEl = document.getElementById("round-surface");
+const ballFlightEl = document.getElementById("ball-flight");
+const ballFlightPathEl = document.getElementById("ball-flight-path");
 const adviceEl = document.getElementById("advice");
 const adviceTextEl = document.getElementById("advice-text");
 const flourishEl = document.getElementById("flourish");
@@ -113,6 +126,63 @@ function renderMetrics(metrics) {
   metricsEl.hidden = false;
 }
 
+function formatRaw(value) {
+  if (value === null || value === undefined) {
+    return "—";
+  }
+  if (typeof value === "number") {
+    return Number.isInteger(value) ? String(value) : String(value);
+  }
+  return String(value);
+}
+
+function shortenShotId(shotId) {
+  if (!shotId) {
+    return "";
+  }
+  return shotId.length > 8 ? shotId.slice(0, 8) : shotId;
+}
+
+function renderPlayStatus(status, club) {
+  const hasStatus = Boolean(status);
+  const hasClub = Boolean(club);
+  playStatusTextEl.textContent = status ?? "";
+  playClubLabelEl.textContent = club ?? "";
+  playStatusEl.hidden = !hasStatus && !hasClub;
+}
+
+function renderRoundResult(result) {
+  if (result === null || result === undefined) {
+    roundResultEl.hidden = true;
+    return;
+  }
+  roundPlayerEl.textContent = result.player_name || "";
+  roundShotIdEl.textContent = shortenShotId(result.shot_id);
+  roundBallSpeedEl.textContent = formatRaw(result.ball_speed_raw);
+  roundDistanceEl.textContent = formatRaw(result.total_distance_raw);
+  roundHoleEl.textContent = formatRaw(result.hole);
+  roundHoleShotEl.textContent = formatRaw(result.hole_shot);
+  const start = result.starting_surface_raw;
+  const end = result.ending_surface_raw;
+  if (start === null || start === undefined || end === null || end === undefined) {
+    roundSurfaceEl.textContent = "—";
+  } else {
+    roundSurfaceEl.textContent = `${start} → ${end}`;
+  }
+  roundResultEl.hidden = false;
+}
+
+function renderBallFlight(points) {
+  if (points === null || points === undefined || points.length === 0) {
+    ballFlightEl.hidden = true;
+    ballFlightPathEl.setAttribute("points", "");
+    return;
+  }
+  const serialized = points.map((point) => `${point.x},${point.y}`).join(" ");
+  ballFlightPathEl.setAttribute("points", serialized);
+  ballFlightEl.hidden = false;
+}
+
 /* The only text on the floor that a language model may have written.
  *
  * textContent, never innerHTML: the server sanitizes and length-caps this
@@ -182,6 +252,9 @@ function paint(snapshot) {
   renderMarker(state.marker);
   renderClubPath(state.club_path);
   renderMetrics(state.metrics);
+  renderPlayStatus(state.play_status, state.club_label);
+  renderRoundResult(state.round_result);
+  renderBallFlight(state.ball_flight);
   renderAdvice(state.advice);
   renderFlourish(state.flourish);
 }
@@ -215,6 +288,9 @@ export function clear() {
   markerEl.dataset.visible = "false";
   clubPathEl.dataset.visible = "false";
   metricsEl.hidden = true;
+  playStatusEl.hidden = true;
+  roundResultEl.hidden = true;
+  ballFlightEl.hidden = true;
   adviceEl.hidden = true;
   adviceEl.dataset.band = "";
   adviceEl.dataset.pending = "false";

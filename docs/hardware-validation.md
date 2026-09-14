@@ -2,37 +2,89 @@
 
 [← Documentation index](README.md)
 
-> **This has not been run against a real ProTee VX or a real GSPro.**
-> The stages below are the operator workflow for that first session.
-> Fakes cannot establish the facts listed under
-> [Hardware assumptions that must be measured](#hardware-assumptions-that-must-be-measured).
+> **File formats below were verified on real hardware. This observer path has
+> not yet been run end-to-end in the hitting bay with CaddieJ started.**
+> Interpose stages remain experimental.
 
-The first real test exercises only:
+The production target is passive observation. ProTee talks to GSPro; CaddieJ
+reads a log and `currentRound.dat`. Stopping CaddieJ must not affect either.
 
 ```
-ProTee VX → CaddieJ GSPro interposer → real GSPro
-         → EventBus → PlayFlow → floor/HUD → SQLite history
+ProTee VX ───────────► GSPro
+    │                    │
+    │ log                │ currentRound.dat
+    │                    │
+    └───────► CaddieJ ◄──┘
+                 │
+                 ▼
+                OBS
+                 │
+                 ▼
+          floor projector
 ```
 
-Everything else stays off. This is not a product feature and does not
-add a runtime layer: it is a known-minimal `.env` plus this page.
+Open Connect interpose is optional diagnostics, not this path.
 
 ## Validation profile
 
 Copy the example, then confirm it:
 
 ```powershell
-copy config\examples\hardware-validation.env .env
+copy config\examples\observe.env .env
 caddiej --check-config
 ```
 
 `--check-config` is the preflight. It already reports that the
-configuration is valid, the HUD URL, the GSPro bind and upstream
-addresses (when `GSPRO_MODE=interpose`), where history will be written,
-and that video, speech, lighting, celebrations, and the assistant API
-are off. It never prints a secret. There is no `--hardware-preflight`
-command: a second flag would be another thing to remember for the same
-facts.
+configuration is valid, the HUD URL, and (for `GSPRO_MODE=observe`) that
+the shot source is passive observation rather than a bind on 9210.
+
+Expect `--check-config` to mention `http://127.0.0.1:8730/` and
+`passive observation`.
+
+## Observer path — remaining bay checklist
+
+Do this with ProTee pointed at GSPro, not at CaddieJ.
+
+1. Start GSPro and ProTee as you already do for a round. Confirm a ball
+   still plays with CaddieJ **stopped**.
+2. `GSPRO_MODE=observe caddiej` from the directory that holds `.env`.
+3. Open `http://127.0.0.1:8730/` (or the OBS Browser Source below).
+4. `GET http://127.0.0.1:8730/healthz` — top-level `status` stays `ok`
+   even if a round is not active. `protee_observer.status` may be
+   `waiting` while ProTee is closed; `gspro_round_observer.status` may
+   be `waiting` while `currentRound.dat` is absent.
+5. Place a ball. HUD should show **READY** and the detected club
+   (for example **DRIVER**) plus the existing tee marker.
+6. Hit a shot **in a round**, not on the Practice Range.
+7. HUD should show raw **BALL SPEED** / **DISTANCE** / **HOLE** / **SHOT**
+   / **SURFACE** with no unit suffixes, and a **BALL FLIGHT** trace.
+8. Stop CaddieJ. Hit another ball. ProTee and GSPro must still work.
+
+Not yet validated in the bay with CaddieJ running: that this overlay is
+readable on the floor projector, and that daily ProTee log rotation
+during a session is as the unit tests describe.
+
+OBS Browser Source (manual is enough; do not change the working
+projector output):
+
+| | |
+| --- | --- |
+| URL | `http://127.0.0.1:8730/` |
+| Source name | `CaddieJ Floor` |
+| Width × height | 1920 × 1080 |
+| Scene | existing `CaddieJ Test` |
+| Output | existing Fullscreen Projector to the floor projector |
+
+Launch-monitor club metrics (club path, face, attack, spin) are still
+unresolved and must not be guessed from this path.
+
+## Interpose profile (experimental)
+
+The older Open Connect interposer profile remains at
+`config/examples/hardware-validation.env`. It is not required for observer
+mode. `--check-config` never prints a secret. There is no
+`--hardware-preflight` command: a second flag would be another thing to
+remember for the same facts.
 
 Also note, from the same terminal:
 

@@ -26,6 +26,11 @@
         <span id="status-text" class="status__text"></span>
       </div>
 
+      <div id="play-status" class="play-status" hidden>
+        <span id="play-status-text" class="play-status__state"></span>
+        <span id="play-club-label" class="play-status__club"></span>
+      </div>
+
       <div id="metrics" class="metrics" hidden>
         <div class="metric">
           <span class="metric__label">Ball</span>
@@ -43,6 +48,42 @@
           <span id="metric-carry" class="metric__value"></span>
           <span class="metric__unit">yds</span>
         </div>
+      </div>
+
+      <div id="round-result" class="round-result" hidden>
+        <div class="round-result__meta">
+          <span id="round-player" class="round-result__player"></span>
+          <span id="round-shot-id" class="round-result__id"></span>
+        </div>
+        <div class="round-result__metrics">
+          <div class="metric">
+            <span class="metric__label">Ball Speed</span>
+            <span id="round-ball-speed" class="metric__value"></span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">Distance</span>
+            <span id="round-distance" class="metric__value"></span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">Hole</span>
+            <span id="round-hole" class="metric__value"></span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">Shot</span>
+            <span id="round-hole-shot" class="metric__value"></span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">Surface</span>
+            <span id="round-surface" class="metric__value metric__value--text"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="ball-flight" class="ball-flight" hidden>
+        <span class="ball-flight__label">Ball Flight</span>
+        <svg id="ball-flight-chart" class="ball-flight__chart" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <polyline id="ball-flight-path" class="ball-flight__path" points="" fill="none" />
+        </svg>
       </div>
 
       <!-- One coaching line. Some of this text is written by a language model,

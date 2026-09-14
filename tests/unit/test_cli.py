@@ -131,6 +131,12 @@ class TestCheckingTheConfiguration:
         assert "off (VIDEO_ENABLED=false)" in report
         assert "Configuration is valid." in report
 
+    def test_observe_mode_says_it_does_not_listen(self) -> None:
+        report = describe(a_settings(GSPRO_MODE="observe"))
+
+        assert "passive observation" in report
+        assert "does not listen on 9210" in report
+
     def test_it_resolves_where_files_will_be_written(self, tmp_path) -> None:
         # "caddiej.sqlite3" does not say where, and the answer depends on which
         # directory CaddieJ was started from.

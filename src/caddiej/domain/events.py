@@ -17,6 +17,7 @@ from uuid import UUID
 from caddiej.core.events import Event
 from caddiej.domain.coaching import Advice, AdviceFailure, CoachingFocus, Diagnosis
 from caddiej.domain.media import CaptureState, ClipFailure, ClipRef
+from caddiej.domain.observation import ObservedRoundShot
 from caddiej.domain.shot import Club, Handedness, Shot
 from caddiej.domain.speech import Envelope, SpeechOutcome, SpeechPriority
 
@@ -156,6 +157,28 @@ class IncompleteShotDiscarded(ShotEvent):
     device_sequence: int | None = None
     had_ball_data: bool = False
     had_club_data: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class ShotDispatched(LaunchMonitorEvent):
+    """The launch monitor said it sent a shot to the simulator.
+
+    Not `ShotCompleted`: that event requires a normalized `Shot`, and the
+    ProTee log line that reports a send does not include launch numbers.
+    """
+
+
+@dataclass(frozen=True, slots=True)
+class RoundShotObserved(ShotEvent):
+    """A newly completed round-play shot, observed after CaddieJ started.
+
+    Produced from GSPro's currentRound.dat. It is not a launch-monitor `Shot`:
+    values stay raw because their units have not been verified. Historical
+    shots already in the file at startup are recorded as a baseline and never
+    published.
+    """
+
+    shot: ObservedRoundShot
 
 
 # --- player ---------------------------------------------------------------

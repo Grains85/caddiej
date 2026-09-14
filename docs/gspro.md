@@ -2,17 +2,35 @@
 
 [← Documentation index](README.md)
 
-> **Not yet run against real GSPro or a real launch monitor.** This path is
-> developed against a fake device and a fake simulator that speak the same
-> protocol. See [Project status](../README.md#project-status).
+Production CaddieJ is a **passive observer**. ProTee VX talks to GSPro directly.
+CaddieJ reads two files that have been verified on real hardware:
+
+- ProTee's semantic daily log under `%APPDATA%\ProTeeUnited\Logs\`
+- GSPro's `currentRound.dat` (UTF-8 JSON despite the extension) during **round play**
+
+```shell
+GSPRO_MODE=observe caddiej
+```
+
+CaddieJ does not listen on 9210, does not connect to GSPconnect, and does not
+change ProTee or GSPro configuration. If CaddieJ stops, both keep working.
+
+`currentRound.dat` was observed to update after a real shot in a round. It was
+observed **not** to update on the Practice Range. Range support is not claimed.
+Numeric units and surface/result enums are stored raw until they are verified.
+Launch-monitor club metrics (club path, face angle, attack angle, spin, and so
+on) are not in these sources; a later adapter can enrich a shot without this
+path inventing them.
+
+OBS is output only: a Browser Source renders CaddieJ's HUD. CaddieJ does not
+read OBS, OCR a screen, or scrape GSPro's UI.
+
+## Experimental: sitting in the Open Connect path
 
 GSPro's Open Connect interface runs in the opposite direction to what the name
 suggests: **GSPro is the server** and the launch monitor connects to it and pushes
-shots. There is no observer interface, so the only way for CaddieJ to see a shot
-is to sit in the conversation.
-
-CaddieJ therefore accepts the launch monitor's connection itself and forwards
-everything to GSPro verbatim, in both directions, before it parses any of it:
+shots. The interposer remains for diagnostics. It is not required for observer
+mode.
 
 ```shell
 GSPRO_MODE=interpose caddiej

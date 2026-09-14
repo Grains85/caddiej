@@ -154,6 +154,30 @@ async def test_each_gspro_mode_starts_its_own_supervised_task(
     await supervisor.shutdown()
 
 
+async def test_observe_mode_starts_passive_observers_and_does_not_bind() -> None:
+    settings = Settings(
+        _env_file=None,  # type: ignore[call-arg]
+        GSPRO_MODE="observe",
+    )
+    round_view = app_module._RoundObserverHealth()
+    protee_view = app_module._ProTeeObserverHealth()
+    app_module._attach_observers(settings, _ignore, round_view, protee_view)
+    supervisor = TaskSupervisor(shutdown_timeout=1.0, on_failure=lambda: None)
+
+    app_module._start_gspro(
+        settings,
+        supervisor,
+        AsyncEventBus(),
+        round_observer=round_view,
+        protee_observer=protee_view,
+    )
+
+    assert {task.get_name() for task in supervisor.tasks} == {"gspro-observe"}
+    assert round_view.adapter is not None
+    assert protee_view.adapter is not None
+    await supervisor.shutdown()
+
+
 @pytest.mark.parametrize(
     ("history", "capture", "expected"),
     [
