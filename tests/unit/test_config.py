@@ -122,7 +122,10 @@ def test_the_tee_defaults_to_today_s_visual_placement() -> None:
 
     assert settings.floor_tee_x_m == 0.5
     assert settings.floor_tee_y_m == 0.72
+    assert settings.floor_tee_driver_x_m == 0.5
+    assert settings.floor_tee_driver_y_m == 0.72
     assert settings.floor_club_path_length == 1.2
+    assert settings.floor_shot_result_max_duration == 15.0
 
 
 def test_a_physical_tee_off_the_floor_is_rejected() -> None:
@@ -162,6 +165,42 @@ def test_physical_tee_wins_when_both_forms_are_set() -> None:
 
     assert settings.floor_tee_x_m == 0.4
     assert settings.floor_tee_y_m == 0.6
+
+
+def test_an_unset_driver_tee_inherits_the_default_tee() -> None:
+    settings = Settings(
+        _env_file=None,  # type: ignore[call-arg]
+        FLOOR_TEE_X_M=0.4,
+        FLOOR_TEE_Y_M=0.6,
+    )
+
+    assert settings.floor_tee_driver_x_m == 0.4
+    assert settings.floor_tee_driver_y_m == 0.6
+
+
+def test_a_set_driver_tee_is_independent_of_the_default() -> None:
+    settings = Settings(
+        _env_file=None,  # type: ignore[call-arg]
+        FLOOR_TEE_X_M=0.4,
+        FLOOR_TEE_Y_M=0.6,
+        FLOOR_TEE_DRIVER_X_M=0.35,
+        FLOOR_TEE_DRIVER_Y_M=0.5,
+    )
+
+    assert settings.floor_tee_x_m == 0.4
+    assert settings.floor_tee_driver_x_m == 0.35
+    assert settings.floor_tee_driver_y_m == 0.5
+
+
+def test_a_driver_tee_off_the_floor_is_rejected() -> None:
+    with pytest.raises(ValidationError, match="FLOOR_TEE_DRIVER_Y_M"):
+        Settings(
+            _env_file=None,  # type: ignore[call-arg]
+            FLOOR_WIDTH_M=2.0,
+            FLOOR_DEPTH_M=2.0,
+            FLOOR_TEE_DRIVER_X_M=0.5,
+            FLOOR_TEE_DRIVER_Y_M=2.5,
+        )
 
 
 def test_observe_mode_is_a_valid_shot_source() -> None:

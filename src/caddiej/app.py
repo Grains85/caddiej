@@ -84,6 +84,7 @@ async def run(settings: Settings | None = None) -> None:
         publish=event_bus.publish,
         shot_display_seconds=resolved.floor_shot_display_seconds,
         advice_display_seconds=resolved.coaching_display_seconds,
+        shot_result_max_duration=resolved.floor_shot_result_max_duration,
     )
     play.subscribe(event_bus)
 
@@ -706,6 +707,9 @@ def _build_presenter(settings: Settings, floor: FloorService) -> FloorPresenter:
     return FloorPresenter(
         floor,
         tee=PhysicalPoint(x_m=settings.floor_tee_x_m, y_m=settings.floor_tee_y_m),
+        driver_tee=PhysicalPoint(
+            x_m=settings.floor_tee_driver_x_m, y_m=settings.floor_tee_driver_y_m
+        ),
         club_path_length=settings.floor_club_path_length,
         calibration=_floor_calibration(settings),
     )

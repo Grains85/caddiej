@@ -17,10 +17,15 @@ change ProTee or GSPro configuration. If CaddieJ stops, both keep working.
 
 `currentRound.dat` was observed to update after a real shot in a round. It was
 observed **not** to update on the Practice Range. Range support is not claimed.
-Numeric units and surface/result enums are stored raw until they are verified.
-Launch-monitor club metrics (club path, face angle, attack angle, spin, and so
-on) are not in these sources; a later adapter can enrich a shot without this
-path inventing them.
+Numeric fields stay raw on `ObservedRoundShot`. The HUD formats two of them as
+a hardware-derived presentation assumption (not a schema change):
+
+- `BallSpeed` ≈ metres per second (a real value of ~32.8386 displayed as 118 km/h)
+- `TotalDistance` ≈ metres (integer `m` on the overlay)
+
+Surface/result enums stay unnamed integers. Launch-monitor club metrics (club
+path, face angle, attack angle, spin, and so on) are not in these sources; a
+later adapter can enrich a shot without this path inventing them.
 
 OBS is output only: a Browser Source renders CaddieJ's HUD. CaddieJ does not
 read OBS, OCR a screen, or scrape GSPro's UI.

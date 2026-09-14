@@ -2,8 +2,9 @@
 
 [← Documentation index](README.md)
 
-> **File formats below were verified on real hardware. This observer path has
-> not yet been run end-to-end in the hitting bay with CaddieJ started.**
+> **File formats and the passive HUD → OBS → floor projector path have been
+> verified on real hardware.** These presentation refinements (km/h, metres,
+> result lifetime, driver tee) should be re-checked in the bay after deploy.
 > Interpose stages remain experimental.
 
 The production target is passive observation. ProTee talks to GSPro; CaddieJ
@@ -56,8 +57,10 @@ Do this with ProTee pointed at GSPro, not at CaddieJ.
 5. Place a ball. HUD should show **READY** and the detected club
    (for example **DRIVER**) plus the existing tee marker.
 6. Hit a shot **in a round**, not on the Practice Range.
-7. HUD should show raw **BALL SPEED** / **DISTANCE** / **HOLE** / **SHOT**
-   / **SURFACE** with no unit suffixes, and a **BALL FLIGHT** trace.
+7. HUD should show **BALL SPEED** as integer km/h (for example `118 km/h`),
+   **DISTANCE** as integer metres, **HOLE** / **SHOT** / **SURFACE** as raw
+   integers, and a **BALL FLIGHT** trace. The result stays until the next
+   ball / READY, or 15 seconds.
 8. Stop CaddieJ. Hit another ball. ProTee and GSPro must still work.
 
 Not yet validated in the bay with CaddieJ running: that this overlay is
@@ -423,8 +426,10 @@ application-level half-open detection.
 ## Floor dimensions
 
 `FLOOR_WIDTH_M`, `FLOOR_DEPTH_M`, `FLOOR_TEE_X_M`, `FLOOR_TEE_Y_M`,
-and `FLOOR_CLUB_PATH_LENGTH` are metres. The example file keeps the
-repository defaults (1 m × 1 m identity). Change them to the real bay
-before treating a drawn path angle as the launch-monitor number on a
-non-square floor. Do not commit a measured room back to the repository
-unless it is a generic default.
+`FLOOR_TEE_DRIVER_X_M`, `FLOOR_TEE_DRIVER_Y_M`, and
+`FLOOR_CLUB_PATH_LENGTH` are metres. The example file keeps the
+repository defaults (1 m × 1 m identity; driver tee matches the
+default tee). Change them to the real bay before treating a drawn
+path angle as the launch-monitor number on a non-square floor. Do not
+commit a measured room back to the repository unless it is a generic
+default.

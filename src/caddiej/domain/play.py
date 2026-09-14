@@ -7,10 +7,11 @@ and asks the floor for what a player should be looking at.
 
 The rules it enforces, in the order a shot actually happens:
 
-* the club in play decides which address marker is shown;
+* the club in play decides which address marker is shown, and where;
 * a ball on the mat hides the marker, because the projector would otherwise be
   shining onto the ball the player is about to hit;
-* a shot replaces the address with what just happened, for a few seconds;
+* a shot replaces the address with what just happened;
+* a GSPro round result stays until the next ball / READY, or a configurable cap;
 * a coaching line appears beside it and has its own lifetime;
 * once that has been read, the floor returns to showing where the next ball goes.
 
@@ -74,6 +75,7 @@ class PlayFlow:
         publish: Publish,
         shot_display_seconds: float = 6.0,
         advice_display_seconds: float = 9.0,
+        shot_result_max_duration: float = 15.0,
         sleep: Sleep = asyncio.sleep,
     ) -> None:
         self._floor = floor
@@ -84,6 +86,8 @@ class PlayFlow:
         # reason: a model answering four seconds late must still get a full
         # showing rather than two seconds of what is left of the shot's.
         self._advice_display_seconds = advice_display_seconds
+        # Observer round results stay until READY / a new ball, or this cap.
+        self._shot_result_max_duration = shot_result_max_duration
         self._sleep = sleep
 
         self._club: Club | None = None
@@ -92,6 +96,8 @@ class PlayFlow:
         self._handedness = Handedness.UNKNOWN
         self._monitor_status = ""
         self._showing_shot = False
+        self._round_result_up = False
+        self._display_generation = 0
         self._display_timer: asyncio.Task[None] | None = None
         self._shot_id: UUID | None = None
         self._advice_timer: asyncio.Task[None] | None = None
@@ -186,6 +192,7 @@ class PlayFlow:
 
     async def on_ball_detected(self, _event: BallDetected) -> None:
         self._ball = Detection.PRESENT
+        await self._dismiss_round_result()
         self._present()
 
     async def on_ball_cleared(self, _event: BallCleared) -> None:
@@ -201,6 +208,8 @@ class PlayFlow:
     async def on_readiness_changed(self, event: LaunchMonitorReadinessChanged) -> None:
         self._ready = event.ready
         self._monitor_status = "READY" if event.ready else "FINDING BALL"
+        if event.ready:
+            await self._dismiss_round_result()
         self._present()
 
     async def on_link_changed(self, event: LaunchMonitorLinkChanged) -> None:
@@ -229,12 +238,15 @@ class PlayFlow:
         # no display timer to restore it.
         try:
             self._floor.show_shot(shot)
+            generation = self._invalidate_shot_display()
+            await self._cancel_display_timer()
             self._showing_shot = True
+            self._round_result_up = False
             # Whatever was said about the previous shot is now about the wrong swing.
             await self._cancel_advice_timer()
             self._floor.clear_advice()
             self._present()
-            self._restart_display_timer()
+            self._arm_display_timer(generation, self._shot_display_seconds)
         except Exception:
             logger.exception("play_floor_presentation_failed")
         await self._publish(ShotCompleted(shot=shot))
@@ -248,11 +260,14 @@ class PlayFlow:
 
         try:
             self._floor.show_round_result(event.shot)
+            generation = self._invalidate_shot_display()
+            await self._cancel_display_timer()
             self._showing_shot = True
+            self._round_result_up = True
             await self._cancel_advice_timer()
             self._floor.clear_advice()
             self._present()
-            self._restart_display_timer()
+            self._arm_display_timer(generation, self._shot_result_max_duration)
         except Exception:
             logger.exception("play_floor_presentation_failed")
 
@@ -307,12 +322,27 @@ class PlayFlow:
         # not ready, so only an explicit "no" suppresses the marker.
         return self._ready is not False
 
-    def _restart_display_timer(self) -> None:
-        timer = self._display_timer
-        if timer is not None:
-            timer.cancel()
+    async def _dismiss_round_result(self) -> None:
+        """Take a GSPro result off as soon as the next ball / READY is real."""
+
+        if not self._round_result_up:
+            return
+        self._invalidate_shot_display()
+        await self._cancel_display_timer()
+        self._showing_shot = False
+        self._round_result_up = False
+        self._floor.clear_shot()
+
+    def _invalidate_shot_display(self) -> int:
+        """Retire any in-flight timeout so it cannot hide a newer result."""
+
+        self._display_generation += 1
+        return self._display_generation
+
+    def _arm_display_timer(self, generation: int, seconds: float) -> None:
         self._display_timer = asyncio.create_task(
-            self._display_shot_for_a_while(), name="floor-shot-display"
+            self._display_shot_for_a_while(generation, seconds),
+            name="floor-shot-display",
         )
 
     async def _cancel_display_timer(self) -> None:
@@ -326,10 +356,13 @@ class PlayFlow:
         except asyncio.CancelledError:
             pass
 
-    async def _display_shot_for_a_while(self) -> None:
+    async def _display_shot_for_a_while(self, generation: int, seconds: float) -> None:
         try:
-            await self._sleep(self._shot_display_seconds)
+            await self._sleep(seconds)
+            if generation != self._display_generation:
+                return
             self._showing_shot = False
+            self._round_result_up = False
             self._floor.clear_shot()
             self._present()
         except asyncio.CancelledError:
@@ -339,6 +372,7 @@ class PlayFlow:
             # shot is still on screen, or the marker would never come back.
             logger.exception("play_shot_display_failed")
             self._showing_shot = False
+            self._round_result_up = False
 
     def _restart_advice_timer(self) -> None:
         timer = self._advice_timer

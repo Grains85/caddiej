@@ -626,7 +626,10 @@ What has been verified on real hardware, and what this path therefore uses:
 What this path does **not** claim:
 
 - Practice Range support (`currentRound.dat` was observed not to update there).
-- Units for `BallSpeed`, `TotalDistance`, and similar (kept as `*_raw`).
+- Units for `BallSpeed`, `TotalDistance`, and similar stay `*_raw` on the
+  domain model. The HUD formats `BallSpeed` as integer km/h treating the
+  source as m/s (hardware: ~32.8386 → 118 km/h) and `TotalDistance` as
+  integer metres. Those labels are presentation only.
 - Meanings of `ClubIndex`, surface, and result integers (kept raw).
 - Launch-monitor club metrics (club path, face, attack, spin). Those need a
   later source. This result is not filled with zeros pretending they exist.

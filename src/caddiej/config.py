@@ -169,6 +169,20 @@ class Settings(BaseSettings):
         ge=0.0,
         validation_alias="FLOOR_TEE_Y_M",
     )
+    # DRIVER is played further forward; other clubs share the default tee
+    # above. Unset driver coordinates inherit the resolved default tee so a
+    # bay that only sets FLOOR_TEE_X_M / FLOOR_TEE_Y_M does not jump. Same
+    # metre space, same calibration; not CSS pixels.
+    floor_tee_driver_x_m: float = Field(
+        default=0.5,
+        ge=0.0,
+        validation_alias="FLOOR_TEE_DRIVER_X_M",
+    )
+    floor_tee_driver_y_m: float = Field(
+        default=0.72,
+        ge=0.0,
+        validation_alias="FLOOR_TEE_DRIVER_Y_M",
+    )
     # Deprecated aliases: a 0–1 fraction of the bay, converted to metres
     # only when the corresponding _M variable is unset. Not a second source
     # of truth after validation.
@@ -197,6 +211,12 @@ class Settings(BaseSettings):
         default=6.0,
         gt=0,
         validation_alias="FLOOR_SHOT_DISPLAY_SECONDS",
+    )
+    # Observer round-result panel: stay until READY / a new ball, or this cap.
+    floor_shot_result_max_duration: float = Field(
+        default=15.0,
+        gt=0,
+        validation_alias="FLOOR_SHOT_RESULT_MAX_DURATION",
     )
 
     # GSPro Open Connect. CaddieJ can sit between the launch monitor connector
@@ -985,6 +1005,28 @@ class Settings(BaseSettings):
             )
         self.floor_tee_x_m = x_m
         self.floor_tee_y_m = y_m
+        driver_x = (
+            self.floor_tee_driver_x_m
+            if "floor_tee_driver_x_m" in self.model_fields_set
+            else x_m
+        )
+        driver_y = (
+            self.floor_tee_driver_y_m
+            if "floor_tee_driver_y_m" in self.model_fields_set
+            else y_m
+        )
+        if not 0.0 <= driver_x <= self.floor_width_m:
+            raise ValueError(
+                "FLOOR_TEE_DRIVER_X_M must lie on the configured floor "
+                f"(0..{self.floor_width_m} m), got {driver_x}"
+            )
+        if not 0.0 <= driver_y <= self.floor_depth_m:
+            raise ValueError(
+                "FLOOR_TEE_DRIVER_Y_M must lie on the configured floor "
+                f"(0..{self.floor_depth_m} m), got {driver_y}"
+            )
+        self.floor_tee_driver_x_m = driver_x
+        self.floor_tee_driver_y_m = driver_y
         if self.gspro_round_file_path is None:
             self.gspro_round_file_path = default_gspro_round_file()
         if self.protee_root_path is None:

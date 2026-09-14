@@ -57,12 +57,15 @@ local, and nothing here is safe to expose on a network.
 | `FLOOR_STATUS_TEXT` | `CADDIEJ FLOOR ONLINE` | What the idle floor says. |
 | `FLOOR_WIDTH_M` | `1.0` | Physical width of the hitting bay, metres, left to right. Path angles are computed here. The default 1 m makes surface coordinates numerically identical to metres, so a fresh checkout looks as it always has. Not a pixel count. |
 | `FLOOR_DEPTH_M` | `1.0` | Physical depth of the hitting bay, metres, back of the surface towards the player. Same default as the width, for the same reason. |
-| `FLOOR_TEE_X_M` | `0.5` | Where the ball sits across the physical floor, metres from the far-left back corner. Must lie on `FLOOR_WIDTH_M`. The default on the default 1 m × 1 m bay matches the old visual placement. |
-| `FLOOR_TEE_Y_M` | `0.72` | Where the ball sits towards the player, metres. Must lie on `FLOOR_DEPTH_M`. |
+| `FLOOR_TEE_X_M` | `0.5` | Default (non-driver) ball marker across the physical floor, metres from the far-left back corner. Must lie on `FLOOR_WIDTH_M`. Unknown club uses this too. |
+| `FLOOR_TEE_Y_M` | `0.72` | Default (non-driver) ball marker towards the player, metres. Must lie on `FLOOR_DEPTH_M`. |
+| `FLOOR_TEE_DRIVER_X_M` | *(inherits default tee)* | DRIVER marker X, metres. Unset inherits `FLOOR_TEE_X_M`. Must lie on `FLOOR_WIDTH_M`. |
+| `FLOOR_TEE_DRIVER_Y_M` | *(inherits default tee)* | DRIVER marker Y, metres. Unset inherits `FLOOR_TEE_Y_M`. Must lie on `FLOOR_DEPTH_M`. |
 | `FLOOR_TEE_X` | *(unset)* | Deprecated. A 0–1 fraction of `FLOOR_WIDTH_M`, converted to `FLOOR_TEE_X_M` only when that variable is unset. Ignored, with a warning, if both are set. |
 | `FLOOR_TEE_Y` | *(unset)* | Deprecated. A 0–1 fraction of `FLOOR_DEPTH_M`, converted to `FLOOR_TEE_Y_M` only when that variable is unset. |
 | `FLOOR_CLUB_PATH_LENGTH` | `1.2` | How far the club-path line is drawn, in metres of the physical floor. About a pace on a real bay — not a 0–1 fraction of the overlay. |
-| `FLOOR_SHOT_DISPLAY_SECONDS` | `6.0` | How long a shot's path and numbers stay up. |
+| `FLOOR_SHOT_DISPLAY_SECONDS` | `6.0` | How long an interpose/simulated shot's path and numbers stay up. |
+| `FLOOR_SHOT_RESULT_MAX_DURATION` | `15` | Observer round-result panel: stay until READY / a new ball, or this many seconds, whichever happens first. |
 | `FLOOR_DEMO` | `false` | Cycle the floor through every state it can render. Development only. |
 | `FLOOR_DEMO_STEP_SECONDS` | `2.5` | How long each demo step lasts. |
 

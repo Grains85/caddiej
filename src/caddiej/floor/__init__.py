@@ -43,6 +43,7 @@ from caddiej.floor.state import (
     RoundResultView,
     ShotMetrics,
 )
+from caddiej.floor.tees import TeePositions
 
 __all__ = [
     "DEFAULT_CALIBRATION",
@@ -69,6 +70,7 @@ __all__ = [
     "RectangularCalibration",
     "RoundResultView",
     "ShotMetrics",
+    "TeePositions",
     "display_to_surface",
     "fit_ball_flight",
     "marker_variant_for",

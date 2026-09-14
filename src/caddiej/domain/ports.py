@@ -41,10 +41,11 @@ class FloorPort(Protocol):
         """Show what just happened: the club's path and the launch numbers."""
 
     def show_round_result(self, shot: ObservedRoundShot) -> None:
-        """Show a GSPro round-play result with raw values and ball flight.
+        """Show a GSPro round-play result and its ball-flight path.
 
-        Distinct from `show_shot`: those numbers have verified units, these
-        do not, and they must not be drawn with unit suffixes.
+        Distinct from `show_shot`: the domain values stay raw. Any unit labels
+        are a presentation choice in the floor adapter, not a change to the
+        observation schema.
         """
 
     def clear_shot(self) -> None:

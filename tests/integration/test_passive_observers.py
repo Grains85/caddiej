@@ -165,6 +165,8 @@ async def test_passive_observers_update_the_overlay(hud_stack: dict) -> None:
         assert panel["shot_id"] == "D"
         assert panel["ball_speed_raw"] == 32.84
         assert panel["total_distance_raw"] == 248.5
+        assert panel["ball_speed_display"] == "118 km/h"
+        assert panel["total_distance_display"] == "249 m"
         assert panel["hole"] == 3
         assert panel["hole_shot"] == 2
         assert panel["starting_surface_raw"] == 1

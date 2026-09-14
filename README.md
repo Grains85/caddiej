@@ -182,11 +182,13 @@ cannot contain a credential.
 
 ## Known limitations
 
-- **Imperial units only.** Speeds are mph and distances are yards throughout,
-  including on the floor. There is no metric display.
+- **Launch-monitor shots are imperial.** Open Connect speeds are mph and
+  distances are yards. The observer HUD formats GSPro `BallSpeed` as km/h
+  and `TotalDistance` as metres without changing the raw domain values.
 - **No floor calibration.** The tee is a physical point (`FLOOR_TEE_X_M`,
-  `FLOOR_TEE_Y_M`) mapped through the same calibration as the club path;
-  nothing yet measures where the mat actually is.
+  `FLOOR_TEE_Y_M`, plus `FLOOR_TEE_DRIVER_*_M` for driver) mapped through
+  the same calibration as the club path; nothing yet measures where the mat
+  actually is.
 - **No scoring.** Open Connect carries shots and a club, not a scorecard, so
   celebrations are wired but nothing triggers them.
 - **Windows software path is CI-tested; real GSPro/ProTee validation pending.**

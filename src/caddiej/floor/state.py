@@ -213,9 +213,12 @@ class FlightDrawPoint:
 
 @dataclass(frozen=True, slots=True)
 class RoundResultView:
-    """Raw GSPro round-play numbers for the diagnostic overlay.
+    """GSPro round-play numbers for the diagnostic overlay.
 
-    No unit suffixes. `hole` is the value GSPro stored; it is not adjusted.
+    `*_raw` are the values currentRound.dat stored. Display strings are HUD
+    formatting only (integer km/h and metres) and must not be treated as a
+    change to the domain schema. `hole` is the value GSPro stored; it is not
+    adjusted. Surface integers stay unnamed.
     """
 
     shot_id: str
@@ -224,6 +227,8 @@ class RoundResultView:
     hole_shot: int | None = None
     ball_speed_raw: float | None = None
     total_distance_raw: float | None = None
+    ball_speed_display: str | None = None
+    total_distance_display: str | None = None
     starting_surface_raw: int | None = None
     ending_surface_raw: int | None = None
 

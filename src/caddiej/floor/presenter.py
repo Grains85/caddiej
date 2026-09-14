@@ -18,6 +18,7 @@ from caddiej.domain.coaching import band_for
 from caddiej.domain.observation import ObservedRoundShot
 from caddiej.domain.shot import Club, ClubKind, Shot
 from caddiej.floor.flight import fit_ball_flight, relative_ball_path
+from caddiej.floor.format import format_ball_speed_kmh, format_total_distance_m
 from caddiej.floor.geometry import (
     DEFAULT_CALIBRATION,
     FloorCalibration,
@@ -32,6 +33,7 @@ from caddiej.floor.state import (
     RoundResultView,
     ShotMetrics,
 )
+from caddiej.floor.tees import TeePositions
 
 logger = logging.getLogger(__name__)
 
@@ -44,11 +46,10 @@ _VARIANTS = {
 def marker_variant_for(club: Club | None) -> MarkerVariant:
     """Which marker a club calls for.
 
-    Only the two clubs that change where the ball goes get their own marker: a
-    driver is played forward in the stance off a tee, and a putter is played off
-    a flat surface with no tee at all. Everything between them — irons, wedges,
-    hybrids, fairway woods — is played from the middle, so drawing a different
-    marker for each would be decoration pretending to be information.
+    Appearance only. Where the ball sits is `TeePositions.for_club`: DRIVER
+    has its own physical point, and everything else — including no club —
+    uses the default. A putter still gets a flatter drawing here; a later
+    putter tee would be another `by_kind` entry, not a CSS offset.
     """
 
     if club is None:
@@ -65,20 +66,28 @@ class FloorPresenter:
         tee: PhysicalPoint,
         club_path_length: float = 1.2,
         calibration: FloorCalibration | None = None,
+        driver_tee: PhysicalPoint | None = None,
+        tees: TeePositions | None = None,
     ) -> None:
         self._floor = floor
-        self._tee = tee
+        self._tees = tees or TeePositions(
+            default=tee,
+            by_kind={ClubKind.DRIVER: tee if driver_tee is None else driver_tee},
+        )
         self._club_path_length = club_path_length
         self._calibration = DEFAULT_CALIBRATION if calibration is None else calibration
 
-    def _tee_on_surface(self) -> FloorPoint:
+    def _physical_tee(self, club: Club | None) -> PhysicalPoint:
+        return self._tees.for_club(club)
+
+    def _tee_on_surface(self, club: Club | None = None) -> FloorPoint:
         """The browser only ever sees surface coordinates."""
 
-        return self._calibration.to_surface(self._tee)
+        return self._calibration.to_surface(self._physical_tee(club))
 
     def show_address(self, club: Club | None) -> None:
         self._stand_down_the_banner()
-        self._floor.show_marker(self._tee_on_surface(), marker_variant_for(club))
+        self._floor.show_marker(self._tee_on_surface(club), marker_variant_for(club))
 
     def hide_address(self) -> None:
         self._floor.hide_marker()
@@ -112,6 +121,8 @@ class FloorPresenter:
                 hole_shot=shot.hole_shot,
                 ball_speed_raw=shot.ball_speed_raw,
                 total_distance_raw=shot.total_distance_raw,
+                ball_speed_display=format_ball_speed_kmh(shot.ball_speed_raw),
+                total_distance_display=format_total_distance_m(shot.total_distance_raw),
                 starting_surface_raw=shot.starting_surface_raw,
                 ending_surface_raw=shot.ending_surface_raw,
             ),
@@ -159,7 +170,7 @@ class FloorPresenter:
             return
         self._floor.set_club_path(
             ClubPath(
-                start=self._tee_on_surface(),
+                start=self._tee_on_surface(shot.club),
                 angle_degrees=angle,
                 length=self._club_path_length,
                 calibration=self._calibration,

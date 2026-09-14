@@ -14,17 +14,20 @@ from caddiej.domain.shot import (
     Shot,
     ShotSource,
 )
-from caddiej.floor.geometry import PhysicalPoint
+from caddiej.floor.geometry import PhysicalPoint, rectangular_calibration
 from caddiej.floor.presenter import FloorPresenter, marker_variant_for
 from caddiej.floor.service import FloorService
 from caddiej.floor.state import FloorPoint, MarkerVariant
+from caddiej.floor.tees import TeePositions
 
 TEE = PhysicalPoint(x_m=0.5, y_m=0.72)
+DRIVER_TEE = PhysicalPoint(x_m=0.5, y_m=0.55)
 SURFACE_TEE = FloorPoint(x=0.5, y=0.72)
+SURFACE_DRIVER_TEE = FloorPoint(x=0.5, y=0.55)
 
 
 def presenter(floor: FloorService) -> FloorPresenter:
-    return FloorPresenter(floor, tee=TEE, club_path_length=0.4)
+    return FloorPresenter(floor, tee=TEE, driver_tee=DRIVER_TEE, club_path_length=0.4)
 
 
 def shot(
@@ -80,11 +83,57 @@ def test_an_unknown_club_still_gets_somewhere_to_put_the_ball() -> None:
 def test_showing_the_address_places_the_marker_at_the_tee() -> None:
     floor = FloorService()
 
-    presenter(floor).show_address(Club(kind=ClubKind.DRIVER))
+    presenter(floor).show_address(Club(kind=ClubKind.IRON))
 
     assert floor.state.marker.position == SURFACE_TEE
-    assert floor.state.marker.variant is MarkerVariant.DRIVER
+    assert floor.state.marker.variant is MarkerVariant.NORMAL
     assert floor.state.marker.visible is True
+
+
+def test_a_driver_uses_the_driver_physical_tee() -> None:
+    floor = FloorService()
+
+    presenter(floor).show_address(Club(kind=ClubKind.DRIVER))
+
+    assert floor.state.marker.position == SURFACE_DRIVER_TEE
+    assert floor.state.marker.variant is MarkerVariant.DRIVER
+
+
+def test_an_unknown_club_uses_the_default_physical_tee() -> None:
+    floor = FloorService()
+
+    presenter(floor).show_address(None)
+
+    assert floor.state.marker.position == SURFACE_TEE
+    assert floor.state.marker.variant is MarkerVariant.NORMAL
+
+
+def test_tee_selection_is_one_mapping_not_string_compares() -> None:
+    tees = TeePositions(default=TEE, by_kind={ClubKind.DRIVER: DRIVER_TEE})
+
+    assert tees.for_club(Club(kind=ClubKind.DRIVER)) == DRIVER_TEE
+    assert tees.for_club(Club(kind=ClubKind.IRON)) == TEE
+    assert tees.for_club(Club(kind=ClubKind.PUTTER)) == TEE
+    assert tees.for_club(None) == TEE
+
+
+def test_club_tees_are_mapped_through_floor_calibration() -> None:
+    floor = FloorService()
+    subject = FloorPresenter(
+        floor,
+        tee=PhysicalPoint(x_m=0.5, y_m=0.72),
+        driver_tee=PhysicalPoint(x_m=0.4, y_m=0.30),
+        club_path_length=0.4,
+        calibration=rectangular_calibration(4.0, 3.0),
+    )
+
+    subject.show_address(Club(kind=ClubKind.DRIVER))
+    assert floor.state.marker.position.x == pytest.approx(0.1)
+    assert floor.state.marker.position.y == pytest.approx(0.1)
+
+    subject.show_address(Club(kind=ClubKind.IRON))
+    assert floor.state.marker.position.x == pytest.approx(0.125)
+    assert floor.state.marker.position.y == pytest.approx(0.24)
 
 
 def test_showing_the_address_stands_the_startup_banner_down() -> None:
@@ -240,5 +289,8 @@ def test_a_round_result_shows_raw_numbers_and_a_flight_trace() -> None:
     assert floor.state.club_path is None
     assert floor.state.round_result is not None
     assert floor.state.round_result.ball_speed_raw == 32.84
+    assert floor.state.round_result.total_distance_raw == 248.5
+    assert floor.state.round_result.ball_speed_display == "118 km/h"
+    assert floor.state.round_result.total_distance_display == "249 m"
     assert floor.state.ball_flight is not None
     assert len(floor.state.ball_flight) == 2

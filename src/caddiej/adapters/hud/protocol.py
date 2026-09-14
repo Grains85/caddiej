@@ -138,7 +138,7 @@ class FlourishPayload(BaseModel):
 
 
 class RoundResultPayload(BaseModel):
-    """Raw GSPro round-play numbers. No unit suffixes."""
+    """GSPro round-play numbers: raw values plus HUD display strings."""
 
     shot_id: str
     player_name: str = ""
@@ -146,6 +146,8 @@ class RoundResultPayload(BaseModel):
     hole_shot: int | None = None
     ball_speed_raw: float | None = None
     total_distance_raw: float | None = None
+    ball_speed_display: str | None = None
+    total_distance_display: str | None = None
     starting_surface_raw: int | None = None
     ending_surface_raw: int | None = None
 
@@ -158,6 +160,8 @@ class RoundResultPayload(BaseModel):
             hole_shot=result.hole_shot,
             ball_speed_raw=result.ball_speed_raw,
             total_distance_raw=result.total_distance_raw,
+            ball_speed_display=result.ball_speed_display,
+            total_distance_display=result.total_distance_display,
             starting_surface_raw=result.starting_surface_raw,
             ending_surface_raw=result.ending_surface_raw,
         )

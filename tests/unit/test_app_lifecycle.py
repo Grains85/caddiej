@@ -11,6 +11,7 @@ from caddiej.adapters.hud import ConnectionRegistry, HudServer, create_app, over
 from caddiej.adapters.obs.client import ObsTransportConnectionError
 from caddiej.config import Settings
 from caddiej.core import AsyncEventBus, Event
+from caddiej.domain.shot import Club, ClubKind
 from caddiej.domain.speech import Utterance
 from caddiej.floor import FloorPoint, FloorService
 from caddiej.lighting.modulation import Flourish
@@ -114,13 +115,18 @@ def test_the_presenter_is_placed_where_the_operator_configured_the_tee() -> None
         _env_file=None,  # type: ignore[call-arg]
         FLOOR_TEE_X_M=0.4,
         FLOOR_TEE_Y_M=0.9,
+        FLOOR_TEE_DRIVER_X_M=0.35,
+        FLOOR_TEE_DRIVER_Y_M=0.55,
         FLOOR_CLUB_PATH_LENGTH=0.5,
     )
     floor = FloorService()
+    presenter = app_module._build_presenter(settings, floor)
 
-    app_module._build_presenter(settings, floor).show_address(None)
-
+    presenter.show_address(None)
     assert floor.state.marker.position == FloorPoint(x=0.4, y=0.9)
+
+    presenter.show_address(Club(kind=ClubKind.DRIVER))
+    assert floor.state.marker.position == FloorPoint(x=0.35, y=0.55)
 
 
 def test_no_shot_source_is_started_when_gspro_is_off() -> None:

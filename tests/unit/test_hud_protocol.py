@@ -11,6 +11,7 @@ from caddiej.adapters.hud.protocol import (
     FloorStatePayload,
     FlourishPayload,
     PongMessage,
+    RoundResultPayload,
     ShotMetricsPayload,
     hello_message,
     snapshot_message,
@@ -23,6 +24,7 @@ from caddiej.floor import (
     FloorPoint,
     FloorState,
     MarkerVariant,
+    RoundResultView,
     ShotMetrics,
 )
 
@@ -173,6 +175,9 @@ def test_nested_payloads_cover_every_field_of_their_value_objects() -> None:
     # points. The dataclass and the payload therefore name the same fields.
     assert set(ClubPath.__dataclass_fields__) == set(ClubPathPayload.model_fields)
     assert set(FloorFlourish.__dataclass_fields__) == set(FlourishPayload.model_fields)
+    assert set(RoundResultView.__dataclass_fields__) == set(
+        RoundResultPayload.model_fields
+    )
 
 
 def test_a_celebration_travels_with_the_duration_it_will_be_held_for() -> None:

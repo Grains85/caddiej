@@ -130,10 +130,14 @@ function formatRaw(value) {
   if (value === null || value === undefined) {
     return "—";
   }
-  if (typeof value === "number") {
-    return Number.isInteger(value) ? String(value) : String(value);
-  }
   return String(value);
+}
+
+function formatDisplay(display, raw) {
+  if (display) {
+    return display;
+  }
+  return formatRaw(raw);
 }
 
 function shortenShotId(shotId) {
@@ -158,8 +162,14 @@ function renderRoundResult(result) {
   }
   roundPlayerEl.textContent = result.player_name || "";
   roundShotIdEl.textContent = shortenShotId(result.shot_id);
-  roundBallSpeedEl.textContent = formatRaw(result.ball_speed_raw);
-  roundDistanceEl.textContent = formatRaw(result.total_distance_raw);
+  roundBallSpeedEl.textContent = formatDisplay(
+    result.ball_speed_display,
+    result.ball_speed_raw
+  );
+  roundDistanceEl.textContent = formatDisplay(
+    result.total_distance_display,
+    result.total_distance_raw
+  );
   roundHoleEl.textContent = formatRaw(result.hole);
   roundHoleShotEl.textContent = formatRaw(result.hole_shot);
   const start = result.starting_surface_raw;

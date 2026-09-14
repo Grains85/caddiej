@@ -158,12 +158,14 @@ def flow(
     floor: FloorSpy,
     clock: Clock | None = None,
     announcements: Announcements | None = None,
+    shot_result_max_duration: float = 15.0,
 ) -> PlayFlow:
     return PlayFlow(
         floor=floor,
         publish=(announcements or Announcements()).publish,
         shot_display_seconds=6.0,
         advice_display_seconds=9.0,
+        shot_result_max_duration=shot_result_max_duration,
         sleep=(clock or Clock()).sleep,
     )
 
@@ -853,4 +855,129 @@ async def test_shot_dispatched_updates_the_caption() -> None:
     await subject.on_shot_dispatched(ShotDispatched())
 
     assert floor.play_status == "SHOT SENT"
+    await subject.aclose()
+
+
+class GatedClock:
+    """One Event per sleep, so an old timeout can be released without the new one."""
+
+    def __init__(self) -> None:
+        self.slept: list[float] = []
+        self._gates: list[asyncio.Event] = []
+
+    async def sleep(self, seconds: float) -> None:
+        self.slept.append(seconds)
+        gate = asyncio.Event()
+        self._gates.append(gate)
+        await gate.wait()
+
+    async def elapse(self, index: int) -> None:
+        self._gates[index].set()
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
+
+
+def a_round(shot_id: str) -> ObservedRoundShot:
+    return ObservedRoundShot(shot_id=shot_id, ball_speed_raw=32.84)
+
+
+async def test_a_round_result_stays_until_the_configured_cap() -> None:
+    floor = FloorSpy()
+    clock = GatedClock()
+    subject = flow(floor, clock)
+    await subject.on_club_selected(ClubSelected(club=Club(kind=ClubKind.IRON)))
+
+    await subject.on_round_shot(RoundShotObserved(shot=a_round("A")))
+    await asyncio.sleep(0)
+
+    assert clock.slept == [15.0]
+    assert floor.showing_shot is True
+    assert floor.calls.count("clear_shot") == 0
+    assert floor.showing_address is False
+    await subject.aclose()
+
+
+async def test_a_round_result_clears_when_the_cap_expires_with_no_new_ball() -> None:
+    floor = FloorSpy()
+    clock = GatedClock()
+    subject = flow(floor, clock)
+    await subject.on_club_selected(ClubSelected(club=Club(kind=ClubKind.IRON)))
+    await subject.on_round_shot(RoundShotObserved(shot=a_round("A")))
+    await asyncio.sleep(0)
+
+    await clock.elapse(0)
+
+    assert floor.showing_shot is False
+    assert floor.calls.count("clear_shot") == 1
+    assert floor.showing_address is True
+    assert floor.address_club == Club(kind=ClubKind.IRON)
+    await subject.aclose()
+
+
+async def test_a_new_ball_clears_the_round_result_immediately() -> None:
+    floor = FloorSpy()
+    clock = GatedClock()
+    subject = flow(floor, clock)
+    await subject.on_round_shot(RoundShotObserved(shot=a_round("A")))
+    await asyncio.sleep(0)
+
+    await subject.on_ball_detected(BallDetected())
+
+    assert floor.showing_shot is False
+    assert floor.calls.count("clear_shot") == 1
+    assert floor.showing_address is False
+    await subject.aclose()
+
+
+async def test_ready_for_the_next_shot_clears_the_round_result_immediately() -> None:
+    floor = FloorSpy()
+    clock = GatedClock()
+    subject = flow(floor, clock)
+    await subject.on_club_selected(ClubSelected(club=Club(kind=ClubKind.DRIVER)))
+    await subject.on_round_shot(RoundShotObserved(shot=a_round("A")))
+    await asyncio.sleep(0)
+
+    await subject.on_readiness_changed(LaunchMonitorReadinessChanged(ready=True))
+
+    assert floor.showing_shot is False
+    assert floor.calls.count("clear_shot") == 1
+    assert floor.showing_address is True
+    assert floor.address_club == Club(kind=ClubKind.DRIVER)
+    await subject.aclose()
+
+
+async def test_finding_ball_does_not_clear_the_round_result() -> None:
+    floor = FloorSpy()
+    clock = GatedClock()
+    subject = flow(floor, clock)
+    await subject.on_round_shot(RoundShotObserved(shot=a_round("A")))
+    await asyncio.sleep(0)
+
+    await subject.on_readiness_changed(LaunchMonitorReadinessChanged(ready=False))
+
+    assert floor.showing_shot is True
+    assert floor.calls.count("clear_shot") == 0
+    await subject.aclose()
+
+
+async def test_a_later_round_result_is_not_cleared_by_an_earlier_timeout() -> None:
+    floor = FloorSpy()
+    clock = GatedClock()
+    subject = flow(floor, clock)
+
+    await subject.on_round_shot(RoundShotObserved(shot=a_round("A")))
+    await asyncio.sleep(0)
+    await subject.on_round_shot(RoundShotObserved(shot=a_round("B")))
+    await asyncio.sleep(0)
+
+    await clock.elapse(0)
+
+    assert [result.shot_id for result in floor.round_results] == ["A", "B"]
+    assert floor.showing_shot is True
+    assert floor.calls.count("clear_shot") == 0
+
+    await clock.elapse(1)
+
+    assert floor.showing_shot is False
+    assert floor.calls.count("clear_shot") == 1
     await subject.aclose()
