@@ -28,14 +28,17 @@ from caddiej.floor import (
     PhysicalClubPath,
     PhysicalFloor,
     PhysicalPoint,
+    PhysicalRect,
     RectangularCalibration,
     display_to_surface,
     path_angle_degrees,
     physical_endpoint,
+    project_rect,
     rectangular_calibration,
     surface_to_display,
 )
 from caddiej.floor.geometry import DisplayPoint
+from caddiej.floor.layout import layout_from_tees
 
 
 def _shot(path_degrees: float) -> Shot:
@@ -60,6 +63,23 @@ def _shot(path_degrees: float) -> Shot:
 FOUR_BY_THREE = PhysicalFloor(width_m=4.0, depth_m=3.0)
 FOUR_BY_THREE_CAL = RectangularCalibration(FOUR_BY_THREE)
 TEE = FloorPoint(x=0.5, y=0.8)
+
+
+def test_a_physical_rect_is_mapped_through_calibration_not_css_pixels() -> None:
+    rect = PhysicalRect(x_m=2.0, y_m=1.5, width_m=0.4, depth_m=0.6)
+    corners = project_rect(rect, FOUR_BY_THREE_CAL)
+
+    assert corners[0].x == pytest.approx(0.45)
+    assert corners[0].y == pytest.approx(0.4)
+    assert corners[2].x == pytest.approx(0.55)
+    assert corners[2].y == pytest.approx(0.6)
+    dumped = json.dumps({"corners": [{"x": p.x, "y": p.y} for p in corners]})
+    assert "px" not in dumped
+
+
+def test_a_physical_rect_rejects_a_non_positive_size() -> None:
+    with pytest.raises(ValueError, match="positive"):
+        PhysicalRect(x_m=0.5, y_m=0.5, width_m=0.0, depth_m=0.4)
 
 
 def old_normalized_end(
@@ -365,7 +385,7 @@ def test_a_physical_tee_is_mapped_onto_the_surface() -> None:
     floor = FloorService()
     presenter = FloorPresenter(
         floor,
-        tee=PhysicalPoint(x_m=0.5, y_m=0.72),
+        layout_from_tees(tee=PhysicalPoint(x_m=0.5, y_m=0.72)),
         club_path_length=1.2,
         calibration=FOUR_BY_THREE_CAL,
     )
@@ -379,7 +399,7 @@ def test_the_default_physical_tee_keeps_today_s_surface_point() -> None:
     floor = FloorService()
     presenter = FloorPresenter(
         floor,
-        tee=PhysicalPoint(x_m=0.5, y_m=0.72),
+        layout_from_tees(tee=PhysicalPoint(x_m=0.5, y_m=0.72)),
         club_path_length=1.2,
     )
 
@@ -392,7 +412,7 @@ def test_the_presenter_draws_a_physical_path_from_the_configured_tee() -> None:
     floor = FloorService()
     presenter = FloorPresenter(
         floor,
-        tee=PhysicalPoint(x_m=0.5, y_m=0.72),
+        layout_from_tees(tee=PhysicalPoint(x_m=0.5, y_m=0.72)),
         club_path_length=1.0,
         calibration=FOUR_BY_THREE_CAL,
     )

@@ -36,9 +36,15 @@ from uuid import UUID
 
 from caddiej.core.event_bus import EventBus
 from caddiej.core.events import Event
-from caddiej.domain.events import AnalysisCompleted, SpeechCompleted, SpeechStarted
+from caddiej.domain.events import (
+    AnalysisCompleted,
+    ShotCompleted,
+    ShotDetected,
+    SpeechCompleted,
+    SpeechStarted,
+)
 from caddiej.domain.speech import SpeechOutcome, SpeechPriority, Utterance
-from caddiej.speech.audio import Audio
+from caddiej.speech.audio import MAX_GAIN, Audio, amplify
 from caddiej.speech.cache import AudioCache, voice_key
 from caddiej.speech.envelope import envelope_of
 from caddiej.speech.sink import AudioSink, PlaybackError, PlaybackUnavailableError
@@ -127,6 +133,7 @@ class SpeechService:
         render_timeout_seconds: float = 20.0,
         open_timeout_seconds: float = 90.0,
         drain_timeout_seconds: float = 5.0,
+        gain: float = 1.0,
         monotonic: Callable[[], float] = time.monotonic,
     ) -> None:
         if queue_size < 1:
@@ -149,9 +156,16 @@ class SpeechService:
         self._render_timeout = render_timeout_seconds
         self._open_timeout = open_timeout_seconds
         self._drain_timeout = drain_timeout_seconds
+        # Checked here rather than at the first sentence, so a gain nobody
+        # should be running is a startup failure and not a surprise at volume.
+        if not 0.0 < gain <= MAX_GAIN:
+            raise ValueError(f"gain must be above zero and at most {MAX_GAIN}")
+        self._gain = gain
         self._monotonic = monotonic
 
         self._waiting: list[_Job] = []
+        self._strike_id: UUID | None = None
+        self._strike_trigger: str | None = None
         self._arrived = asyncio.Event()
         self._worker: asyncio.Task[None] | None = None
         self._active: _Job | None = None
@@ -307,6 +321,26 @@ class SpeechService:
 
     def subscribe(self, bus: EventBus) -> None:
         bus.subscribe(AnalysisCompleted, self.on_analysis_completed, name="speech")
+        bus.subscribe(ShotCompleted, self.on_shot_completed, name="speech")
+        bus.subscribe(ShotDetected, self.on_shot_detected, name="speech")
+
+    async def on_shot_detected(self, event: ShotDetected) -> None:
+        """A new ball struck: anything unsaid about an earlier one is stale.
+
+        ProTee-only coaching keys its line on the strike, so this is the event
+        that makes it old. A ball placed on the mat is not.
+        """
+
+        if event.trigger_id and event.trigger_id == self._strike_trigger:
+            return
+        self._strike_trigger = event.trigger_id or None
+        self._strike_id = event.event_id
+        for stale in self._perished(event.event_id):
+            await self._finish(
+                stale,
+                SpeechOutcome.SUPERSEDED,
+                detail="another ball was struck before this was said",
+            )
 
     async def on_analysis_completed(self, event: AnalysisCompleted) -> None:
         """Speak a coaching line, once a model's words have been accepted.
@@ -325,6 +359,66 @@ class SpeechService:
             )
         )
 
+    async def on_shot_completed(self, event: ShotCompleted) -> None:
+        """Another ball has been hit, so forget anything unsaid about the last.
+
+        Supersession alone does not cover this. It replaces a coaching line with
+        a newer coaching line, which is the common case, and leaves the case
+        where no newer line ever arrives — the next shot was not worth a word,
+        or the model failed on it, or nothing about it could be measured. The
+        old sentence would then be spoken into a room where the player has
+        moved on, and it would be heard as advice about the swing they just made.
+
+        Only what is not yet audible. A sentence already coming out of the
+        speaker is left to finish, for the same reason `_supersede_pending`
+        draws that line: a line chopped off mid-word sounds like a fault, and
+        the player has in any case heard most of it.
+        """
+
+        # GSPro writing the result of the ball just struck is not a newer
+        # ball: a line keyed on that strike is still about it.
+        keep = (event.shot.shot_id,) + (
+            () if self._strike_id is None else (self._strike_id,)
+        )
+        for stale in self._perished(*keep):
+            await self._finish(
+                stale,
+                SpeechOutcome.SUPERSEDED,
+                detail="another shot was hit before this was said",
+            )
+
+    def _perished(self, *current: UUID) -> list[_Job]:
+        """Unsaid perishable lines about some earlier shot.
+
+        Lines with no shot attached are left alone: an announcement or a warning
+        is not about a swing, so a swing cannot make it stale.
+        """
+
+        def about_an_earlier_shot(job: _Job) -> bool:
+            return (
+                job.utterance.perishable
+                and job.utterance.shot_id is not None
+                and job.utterance.shot_id not in current
+            )
+
+        stale = [job for job in self._waiting if about_an_earlier_shot(job)]
+        for job in stale:
+            job.superseded = True
+        self._waiting = [
+            job for job in self._waiting if not any(job is dropped for dropped in stale)
+        ]
+
+        active = self._active
+        if (
+            active is not None
+            and not active.is_speaking
+            and about_an_earlier_shot(active)
+        ):
+            active.superseded = True
+            if self._task is not None and not self._task.done():
+                self._task.cancel()
+        return stale
+
     async def say(self, utterance: Utterance) -> bool:
         """Queue something to be said. Returns whether it was accepted.
 
@@ -335,10 +429,30 @@ class SpeechService:
 
         if not self.is_available:
             self.unavailable += 1
+            logger.info(
+                "speech_suppressed",
+                extra={
+                    "shot_id": (
+                        None if utterance.shot_id is None else str(utterance.shot_id)
+                    ),
+                    "coaching_reason": "unavailable",
+                    "speech_detail": "speech is not available",
+                },
+            )
             return False
 
         text = self._clean(utterance.text)
         if not text:
+            logger.info(
+                "speech_suppressed",
+                extra={
+                    "shot_id": (
+                        None if utterance.shot_id is None else str(utterance.shot_id)
+                    ),
+                    "coaching_reason": "refused",
+                    "speech_detail": "empty_or_too_long",
+                },
+            )
             return False
 
         job = _Job(
@@ -363,7 +477,26 @@ class SpeechService:
             )
         self._interrupt_for(job)
         self._arrived.set()
-        return any(waiting is job for waiting in self._waiting)
+        accepted = any(waiting is job for waiting in self._waiting)
+        if accepted:
+            # The gap between a line being ready and a line being audible is
+            # where everything slow happens — a voice loading, a render, a queue
+            # — so a trace that jumps from advice to `speech_started` cannot say
+            # which of them a silent room is waiting on.
+            logger.info(
+                "speech_queued",
+                extra={
+                    "speech_utterance": str(job.utterance_id),
+                    "speech_priority": int(job.priority),
+                    "speech_queued_lines": len(self._waiting),
+                    "shot_id": (
+                        None
+                        if job.utterance.shot_id is None
+                        else str(job.utterance.shot_id)
+                    ),
+                },
+            )
+        return accepted
 
     def _clean(self, text: str) -> str:
         """Collapse the whitespace and bound the length.
@@ -607,7 +740,22 @@ class SpeechService:
             },
         )
 
-        task = asyncio.create_task(self._sink.play(audio))
+        # Last thing before the speaker, and after both the cache and the
+        # envelope. A cached WAV stays the engine's own output, so changing the
+        # gain does not retire a single file, and the lights keep reacting to
+        # the shape of the words rather than to how loud the room wants them.
+        loud, clipped = amplify(audio, self._gain)
+        if clipped:
+            logger.warning(
+                "speech_gain_clipped",
+                extra={
+                    "speech_utterance": str(job.utterance_id),
+                    "speech_gain": self._gain,
+                    "speech_clipped_samples": clipped,
+                },
+            )
+
+        task = asyncio.create_task(self._sink.play(loud))
         self._task = task
         try:
             await task
@@ -679,6 +827,29 @@ class SpeechService:
         elif outcome is SpeechOutcome.DROPPED:
             self.dropped += 1
 
+        shot_id = job.utterance.shot_id
+        if outcome is SpeechOutcome.SPOKEN:
+            logger.info(
+                "speech_completed",
+                extra={
+                    "speech_utterance": str(job.utterance_id),
+                    "speech_voice": self._voice,
+                    "speech_seconds": round(spoken, 2),
+                    "shot_id": None if shot_id is None else str(shot_id),
+                },
+            )
+        else:
+            logger.info(
+                "speech_suppressed",
+                extra={
+                    "speech_utterance": str(job.utterance_id),
+                    "speech_voice": self._voice,
+                    "shot_id": None if shot_id is None else str(shot_id),
+                    "coaching_reason": outcome.value,
+                    "speech_detail": detail or outcome.value,
+                },
+            )
+
         await self._announce(
             SpeechCompleted(
                 utterance_id=job.utterance_id,
@@ -746,6 +917,7 @@ def build_speech_service(
     render_timeout_seconds: float = 20.0,
     open_timeout_seconds: float = 90.0,
     drain_timeout_seconds: float = 5.0,
+    gain: float = 1.0,
 ) -> SpeechService:
     """Assemble speech from plain values, so tests need no `Settings`."""
 
@@ -773,4 +945,5 @@ def build_speech_service(
         render_timeout_seconds=render_timeout_seconds,
         open_timeout_seconds=open_timeout_seconds,
         drain_timeout_seconds=drain_timeout_seconds,
+        gain=gain,
     )

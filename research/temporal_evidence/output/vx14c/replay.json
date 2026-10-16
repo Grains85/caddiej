@@ -1,0 +1,975 @@
+{
+ "R7": [
+  1.724,
+  2.224
+ ],
+ "TAU": {
+  "P2": 0.3,
+  "P3": 0.3,
+  "P5": 0.15,
+  "P6": 0.15,
+  "P7": 0.15,
+  "P8": 0.15
+ },
+ "poc1": {
+  "list_cells": {
+   "setup_dtl": [
+    "DTL_01"
+   ],
+   "setup_fo": [
+    "FO_01"
+   ],
+   "setup_any": [
+    "DTL_01"
+   ],
+   "takeaway_dtl": [
+    "DTL_02"
+   ],
+   "takeaway_fo": [
+    "FO_02"
+   ],
+   "takeaway_any": [
+    "DTL_02"
+   ],
+   "backswing_dtl": [
+    "DTL_05"
+   ],
+   "backswing_fo": [
+    "FO_05"
+   ],
+   "backswing_any": [
+    "DTL_06"
+   ],
+   "top_dtl": [
+    "DTL_07"
+   ],
+   "top_fo": [
+    "FO_06"
+   ],
+   "top_any": [
+    "DTL_07"
+   ],
+   "transition_dtl": [
+    "DTL_09"
+   ],
+   "transition_fo": [
+    "FO_08"
+   ],
+   "transition_any": [
+    "DTL_09"
+   ],
+   "downswing_dtl": [
+    "DTL_10"
+   ],
+   "downswing_fo": [],
+   "downswing_any": [
+    "DTL_11"
+   ],
+   "impact_dtl": [
+    "DTL_12"
+   ],
+   "impact_fo": [
+    "FO_11"
+   ],
+   "impact_any": [
+    "DTL_12"
+   ],
+   "release_dtl": [
+    "DTL_13"
+   ],
+   "release_fo": [
+    "FO_13"
+   ],
+   "release_any": [
+    "FO_13"
+   ],
+   "finish_dtl": [],
+   "finish_fo": [],
+   "finish_any": [
+    "FO_17"
+   ]
+  },
+  "splits": [
+   {
+    "phase": "backswing",
+    "camera": "dtl",
+    "camera_list_cell": "DTL_05",
+    "any_list_cell": "DTL_06"
+   },
+   {
+    "phase": "downswing",
+    "camera": "dtl",
+    "camera_list_cell": "DTL_10",
+    "any_list_cell": "DTL_11"
+   }
+  ],
+  "groups": [
+   {
+    "camera": "dtl",
+    "position": "P1",
+    "cell": "DTL_01",
+    "capture_index": 15,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P2",
+    "cell": "DTL_02",
+    "capture_index": 18,
+    "truth": "acceptable",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P3",
+    "cell": "DTL_05",
+    "capture_index": 26,
+    "truth": "acceptable",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P4",
+    "cell": "DTL_07",
+    "capture_index": 30,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P5",
+    "cell": "DTL_09",
+    "capture_index": 37,
+    "truth": "acceptable",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P6",
+    "cell": "DTL_10",
+    "capture_index": 38,
+    "truth": "acceptable",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P7",
+    "cell": "DTL_12",
+    "capture_index": 40,
+    "truth": "acceptable",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P8",
+    "cell": "DTL_13",
+    "capture_index": 41,
+    "truth": "acceptable",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P1",
+    "cell": "FO_01",
+    "capture_index": 15,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P2",
+    "cell": "FO_02",
+    "capture_index": 17,
+    "truth": "acceptable",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P3",
+    "cell": "FO_05",
+    "capture_index": 24,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P4",
+    "cell": "FO_06",
+    "capture_index": 27,
+    "truth": "wrong",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P5",
+    "cell": "FO_08",
+    "capture_index": 32,
+    "truth": "acceptable",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P7",
+    "cell": "FO_11",
+    "capture_index": 39,
+    "truth": "wrong",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P8",
+    "cell": "FO_13",
+    "capture_index": 41,
+    "truth": "acceptable",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P9",
+    "cell": "FO_17",
+    "capture_index": 47,
+    "truth": "acceptable",
+    "kept": true
+   }
+  ],
+  "group_notes": [
+   "P5 cameras disagree (DTL_09 1.80 / FO_08 1.52): both kept"
+  ],
+  "A_no_locate": {
+   "label": "POC1 vx14c A",
+   "accepted": 49,
+   "rejected": 4,
+   "rejection_reasons": {
+    "needs_second_cell": 4
+   },
+   "accepted_by_position_truth": {
+    "correct": 14,
+    "acceptable": 31,
+    "wrong": 4
+   },
+   "accepted_wrong_position": [
+    "top_centre@FO_06",
+    "impact_chest_rotation@FO_11",
+    "impact_hand_position@FO_11",
+    "impact_head_centre@FO_11"
+   ],
+   "coverage": 1.0,
+   "coverage_level": "full",
+   "mechanics": 69,
+   "phases": {
+    "setup": [
+     84,
+     1.0,
+     "7/7"
+    ],
+    "takeaway": [
+     78,
+     0.8,
+     "5/6"
+    ],
+    "backswing": [
+     74,
+     0.59,
+     "5/8"
+    ],
+    "top": [
+     78,
+     0.94,
+     "7/8"
+    ],
+    "transition": [
+     64,
+     0.88,
+     "6/7"
+    ],
+    "downswing": [
+     60,
+     0.62,
+     "4/7"
+    ],
+    "impact": [
+     58,
+     1.0,
+     "7/7"
+    ],
+    "release": [
+     70,
+     0.91,
+     "5/6"
+    ],
+    "finish": [
+     77,
+     1.0,
+     "3/3"
+    ]
+   },
+   "swing_score": 69,
+   "faults": [
+    {
+     "fault": "EARLY_EXTENSION",
+     "severity": 0.47,
+     "confidence": 0.55
+    },
+    {
+     "fault": "BODY_STALL",
+     "severity": 0.37,
+     "confidence": 0.55
+    }
+   ],
+   "root": "RootCause(fault=<SwingFaultId.EARLY_EXTENSION: 'EARLY_EXTENSION'>, cue=<CueId.EARLY_EXTENSION: 'EARLY_EXTENSION'>, reason='root', ranking=(RankedFault(fault=<SwingFaultId.EARLY_EXTENSION: 'EARLY_EXTENSION'>, priority=0.2825, effective=0.3835, explained_by=None, explains=(<SwingFaultId.BODY_STALL: 'BODY_STALL'>,), coachable=True), RankedFault(fault=<SwingFaultId.BODY_STALL: 'BODY_STALL'>, priority=0.2019, effective=0.0, explained_by=<SwingFaultId.EARLY_EXTENSION: 'EARLY_EXTENSION'>, explains=(), coachable=False)), explains=(<SwingFaultId.BODY_STALL: 'BODY_STALL'>,), sticky=False, frame_id='swin",
+   "lesson_cue": "EARLY_EXTENSION",
+   "authority": {
+    "cue": "EARLY_EXTENSION",
+    "from_visual": true
+   },
+   "outcome": "reconciled -> CaddieJ's lesson EARLY_EXTENSION",
+   "rejected_list": [
+    [
+     "backswing_arm_structure",
+     "needs_second_cell"
+    ],
+    [
+     "backswing_body_turn",
+     "needs_second_cell"
+    ],
+    [
+     "delivery_pelvis_rotation",
+     "needs_second_cell"
+    ],
+    [
+     "delivery_body_arm_sync",
+     "needs_second_cell"
+    ]
+   ]
+  },
+  "B_coarse_locate": {
+   "label": "POC1 vx14c B",
+   "accepted": 40,
+   "rejected": 13,
+   "rejection_reasons": {
+    "needs_second_cell": 4,
+    "outside_locate_region": 9
+   },
+   "accepted_by_position_truth": {
+    "correct": 14,
+    "acceptable": 26
+   },
+   "accepted_wrong_position": [],
+   "coverage": 0.91,
+   "coverage_level": "full",
+   "mechanics": 69,
+   "phases": {
+    "setup": [
+     84,
+     1.0,
+     "7/7"
+    ],
+    "takeaway": [
+     78,
+     0.8,
+     "5/6"
+    ],
+    "backswing": [
+     74,
+     0.59,
+     "5/8"
+    ],
+    "top": [
+     78,
+     0.77,
+     "6/8"
+    ],
+    "transition": [
+     64,
+     0.88,
+     "6/7"
+    ],
+    "downswing": [
+     60,
+     0.62,
+     "4/7"
+    ],
+    "impact": [
+     58,
+     0.61,
+     "4/7"
+    ],
+    "release": [
+     null,
+     0.0,
+     "0/6"
+    ],
+    "finish": [
+     77,
+     1.0,
+     "3/3"
+    ]
+   },
+   "swing_score": 69,
+   "faults": [
+    {
+     "fault": "EARLY_EXTENSION",
+     "severity": 0.47,
+     "confidence": 0.55
+    },
+    {
+     "fault": "BODY_STALL",
+     "severity": 0.37,
+     "confidence": 0.55
+    }
+   ],
+   "root": "RootCause(fault=<SwingFaultId.EARLY_EXTENSION: 'EARLY_EXTENSION'>, cue=<CueId.EARLY_EXTENSION: 'EARLY_EXTENSION'>, reason='root', ranking=(RankedFault(fault=<SwingFaultId.EARLY_EXTENSION: 'EARLY_EXTENSION'>, priority=0.2825, effective=0.3835, explained_by=None, explains=(<SwingFaultId.BODY_STALL: 'BODY_STALL'>,), coachable=True), RankedFault(fault=<SwingFaultId.BODY_STALL: 'BODY_STALL'>, priority=0.2019, effective=0.0, explained_by=<SwingFaultId.EARLY_EXTENSION: 'EARLY_EXTENSION'>, explains=(), coachable=False)), explains=(<SwingFaultId.BODY_STALL: 'BODY_STALL'>,), sticky=False, frame_id='swin",
+   "lesson_cue": "EARLY_EXTENSION",
+   "authority": {
+    "cue": "EARLY_EXTENSION",
+    "from_visual": true
+   },
+   "outcome": "reconciled -> CaddieJ's lesson EARLY_EXTENSION",
+   "rejected_list": [
+    [
+     "backswing_arm_structure",
+     "needs_second_cell"
+    ],
+    [
+     "backswing_body_turn",
+     "needs_second_cell"
+    ],
+    [
+     "top_centre",
+     "outside_locate_region"
+    ],
+    [
+     "delivery_pelvis_rotation",
+     "needs_second_cell"
+    ],
+    [
+     "delivery_body_arm_sync",
+     "needs_second_cell"
+    ],
+    [
+     "impact_chest_rotation",
+     "outside_locate_region"
+    ],
+    [
+     "impact_hand_position",
+     "outside_locate_region"
+    ],
+    [
+     "impact_head_centre",
+     "outside_locate_region"
+    ],
+    [
+     "release_posture",
+     "outside_locate_region"
+    ],
+    [
+     "release_arm_connection",
+     "outside_locate_region"
+    ],
+    [
+     "release_lead_arm_structure",
+     "outside_locate_region"
+    ],
+    [
+     "release_arm_extension",
+     "outside_locate_region"
+    ],
+    [
+     "release_body_rotation",
+     "outside_locate_region"
+    ]
+   ]
+  }
+ },
+ "poc2": {
+  "groups": [
+   {
+    "camera": "dtl",
+    "position": "P1",
+    "cell": "DTL_01",
+    "capture_index": 15,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P2",
+    "cell": "DTL_03",
+    "capture_index": 21,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P3",
+    "cell": "DTL_06",
+    "capture_index": 28,
+    "truth": "wrong",
+    "kept": false
+   },
+   {
+    "camera": "dtl",
+    "position": "P4",
+    "cell": "DTL_07",
+    "capture_index": 30,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P5",
+    "cell": "DTL_11",
+    "capture_index": 39,
+    "truth": "correct",
+    "kept": false
+   },
+   {
+    "camera": "dtl",
+    "position": "P6",
+    "cell": "DTL_12",
+    "capture_index": 40,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P7",
+    "cell": "DTL_17",
+    "capture_index": 47,
+    "truth": "wrong",
+    "kept": false
+   },
+   {
+    "camera": "dtl",
+    "position": "P8",
+    "cell": "DTL_18",
+    "capture_index": 51,
+    "truth": "wrong",
+    "kept": false
+   },
+   {
+    "camera": "dtl",
+    "position": "P9",
+    "cell": "DTL_15",
+    "capture_index": 43,
+    "truth": "wrong",
+    "kept": false
+   },
+   {
+    "camera": "fo",
+    "position": "P2",
+    "cell": "FO_02",
+    "capture_index": 17,
+    "truth": "acceptable",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P3",
+    "cell": "FO_04",
+    "capture_index": 22,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P4",
+    "cell": "FO_06",
+    "capture_index": 27,
+    "truth": "wrong",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P5",
+    "cell": "FO_07",
+    "capture_index": 29,
+    "truth": "wrong",
+    "kept": false
+   },
+   {
+    "camera": "fo",
+    "position": "P6",
+    "cell": "FO_10",
+    "capture_index": 38,
+    "truth": "acceptable",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P7",
+    "cell": "FO_11",
+    "capture_index": 39,
+    "truth": "wrong",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P8",
+    "cell": "FO_14",
+    "capture_index": 42,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P9",
+    "cell": "FO_16",
+    "capture_index": 44,
+    "truth": "wrong",
+    "kept": true
+   }
+  ],
+  "group_notes": [
+   "dtl P7 DTL_17 @2.29: outside impact prior",
+   "dtl P8 DTL_18: order",
+   "dtl P9 DTL_15: order",
+   "P2 cameras disagree (DTL_03 0.58 / FO_02 0.19): both kept",
+   "P3 cameras disagree (DTL_06 1.29 / FO_04 0.68): dropped dtl",
+   "P5 cameras disagree (DTL_11 1.89 / FO_07 1.38): dropped dtl,fo"
+  ],
+  "A_no_locate": {
+   "label": "POC2 vx14c A",
+   "accepted": 39,
+   "rejected": 14,
+   "rejection_reasons": {
+    "group_unavailable": 14
+   },
+   "accepted_by_position_truth": {
+    "correct": 29,
+    "acceptable": 1,
+    "wrong": 9
+   },
+   "accepted_wrong_position": [
+    "top_centre@FO_06",
+    "impact_chest_rotation@FO_11",
+    "impact_hand_position@FO_11",
+    "impact_head_centre@FO_11",
+    "impact_pelvis_rotation@FO_11",
+    "impact_arm_structure@FO_11",
+    "finish_balance@FO_16",
+    "finish_rotation@FO_16",
+    "finish_structure@FO_16"
+   ],
+   "coverage": 0.82,
+   "coverage_level": "full",
+   "mechanics": 75,
+   "phases": {
+    "setup": [
+     80,
+     0.92,
+     "6/7"
+    ],
+    "takeaway": [
+     73,
+     0.8,
+     "5/6"
+    ],
+    "backswing": [
+     73,
+     0.41,
+     "3/8"
+    ],
+    "top": [
+     75,
+     0.94,
+     "7/8"
+    ],
+    "transition": [
+     null,
+     0.0,
+     "0/7"
+    ],
+    "downswing": [
+     72,
+     0.88,
+     "6/7"
+    ],
+    "impact": [
+     77,
+     0.61,
+     "5/7"
+    ],
+    "release": [
+     73,
+     0.82,
+     "4/6"
+    ],
+    "finish": [
+     77,
+     1.0,
+     "3/3"
+    ]
+   },
+   "swing_score": 75,
+   "faults": [],
+   "root": "RootCause(fault=None, cue=None, reason='none', ranking=(), explains=(), sticky=False, frame_id=None, confidence=None, severity=None)",
+   "lesson_cue": null,
+   "authority": {
+    "cue": "FACE_CONTROL_GOOD",
+    "from_visual": false
+   },
+   "outcome": "reconciled -> CaddieJ's lesson FACE_CONTROL_GOOD"
+  }
+ },
+ "poc3": {
+  "groups": [
+   {
+    "camera": "dtl",
+    "position": "P1",
+    "cell": "DTL_01",
+    "capture_index": 15,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P2",
+    "cell": "DTL_03",
+    "capture_index": 21,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P3",
+    "cell": "DTL_06",
+    "capture_index": 28,
+    "truth": "wrong",
+    "kept": false
+   },
+   {
+    "camera": "dtl",
+    "position": "P4",
+    "cell": "DTL_05",
+    "capture_index": 26,
+    "truth": "acceptable",
+    "kept": false
+   },
+   {
+    "camera": "dtl",
+    "position": "P5",
+    "cell": "DTL_07",
+    "capture_index": 30,
+    "truth": "wrong",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P6",
+    "cell": "DTL_11",
+    "capture_index": 39,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P7",
+    "cell": "DTL_13",
+    "capture_index": 41,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P8",
+    "cell": "DTL_15",
+    "capture_index": 43,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "dtl",
+    "position": "P9",
+    "cell": "DTL_18",
+    "capture_index": 51,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P1",
+    "cell": "FO_01",
+    "capture_index": 15,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P2",
+    "cell": "FO_03",
+    "capture_index": 19,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P3",
+    "cell": "FO_06",
+    "capture_index": 27,
+    "truth": "acceptable",
+    "kept": false
+   },
+   {
+    "camera": "fo",
+    "position": "P4",
+    "cell": "FO_05",
+    "capture_index": 24,
+    "truth": "wrong",
+    "kept": false
+   },
+   {
+    "camera": "fo",
+    "position": "P5",
+    "cell": "FO_07",
+    "capture_index": 29,
+    "truth": "wrong",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P6",
+    "cell": "FO_11",
+    "capture_index": 39,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P7",
+    "cell": "FO_13",
+    "capture_index": 41,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P8",
+    "cell": "FO_15",
+    "capture_index": 43,
+    "truth": "correct",
+    "kept": true
+   },
+   {
+    "camera": "fo",
+    "position": "P9",
+    "cell": "FO_18",
+    "capture_index": 51,
+    "truth": "correct",
+    "kept": true
+   }
+  ],
+  "group_notes": [
+   "dtl P3 DTL_06: order",
+   "dtl P4 DTL_05: order",
+   "fo P3 FO_06: order",
+   "fo P4 FO_05: order"
+  ],
+  "A_no_locate": {
+   "label": "POC3 vx14c A (salvaged wire)",
+   "accepted": 29,
+   "rejected": 23,
+   "rejection_reasons": {
+    "group_unavailable": 9,
+    "length": 14
+   },
+   "accepted_by_position_truth": {
+    "correct": 23,
+    "wrong": 6
+   },
+   "accepted_wrong_position": [
+    "transition_arms_lowering@DTL_07",
+    "transition_hand_direction@DTL_07",
+    "transition_trail_shoulder@DTL_07",
+    "transition_posture_space@DTL_07",
+    "transition_pressure_shift@FO_07",
+    "transition_pelvis_initiation@FO_07"
+   ],
+   "coverage": 0.65,
+   "coverage_level": "limited",
+   "mechanics": 68,
+   "phases": {
+    "setup": [
+     79,
+     1.0,
+     "7/7"
+    ],
+    "takeaway": [
+     75,
+     0.8,
+     "5/6"
+    ],
+    "backswing": [
+     null,
+     0.0,
+     "0/8"
+    ],
+    "top": [
+     null,
+     0.0,
+     "0/8"
+    ],
+    "transition": [
+     63,
+     0.88,
+     "6/7"
+    ],
+    "downswing": [
+     64,
+     0.62,
+     "4/7"
+    ],
+    "impact": [
+     67,
+     0.77,
+     "5/7"
+    ],
+    "release": [
+     null,
+     0.27,
+     "2/6"
+    ],
+    "finish": [
+     null,
+     0.0,
+     "0/3"
+    ]
+   },
+   "swing_score": 68,
+   "faults": [],
+   "root": "RootCause(fault=None, cue=None, reason='none', ranking=(), explains=(), sticky=False, frame_id=None, confidence=None, severity=None)",
+   "lesson_cue": null,
+   "authority": {
+    "cue": "FACE_CONTROL_GOOD",
+    "from_visual": false
+   },
+   "outcome": "reconciled -> CaddieJ's lesson FACE_CONTROL_GOOD"
+  }
+ },
+ "output_size": {
+  "tokens_per_proxy_unit": 0.751,
+  "calibration_actual_vs_proxy": {
+   "poc1": [
+    1183,
+    1185
+   ],
+   "poc2": [
+    950,
+    966
+   ],
+   "poc3": [
+    976,
+    958
+   ]
+  },
+  "vx14c_from_poc1": 986,
+  "vx14c_from_poc3": 944,
+  "vx14c_parts_poc1": {
+   "phases": 706,
+   "metrics": 215,
+   "coach": 52
+  },
+  "variant_B_locate_extra": 46
+ }
+}

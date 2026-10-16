@@ -1,0 +1,1764 @@
+{
+  "capture_id": "d4b5abe1-5aed-4186-bf86-2193c6e55b51",
+  "trigger_id": "4",
+  "strike_id": "e5d9e793-11df-4e79-a0de-771884024ff6",
+  "shot_id": null,
+  "coach_metrics": {
+    "source": "All Values",
+    "provenance": "protee_vx_all_values_visual",
+    "ok": true,
+    "file": "metrics/all_values.jpg",
+    "width": 5102,
+    "height": 435,
+    "captured_at": "2026-10-08T19:17:01.367553+00:00",
+    "delay_seconds": 3.0,
+    "offset_seconds": 3.037,
+    "detail": null,
+    "counts_against_selected_frames": false
+  },
+  "detected_at": "2026-10-08T19:16:58.330222+00:00",
+  "started_at": "2026-10-08T19:16:58.331221+00:00",
+  "completed_at": "2026-10-08T19:17:02.866561+00:00",
+  "ok": true,
+  "cameras_ready": 3,
+  "selection_interval": {
+    "start_seconds": 1.902,
+    "end_seconds": 4.4,
+    "detected": true,
+    "pre_replay_frames": 14
+  },
+  "configuration": {
+    "initial_delay_seconds": 0.5,
+    "duration_seconds": 4.0,
+    "fps": 10.0,
+    "downswing_fps": 20.0,
+    "downswing_delay_seconds": 3.3,
+    "downswing_duration_seconds": 1.1,
+    "selected_frames": 16,
+    "static_delay_seconds": 3.5,
+    "static_duration_seconds": 1.5,
+    "static_fps": 2.0,
+    "image_width": null,
+    "coach_metrics_source": "All Values",
+    "coach_metrics_delay_seconds": 3.0,
+    "sources": {
+      "swing_behind": "Swing Behind",
+      "swing_side": "Swing Side",
+      "impact": "Impact"
+    },
+    "panels": [
+      {
+        "panel_id": "swing_behind",
+        "source": "Swing Behind",
+        "kind": "dynamic",
+        "supports": [
+          "body_in_backswing",
+          "body_through_impact",
+          "finish_position",
+          "sequence",
+          "whole_body"
+        ],
+        "view": "behind",
+        "setting": "SWING_CAPTURE_PANEL_SWING_BEHIND_SOURCE"
+      },
+      {
+        "panel_id": "swing_side",
+        "source": "Swing Side",
+        "kind": "dynamic",
+        "supports": [
+          "body_in_backswing",
+          "body_through_impact",
+          "finish_position",
+          "sequence",
+          "whole_body"
+        ],
+        "view": "side",
+        "setting": "SWING_CAPTURE_PANEL_SWING_SIDE_SOURCE"
+      },
+      {
+        "panel_id": "impact",
+        "source": "Impact",
+        "kind": "static",
+        "supports": [],
+        "view": "none",
+        "setting": "SWING_CAPTURE_PANEL_IMPACT_SOURCE"
+      }
+    ]
+  },
+  "cameras": [
+    {
+      "camera_id": "swing_behind",
+      "panel_id": "swing_behind",
+      "source": "Swing Behind",
+      "kind": "dynamic",
+      "view": "behind",
+      "supports": [
+        "body_in_backswing",
+        "body_through_impact",
+        "finish_position",
+        "sequence",
+        "whole_body"
+      ],
+      "settled": false,
+      "blank_rejected": 0,
+      "duplicate_frames": 1,
+      "ok": true,
+      "detail": null,
+      "captured_frames": 51,
+      "failed_frames": 0,
+      "distinct_frames": 50,
+      "selected_frames": 8,
+      "cadence": {
+        "requested_fps": 10.0,
+        "downswing_fps": 20.0,
+        "planned": 51,
+        "requested": 51,
+        "missed_deadlines": 0,
+        "overruns": 0,
+        "interval_mean_ms": 78.1,
+        "interval_median_ms": 94.0,
+        "interval_min_ms": 40.0,
+        "interval_max_ms": 112.4,
+        "achieved_fps": 12.8,
+        "downswing_achieved_fps": 20.2,
+        "request_mean_ms": 18.6,
+        "request_max_ms": 35.0,
+        "spacing_holds": 2
+      },
+      "replay_interval": {
+        "start_seconds": 1.902,
+        "end_seconds": 4.4,
+        "detected": true,
+        "pre_replay_frames": 14,
+        "start_borrowed_from": null
+      },
+      "frames": [
+        {
+          "index": 1,
+          "file": "swing_behind/frame_001.jpg",
+          "offset_seconds": 1.902,
+          "width": 1002,
+          "height": 1480,
+          "phase": "setup",
+          "captured_index": 15,
+          "sha256": "0c8c6c03091565d6"
+        },
+        {
+          "index": 2,
+          "file": "swing_behind/frame_002.jpg",
+          "offset_seconds": 2.501,
+          "width": 1002,
+          "height": 1480,
+          "phase": "takeaway",
+          "captured_index": 21,
+          "sha256": "eba729d4c3fd2210"
+        },
+        {
+          "index": 3,
+          "file": "swing_behind/frame_003.jpg",
+          "offset_seconds": 2.804,
+          "width": 1002,
+          "height": 1480,
+          "phase": "backswing",
+          "captured_index": 24,
+          "sha256": "d801f6d17fe33a01"
+        },
+        {
+          "index": 4,
+          "file": "swing_behind/frame_004.jpg",
+          "offset_seconds": 3.549,
+          "width": 1002,
+          "height": 1480,
+          "phase": "top",
+          "captured_index": 34,
+          "sha256": "6039229c28910e6e"
+        },
+        {
+          "index": 5,
+          "file": "swing_behind/frame_005.jpg",
+          "offset_seconds": 3.815,
+          "width": 1002,
+          "height": 1480,
+          "phase": "transition",
+          "captured_index": 39,
+          "sha256": "a30530f157d7d2d7"
+        },
+        {
+          "index": 6,
+          "file": "swing_behind/frame_006.jpg",
+          "offset_seconds": 3.861,
+          "width": 1002,
+          "height": 1480,
+          "phase": "downswing",
+          "captured_index": 40,
+          "sha256": "a9d0b29de779be44"
+        },
+        {
+          "index": 7,
+          "file": "swing_behind/frame_007.jpg",
+          "offset_seconds": 3.909,
+          "width": 1002,
+          "height": 1480,
+          "phase": "impact",
+          "captured_index": 41,
+          "sha256": "bd8b9d5f65d6290c"
+        },
+        {
+          "index": 8,
+          "file": "swing_behind/frame_008.jpg",
+          "offset_seconds": 3.997,
+          "width": 1002,
+          "height": 1480,
+          "phase": "release",
+          "captured_index": 43,
+          "sha256": "685232ce2663c0c0"
+        }
+      ],
+      "timeline": [
+        {
+          "index": 1,
+          "offset_seconds": 0.494,
+          "sha256": "5130d5f570b40dd6",
+          "bytes": 49475,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 2,
+          "offset_seconds": 0.605,
+          "sha256": "ad8795a3fd18251e",
+          "bytes": 44760,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 3,
+          "offset_seconds": 0.7,
+          "sha256": "70ce04940d61e9c9",
+          "bytes": 44292,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 4,
+          "offset_seconds": 0.812,
+          "sha256": "8873a36b849299e1",
+          "bytes": 43654,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 5,
+          "offset_seconds": 0.907,
+          "sha256": "33ea6d36e1d79b57",
+          "bytes": 43422,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 6,
+          "offset_seconds": 1.002,
+          "sha256": "ffaf55994fd8c249",
+          "bytes": 44181,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 7,
+          "offset_seconds": 1.114,
+          "sha256": "b259bdd60910e666",
+          "bytes": 45008,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 8,
+          "offset_seconds": 1.21,
+          "sha256": "d50b4e692740018e",
+          "bytes": 45699,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 9,
+          "offset_seconds": 1.305,
+          "sha256": "2365f79bfeb815fa",
+          "bytes": 46714,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 10,
+          "offset_seconds": 1.415,
+          "sha256": "5abf970dccfbad7e",
+          "bytes": 47025,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 11,
+          "offset_seconds": 1.508,
+          "sha256": "9a4194092deaddf8",
+          "bytes": 47624,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 12,
+          "offset_seconds": 1.604,
+          "sha256": "63474714d6a31648",
+          "bytes": 47524,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 13,
+          "offset_seconds": 1.714,
+          "sha256": "cce71df5a7e0f7ee",
+          "bytes": 50375,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 14,
+          "offset_seconds": 1.808,
+          "sha256": "fb0de2f889abd920",
+          "bytes": 49614,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 15,
+          "offset_seconds": 1.902,
+          "sha256": "0c8c6c03091565d6",
+          "bytes": 64738,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 16,
+          "offset_seconds": 2.011,
+          "sha256": "4f3579253995e3b9",
+          "bytes": 63743,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 17,
+          "offset_seconds": 2.106,
+          "sha256": "e93bcb9873d5bf73",
+          "bytes": 64125,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 18,
+          "offset_seconds": 2.201,
+          "sha256": "81d74786abd1c0be",
+          "bytes": 65010,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 19,
+          "offset_seconds": 2.296,
+          "sha256": "5894b39fdd1de82c",
+          "bytes": 64745,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 20,
+          "offset_seconds": 2.407,
+          "sha256": "ee0203f7e46dc50e",
+          "bytes": 66157,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 21,
+          "offset_seconds": 2.501,
+          "sha256": "eba729d4c3fd2210",
+          "bytes": 66104,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 22,
+          "offset_seconds": 2.597,
+          "sha256": "b8937ed5cf8c1c78",
+          "bytes": 66086,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 23,
+          "offset_seconds": 2.693,
+          "sha256": "a74121526ab73775",
+          "bytes": 65132,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 24,
+          "offset_seconds": 2.804,
+          "sha256": "d801f6d17fe33a01",
+          "bytes": 65169,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 25,
+          "offset_seconds": 2.915,
+          "sha256": "1a3a6bef3b15c4ed",
+          "bytes": 65878,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 26,
+          "offset_seconds": 3.008,
+          "sha256": "b45dd6e22dee354b",
+          "bytes": 65786,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 27,
+          "offset_seconds": 3.103,
+          "sha256": "61fe7d9c843cc580",
+          "bytes": 65885,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 28,
+          "offset_seconds": 3.214,
+          "sha256": "5fec77a8ecd636e2",
+          "bytes": 65991,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 29,
+          "offset_seconds": 3.31,
+          "sha256": "aa275e91ab10d64c",
+          "bytes": 65903,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 30,
+          "offset_seconds": 3.358,
+          "sha256": "257ca132637cfd82",
+          "bytes": 66252,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 31,
+          "offset_seconds": 3.406,
+          "sha256": "92649fb96c4b3b63",
+          "bytes": 66528,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 32,
+          "offset_seconds": 3.454,
+          "sha256": "ab33c18233584279",
+          "bytes": 65999,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 33,
+          "offset_seconds": 3.502,
+          "sha256": "55b62fbb21dcc93c",
+          "bytes": 65840,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 34,
+          "offset_seconds": 3.549,
+          "sha256": "6039229c28910e6e",
+          "bytes": 66340,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 35,
+          "offset_seconds": 3.597,
+          "sha256": "8e1a796c88f2a59f",
+          "bytes": 66291,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 36,
+          "offset_seconds": 3.659,
+          "sha256": "1a5947f475a28836",
+          "bytes": 66452,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 37,
+          "offset_seconds": 3.705,
+          "sha256": "7944b3fa30f93560",
+          "bytes": 66157,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 38,
+          "offset_seconds": 3.751,
+          "sha256": "9a30e1d9fa30fdec",
+          "bytes": 66171,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 39,
+          "offset_seconds": 3.815,
+          "sha256": "a30530f157d7d2d7",
+          "bytes": 65579,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 40,
+          "offset_seconds": 3.861,
+          "sha256": "a9d0b29de779be44",
+          "bytes": 66186,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 41,
+          "offset_seconds": 3.909,
+          "sha256": "bd8b9d5f65d6290c",
+          "bytes": 64096,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 42,
+          "offset_seconds": 3.957,
+          "sha256": "bf3713399a1beb67",
+          "bytes": 64413,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 43,
+          "offset_seconds": 3.997,
+          "sha256": "685232ce2663c0c0",
+          "bytes": 64527,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 44,
+          "offset_seconds": 4.052,
+          "sha256": "d0001c5cf2fb45e1",
+          "bytes": 64635,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 45,
+          "offset_seconds": 4.1,
+          "sha256": "67bd7a9c1a1dbe00",
+          "bytes": 65754,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 46,
+          "offset_seconds": 4.163,
+          "sha256": "29a4bc8bff9b7653",
+          "bytes": 65681,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 47,
+          "offset_seconds": 4.21,
+          "sha256": "f218fd1271743d3f",
+          "bytes": 65827,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 48,
+          "offset_seconds": 4.257,
+          "sha256": "f218fd1271743d3f",
+          "bytes": 65827,
+          "width": 1002,
+          "height": 1480,
+          "changed": false,
+          "selected": false
+        },
+        {
+          "index": 49,
+          "offset_seconds": 4.306,
+          "sha256": "25a63c98976b38d1",
+          "bytes": 65796,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 50,
+          "offset_seconds": 4.353,
+          "sha256": "885180f3a196d0ce",
+          "bytes": 66362,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 51,
+          "offset_seconds": 4.4,
+          "sha256": "fcbd07da8e461212",
+          "bytes": 65991,
+          "width": 1002,
+          "height": 1480,
+          "changed": true,
+          "selected": false
+        }
+      ]
+    },
+    {
+      "camera_id": "swing_side",
+      "panel_id": "swing_side",
+      "source": "Swing Side",
+      "kind": "dynamic",
+      "view": "side",
+      "supports": [
+        "body_in_backswing",
+        "body_through_impact",
+        "finish_position",
+        "sequence",
+        "whole_body"
+      ],
+      "settled": false,
+      "blank_rejected": 0,
+      "duplicate_frames": 1,
+      "ok": true,
+      "detail": null,
+      "captured_frames": 51,
+      "failed_frames": 0,
+      "distinct_frames": 50,
+      "selected_frames": 7,
+      "cadence": {
+        "requested_fps": 10.0,
+        "downswing_fps": 20.0,
+        "planned": 51,
+        "requested": 51,
+        "missed_deadlines": 0,
+        "overruns": 0,
+        "interval_mean_ms": 78.1,
+        "interval_median_ms": 94.0,
+        "interval_min_ms": 40.0,
+        "interval_max_ms": 112.4,
+        "achieved_fps": 12.8,
+        "downswing_achieved_fps": 20.2,
+        "request_mean_ms": 18.6,
+        "request_max_ms": 35.0,
+        "spacing_holds": 2
+      },
+      "replay_interval": {
+        "start_seconds": 1.902,
+        "end_seconds": 4.4,
+        "detected": true,
+        "pre_replay_frames": 14,
+        "start_borrowed_from": null
+      },
+      "frames": [
+        {
+          "index": 1,
+          "file": "swing_side/frame_001.jpg",
+          "offset_seconds": 1.902,
+          "width": 1272,
+          "height": 1490,
+          "phase": "setup",
+          "captured_index": 15,
+          "sha256": "672ab88783ef6587"
+        },
+        {
+          "index": 2,
+          "file": "swing_side/frame_002.jpg",
+          "offset_seconds": 2.804,
+          "width": 1272,
+          "height": 1490,
+          "phase": "backswing",
+          "captured_index": 24,
+          "sha256": "d749a7473f27c426"
+        },
+        {
+          "index": 3,
+          "file": "swing_side/frame_003.jpg",
+          "offset_seconds": 3.454,
+          "width": 1272,
+          "height": 1490,
+          "phase": "top",
+          "captured_index": 32,
+          "sha256": "e6ff2de1044c770b"
+        },
+        {
+          "index": 4,
+          "file": "swing_side/frame_004.jpg",
+          "offset_seconds": 3.815,
+          "width": 1272,
+          "height": 1490,
+          "phase": "transition",
+          "captured_index": 39,
+          "sha256": "3887fc840c1e1f49"
+        },
+        {
+          "index": 5,
+          "file": "swing_side/frame_005.jpg",
+          "offset_seconds": 3.861,
+          "width": 1272,
+          "height": 1490,
+          "phase": "downswing",
+          "captured_index": 40,
+          "sha256": "39651ee1e32aa893"
+        },
+        {
+          "index": 6,
+          "file": "swing_side/frame_006.jpg",
+          "offset_seconds": 3.909,
+          "width": 1272,
+          "height": 1490,
+          "phase": "impact",
+          "captured_index": 41,
+          "sha256": "09e1b31ffa462e83"
+        },
+        {
+          "index": 7,
+          "file": "swing_side/frame_007.jpg",
+          "offset_seconds": 3.997,
+          "width": 1272,
+          "height": 1490,
+          "phase": "release",
+          "captured_index": 43,
+          "sha256": "bceff751c048bb1d"
+        }
+      ],
+      "timeline": [
+        {
+          "index": 1,
+          "offset_seconds": 0.494,
+          "sha256": "119941b612a00ecd",
+          "bytes": 90302,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 2,
+          "offset_seconds": 0.605,
+          "sha256": "962fb332d84b3c08",
+          "bytes": 43428,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 3,
+          "offset_seconds": 0.7,
+          "sha256": "691088c808029537",
+          "bytes": 42636,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 4,
+          "offset_seconds": 0.812,
+          "sha256": "47461bdbb9388882",
+          "bytes": 41817,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 5,
+          "offset_seconds": 0.907,
+          "sha256": "ff6729508dbb166c",
+          "bytes": 41887,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 6,
+          "offset_seconds": 1.002,
+          "sha256": "b10f32a883dc42c4",
+          "bytes": 42625,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 7,
+          "offset_seconds": 1.114,
+          "sha256": "3efdc0fd214f2301",
+          "bytes": 43575,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 8,
+          "offset_seconds": 1.21,
+          "sha256": "2d9e2069704724ba",
+          "bytes": 44162,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 9,
+          "offset_seconds": 1.305,
+          "sha256": "b72312399cf79fd6",
+          "bytes": 45423,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 10,
+          "offset_seconds": 1.415,
+          "sha256": "7f724c5ea37d3285",
+          "bytes": 45817,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 11,
+          "offset_seconds": 1.508,
+          "sha256": "eaaf30f2ed434e9a",
+          "bytes": 46457,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 12,
+          "offset_seconds": 1.604,
+          "sha256": "68c4122410f4f2cf",
+          "bytes": 46338,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 13,
+          "offset_seconds": 1.714,
+          "sha256": "445a4501082e6d01",
+          "bytes": 45693,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 14,
+          "offset_seconds": 1.808,
+          "sha256": "f6d89f6863ea76ed",
+          "bytes": 44643,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 15,
+          "offset_seconds": 1.902,
+          "sha256": "672ab88783ef6587",
+          "bytes": 176999,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 16,
+          "offset_seconds": 2.011,
+          "sha256": "dea445fa67acbad4",
+          "bytes": 174239,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 17,
+          "offset_seconds": 2.106,
+          "sha256": "451da61fb694ea86",
+          "bytes": 174230,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 18,
+          "offset_seconds": 2.201,
+          "sha256": "ede7ec015078a667",
+          "bytes": 174032,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 19,
+          "offset_seconds": 2.296,
+          "sha256": "61f902425c9d06b2",
+          "bytes": 175347,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 20,
+          "offset_seconds": 2.407,
+          "sha256": "23fd152b87c965f6",
+          "bytes": 174652,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 21,
+          "offset_seconds": 2.501,
+          "sha256": "2da9ede702cb5da8",
+          "bytes": 172729,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 22,
+          "offset_seconds": 2.597,
+          "sha256": "43ee5808311cbd66",
+          "bytes": 172389,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 23,
+          "offset_seconds": 2.693,
+          "sha256": "354df89cf0afa42a",
+          "bytes": 173080,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 24,
+          "offset_seconds": 2.804,
+          "sha256": "d749a7473f27c426",
+          "bytes": 172265,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 25,
+          "offset_seconds": 2.915,
+          "sha256": "81e006494e8b4b5e",
+          "bytes": 174874,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 26,
+          "offset_seconds": 3.008,
+          "sha256": "475cfa3ec076fefc",
+          "bytes": 174445,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 27,
+          "offset_seconds": 3.103,
+          "sha256": "ba64da8fe580e443",
+          "bytes": 174636,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 28,
+          "offset_seconds": 3.214,
+          "sha256": "10416b6cb3e265c9",
+          "bytes": 174897,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 29,
+          "offset_seconds": 3.31,
+          "sha256": "888aeb845341c653",
+          "bytes": 174783,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 30,
+          "offset_seconds": 3.358,
+          "sha256": "8507574e7be13796",
+          "bytes": 174793,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 31,
+          "offset_seconds": 3.406,
+          "sha256": "9286933fbd2ebaea",
+          "bytes": 173716,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 32,
+          "offset_seconds": 3.454,
+          "sha256": "e6ff2de1044c770b",
+          "bytes": 174570,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 33,
+          "offset_seconds": 3.502,
+          "sha256": "b4b3abab8266e73d",
+          "bytes": 174233,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 34,
+          "offset_seconds": 3.549,
+          "sha256": "785d77372e1c186a",
+          "bytes": 175806,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 35,
+          "offset_seconds": 3.597,
+          "sha256": "d6d5357ec3beb9bf",
+          "bytes": 174397,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 36,
+          "offset_seconds": 3.659,
+          "sha256": "effe90f59efde5a0",
+          "bytes": 175466,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 37,
+          "offset_seconds": 3.705,
+          "sha256": "1b0e711f9457dc92",
+          "bytes": 176284,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 38,
+          "offset_seconds": 3.751,
+          "sha256": "1aca0dd8b291ba54",
+          "bytes": 175178,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 39,
+          "offset_seconds": 3.815,
+          "sha256": "3887fc840c1e1f49",
+          "bytes": 173293,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 40,
+          "offset_seconds": 3.861,
+          "sha256": "39651ee1e32aa893",
+          "bytes": 173011,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 41,
+          "offset_seconds": 3.909,
+          "sha256": "09e1b31ffa462e83",
+          "bytes": 175180,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 42,
+          "offset_seconds": 3.957,
+          "sha256": "9f6e6333d05c11bd",
+          "bytes": 173390,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 43,
+          "offset_seconds": 3.997,
+          "sha256": "bceff751c048bb1d",
+          "bytes": 171752,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": true
+        },
+        {
+          "index": 44,
+          "offset_seconds": 4.052,
+          "sha256": "5eb7beaa215bb94f",
+          "bytes": 171870,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 45,
+          "offset_seconds": 4.1,
+          "sha256": "cb91f15480f048fd",
+          "bytes": 172003,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 46,
+          "offset_seconds": 4.163,
+          "sha256": "cb9a0bbfdc61accc",
+          "bytes": 173506,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 47,
+          "offset_seconds": 4.21,
+          "sha256": "4c138cb21ef50b85",
+          "bytes": 173363,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 48,
+          "offset_seconds": 4.257,
+          "sha256": "4c138cb21ef50b85",
+          "bytes": 173363,
+          "width": 1272,
+          "height": 1490,
+          "changed": false,
+          "selected": false
+        },
+        {
+          "index": 49,
+          "offset_seconds": 4.306,
+          "sha256": "1b1f6ce7f32df0af",
+          "bytes": 174357,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 50,
+          "offset_seconds": 4.353,
+          "sha256": "ebe866bf62dc593e",
+          "bytes": 173582,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 51,
+          "offset_seconds": 4.4,
+          "sha256": "757d8100af6f4cc6",
+          "bytes": 173920,
+          "width": 1272,
+          "height": 1490,
+          "changed": true,
+          "selected": false
+        }
+      ]
+    },
+    {
+      "camera_id": "impact",
+      "panel_id": "impact",
+      "source": "Impact",
+      "kind": "static",
+      "view": "none",
+      "supports": [],
+      "settled": false,
+      "blank_rejected": 0,
+      "duplicate_frames": 0,
+      "ok": true,
+      "detail": null,
+      "captured_frames": 3,
+      "failed_frames": 0,
+      "distinct_frames": 3,
+      "selected_frames": 1,
+      "cadence": {
+        "requested_fps": 2.0,
+        "downswing_fps": null,
+        "planned": 3,
+        "requested": 3,
+        "missed_deadlines": 0,
+        "overruns": 0,
+        "interval_mean_ms": 504.7,
+        "interval_median_ms": 504.7,
+        "interval_min_ms": 484.2,
+        "interval_max_ms": 525.2,
+        "achieved_fps": 1.98,
+        "downswing_achieved_fps": null,
+        "request_mean_ms": 12.6,
+        "request_max_ms": 18.4,
+        "spacing_holds": 0
+      },
+      "replay_interval": {
+        "start_seconds": 3.502,
+        "end_seconds": 4.511,
+        "detected": false,
+        "pre_replay_frames": 0,
+        "start_borrowed_from": null
+      },
+      "frames": [
+        {
+          "index": 1,
+          "file": "impact/frame_001.jpg",
+          "offset_seconds": 4.511,
+          "width": 1352,
+          "height": 598,
+          "phase": null,
+          "captured_index": 3,
+          "sha256": "6566bfdfc5e21837"
+        }
+      ],
+      "timeline": [
+        {
+          "index": 1,
+          "offset_seconds": 3.502,
+          "sha256": "e41e47604dd65422",
+          "bytes": 44870,
+          "width": 1352,
+          "height": 598,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 2,
+          "offset_seconds": 3.986,
+          "sha256": "6249376a83b36286",
+          "bytes": 45517,
+          "width": 1352,
+          "height": 598,
+          "changed": true,
+          "selected": false
+        },
+        {
+          "index": 3,
+          "offset_seconds": 4.511,
+          "sha256": "6566bfdfc5e21837",
+          "bytes": 43555,
+          "width": 1352,
+          "height": 598,
+          "changed": true,
+          "selected": true
+        }
+      ]
+    }
+  ],
+  "provider_images": [],
+  "provider_image_count": 0,
+  "provider_swing_frame_count": 0,
+  "evidence_sheet": {
+    "ok": true,
+    "file": "swing_evidence.jpg",
+    "role": "transport",
+    "canonical_evidence": "the original frames named in cells",
+    "format": "jpeg",
+    "quality": 90,
+    "chroma": "4:4:4",
+    "width": 2048,
+    "height": 1679,
+    "bytes": 793347,
+    "render_ms": 203,
+    "cells": [
+      {
+        "cell_id": "DTL_P1",
+        "frame_id": "swing_behind_01",
+        "file": "swing_behind/frame_001.jpg",
+        "kind": "body",
+        "camera_id": "swing_behind",
+        "view": "behind",
+        "aimed_phase": "setup",
+        "offset_seconds": 1.902,
+        "box": [
+          8,
+          83,
+          291,
+          429
+        ],
+        "scale": 0.29
+      },
+      {
+        "cell_id": "DTL_P2",
+        "frame_id": "swing_behind_02",
+        "file": "swing_behind/frame_002.jpg",
+        "kind": "body",
+        "camera_id": "swing_behind",
+        "view": "behind",
+        "aimed_phase": "takeaway",
+        "offset_seconds": 2.501,
+        "box": [
+          307,
+          83,
+          291,
+          429
+        ],
+        "scale": 0.29
+      },
+      {
+        "cell_id": "DTL_P3",
+        "frame_id": "swing_behind_03",
+        "file": "swing_behind/frame_003.jpg",
+        "kind": "body",
+        "camera_id": "swing_behind",
+        "view": "behind",
+        "aimed_phase": "backswing",
+        "offset_seconds": 2.804,
+        "box": [
+          606,
+          83,
+          291,
+          429
+        ],
+        "scale": 0.29
+      },
+      {
+        "cell_id": "DTL_P4",
+        "frame_id": "swing_behind_04",
+        "file": "swing_behind/frame_004.jpg",
+        "kind": "body",
+        "camera_id": "swing_behind",
+        "view": "behind",
+        "aimed_phase": "top",
+        "offset_seconds": 3.549,
+        "box": [
+          8,
+          552,
+          291,
+          429
+        ],
+        "scale": 0.29
+      },
+      {
+        "cell_id": "DTL_P5",
+        "frame_id": "swing_behind_05",
+        "file": "swing_behind/frame_005.jpg",
+        "kind": "body",
+        "camera_id": "swing_behind",
+        "view": "behind",
+        "aimed_phase": "transition",
+        "offset_seconds": 3.815,
+        "box": [
+          307,
+          552,
+          291,
+          429
+        ],
+        "scale": 0.29
+      },
+      {
+        "cell_id": "DTL_P6",
+        "frame_id": "swing_behind_06",
+        "file": "swing_behind/frame_006.jpg",
+        "kind": "body",
+        "camera_id": "swing_behind",
+        "view": "behind",
+        "aimed_phase": "downswing",
+        "offset_seconds": 3.861,
+        "box": [
+          606,
+          552,
+          291,
+          429
+        ],
+        "scale": 0.29
+      },
+      {
+        "cell_id": "DTL_P7",
+        "frame_id": "swing_behind_07",
+        "file": "swing_behind/frame_007.jpg",
+        "kind": "body",
+        "camera_id": "swing_behind",
+        "view": "behind",
+        "aimed_phase": "impact",
+        "offset_seconds": 3.909,
+        "box": [
+          8,
+          1021,
+          291,
+          429
+        ],
+        "scale": 0.29
+      },
+      {
+        "cell_id": "DTL_P8",
+        "frame_id": "swing_behind_08",
+        "file": "swing_behind/frame_008.jpg",
+        "kind": "body",
+        "camera_id": "swing_behind",
+        "view": "behind",
+        "aimed_phase": "release",
+        "offset_seconds": 3.997,
+        "box": [
+          307,
+          1021,
+          291,
+          429
+        ],
+        "scale": 0.29
+      },
+      {
+        "cell_id": "FO_P1",
+        "frame_id": "swing_side_01",
+        "file": "swing_side/frame_001.jpg",
+        "kind": "body",
+        "camera_id": "swing_side",
+        "view": "side",
+        "aimed_phase": "setup",
+        "offset_seconds": 1.902,
+        "box": [
+          913,
+          82,
+          370,
+          433
+        ],
+        "scale": 0.291
+      },
+      {
+        "cell_id": "FO_P3",
+        "frame_id": "swing_side_02",
+        "file": "swing_side/frame_002.jpg",
+        "kind": "body",
+        "camera_id": "swing_side",
+        "view": "side",
+        "aimed_phase": "backswing",
+        "offset_seconds": 2.804,
+        "box": [
+          1291,
+          82,
+          370,
+          433
+        ],
+        "scale": 0.291
+      },
+      {
+        "cell_id": "FO_P4",
+        "frame_id": "swing_side_03",
+        "file": "swing_side/frame_003.jpg",
+        "kind": "body",
+        "camera_id": "swing_side",
+        "view": "side",
+        "aimed_phase": "top",
+        "offset_seconds": 3.454,
+        "box": [
+          1669,
+          82,
+          370,
+          433
+        ],
+        "scale": 0.291
+      },
+      {
+        "cell_id": "FO_P5",
+        "frame_id": "swing_side_04",
+        "file": "swing_side/frame_004.jpg",
+        "kind": "body",
+        "camera_id": "swing_side",
+        "view": "side",
+        "aimed_phase": "transition",
+        "offset_seconds": 3.815,
+        "box": [
+          913,
+          554,
+          370,
+          433
+        ],
+        "scale": 0.291
+      },
+      {
+        "cell_id": "FO_P6",
+        "frame_id": "swing_side_05",
+        "file": "swing_side/frame_005.jpg",
+        "kind": "body",
+        "camera_id": "swing_side",
+        "view": "side",
+        "aimed_phase": "downswing",
+        "offset_seconds": 3.861,
+        "box": [
+          1291,
+          554,
+          370,
+          433
+        ],
+        "scale": 0.291
+      },
+      {
+        "cell_id": "FO_P7",
+        "frame_id": "swing_side_06",
+        "file": "swing_side/frame_006.jpg",
+        "kind": "body",
+        "camera_id": "swing_side",
+        "view": "side",
+        "aimed_phase": "impact",
+        "offset_seconds": 3.909,
+        "box": [
+          1669,
+          554,
+          370,
+          433
+        ],
+        "scale": 0.291
+      },
+      {
+        "cell_id": "FO_P8",
+        "frame_id": "swing_side_07",
+        "file": "swing_side/frame_007.jpg",
+        "kind": "body",
+        "camera_id": "swing_side",
+        "view": "side",
+        "aimed_phase": "release",
+        "offset_seconds": 3.997,
+        "box": [
+          913,
+          1026,
+          370,
+          433
+        ],
+        "scale": 0.291
+      },
+      {
+        "cell_id": "IMPACT",
+        "frame_id": "impact_01",
+        "file": "impact/frame_001.jpg",
+        "kind": "panel",
+        "camera_id": "impact",
+        "view": "none",
+        "aimed_phase": null,
+        "offset_seconds": 4.511,
+        "box": [
+          1291,
+          1161,
+          370,
+          163
+        ],
+        "scale": 0.274
+      },
+      {
+        "cell_id": "ALL_VALUES",
+        "frame_id": "all_values",
+        "file": "metrics/all_values.jpg",
+        "kind": "metrics",
+        "camera_id": "coach_metrics",
+        "view": "none",
+        "aimed_phase": null,
+        "offset_seconds": null,
+        "box": [
+          8,
+          1498,
+          2032,
+          173
+        ],
+        "scale": 0.398
+      }
+    ],
+    "dropped": []
+  },
+  "coach_request": {
+    "strike_id": "e5d9e793-11df-4e79-a0de-771884024ff6",
+    "diagnostic_dry_run": true,
+    "sent": false,
+    "would_send_images": 1,
+    "swing_frames": 16,
+    "metrics_image": true,
+    "evidence_cells": 17
+  }
+}

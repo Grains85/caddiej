@@ -1,0 +1,520 @@
+{
+ "plans": [
+  {
+   "layout": "columns",
+   "moments": 18,
+   "cols": 7,
+   "rows": 3,
+   "h": 273,
+   "tile_w": 233,
+   "dtl_cell": [
+    184,
+    273
+   ],
+   "fo_cell": [
+    233,
+    273
+   ],
+   "golfer_px": {
+    "DTL": 128,
+    "FO": 150
+   },
+   "body_images": 36,
+   "sheet": [
+    2048,
+    2048
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "layout": "columns",
+   "moments": 21,
+   "cols": 8,
+   "rows": 3,
+   "h": 273,
+   "tile_w": 233,
+   "dtl_cell": [
+    184,
+    273
+   ],
+   "fo_cell": [
+    233,
+    273
+   ],
+   "golfer_px": {
+    "DTL": 128,
+    "FO": 150
+   },
+   "body_images": 42,
+   "sheet": [
+    2048,
+    2048
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "layout": "columns",
+   "moments": 24,
+   "cols": 9,
+   "rows": 3,
+   "h": 251,
+   "tile_w": 214,
+   "dtl_cell": [
+    169,
+    251
+   ],
+   "fo_cell": [
+    214,
+    251
+   ],
+   "golfer_px": {
+    "DTL": 118,
+    "FO": 138
+   },
+   "body_images": 48,
+   "sheet": [
+    2048,
+    2048
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "layout": "columns",
+   "moments": 27,
+   "cols": 10,
+   "rows": 3,
+   "h": 225,
+   "tile_w": 192,
+   "dtl_cell": [
+    152,
+    225
+   ],
+   "fo_cell": [
+    192,
+    225
+   ],
+   "golfer_px": {
+    "DTL": 106,
+    "FO": 124
+   },
+   "body_images": 54,
+   "sheet": [
+    2048,
+    2048
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "layout": "pairs",
+   "moments": 18,
+   "cols": 4,
+   "rows": 5,
+   "h": 318,
+   "tile_w": 490,
+   "dtl_cell": [
+    215,
+    318
+   ],
+   "fo_cell": [
+    271,
+    318
+   ],
+   "golfer_px": {
+    "DTL": 149,
+    "FO": 175
+   },
+   "body_images": 36,
+   "sheet": [
+    2048,
+    2048
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "layout": "pairs",
+   "moments": 21,
+   "cols": 4,
+   "rows": 6,
+   "h": 259,
+   "tile_w": 400,
+   "dtl_cell": [
+    175,
+    259
+   ],
+   "fo_cell": [
+    221,
+    259
+   ],
+   "golfer_px": {
+    "DTL": 122,
+    "FO": 142
+   },
+   "body_images": 42,
+   "sheet": [
+    2048,
+    2048
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "layout": "pairs",
+   "moments": 24,
+   "cols": 5,
+   "rows": 5,
+   "h": 258,
+   "tile_w": 398,
+   "dtl_cell": [
+    174,
+    258
+   ],
+   "fo_cell": [
+    220,
+    258
+   ],
+   "golfer_px": {
+    "DTL": 121,
+    "FO": 142
+   },
+   "body_images": 48,
+   "sheet": [
+    2048,
+    2048
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "layout": "pairs",
+   "moments": 27,
+   "cols": 5,
+   "rows": 6,
+   "h": 258,
+   "tile_w": 398,
+   "dtl_cell": [
+    174,
+    258
+   ],
+   "fo_cell": [
+    220,
+    258
+   ],
+   "golfer_px": {
+    "DTL": 121,
+    "FO": 142
+   },
+   "body_images": 54,
+   "sheet": [
+    2048,
+    2048
+   ],
+   "image_tokens": 4916
+  }
+ ],
+ "renders": [
+  {
+   "name": "20261008T092949-4_B_sync_current",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 1127749,
+   "dtl_cell": [
+    215,
+    317
+   ],
+   "fo_cell": [
+    272,
+    318
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T092949-4_B_sync_columns",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 889933,
+   "dtl_cell": [
+    184,
+    273
+   ],
+   "fo_cell": [
+    233,
+    273
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T092949-4_B_sync_pairs",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 1045240,
+   "dtl_cell": [
+    215,
+    318
+   ],
+   "fo_cell": [
+    271,
+    318
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T092949-4_C_realloc_current",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 1127308,
+   "dtl_cell": [
+    215,
+    317
+   ],
+   "fo_cell": [
+    272,
+    318
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T092949-4_C_realloc_columns",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 889896,
+   "dtl_cell": [
+    184,
+    273
+   ],
+   "fo_cell": [
+    233,
+    273
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T092949-4_C_realloc_pairs",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 1044837,
+   "dtl_cell": [
+    215,
+    318
+   ],
+   "fo_cell": [
+    271,
+    318
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T093010-5_B_sync_current",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 1127656,
+   "dtl_cell": [
+    215,
+    317
+   ],
+   "fo_cell": [
+    272,
+    318
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T093010-5_B_sync_columns",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 889627,
+   "dtl_cell": [
+    184,
+    273
+   ],
+   "fo_cell": [
+    233,
+    273
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T093010-5_B_sync_pairs",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 1045584,
+   "dtl_cell": [
+    215,
+    318
+   ],
+   "fo_cell": [
+    271,
+    318
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T093010-5_C_realloc_current",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 1126731,
+   "dtl_cell": [
+    215,
+    317
+   ],
+   "fo_cell": [
+    272,
+    318
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T093010-5_C_realloc_columns",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 889420,
+   "dtl_cell": [
+    184,
+    273
+   ],
+   "fo_cell": [
+    233,
+    273
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T093010-5_C_realloc_pairs",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 1044534,
+   "dtl_cell": [
+    215,
+    318
+   ],
+   "fo_cell": [
+    271,
+    318
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T093033-6_B_sync_current",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 1128845,
+   "dtl_cell": [
+    215,
+    317
+   ],
+   "fo_cell": [
+    272,
+    318
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T093033-6_B_sync_columns",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 891275,
+   "dtl_cell": [
+    184,
+    273
+   ],
+   "fo_cell": [
+    233,
+    273
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T093033-6_B_sync_pairs",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 1046691,
+   "dtl_cell": [
+    215,
+    318
+   ],
+   "fo_cell": [
+    271,
+    318
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T093033-6_C_realloc_current",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 1128692,
+   "dtl_cell": [
+    215,
+    317
+   ],
+   "fo_cell": [
+    272,
+    318
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T093033-6_C_realloc_columns",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 891280,
+   "dtl_cell": [
+    184,
+    273
+   ],
+   "fo_cell": [
+    233,
+    273
+   ],
+   "image_tokens": 4916
+  },
+  {
+   "name": "20261008T093033-6_C_realloc_pairs",
+   "size": [
+    2048,
+    2048
+   ],
+   "bytes": 1046264,
+   "dtl_cell": [
+    215,
+    318
+   ],
+   "fo_cell": [
+    271,
+    318
+   ],
+   "image_tokens": 4916
+  }
+ ]
+}

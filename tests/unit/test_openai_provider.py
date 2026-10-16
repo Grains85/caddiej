@@ -34,7 +34,7 @@ from caddiej.coaching.provider import (
 GOOD = {
     "focus": "face_control",
     "display": "FACE OPEN",
-    "speech": "Good path. Square the face a little earlier.",
+    "speech": "Square the face a little earlier. Keep that same feeling.",
     "severity": 0.5,
 }
 
@@ -284,6 +284,28 @@ async def test_frames_go_as_data_urls_at_low_detail() -> None:
     assert len(attached) == 1
     assert attached[0]["detail"] == "low"
     assert attached[0]["image_url"].startswith("data:image/jpeg;base64,")
+
+
+async def test_each_image_is_named_before_it_is_attached() -> None:
+    module = FakeSdk()
+    images = (
+        ImageInput(data=b"behind", label="SWING_BEHIND / DOWN_THE_LINE"),
+        ImageInput(data=b"side", label="SWING_SIDE / FACE_ON"),
+        ImageInput(data=b"impact", label="IMPACT"),
+        ImageInput(data=b"delivery", label="DELIVERY"),
+    )
+
+    await a_provider(module).complete(a_request(images=images))
+
+    parts = module.clients[0].calls[0]["input"][0]["content"]
+    texts = [part["text"] for part in parts if part["type"] == "input_text"]
+    assert "Next image: SWING_BEHIND / DOWN_THE_LINE" in texts
+    assert "Next image: SWING_SIDE / FACE_ON" in texts
+    assert "Next image: IMPACT" in texts
+    assert "Next image: DELIVERY" in texts
+    behind = texts.index("Next image: SWING_BEHIND / DOWN_THE_LINE")
+    side = texts.index("Next image: SWING_SIDE / FACE_ON")
+    assert behind < side
 
 
 async def test_a_shot_with_no_frames_sends_no_images() -> None:

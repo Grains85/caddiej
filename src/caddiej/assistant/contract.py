@@ -56,6 +56,8 @@ TRAINING_FOCUSES: tuple[str, ...] = (
     "strike",
     "low_point",
     "speed",
+    "start_line",
+    "curve",
     "launch",
     "spin",
     "consistency",
@@ -113,11 +115,17 @@ class Availability(StrEnum):
 
 
 class BallPayload(_Wire):
-    """What the ball did. Every field optional but the three every device sends."""
+    """What the ball did. Only the speed is always there.
+
+    The launch angles are null for a shot CaddieJ read from the simulator's own
+    round file rather than from a launch monitor: that file records a ball
+    speed and a distance and no angles. An assistant reading this must treat a
+    null as "not measured" and not as zero degrees.
+    """
 
     speed_mph: float
-    launch_angle_degrees: float
-    launch_direction_degrees: float
+    launch_angle_degrees: float | None = None
+    launch_direction_degrees: float | None = None
     carry_yards: float | None = None
     total_spin_rpm: float | None = None
     back_spin_rpm: float | None = None

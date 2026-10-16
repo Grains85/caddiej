@@ -1,0 +1,75 @@
+{
+ "evaluated_at": "2026-10-08T15:00:31.471392+00:00",
+ "metrics": {
+  "M1_P3_P8_correct_or_acceptable": [
+   0.6,
+   false,
+   {
+    "bad": 24,
+    "good": 36
+   }
+  ],
+  "M2_P6_P9_correct_or_acceptable": [
+   0.75,
+   false,
+   {
+    "bad": 10,
+    "good": 30
+   }
+  ],
+  "M3_P7_within_one_tick": [
+   "10/10",
+   true
+  ],
+  "M4_wrong_position_accepts": [
+   0.2798507462686567,
+   false,
+   "75/268"
+  ],
+  "M5_wire_schema_failures": [
+   0,
+   true
+  ],
+  "M6_openai_latency_max_s": [
+   10.934,
+   true,
+   {
+    "median_s": 9.789,
+    "preferred_median_s": 10.0
+   }
+  ]
+ },
+ "pass": false,
+ "per_shot": [
+  {
+   "shot": "20261008T141040-16-74c698a2",
+   "accepted": 52,
+   "wire_failures": 0,
+   "openai_s": 9.223
+  },
+  {
+   "shot": "20261008T141833-19-504f8f24",
+   "accepted": 53,
+   "wire_failures": 0,
+   "openai_s": 10.435
+  },
+  {
+   "shot": "20261008T142000-20-c70f8efc",
+   "accepted": 57,
+   "wire_failures": 0,
+   "openai_s": 8.769
+  },
+  {
+   "shot": "20261008T142053-21-7f8f4191",
+   "accepted": 53,
+   "wire_failures": 0,
+   "openai_s": 10.934
+  },
+  {
+   "shot": "20261008T142305-23-3d49f492",
+   "accepted": 53,
+   "wire_failures": 0,
+   "openai_s": 9.789
+  }
+ ]
+}

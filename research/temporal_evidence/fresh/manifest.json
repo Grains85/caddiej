@@ -1,0 +1,77 @@
+{
+ "test_set_size": 5,
+ "shots": [
+  {
+   "name": "20261008T141040-16-74c698a2",
+   "started_at": "2026-10-08T14:10:40.350738+00:00",
+   "preserved_at": "2026-10-08T14:16:23.992179+00:00",
+   "role": "test",
+   "order": 1,
+   "reason": null,
+   "metadata_sha256": "65376beef2c4a92b1f41a294ba35887a1eb534987976e96f801d7e04c231ca6d"
+  },
+  {
+   "name": "20261008T141100-17-ce98e6ea",
+   "started_at": "2026-10-08T14:11:00.278210+00:00",
+   "preserved_at": "2026-10-08T14:16:24.070294+00:00",
+   "role": "excluded",
+   "order": null,
+   "reason": "no diagnostic timeline (SWING_CAPTURE_DIAGNOSTIC_TIMELINE_SHOTS was 0 or used up)",
+   "metadata_sha256": "3611e60ab264b02dae04b012d760ae3edaecdb54c0abc2a6f315a12edab618a7"
+  },
+  {
+   "name": "20261008T141128-18-6b0b36a7",
+   "started_at": "2026-10-08T14:11:28.591104+00:00",
+   "preserved_at": "2026-10-08T14:16:24.149919+00:00",
+   "role": "excluded",
+   "order": null,
+   "reason": "no diagnostic timeline (SWING_CAPTURE_DIAGNOSTIC_TIMELINE_SHOTS was 0 or used up)",
+   "metadata_sha256": "a72434e9a0c17ca6705de522dfa860270ef76926d0636c6c170f51ab835b842b"
+  },
+  {
+   "name": "20261008T141833-19-504f8f24",
+   "started_at": "2026-10-08T14:18:33.583606+00:00",
+   "preserved_at": "2026-10-08T14:19:23.512114+00:00",
+   "role": "test",
+   "order": 2,
+   "reason": null,
+   "metadata_sha256": "904b96965377e10d66de817a06a260117a5b1a41c5ac5de988018a4cf9c2af10"
+  },
+  {
+   "name": "20261008T142000-20-c70f8efc",
+   "started_at": "2026-10-08T14:20:00.645122+00:00",
+   "preserved_at": "2026-10-08T14:20:34.615035+00:00",
+   "role": "test",
+   "order": 3,
+   "reason": null,
+   "metadata_sha256": "63aa912ad35c9f7897349a0e855514ef0286f0cea48506aa756926e62185066a"
+  },
+  {
+   "name": "20261008T142053-21-7f8f4191",
+   "started_at": "2026-10-08T14:20:53.380776+00:00",
+   "preserved_at": "2026-10-08T14:21:06.748843+00:00",
+   "role": "test",
+   "order": 4,
+   "reason": null,
+   "metadata_sha256": "d750e0f032dfe6e67f1cececb1c0d83451526a51f46013fc2900ef16815a8e81"
+  },
+  {
+   "name": "20261008T142123-22-3f1469e8",
+   "started_at": "2026-10-08T14:21:23.734672+00:00",
+   "preserved_at": "2026-10-08T14:21:35.370550+00:00",
+   "role": "excluded",
+   "order": null,
+   "reason": "no diagnostic timeline (SWING_CAPTURE_DIAGNOSTIC_TIMELINE_SHOTS was 0 or used up)",
+   "metadata_sha256": "6f6ef18b0a80726d96a6689960b0d6c2c3e18d9a87b9c9d2bb1a6eb595d141ce"
+  },
+  {
+   "name": "20261008T142305-23-3d49f492",
+   "started_at": "2026-10-08T14:23:05.927986+00:00",
+   "preserved_at": "2026-10-08T14:23:22.917978+00:00",
+   "role": "test",
+   "order": 5,
+   "reason": null,
+   "metadata_sha256": "29b24dd1f01dbe1d6003df41edbdc00fb877edf826a2b89ae341cf736814b951"
+  }
+ ]
+}

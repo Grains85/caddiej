@@ -1,0 +1,101 @@
+{
+ "frozen_at": "2026-10-08T13:55:44.160925+00:00",
+ "impact_prior": {
+  "range_s": [
+   1.7277,
+   2.2277
+  ],
+  "centre_s": 1.9777,
+  "half_width_s": 0.25,
+  "rule": "mean by-eye contact offset of saved real shots 4, 5, 6 (both cameras) +/- R7_HALF; replaces hybrid_replay.R7 for every fresh run. TAU unchanged.",
+  "source": [
+   {
+    "shot": "20261008T092949-4-d05a29c4",
+    "contact": {
+     "swing_behind": [
+      41,
+      1.986
+     ],
+     "swing_side": [
+      41,
+      1.986
+     ]
+    },
+    "t": 1.986
+   },
+   {
+    "shot": "20261008T093010-5-6669cd32",
+    "contact": {
+     "swing_behind": [
+      41,
+      1.9832
+     ],
+     "swing_side": [
+      41,
+      1.9832
+     ]
+    },
+    "t": 1.9832
+   },
+   {
+    "shot": "20261008T093033-6-819a363f",
+    "contact": {
+     "swing_behind": [
+      40,
+      1.9638
+     ],
+     "swing_side": [
+      40,
+      1.9638
+     ]
+    },
+    "t": 1.9638
+   }
+  ]
+ },
+ "tau_s": {
+  "P2_P3": 0.3,
+  "P5_P8": 0.15,
+  "note": "hybrid_replay.TAU, unchanged"
+ },
+ "settings": {
+  "model": "gpt-5-mini",
+  "reasoning_effort": "minimal",
+  "max_output_tokens": 10000,
+  "timeout_seconds": 30.0
+ },
+ "sheet": {
+  "variant": "T36S",
+  "moments": 18,
+  "max_side": 2048,
+  "jpeg_quality": 90,
+  "chroma": "4:4:4"
+ },
+ "request_sha256": {
+  "system": "765ec50e566f81f064d0700e1709a2369d8bc084d58afd302fa0c6b5523f40e8",
+  "schema": "46d51164db04f9ca466f71dbf1825202a9056fcd2f78b15fa168552d318dc057"
+ },
+ "fingerprints": {
+  "research/temporal_evidence/fresh_run.py": "983e75ad2d9b3904e24b11e3a384e9d71b8f4323b66a843742c0dbedde2cb534",
+  "research/temporal_evidence/t36.py": "f01c2ff6b59fbcd40de0572674cb60eb8e15446de5b5500e2d3d90bebff4534f",
+  "research/temporal_evidence/t36_request.py": "830e11398836cb219b65ac57675eae27e4b00aa49d03da87d082b141a5fb0df4",
+  "research/temporal_evidence/temporal_sheets.py": "69c8b122d0eefa8580576a5e551ec5e99b375c5b9b2fb09a3b1938f4373e7385",
+  "research/temporal_evidence/poc4_vx14c.py": "261236597422d20dd190b03aaab6bfd24ba8deb52d308cfdc898295054a3296c",
+  "research/temporal_evidence/poc3_hybrid.py": "893262cb3624008ce1c828aa01c48c3238b2157a3c0d3163b2ef2cd8d511a83e",
+  "research/temporal_evidence/poc2_vx14b.py": "774ead53426f459c9cfdc50f5e8d43d359de48a4c56f756ddb5e8c2d42c81843",
+  "research/temporal_evidence/poc_vx14.py": "a8f5843328625add0fa995a16084614ed889f4f2ceb1b310cb94007e5bb43e18",
+  "research/temporal_evidence/hybrid_replay.py": "306a33f269364aea3d3adf88450361eaf74af04cf4c08352afa6490e99381fe7",
+  "research/temporal_evidence/vx14c_replay.py": "046c8f741ea9fd6c1572df96ffe1901af65c9a665063e77aec9b5fffcb85d9dd",
+  "src/caddiej/coaching/vx.py": "9b5ded28b31c2b2a8df90f83e41f606856fd0d90594767e7303421a4014a6bbd",
+  "src/caddiej/coaching/checkpoints.py": "18209eff8e29fbc0d38e9e27358f4d364535c963cbd2af5ce3a0de1006ec46b8",
+  "src/caddiej/coaching/score.py": "f2a971316c91c8ba2e80211eede9e78656cc8eb9884adc01349a1c749c3e2c8e",
+  "src/caddiej/coaching/swing_faults.py": "5143fa9280b6d50dbb3f95378c29f866d81786cd7a6160ef59364b1464527003",
+  "src/caddiej/domain/swing_checkpoints.py": "42be0081dab6a99ed37595074533b78bdfdf85ac553195eebb2f72d77255fb3f",
+  "src/caddiej/swing_capture/sheet.py": "f2c80b445250855697d8222708224fc2a111f34155f42e260175a09ad6d5de07"
+ },
+ "baseline": [
+  "20261008T092949-4-d05a29c4",
+  "20261008T093010-5-6669cd32",
+  "20261008T093033-6-819a363f"
+ ]
+}

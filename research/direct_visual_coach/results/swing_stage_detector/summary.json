@@ -1,0 +1,418 @@
+{
+  "schema_version": "1",
+  "detector_version": "1",
+  "camera_id": "swing_behind",
+  "confidence_scale": "uncalibrated_heuristic",
+  "shots": [
+    {
+      "shot_id": "20261008T191451-1-93738c0a",
+      "status": "partial",
+      "orientation": "estimated",
+      "pose_detection_rate": 0.6862745098039216,
+      "frame_count": 51,
+      "usable_hand_frames": 35,
+      "both_wrists_frames": 14,
+      "left_wrist_continuity": 1.0,
+      "right_wrist_continuity": 1.0,
+      "transition": {
+        "time_interval_seconds": [
+          2.8114,
+          3.0975
+        ],
+        "confidence": 0.8384354546666145,
+        "evidence_ticks": [
+          24,
+          25,
+          26,
+          27
+        ],
+        "method": "wrist_elevation_direction_change"
+      },
+      "transition_disposition": "accepted",
+      "downswing": {
+        "time_interval_seconds": [
+          3.192,
+          3.9521
+        ],
+        "confidence": 0.8384354546666145,
+        "evidence_ticks": [
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42
+        ],
+        "method": "wrist_elevation_descent"
+      },
+      "downswing_disposition": "accepted",
+      "impact_supported": false,
+      "unresolved_stages": [
+        "SETUP",
+        "IMPACT_REGION",
+        "FINISH"
+      ],
+      "hand_excursion": {
+        "observed": true,
+        "rise_torso_lengths": 1.866656,
+        "fall_torso_lengths": 1.734548,
+        "peak_time_seconds": 3.0027,
+        "peak_tick": 26,
+        "wrists_at_peak": 1,
+        "gates_passed": true,
+        "reversal": true
+      },
+      "warnings": [
+        "Confidence values are uncalibrated heuristics, not probabilities.",
+        "Handedness is unknown. Left and right are the person's sides from the pose model, not lead and trail.",
+        "IMPACT_REGION is unresolved. Ball contact is not observable from hand elevation. A hand-height peak, a direction change, and a fast descent are not impact.",
+        "Pose joint centers are model estimates. On a non-square down-the-line frame, visibility is not positional accuracy."
+      ],
+      "errors": [],
+      "performance": {
+        "model_init_seconds": 0.070386,
+        "per_frame_inference_seconds_mean": 0.006979,
+        "per_frame_inference_seconds_max": 0.01268,
+        "pose_inference_seconds": 0.355912,
+        "total_seconds": 1.557261,
+        "process_working_set_bytes": 113463296,
+        "process_peak_working_set_bytes": 218394624
+      }
+    },
+    {
+      "shot_id": "20261008T191545-2-09132997",
+      "status": "partial",
+      "orientation": "estimated",
+      "pose_detection_rate": 0.6666666666666666,
+      "frame_count": 51,
+      "usable_hand_frames": 32,
+      "both_wrists_frames": 14,
+      "left_wrist_continuity": 1.0,
+      "right_wrist_continuity": 0.9375,
+      "transition": {
+        "time_interval_seconds": [
+          2.914,
+          3.2141
+        ],
+        "confidence": 0.8622359436005353,
+        "evidence_ticks": [
+          25,
+          26,
+          27,
+          28
+        ],
+        "method": "wrist_elevation_direction_change"
+      },
+      "transition_disposition": "accepted",
+      "downswing": {
+        "time_interval_seconds": [
+          3.3101,
+          3.9517
+        ],
+        "confidence": 0.8622359436005353,
+        "evidence_ticks": [
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42
+        ],
+        "method": "wrist_elevation_descent"
+      },
+      "downswing_disposition": "accepted",
+      "impact_supported": false,
+      "unresolved_stages": [
+        "SETUP",
+        "IMPACT_REGION",
+        "FINISH"
+      ],
+      "hand_excursion": {
+        "observed": true,
+        "rise_torso_lengths": 1.782036,
+        "fall_torso_lengths": 1.800703,
+        "peak_time_seconds": 3.0091,
+        "peak_tick": 26,
+        "wrists_at_peak": 1,
+        "gates_passed": true,
+        "reversal": true
+      },
+      "warnings": [
+        "Confidence values are uncalibrated heuristics, not probabilities.",
+        "Handedness is unknown. Left and right are the person's sides from the pose model, not lead and trail.",
+        "IMPACT_REGION is unresolved. Ball contact is not observable from hand elevation. A hand-height peak, a direction change, and a fast descent are not impact.",
+        "Pose joint centers are model estimates. On a non-square down-the-line frame, visibility is not positional accuracy."
+      ],
+      "errors": [],
+      "performance": {
+        "model_init_seconds": 0.056348,
+        "per_frame_inference_seconds_mean": 0.006969,
+        "per_frame_inference_seconds_max": 0.012797,
+        "pose_inference_seconds": 0.3554,
+        "total_seconds": 1.065857,
+        "process_working_set_bytes": 113872896,
+        "process_peak_working_set_bytes": 225288192
+      }
+    },
+    {
+      "shot_id": "20261008T191626-3-694d0a52",
+      "status": "partial",
+      "orientation": "estimated",
+      "pose_detection_rate": 0.6666666666666666,
+      "frame_count": 51,
+      "usable_hand_frames": 33,
+      "both_wrists_frames": 12,
+      "left_wrist_continuity": 0.8333333333333334,
+      "right_wrist_continuity": 0.8484848484848485,
+      "transition": {
+        "time_interval_seconds": [
+          2.9085,
+          3.4634
+        ],
+        "confidence": 0.8778857225552201,
+        "evidence_ticks": [
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32
+        ],
+        "method": "wrist_elevation_direction_change"
+      },
+      "transition_disposition": "accepted",
+      "downswing": {
+        "time_interval_seconds": [
+          3.511,
+          3.813
+        ],
+        "confidence": 0.8778857225552201,
+        "evidence_ticks": [
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39
+        ],
+        "method": "wrist_elevation_descent"
+      },
+      "downswing_disposition": "accepted",
+      "impact_supported": false,
+      "unresolved_stages": [
+        "IMPACT_REGION",
+        "FINISH"
+      ],
+      "hand_excursion": {
+        "observed": true,
+        "rise_torso_lengths": 1.536139,
+        "fall_torso_lengths": 1.362611,
+        "peak_time_seconds": 3.3057,
+        "peak_tick": 29,
+        "wrists_at_peak": 1,
+        "gates_passed": true,
+        "reversal": true
+      },
+      "warnings": [
+        "Confidence values are uncalibrated heuristics, not probabilities.",
+        "Handedness is unknown. Left and right are the person's sides from the pose model, not lead and trail.",
+        "IMPACT_REGION is unresolved. Ball contact is not observable from hand elevation. A hand-height peak, a direction change, and a fast descent are not impact.",
+        "Pose joint centers are model estimates. On a non-square down-the-line frame, visibility is not positional accuracy."
+      ],
+      "errors": [],
+      "performance": {
+        "model_init_seconds": 0.055124,
+        "per_frame_inference_seconds_mean": 0.006978,
+        "per_frame_inference_seconds_max": 0.01388,
+        "pose_inference_seconds": 0.355901,
+        "total_seconds": 1.138161,
+        "process_working_set_bytes": 115646464,
+        "process_peak_working_set_bytes": 226258944
+      }
+    },
+    {
+      "shot_id": "20261008T191913-6-345eaca1",
+      "status": "partial",
+      "orientation": "estimated",
+      "pose_detection_rate": 0.6862745098039216,
+      "frame_count": 51,
+      "usable_hand_frames": 35,
+      "both_wrists_frames": 14,
+      "left_wrist_continuity": 0.7857142857142857,
+      "right_wrist_continuity": 1.0,
+      "transition": {
+        "time_interval_seconds": [
+          2.9142,
+          3.4654
+        ],
+        "confidence": 0.8665044138208031,
+        "evidence_ticks": [
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32
+        ],
+        "method": "wrist_elevation_direction_change"
+      },
+      "transition_disposition": "accepted",
+      "downswing": {
+        "time_interval_seconds": [
+          3.5135,
+          3.9093
+        ],
+        "confidence": 0.8665044138208031,
+        "evidence_ticks": [
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41
+        ],
+        "method": "wrist_elevation_descent"
+      },
+      "downswing_disposition": "accepted",
+      "impact_supported": false,
+      "unresolved_stages": [
+        "IMPACT_REGION",
+        "FINISH"
+      ],
+      "hand_excursion": {
+        "observed": true,
+        "rise_torso_lengths": 1.56064,
+        "fall_torso_lengths": 1.449791,
+        "peak_time_seconds": 2.9142,
+        "peak_tick": 25,
+        "wrists_at_peak": 1,
+        "gates_passed": true,
+        "reversal": true
+      },
+      "warnings": [
+        "Confidence values are uncalibrated heuristics, not probabilities.",
+        "Handedness is unknown. Left and right are the person's sides from the pose model, not lead and trail.",
+        "IMPACT_REGION is unresolved. Ball contact is not observable from hand elevation. A hand-height peak, a direction change, and a fast descent are not impact.",
+        "Pose joint centers are model estimates. On a non-square down-the-line frame, visibility is not positional accuracy."
+      ],
+      "errors": [],
+      "performance": {
+        "model_init_seconds": 0.055726,
+        "per_frame_inference_seconds_mean": 0.00712,
+        "per_frame_inference_seconds_max": 0.013419,
+        "pose_inference_seconds": 0.363127,
+        "total_seconds": 1.167608,
+        "process_working_set_bytes": 116203520,
+        "process_peak_working_set_bytes": 226963456
+      }
+    },
+    {
+      "shot_id": "20261008T191951-7-5b29909f",
+      "status": "partial",
+      "orientation": "estimated",
+      "pose_detection_rate": 0.6666666666666666,
+      "frame_count": 51,
+      "usable_hand_frames": 34,
+      "both_wrists_frames": 14,
+      "left_wrist_continuity": 0.8571428571428571,
+      "right_wrist_continuity": 1.0,
+      "transition": {
+        "time_interval_seconds": [
+          2.805,
+          3.1053
+        ],
+        "confidence": 0.8400875873863697,
+        "evidence_ticks": [
+          24,
+          25,
+          26,
+          27
+        ],
+        "method": "wrist_elevation_direction_change"
+      },
+      "transition_disposition": "accepted",
+      "downswing": {
+        "time_interval_seconds": [
+          3.2013,
+          3.8982
+        ],
+        "confidence": 0.8400875873863697,
+        "evidence_ticks": [
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41
+        ],
+        "method": "wrist_elevation_descent"
+      },
+      "downswing_disposition": "accepted",
+      "impact_supported": false,
+      "unresolved_stages": [
+        "SETUP",
+        "IMPACT_REGION",
+        "FINISH"
+      ],
+      "hand_excursion": {
+        "observed": true,
+        "rise_torso_lengths": 1.733372,
+        "fall_torso_lengths": 1.497585,
+        "peak_time_seconds": 3.0105,
+        "peak_tick": 26,
+        "wrists_at_peak": 1,
+        "gates_passed": true,
+        "reversal": true
+      },
+      "warnings": [
+        "Confidence values are uncalibrated heuristics, not probabilities.",
+        "Handedness is unknown. Left and right are the person's sides from the pose model, not lead and trail.",
+        "IMPACT_REGION is unresolved. Ball contact is not observable from hand elevation. A hand-height peak, a direction change, and a fast descent are not impact.",
+        "Pose joint centers are model estimates. On a non-square down-the-line frame, visibility is not positional accuracy."
+      ],
+      "errors": [],
+      "performance": {
+        "model_init_seconds": 0.055003,
+        "per_frame_inference_seconds_mean": 0.006953,
+        "per_frame_inference_seconds_max": 0.01272,
+        "pose_inference_seconds": 0.354624,
+        "total_seconds": 1.055241,
+        "process_working_set_bytes": 116965376,
+        "process_peak_working_set_bytes": 226988032
+      }
+    }
+  ]
+}

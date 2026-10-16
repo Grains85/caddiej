@@ -22,6 +22,7 @@ from caddiej.adapters.gspro import (
     run_simulated_round,
 )
 from caddiej.adapters.hud import ConnectionRegistry, HudServer, create_app, overlay_url
+from caddiej.adapters.hud.evidence import EvidenceFrames
 from caddiej.adapters.obs import ObsClient, ObsConnectionError
 from caddiej.adapters.protee import (
     ProTeeLogAdapter,
@@ -36,23 +37,39 @@ from caddiej.coaching.factory import build_provider
 from caddiej.config import Settings
 from caddiej.core import AsyncEventBus
 from caddiej.core.events import Event
-from caddiej.domain import CoachingFocus, PlayFlow
+from caddiej.domain import (
+    ClubDistanceProfile,
+    ClubDistanceProvider,
+    CoachingFocus,
+    PlayFlow,
+    StaticClubDistances,
+)
 from caddiej.domain.event_policy import delivery_for, queue_size_for
 from caddiej.domain.events import LinkState
+from caddiej.domain.media import CameraView
 from caddiej.effects import EffectDirector, build_effect_director, obs_clients
 from caddiej.floor import (
+    FloorLayout,
     FloorPresenter,
     FloorService,
-    PhysicalPoint,
+    PhysicalOffset,
+    PhysicalRect,
+    PlacementMode,
     RectangularCalibration,
     rectangular_calibration,
     run_demo,
 )
 from caddiej.lighting import LightingService, build_lighting_service
+from caddiej.obs_reveal import RevealFeature, TimedObsSource
 from caddiej.persistence import HistoryService, build_history_service
 from caddiej.persistence.service import app_version
 from caddiej.runtime import TaskSupervisor, shutdown_signals
 from caddiej.speech import SpeechService, build_speech_service
+from caddiej.swing_capture import (
+    SwingCaptureService,
+    build_swing_capture_service,
+    read_labeled_stills,
+)
 from caddiej.video import (
     CaptureProfile,
     VideoService,
@@ -83,8 +100,10 @@ async def run(settings: Settings | None = None) -> None:
         floor=_build_presenter(resolved, floor),
         publish=event_bus.publish,
         shot_display_seconds=resolved.floor_shot_display_seconds,
-        advice_display_seconds=resolved.coaching_display_seconds,
+        shot_result_min_duration=resolved.floor_shot_result_min_duration,
         shot_result_max_duration=resolved.floor_shot_result_max_duration,
+        club_distances=_build_club_distances(resolved),
+        progress_max_seconds=_progress_ceiling(resolved),
     )
     play.subscribe(event_bus)
 
@@ -100,16 +119,37 @@ async def run(settings: Settings | None = None) -> None:
         _attach_observers(resolved, event_bus.publish, round_observer, protee_observer)
 
     history = _build_history(resolved)
-    # Opening cannot fail loudly: history that will not start disables itself so
-    # that a locked file or a full disk never stops someone hitting balls.
-    await history.open()
+    # Subscribing is registration and nothing else; no event reaches a handler
+    # until the bus starts, which happens after `open` inside the try below.
     history.subscribe(event_bus)
 
     video = _build_video(resolved, event_bus.publish)
-    coaching = _build_coaching(resolved, event_bus.publish, history, video)
+    # Before coaching, because it is one of the two things that can put a
+    # picture of a swing in front of a model and coaching has to be told which
+    # of them exist.
+    swing_capture = _build_swing_capture(resolved, event_bus.publish)
+    coaching = _build_coaching(
+        resolved, event_bus.publish, history, video, swing_capture
+    )
     speech = _build_speech(resolved, event_bus.publish)
     lighting = _build_lighting(resolved)
     effects = _build_effects(resolved, floor, speech, lighting)
+    shot_video = _build_reveal(
+        resolved,
+        RevealFeature.SHOT_VIDEO,
+        source=resolved.obs_shot_video_source,
+        enabled=resolved.floor_shot_video_enabled,
+        delay_seconds=resolved.floor_shot_video_delay_seconds,
+        duration_seconds=resolved.floor_shot_video_duration_seconds,
+    )
+    top_impact = _build_reveal(
+        resolved,
+        RevealFeature.TOP_IMPACT,
+        source=resolved.obs_top_impact_source,
+        enabled=resolved.floor_top_impact_enabled,
+        delay_seconds=resolved.floor_top_impact_delay_seconds,
+        duration_seconds=resolved.floor_top_impact_duration_seconds,
+    )
 
     server = HudServer(
         create_app(
@@ -122,11 +162,15 @@ async def run(settings: Settings | None = None) -> None:
                 "speech": lambda: asdict(speech.health()),
                 "lighting": lambda: asdict(lighting.health()),
                 "effects": lambda: asdict(effects.health()),
+                "swing_capture": lambda: asdict(swing_capture.health()),
                 "event_bus": lambda: asdict(event_bus.health()),
                 "gspro": gspro.snapshot,
                 "gspro_round_observer": round_observer.snapshot,
                 "protee_observer": protee_observer.snapshot,
+                "shot_video": lambda: shot_video.health().as_dict(),
+                "top_impact": lambda: top_impact.health().as_dict(),
             },
+            evidence=EvidenceFrames(swing_capture.evidence_root).resolve,
         ),
         host=resolved.hud_host,
         port=resolved.hud_port,
@@ -162,6 +206,15 @@ async def run(settings: Settings | None = None) -> None:
     # the bus worker and the history writer are both running by now, and a
     # surprise from any of the opens must still reach the code that stops them.
     try:
+        # First, and inside the try. This used to sit above it, next to the
+        # construction, which left the SQLite thread and its file handle alive
+        # with nothing to close them if any later `_build_*` raised — and one
+        # of them validates an OBS source name, a camera view and an output
+        # directory. Opening still cannot fail loudly: history that will not
+        # start disables itself so a locked file never stops someone hitting
+        # balls.
+        await history.open()
+
         await event_bus.start()
         logger.info("event_bus_started")
 
@@ -194,6 +247,14 @@ async def run(settings: Settings | None = None) -> None:
         # is nothing to open: the director holds no resource of its own, and the
         # one channel that holds a connection opens it on first use.
         effects.subscribe(event_bus)
+        # Same OBS client factory as effects: visibility of an existing source,
+        # nothing more. Off by default, and a failed hide never stops golf.
+        shot_video.subscribe(event_bus)
+        top_impact.subscribe(event_bus)
+        # And the same again for reading stills back out of two existing
+        # sources. Off by default; an OBS that cannot answer costs the stills
+        # of one swing and nothing else.
+        swing_capture.subscribe(event_bus)
 
         async with shutdown_signals() as shutdown:
             # A supervised task dying is a reason to stop, exactly like a signal:
@@ -208,6 +269,25 @@ async def run(settings: Settings | None = None) -> None:
             # about them however far startup got.
             ingestion: asyncio.Task[None] | None = None
             try:
+                # Before the HUD is listening and before OBS is spoken to.
+                # Everything passive observation needs is already true — the
+                # bus is running and every subscriber is registered — and
+                # everything below this line is a way for it not to happen:
+                # `wait_until_serving` raises on a port somebody else holds,
+                # and provisioning waits on an OBS round trip. Neither has
+                # anything to do with reading two files, and a session spent
+                # unobserved because the overlay could not bind is a session
+                # of shots that no longer exist. Observation is the one thing
+                # here with nothing above it.
+                ingestion = _start_gspro(
+                    resolved,
+                    supervisor,
+                    event_bus,
+                    gspro,
+                    round_observer=round_observer,
+                    protee_observer=protee_observer,
+                )
+
                 await server.wait_until_serving(resolved.hud_startup_timeout)
                 url = overlay_url(resolved.hud_host, server.port)
                 logger.info(
@@ -224,6 +304,18 @@ async def run(settings: Settings | None = None) -> None:
                 if resolved.obs_provision_floor_source:
                     await _provision_floor_source(resolved, url)
 
+                # Before shots can arrive: OBS may have left Shot Video visible
+                # from the last session, and that must not sit on the floor.
+                # Not awaited, and not supervised: it reaches OBS, and neither a
+                # slow answer nor a failure may delay the floor or the observers
+                # below it. See `caddiej.obs_reveal`.
+                shot_video.start()
+                top_impact.start()
+                # Says what it is configured to do and sweeps any staging
+                # directory a previous run left behind. No OBS connection is
+                # opened here either: the first shot of the session opens one.
+                swing_capture.start()
+
                 # The demo and the domain both write the floor, so exactly one of
                 # them owns it. The demo wins only when nothing real can arrive.
                 if resolved.floor_demo and resolved.gspro_mode == "off":
@@ -232,6 +324,7 @@ async def run(settings: Settings | None = None) -> None:
                             floor,
                             resolved.floor_demo_step_seconds,
                             calibration=_floor_calibration(resolved),
+                            scale=resolved.ball_status_chamfer_scale,
                         ),
                         name="floor-demo",
                     )
@@ -239,15 +332,6 @@ async def run(settings: Settings | None = None) -> None:
                     if resolved.floor_demo:
                         logger.warning("floor_demo_ignored_while_gspro_enabled")
                     play.start()
-
-                ingestion = _start_gspro(
-                    resolved,
-                    supervisor,
-                    event_bus,
-                    gspro,
-                    round_observer=round_observer,
-                    protee_observer=protee_observer,
-                )
 
                 # Last, and on its own terms. Nothing above waits on it, and a
                 # failure to start is reported and stepped over: an assistant
@@ -279,6 +363,9 @@ async def run(settings: Settings | None = None) -> None:
                             assistant_api=assistant_api,
                             assistant_task=assistant_task,
                             play=play,
+                            shot_video=shot_video,
+                            top_impact=top_impact,
+                            swing_capture=swing_capture,
                             effects=effects,
                             speech=speech,
                             lighting=lighting,
@@ -318,6 +405,9 @@ async def _close_subsystems(
     assistant_api: AssistantServer | None,
     assistant_task: asyncio.Task[None] | None,
     play: PlayFlow,
+    shot_video: TimedObsSource,
+    top_impact: TimedObsSource,
+    swing_capture: SwingCaptureService,
     effects: EffectDirector,
     speech: SpeechService,
     lighting: LightingService,
@@ -343,6 +433,20 @@ async def _close_subsystems(
     if assistant_api is not None:
         await _stop_assistant_api(assistant_api, assistant_task)
     await play.aclose()
+    # After play, because the floor HUD should keep updating until it has
+    # stopped; before effects, because this is the same kind of OBS visibility
+    # as a celebration and should be off the projector first. Best effort: a
+    # missing OBS does not hold shutdown.
+    await shot_video.aclose()
+    # Beside it, and separately, because that is the whole arrangement: an OBS
+    # that has stopped answering Shot Video must not also cost Top Impact its
+    # hide, and each has its own budget.
+    await top_impact.aclose()
+    # Beside it, and for the same reason: this is the other subsystem holding
+    # an OBS connection on behalf of a shot. A capture in flight is cancelled
+    # rather than waited for — the swing it was taking pictures of is the last
+    # one of the session, and nobody is going to look at it.
+    await swing_capture.aclose()
     # Before the outputs it drives, and first of the three, because it is the
     # only thing that can still be putting words on a floor and dips into a
     # room. Returning means every output it touched is back to normal.
@@ -424,6 +528,7 @@ def _build_video(settings: Settings, publish: Publish) -> VideoService:
         post_seconds=settings.video_post_impact_seconds,
         shot_report_lag_seconds=settings.video_shot_report_lag_seconds,
         queue_size=settings.video_clip_queue_size,
+        clip_retention_days=settings.video_clip_retention_days,
         restart_limit=settings.video_restart_limit,
         extract_timeout_seconds=settings.video_extract_timeout,
         drain_timeout_seconds=settings.video_drain_timeout,
@@ -436,13 +541,21 @@ def _build_coaching(
     publish: Publish,
     history: HistoryService,
     video: VideoService,
+    swing_capture: SwingCaptureService,
 ) -> AnalysisService:
     """Assemble coaching, with whichever of its optional inputs are present.
 
-    Both are genuinely optional and behave differently by their absence rather
-    than by a flag: with no camera it coaches from the numbers, with no history
-    it coaches without keeping a record, and with neither it still names the
-    fault on the floor.
+    All of them are genuinely optional and behave differently by their absence
+    rather than by a flag: with no camera it coaches from the numbers, with no
+    history it coaches without keeping a record, and with neither it still
+    names the fault on the floor.
+
+    Two things can produce pictures and they are not equivalent. A clip is
+    footage from a camera somebody placed, so the angle and the frame rate are
+    known and impact has a position in it. A swing capture is screenshots of
+    the launch monitor's own replay window, which supports a smaller claim but
+    needs no camera at all — and a bay with no dedicated swing camera, which
+    is the common case, has only that.
     """
 
     provider = build_provider(
@@ -451,14 +564,31 @@ def _build_coaching(
         api_key=settings.coaching_api_key.get_secret_value(),
         api_base=settings.coaching_api_base,
     )
-    frames: FrameSource | None = video if video.is_available else None
+    # `enabled`, not `is_available`. This runs in the construction pass, long
+    # before `video.open()`, so `is_available` is still false for every
+    # configuration — which left coaching with no frame extractor at all and
+    # the entire clip-to-model path unreachable. Whether a camera is filming
+    # is a question for the moment a clip is wanted, and video answers it
+    # then by publishing the clip or refusing it.
+    frames: FrameSource | None = video if video.enabled else None
+    stills = read_labeled_stills if swing_capture.enabled else None
+    # `enabled` for the same reason, and it was the same bug: `history.open()`
+    # is well below this line, so `is_available` was false here whatever the
+    # configuration said and coaching was handed no recorder at all. Every
+    # line the model wrote was published, spoken and projected, and none of it
+    # was ever written down. `record_advice` already declines when history
+    # turned out to be unavailable, so asking the settled question is both
+    # correct and the only one that can be answered yet.
+    record = history.record_advice if settings.history_enabled else None
     return AnalysisService(
         publish=publish,
         provider=provider,
         frames=frames,
-        record=history.record_advice if history.is_available else None,
+        capture_stills=stills,
+        record=record,
         enabled=settings.coaching_enabled,
         send_frames=settings.coaching_send_frames,
+        camera_view=CameraView(settings.video_camera_view),
         preferred_focus=_coaching_focus(settings.coaching_focus),
         severity_fine=settings.coaching_severity_fine,
         baseline_window=settings.coaching_baseline_window,
@@ -470,7 +600,18 @@ def _build_coaching(
         min_interval_seconds=settings.coaching_min_interval,
         session_call_limit=settings.coaching_call_limit,
         max_output_tokens=settings.coaching_max_output_tokens,
+        visual_cues=settings.coaching_visual_cues,
+        max_images=settings.coaching_max_images,
         drain_timeout_seconds=settings.shutdown_timeout,
+        trigger=settings.resolved_coaching_trigger(),
+        protee_max_output_tokens=settings.coaching_protee_max_output_tokens,
+        protee_timeout_seconds=settings.coach_openai_timeout,
+        protee_budget_seconds=settings.coach_openai_budget,
+        reasoning_effort=settings.coaching_reasoning_effort or None,
+        record_coach=(
+            history.record_coach_result if settings.history_enabled else None
+        ),
+        diagnostic_dry_run=settings.coaching_diagnostic_dry_run,
     )
 
 
@@ -491,6 +632,7 @@ def _build_speech(settings: Settings, publish: Publish) -> SpeechService:
         voice=settings.speech_voice,
         speed=settings.speech_speed,
         device=settings.speech_device,
+        gain=settings.speech_gain,
         cache_root=(
             settings.speech_cache_root if settings.speech_cache_enabled else None
         ),
@@ -563,6 +705,101 @@ def _build_effects(
         obs_text_source=settings.effects_obs_text_source,
         max_seconds=settings.effects_max_seconds,
         channel_timeout_seconds=settings.effects_channel_timeout,
+    )
+
+
+def _build_reveal(
+    settings: Settings,
+    feature: RevealFeature,
+    *,
+    source: str,
+    enabled: bool,
+    delay_seconds: float,
+    duration_seconds: float,
+) -> TimedObsSource:
+    """Toggle an existing OBS capture of one ProTee view.
+
+    The scene is the floor scene already configured; CaddieJ never switches
+    away from it, and never creates, moves, crops or reorders the source.
+
+    Each feature gets its own instance and its own connection — the client
+    factory hands out a new one per call — so a bay with one of the two views
+    configured and not the other is normal and one failing cannot cost the
+    other.
+    """
+
+    return TimedObsSource(
+        obs_clients(
+            host=settings.obs_host,
+            port=settings.obs_port,
+            password=settings.obs_password.get_secret_value(),
+            connect_timeout=settings.obs_connect_timeout,
+        ),
+        settings.obs_floor_scene,
+        source,
+        feature=feature,
+        enabled=enabled,
+        delay_seconds=delay_seconds,
+        duration_seconds=duration_seconds,
+        command_timeout=settings.obs_connect_timeout,
+        shutdown_timeout=settings.shutdown_timeout,
+        capture_scene=(
+            settings.swing_capture_scene if settings.swing_capture_enabled else None
+        ),
+    )
+
+
+def _progress_ceiling(settings: Settings) -> float:
+    """How long a coaching stage may stay on the floor with no word after it.
+
+    The capture wait plus the longest budget either path can spend, plus a
+    margin: a job still running past that has already been abandoned by the
+    coach, and its bar would otherwise outlive it.
+    """
+
+    budget = max(settings.coach_openai_budget, settings.coaching_budget_seconds)
+    return settings.coaching_clip_wait + budget + 5.0
+
+
+def _build_swing_capture(settings: Settings, publish: Publish) -> SwingCaptureService:
+    """Assemble swing capture, pointed at the configured OBS sources.
+
+    The third user of the same `ObsClient` factory. A hidden window capture is
+    shown for the length of the burst so OBS has a frame to photograph, then
+    its previous visibility is restored. The scene collection is not rewritten.
+    """
+
+    return build_swing_capture_service(
+        obs_clients(
+            host=settings.obs_host,
+            port=settings.obs_port,
+            password=settings.obs_password.get_secret_value(),
+            connect_timeout=settings.obs_connect_timeout,
+        ),
+        publish,
+        enabled=settings.swing_capture_enabled,
+        panels=settings.capture_panels(),
+        output_dir=settings.swing_capture_output_dir,
+        initial_delay_seconds=settings.swing_capture_initial_delay_seconds,
+        duration_seconds=settings.swing_capture_duration_seconds,
+        fps=settings.swing_capture_fps,
+        downswing_fps=settings.swing_capture_downswing_fps,
+        downswing_delay_seconds=settings.swing_capture_downswing_delay_seconds,
+        downswing_duration_seconds=settings.swing_capture_downswing_duration_seconds,
+        selected_frames=settings.swing_capture_selected_frames,
+        image_width=settings.swing_capture_image_width,
+        static_delay_seconds=settings.swing_capture_static_delay_seconds,
+        static_duration_seconds=settings.swing_capture_static_duration_seconds,
+        static_fps=settings.swing_capture_static_fps,
+        debug_keep_shots=settings.swing_capture_debug_keep_shots,
+        evidence_keep=settings.swing_capture_evidence_keep,
+        metrics_source=settings.coach_metrics_source_name(),
+        metrics_delay_seconds=settings.coach_metrics_capture_delay_seconds,
+        capture_scene=settings.swing_capture_scene,
+        command_timeout=settings.obs_connect_timeout,
+        shutdown_timeout=settings.shutdown_timeout,
+        announce_progress=settings.coaching_enabled,
+        diagnostic_timeline_shots=settings.swing_capture_diagnostic_timeline_shots,
     )
 
 
@@ -703,15 +940,86 @@ def _floor_calibration(settings: Settings) -> RectangularCalibration:
     return rectangular_calibration(settings.floor_width_m, settings.floor_depth_m)
 
 
+def _build_club_distances(settings: Settings) -> ClubDistanceProvider:
+    """The configured bag, as the one thing the domain is allowed to ask.
+
+    A provider rather than the profile itself, so that replacing configuration
+    with carries learned from shot history is a different object constructed
+    here and no change at all to `PlayFlow` or the floor.
+    """
+
+    profile = ClubDistanceProfile.from_carries(settings.club_carries())
+    logger.info(
+        "club_distances_configured",
+        extra={"club_carry_count": len(profile.carries)},
+    )
+    return StaticClubDistances(carries=profile)
+
+
 def _build_presenter(settings: Settings, floor: FloorService) -> FloorPresenter:
+    """The strip, and everything golf-related placed from it.
+
+    The offsets reaching here have already absorbed any absolute `FLOOR_TEE_*_M`
+    an older `.env` still sets, so there is one coordinate model from this line
+    down: an anchor somebody measured, and offsets that survive moving it.
+    """
+
+    strip = PhysicalRect(
+        x_m=settings.floor_hitting_strip_x_m,
+        y_m=settings.floor_hitting_strip_y_m,
+        width_m=settings.floor_hitting_strip_width_m,
+        depth_m=settings.floor_hitting_strip_depth_m,
+    )
+    layout = FloorLayout(
+        strip=strip,
+        ball={
+            PlacementMode.IRON: PhysicalOffset(
+                dx_m=settings.floor_ball_iron_dx_m,
+                dy_m=settings.floor_ball_iron_dy_m,
+            ),
+            PlacementMode.DRIVER: PhysicalOffset(
+                dx_m=settings.floor_ball_driver_dx_m,
+                dy_m=settings.floor_ball_driver_dy_m,
+            ),
+            PlacementMode.PUTTER: PhysicalOffset(
+                dx_m=settings.floor_ball_putter_dx_m,
+                dy_m=settings.floor_ball_putter_dy_m,
+            ),
+        },
+        information=PhysicalOffset(
+            dx_m=settings.floor_information_dx_m,
+            dy_m=settings.floor_information_dy_m,
+        ),
+        strip_filled=settings.floor_hitting_strip_fill,
+        putting_lane=settings.floor_putting_lane,
+        putting_lane_length_m=settings.floor_putting_lane_length_m,
+        putting_lane_width_m=settings.floor_putting_lane_width_m,
+    )
+    # The anchor and the three ball positions in one line, because "the marker
+    # is in the wrong place" is answered by comparing these to a tape measure
+    # and nothing else in the log carries them.
+    iron = layout.ball_position(PlacementMode.IRON)
+    driver = layout.ball_position(PlacementMode.DRIVER)
+    putter = layout.ball_position(PlacementMode.PUTTER)
+    logger.info(
+        "floor_layout_configured",
+        extra={
+            "floor_anchor_x_m": strip.x_m,
+            "floor_anchor_y_m": strip.y_m,
+            "floor_ball_iron_x_m": iron.x_m,
+            "floor_ball_iron_y_m": iron.y_m,
+            "floor_ball_driver_x_m": driver.x_m,
+            "floor_ball_driver_y_m": driver.y_m,
+            "floor_ball_putter_x_m": putter.x_m,
+            "floor_ball_putter_y_m": putter.y_m,
+        },
+    )
     return FloorPresenter(
         floor,
-        tee=PhysicalPoint(x_m=settings.floor_tee_x_m, y_m=settings.floor_tee_y_m),
-        driver_tee=PhysicalPoint(
-            x_m=settings.floor_tee_driver_x_m, y_m=settings.floor_tee_driver_y_m
-        ),
+        layout,
         club_path_length=settings.floor_club_path_length,
         calibration=_floor_calibration(settings),
+        ball_status_scale=settings.ball_status_chamfer_scale,
     )
 
 
@@ -723,6 +1031,9 @@ def _disabled_round_observer_health() -> GSProRoundObserverHealth:
         last_shot_id=None,
         shots_observed=0,
         parse_failures=0,
+        last_read_at=None,
+        read_failures=0,
+        shots_deferred=0,
     )
 
 
@@ -731,6 +1042,9 @@ def _disabled_protee_observer_health() -> ProTeeObserverHealth:
         status=ProTeeObserverStatus.DISABLED,
         current_log=None,
         last_event_at=None,
+        last_read_at=None,
+        read_failures=0,
+        events_dropped=0,
     )
 
 
@@ -909,9 +1223,32 @@ async def _run_observers(
 
     One supervised task so shutdown still stops ingestion first. A missing
     file is not a failure; each adapter waits.
+
+    Each observer is contained. `serve()` already catches what a poll can
+    raise, but anything above it — a root path that stops resolving, a clock
+    that throws — used to escape a bare `gather`, fail this supervised task,
+    and take the whole process down. `gather` does not cancel its siblings
+    when one raises, so the other observer carried on as an untracked orphan
+    while CaddieJ shut down around it. Passive observation is the one thing
+    here that has to outlive every other subsystem.
     """
 
-    await asyncio.gather(*(adapter.serve() for adapter in adapters))
+    await asyncio.gather(*(_run_observer(adapter) for adapter in adapters))
+
+
+async def _run_observer(adapter: GSProRoundFileAdapter | ProTeeLogAdapter) -> None:
+    try:
+        await adapter.serve()
+    except asyncio.CancelledError:
+        raise
+    except Exception:
+        logger.exception(
+            "observer_stopped",
+            extra={
+                "observer_name": type(adapter).__name__,
+                "observer_status": "stopped",
+            },
+        )
 
 
 async def _stop_server(

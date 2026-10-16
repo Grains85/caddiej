@@ -1,4 +1,6 @@
 import asyncio
+import base64
+import logging
 from collections.abc import Mapping
 from types import SimpleNamespace
 from typing import Any
@@ -6,6 +8,7 @@ from typing import Any
 import pytest
 
 from caddiej.adapters.obs import (
+    FloorReveals,
     ObsAuthenticationError,
     ObsClient,
     ObsConnectionError,
@@ -14,6 +17,10 @@ from caddiej.adapters.obs import (
     ObsTransportConnectionError,
 )
 from caddiej.adapters.obs import client as obs_client_module
+from caddiej.adapters.obs.screenshot import UnusableScreenshot
+from caddiej.domain.events import ShotDetected
+from caddiej.obs_reveal import RevealFeature, TimedObsSource
+from caddiej.video.jpeg_size import jpeg_size
 
 # Mirrors the defaults reported by OBS 32.2.2 / obs-websocket 5.7.4.
 BROWSER_SOURCE_DEFAULTS = {
@@ -502,3 +509,550 @@ async def test_authentication_failure_is_distinct_and_does_not_expose_password(
         await transport.connect(timeout=1)
 
     assert "never-log-this" not in str(error.value)
+
+
+def _jpeg(width: int, height: int) -> bytes:
+    frame = (
+        b"\xff\xc0"
+        + (17).to_bytes(2, "big")
+        + b"\x08"
+        + height.to_bytes(2, "big")
+        + width.to_bytes(2, "big")
+        + bytes(10)
+    )
+    return b"\xff\xd8" + frame + b"\xff\xd9"
+
+
+def _data_uri(data: bytes) -> str:
+    return "data:image/jpg;base64," + base64.b64encode(data).decode("ascii")
+
+
+FLOOR = "CaddieJ Test"
+CAPTURE = "CaddieJ Capture"
+SOURCES = ("Swing Behind", "Swing Side", "Impact", "All Values")
+
+
+class _Bay:
+    """OBS as the bay has it, with OBS's own rule for what refreshes.
+
+    The floor scene is Program and holds each coach source as a hidden item.
+    The capture scene holds them enabled and is nested, enabled and fully
+    transparent, in the floor scene. A window capture ticks, and so gives a
+    new picture, only while an enabled item reaches it from Program.
+    Everything that could put a source on the floor is recorded.
+    """
+
+    def __init__(self, *, nested: bool = True, capture_scene: bool = True) -> None:
+        self.program = FLOOR
+        self.nested = nested
+        self.scenes: dict[str, dict[str, dict[str, Any]]] = {
+            FLOOR: {
+                name: {"sceneItemId": 10 + index, "sceneItemEnabled": False}
+                for index, name in enumerate(SOURCES)
+            },
+        }
+        if capture_scene:
+            self.scenes[CAPTURE] = {
+                name: {"sceneItemId": 20 + index, "sceneItemEnabled": True}
+                for index, name in enumerate(SOURCES)
+            }
+        self.priority = {name: 1 for name in SOURCES}
+        self.ticks = dict.fromkeys(SOURCES, 0)
+        self.toggles: list[tuple[str, int, bool]] = []
+        self.program_switches: list[str] = []
+        self.connected = False
+
+    def showing(self, source: str) -> bool:
+        floor = self.scenes[self.program].get(source, {})
+        if floor.get("sceneItemEnabled"):
+            return True
+        capture = self.scenes.get(CAPTURE, {}).get(source, {})
+        rendered = self.nested or self.program == CAPTURE
+        return bool(capture.get("sceneItemEnabled")) and rendered
+
+    def on_floor(self, source: str) -> bool:
+        """Drawn on the projector. The nested capture scene draws nothing."""
+
+        return bool(self.scenes[self.program].get(source, {}).get("sceneItemEnabled"))
+
+    async def connect(self, timeout: float) -> None:
+        self.connected = True
+
+    async def disconnect(self) -> None:
+        self.connected = False
+
+    async def get_current_program_scene(self, timeout: float) -> str:
+        return self.program
+
+    async def set_current_program_scene(self, scene: str, timeout: float) -> None:
+        self.program_switches.append(scene)
+        self.program = scene
+
+    async def get_scene_item_id(
+        self, scene_name: str, source_name: str, timeout: float
+    ) -> int:
+        return int(self.scenes[scene_name][source_name]["sceneItemId"])
+
+    async def list_scene_items(self, scene_name: str, timeout: float):
+        if scene_name not in self.scenes:
+            raise ObsResourceNotFoundError(f"OBS scene '{scene_name}' was not found")
+        return tuple(
+            {"sourceName": name, **item}
+            for name, item in self.scenes[scene_name].items()
+        )
+
+    async def set_scene_item_enabled(
+        self, scene_name: str, scene_item_id: int, visible: bool, timeout: float
+    ) -> None:
+        self.toggles.append((scene_name, scene_item_id, visible))
+        for item in self.scenes[scene_name].values():
+            if item["sceneItemId"] == scene_item_id:
+                item["sceneItemEnabled"] = visible
+
+    async def get_source_active(self, source_name: str, timeout: float):
+        showing = self.showing(source_name)
+        return {"videoActive": showing, "videoShowing": showing}
+
+    async def get_input_settings(self, source_name: str, timeout: float):
+        return {
+            "inputKind": "window_capture",
+            "inputSettings": {"priority": self.priority[source_name]},
+        }
+
+    async def set_input_settings(
+        self, source_name: str, settings: Mapping[str, Any], timeout: float
+    ) -> None:
+        self.priority[source_name] = int(settings["priority"])
+
+    async def get_scene_item_transform(
+        self, scene_name: str, scene_item_id: int, timeout: float
+    ):
+        name = next(
+            name
+            for name, item in self.scenes[scene_name].items()
+            if item["sceneItemId"] == scene_item_id
+        )
+        if self.showing(name) and self.priority[name] == 1:
+            return {"sourceWidth": 1792.0, "sourceHeight": 1690.0}
+        return {"sourceWidth": 1.0, "sourceHeight": 1.0}
+
+    async def get_source_screenshot(
+        self,
+        source_name: str,
+        image_format: str,
+        width: int | None,
+        height: int | None,
+        quality: int | None,
+        timeout: float,
+    ) -> str:
+        if self.showing(source_name):
+            self.ticks[source_name] += 1
+        tick = self.ticks[source_name]
+        marker = bytes([SOURCES.index(source_name), tick % 251])
+        return _data_uri(_jpeg(1792, 1690) + marker * 400)
+
+
+def _client(transport: object, reveals: FloorReveals | None = None) -> ObsClient:
+    return ObsClient(
+        "127.0.0.1",
+        4455,
+        "secret",
+        1.0,
+        transport_factory=lambda _url, _password: transport,  # type: ignore[arg-type,return-value]
+        floor_reveals=reveals if reveals is not None else FloorReveals(),
+    )
+
+
+def _floor_untouched(bay: _Bay) -> None:
+    assert bay.toggles == [], "no scene item is ever shown or hidden"
+    assert bay.program_switches == [], "the capture scene is never put on Program"
+    assert bay.program == FLOOR
+    assert not any(bay.on_floor(name) for name in SOURCES)
+
+
+async def test_a_one_pixel_screenshot_is_rejected() -> None:
+    class OnePixel(_Bay):
+        async def get_source_screenshot(self, *args: Any, **kwargs: Any) -> str:
+            return _data_uri(_jpeg(1, 1))
+
+    client = _client(OnePixel())
+    await client.connect()
+
+    with pytest.raises(UnusableScreenshot, match="invalid_capture_dimensions"):
+        await client.source_screenshot("Swing Behind")
+
+
+class TestTheCaptureSceneKeepsSourcesLiveOffTheFloor:
+    async def test_every_source_refreshes_and_nothing_is_shown_on_the_floor(
+        self,
+    ) -> None:
+        bay = _Bay()
+        client = _client(bay)
+        await client.connect()
+
+        async with client.hold_sources(SOURCES, capture_scene=CAPTURE) as states:
+            pictures = {
+                name: [await client.source_screenshot(name) for _ in range(3)]
+                for name in SOURCES
+            }
+            assert not any(bay.on_floor(name) for name in SOURCES)
+
+        for name, frames in pictures.items():
+            assert len(set(frames)) == 3, f"{name} must be a live, changing picture"
+        assert all(state.ready for state in states)
+        assert [state.rendered for state in states] == [True] * 4
+        assert [state.floor_item_enabled for state in states] == [False] * 4
+        _floor_untouched(bay)
+
+    async def test_the_old_hidden_floor_item_is_never_made_visible(self) -> None:
+        bay = _Bay()
+        client = _client(bay)
+        await client.connect()
+
+        async with client.hold_sources(SOURCES, capture_scene=CAPTURE):
+            for name in SOURCES:
+                await client.source_screenshot(name)
+
+        assert not [toggle for toggle in bay.toggles if toggle[0] == FLOOR]
+        _floor_untouched(bay)
+
+    async def test_without_the_capture_scene_it_reports_rather_than_exposes(
+        self, caplog
+    ) -> None:
+        caplog.set_level("INFO")
+        bay = _Bay(capture_scene=False)
+        client = _client(bay)
+        await client.connect()
+
+        async with client.hold_sources(SOURCES, capture_scene=CAPTURE) as states:
+            first = await client.source_screenshot("Swing Behind")
+            second = await client.source_screenshot("Swing Behind")
+
+        assert first == second, "a source nothing shows is frozen, and that is reported"
+        assert not any(state.ready for state in states)
+        messages = [record.getMessage() for record in caplog.records]
+        assert "obs_capture_scene_missing" in messages
+        assert "obs_capture_source_not_rendering" in messages
+        _floor_untouched(bay)
+
+    async def test_a_capture_scene_that_is_not_nested_is_reported_not_rendering(
+        self,
+    ) -> None:
+        bay = _Bay(nested=False)
+        client = _client(bay)
+        await client.connect()
+
+        async with client.hold_sources(SOURCES, capture_scene=CAPTURE) as states:
+            pass
+
+        assert [state.rendered for state in states] == [False] * 4
+        assert "rendered=false" in states[0].describe()
+        _floor_untouched(bay)
+
+    async def test_a_capture_scene_that_is_program_is_refused(self, caplog) -> None:
+        bay = _Bay()
+        client = _client(bay)
+        await client.connect()
+
+        async with client.hold_sources(SOURCES, capture_scene=FLOOR) as states:
+            pass
+
+        assert "obs_capture_scene_is_program" in [
+            r.getMessage() for r in caplog.records
+        ]
+        assert not any(state.ready for state in states)
+        _floor_untouched(bay)
+
+    async def test_diagnostics_say_rendered_and_floor_unchanged(self, caplog) -> None:
+        caplog.set_level("INFO")
+        bay = _Bay()
+        client = _client(bay)
+        await client.connect()
+
+        async with client.hold_sources(("Swing Behind",), capture_scene=CAPTURE):
+            pass
+
+        state = next(
+            r for r in caplog.records if r.getMessage() == "obs_capture_source_state"
+        )
+        assert state.obs_scene == CAPTURE
+        assert "rendered=true" in state.swing_capture_detail
+        assert "floor_item=hidden" in state.swing_capture_detail
+        assert "obs_capture_floor_unchanged" in [r.getMessage() for r in caplog.records]
+
+
+class TestNothingCanExposeACaptureSource:
+    async def test_an_error_mid_burst_leaves_the_floor_as_it_was(self) -> None:
+        bay = _Bay()
+        client = _client(bay)
+        await client.connect()
+
+        with pytest.raises(RuntimeError):
+            async with client.hold_sources(SOURCES, capture_scene=CAPTURE):
+                await client.source_screenshot("Impact")
+                raise RuntimeError("burst failed")
+
+        _floor_untouched(bay)
+
+    async def test_cancellation_mid_burst_leaves_the_floor_as_it_was(self) -> None:
+        bay = _Bay()
+        client = _client(bay)
+        await client.connect()
+        started = asyncio.Event()
+
+        async def burst() -> None:
+            async with client.hold_sources(SOURCES, capture_scene=CAPTURE):
+                started.set()
+                await asyncio.sleep(10)
+
+        task = asyncio.create_task(burst())
+        await started.wait()
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+        _floor_untouched(bay)
+
+    async def test_a_stale_window_match_is_retargeted_in_the_capture_scene_only(
+        self,
+    ) -> None:
+        bay = _Bay()
+        bay.priority["Swing Behind"] = 0
+        client = _client(bay)
+        await client.connect()
+
+        async with client.hold_sources(("Swing Behind",), capture_scene=CAPTURE):
+            data = await client.source_screenshot("Swing Behind")
+            assert bay.priority["Swing Behind"] == 1
+
+        assert jpeg_size(data) == (1792, 1690)
+        assert bay.priority["Swing Behind"] == 0, "match priority is put back"
+        _floor_untouched(bay)
+
+    async def test_a_cancelled_burst_still_restores_the_window_match(self) -> None:
+        bay = _Bay()
+        bay.priority["Swing Side"] = 0
+        client = _client(bay)
+        await client.connect()
+        started = asyncio.Event()
+
+        async def burst() -> None:
+            async with client.hold_sources(("Swing Side",), capture_scene=CAPTURE):
+                started.set()
+                await asyncio.sleep(10)
+
+        task = asyncio.create_task(burst())
+        await started.wait()
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+        assert bay.priority["Swing Side"] == 0
+        _floor_untouched(bay)
+
+
+EVIDENCE = ("Swing Behind", "Swing Side", "All Values")
+
+
+class _HeldOpen:
+    """A reveal's delay passes at once; its duration lasts until released."""
+
+    def __init__(self) -> None:
+        self.release = asyncio.Event()
+        self.shown = asyncio.Event()
+        self._calls = 0
+
+    async def sleep(self, _seconds: float) -> None:
+        self._calls += 1
+        if self._calls == 1:
+            return
+        self.shown.set()
+        await self.release.wait()
+
+
+class _ScheduledReveal:
+    """A real Top Impact reveal on the floor of the bay capture is reading."""
+
+    def __init__(self, bay: _Bay, reveals: FloorReveals, scene: str = FLOOR) -> None:
+        self.clock = _HeldOpen()
+        self.reveal = TimedObsSource(
+            lambda: _client(bay, reveals),
+            scene,
+            "Impact",
+            feature=RevealFeature.TOP_IMPACT,
+            enabled=True,
+            sleep=self.clock.sleep,
+            capture_scene=CAPTURE,
+            floor_reveals=reveals,
+        )
+
+    async def show(self) -> None:
+        await self.reveal.on_shot_detected(
+            ShotDetected(trigger_id="70", source="protee_log")
+        )
+        await self.clock.shown.wait()
+
+    async def finish(self) -> None:
+        self.clock.release.set()
+        await self.reveal.aclose()
+
+
+def _floor_records(caplog: pytest.LogCaptureFixture) -> list[logging.LogRecord]:
+    return [
+        record
+        for record in caplog.records
+        if record.getMessage().startswith("obs_capture_floor_")
+    ]
+
+
+class TestTheFloorCheckKnowsWhatWasScheduled:
+    """Capture warns when a source it reads changes on the floor mid-burst.
+
+    Top Impact is revealed on that floor a moment after the strike, on purpose,
+    and is often the very source capture reads. The reveal is excused because
+    it declared the change, not because of its name, so an evidence source —
+    or an Impact nobody scheduled — still warns.
+    """
+
+    async def test_a_scheduled_impact_reveal_during_capture_does_not_warn(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        caplog.set_level("INFO")
+        bay = _Bay()
+        reveals = FloorReveals()
+        reveal = _ScheduledReveal(bay, reveals)
+        client = _client(bay, reveals)
+        await client.connect()
+
+        async with client.hold_sources(SOURCES, capture_scene=CAPTURE):
+            await reveal.show()
+            assert bay.on_floor("Impact"), "the reveal still reaches the floor"
+        await reveal.finish()
+
+        [record] = _floor_records(caplog)
+        assert record.levelno == logging.INFO
+        assert record.getMessage() == "obs_capture_floor_revealed"
+        assert record.swing_capture_sources == "Impact"
+        assert not [r for r in caplog.records if r.levelno >= logging.WARNING]
+
+    @pytest.mark.parametrize("source", EVIDENCE)
+    async def test_an_evidence_source_reaching_the_floor_still_warns(
+        self, caplog: pytest.LogCaptureFixture, source: str
+    ) -> None:
+        bay = _Bay()
+        reveals = FloorReveals()
+        reveal = _ScheduledReveal(bay, reveals)
+        client = _client(bay, reveals)
+        await client.connect()
+
+        async with client.hold_sources(SOURCES, capture_scene=CAPTURE):
+            await reveal.show()
+            bay.scenes[FLOOR][source]["sceneItemEnabled"] = True
+        await reveal.finish()
+
+        [record] = _floor_records(caplog)
+        assert record.levelno == logging.WARNING
+        assert record.getMessage() == "obs_capture_floor_changed"
+        assert record.swing_capture_sources == source
+        assert "also revealed as scheduled: Impact" in record.swing_capture_detail
+
+    @pytest.mark.parametrize("source", EVIDENCE)
+    async def test_an_evidence_source_alone_on_the_floor_warns(
+        self, caplog: pytest.LogCaptureFixture, source: str
+    ) -> None:
+        bay = _Bay()
+        client = _client(bay)
+        await client.connect()
+
+        async with client.hold_sources(SOURCES, capture_scene=CAPTURE):
+            bay.scenes[FLOOR][source]["sceneItemEnabled"] = True
+
+        [record] = _floor_records(caplog)
+        assert record.getMessage() == "obs_capture_floor_changed"
+        assert record.swing_capture_sources == source
+
+    async def test_impact_changing_with_no_reveal_scheduled_still_warns(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        bay = _Bay()
+        client = _client(bay)
+        await client.connect()
+
+        async with client.hold_sources(SOURCES, capture_scene=CAPTURE):
+            bay.scenes[FLOOR]["Impact"]["sceneItemEnabled"] = True
+
+        [record] = _floor_records(caplog)
+        assert record.getMessage() == "obs_capture_floor_changed"
+        assert record.swing_capture_sources == "Impact"
+
+    async def test_an_unrelated_captured_source_changing_still_warns(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        bay = _Bay()
+        bay.scenes[FLOOR]["Delivery"] = {"sceneItemId": 30, "sceneItemEnabled": True}
+        reveals = FloorReveals()
+        reveal = _ScheduledReveal(bay, reveals)
+        client = _client(bay, reveals)
+        await client.connect()
+
+        async with client.hold_sources(SOURCES + ("Delivery",), capture_scene=CAPTURE):
+            await reveal.show()
+            bay.scenes[FLOOR]["Delivery"]["sceneItemEnabled"] = False
+        await reveal.finish()
+
+        [record] = _floor_records(caplog)
+        assert record.getMessage() == "obs_capture_floor_changed"
+        assert record.swing_capture_sources == "Delivery"
+
+    async def test_a_reveal_in_another_scene_does_not_excuse_the_floor(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        bay = _Bay()
+        bay.scenes["Elsewhere"] = {
+            "Impact": {"sceneItemId": 40, "sceneItemEnabled": False}
+        }
+        reveals = FloorReveals()
+        reveal = _ScheduledReveal(bay, reveals, scene="Elsewhere")
+        client = _client(bay, reveals)
+        await client.connect()
+
+        async with client.hold_sources(SOURCES, capture_scene=CAPTURE):
+            await reveal.show()
+            bay.scenes[FLOOR]["Impact"]["sceneItemEnabled"] = True
+        await reveal.finish()
+
+        [record] = _floor_records(caplog)
+        assert record.getMessage() == "obs_capture_floor_changed"
+        assert record.swing_capture_sources == "Impact"
+
+    async def test_a_reveal_finished_before_capture_is_not_carried_into_it(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        bay = _Bay()
+        reveals = FloorReveals()
+        reveal = _ScheduledReveal(bay, reveals)
+        await reveal.show()
+        await reveal.finish()
+        client = _client(bay, reveals)
+        await client.connect()
+
+        async with client.hold_sources(SOURCES, capture_scene=CAPTURE):
+            bay.scenes[FLOOR]["Impact"]["sceneItemEnabled"] = True
+
+        [record] = _floor_records(caplog)
+        assert record.getMessage() == "obs_capture_floor_changed"
+
+    async def test_nothing_moving_still_reports_unchanged(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        caplog.set_level("INFO")
+        bay = _Bay()
+        client = _client(bay)
+        await client.connect()
+
+        async with client.hold_sources(SOURCES, capture_scene=CAPTURE):
+            pass
+
+        [record] = _floor_records(caplog)
+        assert record.levelno == logging.INFO
+        assert record.getMessage() == "obs_capture_floor_unchanged"

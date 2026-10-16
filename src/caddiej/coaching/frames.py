@@ -9,10 +9,10 @@ The seam is one method wide and returns bytes. Coaching never learns that FFmpeg
 exists, and the video subsystem never learns that a language model does.
 """
 
-from collections.abc import Sequence
+from collections.abc import Awaitable, Callable, Sequence
 from typing import Protocol
 
-from caddiej.domain.media import ClipRef, TimeQuality
+from caddiej.domain.media import ClipRef, SwingCapture, TimeQuality
 
 # Address, the top of the backswing, impact, and just past it. Four positions
 # a coach would ask to see, spaced for a full swing rather than a putt.
@@ -41,6 +41,27 @@ class FrameSource(Protocol):
         coaching, only a reason to coach from the numbers. Fewer stills than
         offsets, including none at all, is a normal answer.
         """
+
+
+CaptureStillReader = Callable[[SwingCapture, int], Awaitable[object]]
+"""The other way pictures of a swing can arrive.
+
+A function rather than a port, because there is one implementation and it
+takes no state. The difference from `FrameSource` is not the shape of the call
+but what comes back: a clip is footage CaddieJ recorded from a camera it
+placed, with a known angle and a known frame rate, and a capture is a handful
+of screenshots of the launch monitor's own replay window. Both are pictures of
+the same swing; only one of them supports a claim about where impact was.
+
+Kept apart rather than unified for exactly that reason. `evidence.py` says
+which one it got, and the two say different things about what may be read
+from them.
+"""
+
+# A capture holds more stills than are worth sending, and every one of them is
+# billed. Matched to how many a clip contributes so a session's cost does not
+# depend on which pipeline produced the pictures.
+CAPTURE_STILL_LIMIT = len(DEFAULT_OFFSETS)
 
 
 def offsets_for(

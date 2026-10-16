@@ -1,0 +1,169 @@
+{
+  "shot": "20261008T191545-2-09132997",
+  "experiment": "direct_visual_coach",
+  "architecture": "visual_fault_catalog_v1",
+  "catalog_exposure": {
+    "strategy": "one_request_compact_definitions",
+    "reason": "Temporal state is known only after the model orients the same frames, so the catalog cannot be filtered by state without a second model call. Coaching text and cause links are withheld because they are not visual evidence.",
+    "fault_count": 26,
+    "fields_sent": [
+      "id",
+      "name",
+      "family",
+      "visual_definition",
+      "required_evidence",
+      "insufficient_evidence",
+      "preferred_views",
+      "allowed_temporal_states",
+      "baseline_temporal_states",
+      "requires_baseline",
+      "min_fault_observations",
+      "must_include_states",
+      "requires_handedness",
+      "confusable_with",
+      "mutually_exclusive_with"
+    ],
+    "fields_withheld": [
+      "coaching",
+      "typical_consequences",
+      "upstream_candidates"
+    ],
+    "sent_characters": 31612,
+    "withheld_characters": 10591
+  },
+  "sent": true,
+  "model": "gpt-5-mini",
+  "answered_model": "gpt-5-mini-2025-08-07",
+  "reasoning_effort": "minimal",
+  "selected_capture_ticks": [
+    15,
+    19,
+    24,
+    27,
+    35,
+    41,
+    42,
+    51
+  ],
+  "motion_rates": [
+    {
+      "capture_tick": 15,
+      "replay_seconds": 0.0,
+      "motion_rate": 0.0
+    },
+    {
+      "capture_tick": 19,
+      "replay_seconds": 0.3955,
+      "motion_rate": 27.8967
+    },
+    {
+      "capture_tick": 24,
+      "replay_seconds": 0.8872,
+      "motion_rate": 23.5842
+    },
+    {
+      "capture_tick": 27,
+      "replay_seconds": 1.1872,
+      "motion_rate": 26.3933
+    },
+    {
+      "capture_tick": 35,
+      "replay_seconds": 1.6931,
+      "motion_rate": 41.0512
+    },
+    {
+      "capture_tick": 41,
+      "replay_seconds": 1.9885,
+      "motion_rate": 67.0689
+    },
+    {
+      "capture_tick": 42,
+      "replay_seconds": 2.0359,
+      "motion_rate": 47.3429
+    },
+    {
+      "capture_tick": 51,
+      "replay_seconds": 2.4916,
+      "motion_rate": 45.9455
+    }
+  ],
+  "image_inputs": 16,
+  "estimated_input_tokens": 42979,
+  "input_tokens": 42055,
+  "output_tokens": 507,
+  "reasoning_tokens": 0,
+  "openai_latency_s": 7.687,
+  "estimated_cost_usd": 0.01152775,
+  "cost_basis": "measured_usage",
+  "model_classification": {
+    "status": "no_proven_fault",
+    "handedness": {
+      "side": "right",
+      "confidence": 0.9,
+      "visual_basis": "Face-on address (tick 15) shows left side closer to target (lead side left) \u2014 typical right-handed setup."
+    },
+    "temporal_orientation": [
+      {
+        "capture_tick": 15,
+        "state": "setup",
+        "confidence": 0.9,
+        "visual_basis": "Club and hands at address over the ball, no observable motion yet."
+      },
+      {
+        "capture_tick": 19,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club moving up and away from the ball compared with address frames."
+      },
+      {
+        "capture_tick": 24,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Further continuation of the takeaway; club higher and away from ball."
+      },
+      {
+        "capture_tick": 27,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Club near top of backswing, still moving away in these frames."
+      },
+      {
+        "capture_tick": 35,
+        "state": "direction_change_region",
+        "confidence": 0.9,
+        "visual_basis": "Hands near top and beginning to move back toward the ball in subsequent frames."
+      },
+      {
+        "capture_tick": 41,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club clearly moving down and toward the ball compared with earlier frames."
+      },
+      {
+        "capture_tick": 42,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Delivery toward the ball; hands approaching impact area."
+      },
+      {
+        "capture_tick": 51,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Follow-through positions with club past the impact area and body turned toward target."
+      }
+    ],
+    "fault_candidates": []
+  },
+  "primary_selection": {
+    "fault_id": null,
+    "reason": "no_proven_fault",
+    "policy": "A candidate below 0.60 confidence is not proven. Mutually exclusive faults more than 0.05 apart keep the higher one; within 0.05, both are dropped. A proven fault explains another proven fault only when it is a direct catalog upstream candidate and its confidence is at least 0.85 of the downstream confidence. Unreturned faults are not traversed. An upstream link does not create a fault, raise confidence, or replace evidence. Explained descendants are not coached. The highest remaining confidence wins, and faults within 0.05 of it are tied. Inside the tie, the fault that directly explains more proven candidates wins, then alphabetical fault id. Earlier in the swing is not automatically better. Launch-monitor numbers are not used.",
+    "ranked": []
+  },
+  "caddiej_coaching": null,
+  "validation": {
+    "ok": true,
+    "problems": []
+  },
+  "production_reconciliation": false
+}

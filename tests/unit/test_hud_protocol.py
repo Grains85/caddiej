@@ -4,12 +4,16 @@ import pytest
 
 from caddiej.adapters.hud.protocol import (
     PROTOCOL_VERSION,
+    AddressPayload,
     BallMarkerPayload,
+    BallStatusPayload,
     ClientMessage,
     ClubPathPayload,
     ErrorMessage,
     FloorStatePayload,
     FlourishPayload,
+    HittingStripPayload,
+    LockAcknowledgementPayload,
     PongMessage,
     RoundResultPayload,
     ShotMetricsPayload,
@@ -17,12 +21,16 @@ from caddiej.adapters.hud.protocol import (
     snapshot_message,
 )
 from caddiej.floor import (
+    AddressView,
     BallMarker,
+    BallStatus,
     ClubPath,
     FloorFlourish,
     FloorMode,
     FloorPoint,
     FloorState,
+    HittingStrip,
+    LockAcknowledgement,
     MarkerVariant,
     RoundResultView,
     ShotMetrics,
@@ -36,6 +44,15 @@ def test_hello_carries_the_protocol_version() -> None:
     assert payload["v"] == PROTOCOL_VERSION
     assert payload["protocol_version"] == PROTOCOL_VERSION
     assert payload["server_time"]
+    assert payload["hud_assets_version"] == ""
+
+
+def test_hello_can_carry_the_overlay_asset_hash() -> None:
+    payload = json.loads(
+        hello_message(hud_assets_version="abc123abc123").model_dump_json()
+    )
+
+    assert payload["hud_assets_version"] == "abc123abc123"
 
 
 def test_snapshot_sequence_tracks_the_state_version() -> None:
@@ -62,8 +79,19 @@ def test_snapshot_sequence_tracks_the_state_version() -> None:
         "flourish": None,
         "play_status": "",
         "club_label": "",
+        "ball_status": None,
         "round_result": None,
         "ball_flight": None,
+        "hitting_strip": None,
+        "address": None,
+        "lock_acknowledgement": None,
+        # Three layers the presenter has not written yet. Null rather than
+        # absent: the overlay falls back to the stylesheet's own placement for
+        # anchors, and draws nothing for a lane or a roll.
+        "anchors": None,
+        "putting_lane": None,
+        "putt_path": None,
+        "progress": None,
     }
 
 
@@ -175,9 +203,36 @@ def test_nested_payloads_cover_every_field_of_their_value_objects() -> None:
     # points. The dataclass and the payload therefore name the same fields.
     assert set(ClubPath.__dataclass_fields__) == set(ClubPathPayload.model_fields)
     assert set(FloorFlourish.__dataclass_fields__) == set(FlourishPayload.model_fields)
-    assert set(RoundResultView.__dataclass_fields__) == set(
-        RoundResultPayload.model_fields
+    # Raw floats stay on the view and are omitted from the overlay JSON.
+    payload_fields = set(RoundResultPayload.model_fields)
+    view_fields = set(RoundResultView.__dataclass_fields__)
+    assert payload_fields <= view_fields
+    assert "ball_speed_raw" not in payload_fields
+    assert "total_distance_raw" not in payload_fields
+    assert "distance_to_pin_raw" not in payload_fields
+    assert payload_fields == view_fields - {
+        "ball_speed_raw",
+        "total_distance_raw",
+        "distance_to_pin_raw",
+    }
+    assert set(HittingStrip.__dataclass_fields__) == set(
+        HittingStripPayload.model_fields
     )
+    assert set(AddressView.__dataclass_fields__) == set(AddressPayload.model_fields)
+    assert set(LockAcknowledgement.__dataclass_fields__) == set(
+        LockAcknowledgementPayload.model_fields
+    )
+    assert set(BallStatus.__dataclass_fields__) == set(BallStatusPayload.model_fields)
+
+
+def test_a_ball_lock_acknowledgement_travels_with_the_duration_it_will_be_held_for() -> (
+    None
+):
+    state = FloorState().evolve(lock_acknowledgement=LockAcknowledgement(seconds=0.65))
+
+    payload = json.loads(snapshot_message(state).model_dump_json())["state"]
+
+    assert payload["lock_acknowledgement"] == {"seconds": 0.65}
 
 
 def test_a_celebration_travels_with_the_duration_it_will_be_held_for() -> None:
@@ -212,3 +267,74 @@ def test_control_messages_are_tagged() -> None:
     assert json.loads(PongMessage().model_dump_json())["type"] == "pong"
     error = json.loads(ErrorMessage(detail="nope").model_dump_json())
     assert error == {"v": PROTOCOL_VERSION, "type": "error", "detail": "nope"}
+
+
+def test_the_hud_payload_shows_integer_kmh_and_metres_not_raw_floats() -> None:
+    # This is the JSON the Browser Source receives. Raw GSPro floats stay on
+    # RoundResultView; they must not appear in the round-result object at all.
+    raw_speed = 32.83863067626953
+    raw_distance = 28.0288715
+    state = FloorState().evolve(
+        round_result=RoundResultView(
+            shot_id="D",
+            ball_speed_raw=raw_speed,
+            total_distance_raw=raw_distance,
+        )
+    )
+
+    payload = json.loads(snapshot_message(state).model_dump_json())["state"]
+    panel = payload["round_result"]
+    wire = json.dumps(panel)
+    # Mirrors state.js: only a string display value is assigned to the DOM.
+    dom_ball_speed = (
+        panel["ball_speed_display"]
+        if isinstance(panel["ball_speed_display"], str)
+        else "—"
+    )
+    dom_distance = (
+        panel["shot_distance_display"]
+        if isinstance(panel["shot_distance_display"], str)
+        else "—"
+    )
+
+    assert "ball_speed_raw" not in panel
+    assert "total_distance_raw" not in panel
+    assert panel["ball_speed_display"] == "118 km/h"
+    assert panel["shot_distance_display"] == "28 m"
+    assert dom_ball_speed == "118 km/h"
+    assert dom_distance == "28 m"
+    assert "32.83863067626953" not in wire
+    assert "28.0288715" not in wire
+    assert state.round_result is not None
+    assert state.round_result.ball_speed_raw == raw_speed
+    assert state.round_result.total_distance_raw == raw_distance
+
+
+def test_protocol_formats_even_when_the_view_omitted_display_strings() -> None:
+    result = RoundResultView(shot_id="D", ball_speed_raw=32.84, total_distance_raw=28.0)
+    payload = json.loads(RoundResultPayload.from_result(result).model_dump_json())
+
+    assert payload["ball_speed_display"] == "118 km/h"
+    assert payload["shot_distance_display"] == "28 m"
+
+
+def test_the_address_hud_payload_is_display_strings_not_raw_floats() -> None:
+    state = FloorState().evolve(
+        address=AddressView(
+            club_display="7 IRON",
+            distance_display="147 m",
+            recommended_club_display="7I",
+        )
+    )
+    panel = json.loads(snapshot_message(state).model_dump_json())["state"]["address"]
+
+    assert panel == {
+        "club_display": "7 IRON",
+        "distance_display": "147 m",
+        "recommended_club_display": "7I",
+    }
+    assert "distance_raw" not in panel
+    assert "347.0" not in json.dumps(panel)
+    # The rule, not the number: which club a distance calls for is decided in
+    # the domain, so no carry the decision was made from crosses the wire.
+    assert "expected_carry_m" not in panel

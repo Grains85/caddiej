@@ -1,0 +1,23 @@
+{
+ "written_at": "2026-10-08T12:16:43.933257+00:00",
+ "sheet": "20261008T092949-4-d05a29c4_T36.jpg",
+ "criteria": {
+  "source": "VX14C_REPORT.md section 12, unchanged",
+  "wrong_group_cells_max": 1,
+  "wrong_group_definition": "returned (non-zero) phase/camera group cells graded 'wrong' under POC 1's TRUTH/RULE (neighbour still of a correct still = acceptable); 0 cells are unavailable, not wrong",
+  "p7_both_cameras_capture_index_in": [
+   40,
+   41,
+   42
+  ],
+  "p7_definition": "impact group cell on DTL and on FO each within one captured still of contact (#41)",
+  "accepted_min": 40,
+  "wrong_position_accepted_max": 3,
+  "wrong_position_definition": "accepted checkpoint whose group cell is graded 'wrong' for its phase",
+  "wire_shape_rejections_max": 0,
+  "wire_shape_definition": "checkpoints refused as length/shape/camera before any evidence or order rule",
+  "output_tokens_max": 1000,
+  "output_tokens_note": "approximately: 1001-1100 reported as borderline, >1100 fails",
+  "validator": "vx14c_replay G1-G4 (hybrid_replay.R7 leave-one-out, TAU), no gap filling; R1 address reference"
+ }
+}

@@ -33,6 +33,8 @@ class TestTheCommandLine:
         printed = capsys.readouterr().out
         assert "usage: caddiej" in printed
         assert "--check-config" in printed
+        assert "--check-speech" in printed
+        assert "--check-video-frames" in printed
 
     def test_version_is_the_installed_version(self, capsys) -> None:
         with pytest.raises(SystemExit) as exit_info:
@@ -174,6 +176,27 @@ class TestCheckingTheConfiguration:
         assert "REFUSED" in report
         assert "ASSISTANT_API_TOKEN is empty" in report
 
+    def test_the_shot_video_delay_says_which_moment_it_counts_from(self) -> None:
+        # The same 0.75 means two very different things depending on whether it
+        # runs from impact or from GSPro's completed shot, and the difference is
+        # several seconds of the player already having walked away.
+        report = describe(a_settings(FLOOR_SHOT_VIDEO_ENABLED="true", OBS_PASSWORD="x"))
+
+        assert "0.75s after impact" in report
+
+    def test_a_shot_video_with_no_protee_observer_will_never_fire(self) -> None:
+        # Impact comes from the ProTee log. Without that observer the replay is
+        # enabled, configured, credentialed, and silent.
+        report = describe(
+            a_settings(
+                FLOOR_SHOT_VIDEO_ENABLED="true",
+                OBS_PASSWORD="x",
+                PROTEE_OBSERVER_ENABLED="false",
+            )
+        )
+
+        assert "needs PROTEE_OBSERVER_ENABLED" in report
+
     def test_it_reports_which_optional_dependencies_are_installed(self) -> None:
         report = describe(a_settings())
 
@@ -191,6 +214,213 @@ class TestCheckingTheConfiguration:
 
         assert "configuration check" in capsys.readouterr().out
         assert list(tmp_path.iterdir()) == []
+
+
+class TestCheckingSpeech:
+    def test_it_does_not_start_the_application(
+        self, tmp_path, monkeypatch, capsys
+    ) -> None:
+        """No HUD, no observers, no database: a check is a question that
+        happens to make a noise."""
+
+        async def fake_probe(**_kwargs: object):
+            from caddiej.speech.diagnose import SpeechProbe
+
+            return SpeechProbe(ok=True, report="speech check — ok")
+
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / ".env").write_text("SPEECH_ENABLED=true\n")
+        monkeypatch.setattr("caddiej.__main__.probe_speech", fake_probe)
+
+        main(["--check-speech"])
+
+        printed = capsys.readouterr()
+        assert "speech check — ok" in printed.out
+        assert not (tmp_path / "caddiej.sqlite3").exists()
+
+    def test_a_failed_check_is_an_exit_code(
+        self, tmp_path, monkeypatch, capsys
+    ) -> None:
+        async def fake_probe(**_kwargs: object):
+            from caddiej.speech.diagnose import SpeechProbe
+
+            return SpeechProbe(ok=False, report="FAILED at engine open")
+
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr("caddiej.__main__.probe_speech", fake_probe)
+
+        with pytest.raises(SystemExit) as exit_info:
+            main(["--check-speech"])
+
+        assert exit_info.value.code == 1
+        assert "FAILED at engine open" in capsys.readouterr().err
+
+
+class TestCheckingVideoFrames:
+    def test_it_does_not_start_the_application(
+        self, tmp_path, monkeypatch, capsys
+    ) -> None:
+        """No HUD, no observers, no camera, no OpenAI: a check that looks at
+        files already on disk."""
+
+        captured: dict[str, object] = {}
+
+        async def fake_probe(**kwargs: object):
+            from caddiej.video.diagnose import VideoFramesProbe
+
+            captured.update(kwargs)
+            return VideoFramesProbe(ok=True, report="video frames check — ok")
+
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setenv("VIDEO_ENABLED", "false")
+        monkeypatch.setenv("VIDEO_CAMERA_VIEW", "face_on")
+        (tmp_path / ".env").write_text(
+            "VIDEO_ENABLED=false\nVIDEO_CAMERA_VIEW=face_on\n"
+        )
+        monkeypatch.setattr("caddiej.__main__.probe_video_frames", fake_probe)
+        monkeypatch.setattr(
+            "caddiej.__main__.run",
+            lambda *_args, **_kwargs: (_ for _ in ()).throw(
+                AssertionError("application started")
+            ),
+        )
+
+        main(["--check-video-frames"])
+
+        printed = capsys.readouterr()
+        assert "video frames check — ok" in printed.out
+        assert not (tmp_path / "caddiej.sqlite3").exists()
+        assert captured["camera_view"] == "face_on"
+
+    def test_a_failed_check_is_an_exit_code(
+        self, tmp_path, monkeypatch, capsys
+    ) -> None:
+        async def fake_probe(**_kwargs: object):
+            from caddiej.video.diagnose import VideoFramesProbe
+
+            return VideoFramesProbe(ok=False, report="FAILED at clip: no usable")
+
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr("caddiej.__main__.probe_video_frames", fake_probe)
+
+        with pytest.raises(SystemExit) as exit_info:
+            main(["--check-video-frames"])
+
+        assert exit_info.value.code == 1
+        assert "FAILED at clip" in capsys.readouterr().err
+
+
+class TestTheCoachBenchmarkFlags:
+    def test_they_parse_into_lists_and_numbers(self) -> None:
+        options = build_parser().parse_args(
+            [
+                "--benchmark-coach",
+                "--benchmark-evidence",
+                "media/swing_shots/20261002T184705-1-0ea68447",
+                "--benchmark-models",
+                "gpt-5-mini, gpt-4.1-mini",
+                "--benchmark-efforts",
+                "low,none",
+                "--benchmark-detail",
+                "low,high",
+                "--benchmark-repeats",
+                "3",
+                "--benchmark-max-output-tokens",
+                "4000",
+                "--benchmark-timeout",
+                "45",
+            ]
+        )
+
+        assert options.benchmark_coach is True
+        assert options.benchmark_evidence == Path(
+            "media/swing_shots/20261002T184705-1-0ea68447"
+        )
+        assert options.benchmark_models == ("gpt-5-mini", "gpt-4.1-mini")
+        assert options.benchmark_efforts == ("low", "none")
+        assert options.benchmark_detail == ("low", "high")
+        assert options.benchmark_repeats == 3
+        assert options.benchmark_max_output_tokens == 4000
+        assert options.benchmark_timeout == 45.0
+
+    def test_bare_flags_leave_every_choice_to_the_configuration(self) -> None:
+        options = build_parser().parse_args(["--check-coach-request"])
+
+        assert options.check_coach_request is True
+        assert options.benchmark_coach is False
+        assert options.benchmark_models is None
+        assert options.benchmark_efforts is None
+        assert options.benchmark_detail is None
+        assert options.benchmark_repeats == 1
+
+    @pytest.mark.parametrize(
+        "argv",
+        [
+            ["--benchmark-efforts", "extreme"],
+            ["--benchmark-detail", "original"],
+            ["--benchmark-repeats", "0"],
+            ["--benchmark-repeats", "many"],
+            ["--benchmark-models", "gpt-5-mini,,"],
+            ["--benchmark-timeout", "0"],
+        ],
+    )
+    def test_nonsense_is_refused(self, argv: list[str]) -> None:
+        with pytest.raises(SystemExit) as exit_info:
+            build_parser().parse_args(argv)
+
+        assert exit_info.value.code == 2
+
+    def test_the_benchmark_defaults_to_the_production_request(
+        self, tmp_path, monkeypatch, capsys
+    ) -> None:
+        captured: dict[str, object] = {}
+
+        async def fake_benchmark(**kwargs: object):
+            from caddiej.coaching.benchmark import BenchmarkReport
+
+            captured.update(kwargs)
+            return BenchmarkReport(ok=True, report="coach benchmark — ok")
+
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / ".env").write_text(
+            "COACHING_MODEL=gpt-5-mini\nCOACHING_REASONING_EFFORT=low\n"
+        )
+        monkeypatch.setattr("caddiej.__main__.benchmark_coach", fake_benchmark)
+        monkeypatch.setattr(
+            "caddiej.__main__.run",
+            lambda *_args, **_kwargs: (_ for _ in ()).throw(
+                AssertionError("application started")
+            ),
+        )
+
+        main(["--benchmark-coach"])
+
+        assert "coach benchmark — ok" in capsys.readouterr().out
+        (config,) = captured["configs"]  # type: ignore[misc]
+        assert config.model == "gpt-5-mini"
+        assert config.reasoning_effort == "low"
+        assert config.swing_detail == "low"
+        assert captured["repeats"] == 1
+        assert captured["evidence_dir"] is None
+        assert not (tmp_path / "caddiej.sqlite3").exists()
+
+    def test_the_offline_breakdown_makes_no_provider(
+        self, tmp_path, monkeypatch, capsys
+    ) -> None:
+        async def fake_report(**kwargs: object):
+            from caddiej.coaching.benchmark import BenchmarkReport
+
+            assert "make_provider" not in kwargs
+            return BenchmarkReport(ok=False, report="no stored capture")
+
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr("caddiej.__main__.coach_request_report", fake_report)
+
+        with pytest.raises(SystemExit) as exit_info:
+            main(["--check-coach-request"])
+
+        assert exit_info.value.code == 1
+        assert "no stored capture" in capsys.readouterr().err
 
 
 class TestPathsInAnEnvFile:

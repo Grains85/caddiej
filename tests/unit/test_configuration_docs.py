@@ -14,6 +14,7 @@ import re
 from pathlib import Path
 
 import pytest
+from pydantic import AliasChoices
 
 from caddiej.config import Settings
 
@@ -26,8 +27,15 @@ def settings_aliases() -> set[str]:
     aliases = set()
     for field in Settings.model_fields.values():
         alias = field.validation_alias
-        assert isinstance(alias, str), "every setting is read from one named variable"
-        aliases.add(alias)
+        if isinstance(alias, str):
+            aliases.add(alias)
+            continue
+        if isinstance(alias, AliasChoices):
+            aliases.update(str(choice) for choice in alias.choices)
+            continue
+        raise AssertionError(
+            f"every setting is read from a named variable, got {alias!r}"
+        )
     return aliases
 
 
@@ -35,19 +43,37 @@ def assigned_in_env_example() -> set[str]:
     """Variables `.env.example` actually sets, ignoring commented-out examples."""
 
     pattern = re.compile(r"^([A-Z][A-Z0-9_]*)=", re.MULTILINE)
-    return set(pattern.findall(ENV_EXAMPLE.read_text()))
+    return set(pattern.findall(ENV_EXAMPLE.read_text(encoding="utf-8")))
 
 
 def documented_in_reference() -> set[str]:
     """Variables the reference names in a table row or a heading."""
 
     pattern = re.compile(r"`([A-Z][A-Z0-9_]{2,})`")
-    return set(pattern.findall(REFERENCE.read_text()))
+    return set(pattern.findall(REFERENCE.read_text(encoding="utf-8")))
 
 
-# Temporary aliases kept so an old .env still starts. They are not assigned in
-# `.env.example`; the physical `_M` variables are the source of truth.
-_DEPRECATED_ALIASES = frozenset({"FLOOR_TEE_X", "FLOOR_TEE_Y"})
+# Aliases kept so an older .env still starts, and deliberately absent from
+# `.env.example` so a new one cannot grow a second way of saying the same thing.
+#
+# The tee variables are absolute points on the bay, from before the hitting
+# strip became the anchor. They are converted to offsets from it at validation,
+# which is exactly what they stood for — but only if they were set, because a
+# sample that assigned them would silently override the offsets the moment
+# somebody moved the strip, which is the one edit the anchor exists to make
+# safe. `.env.example` sets `FLOOR_BALL_*` instead.
+_DEPRECATED_ALIASES = frozenset(
+    {
+        "FLOOR_TEE_X",
+        "FLOOR_TEE_Y",
+        "FLOOR_TEE_X_M",
+        "FLOOR_TEE_Y_M",
+        "FLOOR_TEE_DRIVER_X_M",
+        "FLOOR_TEE_DRIVER_Y_M",
+        "SWING_CAPTURE_INITIAL_DELAY_SECONDS",
+        "SWING_CAPTURE_DURATION_SECONDS",
+    }
+)
 
 
 class TestEverySettingIsDocumented:
@@ -86,7 +112,7 @@ class TestTheSampleHoldsNoCredentials:
         # every clone, for ever.
         line = next(
             row
-            for row in ENV_EXAMPLE.read_text().splitlines()
+            for row in ENV_EXAMPLE.read_text(encoding="utf-8").splitlines()
             if row.startswith(f"{variable}=")
         )
 
@@ -103,3 +129,4 @@ class TestTheSampleHoldsNoCredentials:
         assert settings.lighting_enabled is False
         assert settings.assistant_api_enabled is False
         assert settings.coaching_provider == "none"
+        assert settings.floor_shot_video_enabled is False

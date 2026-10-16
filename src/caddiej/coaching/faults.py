@@ -27,6 +27,18 @@ from caddiej.domain.coaching import CoachingFocus, Observation
 from caddiej.domain.shot import ClubKind, Handedness, Shot
 from caddiej.domain.statistics import MetricSummary
 
+FULL_SWING_CLUBS: frozenset[ClubKind] = frozenset(
+    {
+        ClubKind.DRIVER,
+        ClubKind.WOOD,
+        ClubKind.HYBRID,
+        ClubKind.IRON,
+        ClubKind.WEDGE,
+        ClubKind.UNKNOWN,
+    }
+)
+PUTTING_CLUBS: frozenset[ClubKind] = frozenset({ClubKind.PUTTER})
+
 Measure = Callable[[Shot], float | None]
 
 # Where the club should be travelling at impact, per club. A driver is struck on
@@ -39,6 +51,36 @@ IDEAL_ATTACK: Mapping[ClubKind, float] = {
     ClubKind.HYBRID: -1.0,
     ClubKind.IRON: -4.0,
     ClubKind.WEDGE: -5.0,
+}
+
+# Where a club path is doing its job, per club, in degrees as the player
+# experienced them: positive is in-to-out, negative is out-to-in.
+#
+# Not a tolerance around zero. Zero is not the target and never was, and
+# treating it as one is how a 3.7 degree in-to-out iron -- a deliberate,
+# well-struck draw -- was told to SWING MORE ACROSS. A club path has a sign
+# because a golf swing travels on an arc, and the sign is a shot shape rather
+# than a defect.
+#
+# Asymmetric on purpose, and skewed towards in-to-out, because that is how the
+# clubs are used. A driver is struck after the low point and wants the path
+# moving out a little; an iron is struck before it, and a touch of in-to-out is
+# a draw rather than a fault. The out-to-in side is narrower than the in-to-out
+# side for the long clubs, because out-to-in past a few degrees there is the
+# motion that produces the common amateur miss, where in-to-out past a few
+# degrees mostly produces a draw. The wedge is the exception and skews the
+# other way: a short club is delivered steeper and a little across, and
+# telling a decent wedge player to stop doing that would be wrong.
+#
+# These are *functional* windows and not claims about elite play. Inside one,
+# CaddieJ has nothing to say about path -- including when the number is unusual
+# for this player, which is the override that mattered.
+FUNCTIONAL_PATH: Mapping[ClubKind, tuple[float, float]] = {
+    ClubKind.DRIVER: (-2.0, 6.0),
+    ClubKind.WOOD: (-2.0, 5.0),
+    ClubKind.HYBRID: (-2.5, 4.5),
+    ClubKind.IRON: (-3.0, 4.0),
+    ClubKind.WEDGE: (-4.5, 3.5),
 }
 
 # How far past one standard deviation a shot has to be before it is unusual, and
@@ -94,6 +136,46 @@ class Fault:
     A club absent from the mapping means the fault is not ranked at all: a
     putter has no business being told about its angle of attack."""
 
+    clubs: frozenset[ClubKind] = FULL_SWING_CLUBS
+    """Which clubs this fault may be ranked on. Full-swing by default, so a
+    putt cannot inherit a slice diagnosis from a few degrees of spin axis."""
+
+    windows: Mapping[ClubKind, tuple[float, float]] | None = None
+    """Where this measurement is doing its job, per club, as a signed range.
+
+    Different from `tolerance` in two ways that both matter. It is asymmetric,
+    so a measurement whose two directions are not equally wrong can say so.
+    And it is authoritative: inside the window the fault is not ranked at all,
+    where `tolerance` only zeroes the fixed band and leaves the player's own
+    scatter free to rank the shot anyway.
+
+    That override is the whole reason this exists. Severity is the larger of
+    the fixed band and the distance from this player's own average, which is
+    right for a measurement with no healthy range -- an unusually slow swing
+    is worth noticing -- and wrong for one that has. A club path of 3.7
+    degrees in-to-out is a draw; it was also two standard deviations from the
+    player's recent average, so it scored 0.82 and produced SWING MORE ACROSS
+    on a shot the player had hit deliberately and hit well. Being unusual is
+    not being wrong."""
+
+    def applies_to(self, club: ClubKind) -> bool:
+        return club in self.clubs
+
+    def is_functional(self, club: ClubKind, value: float) -> bool:
+        """Whether this measurement is inside its healthy range for this club.
+
+        False when there is no window, which is most faults: a fault without a
+        reviewed healthy range is ranked as it always was.
+        """
+
+        if self.windows is None:
+            return False
+        window = self.windows.get(club)
+        if window is None:
+            return False
+        low, high = window
+        return low <= value <= high
+
     def ideal_for(self, club: ClubKind) -> float | None:
         if self.ideals is None:
             return 0.0
@@ -119,6 +201,9 @@ FAULTS: tuple[Fault, ...] = (
         span=8.0,
         mirrored=True,
     ),
+    # `tolerance` and `span` still rank a path that has left its window: the
+    # severity of an extreme path is how far past the edge it went. What the
+    # window changes is whether there is anything to rank at all.
     Fault(
         focus=CoachingFocus.PATH,
         metric="club_path",
@@ -128,6 +213,7 @@ FAULTS: tuple[Fault, ...] = (
         tolerance=3.0,
         span=10.0,
         mirrored=True,
+        windows=FUNCTIONAL_PATH,
     ),
     # Not mirrored: the toe and the heel are parts of the club, so they mean the
     # same thing whichever side of the ball the player stands on.
@@ -149,6 +235,35 @@ FAULTS: tuple[Fault, ...] = (
         tolerance=3.0,
         span=10.0,
         ideals=IDEAL_ATTACK,
+    ),
+    # The two faults a passive observer can still rank. A launch monitor that
+    # only ever reaches CaddieJ through the simulator reports where the ball
+    # went and not how the club got there, so these are the whole of the
+    # measured evidence on that path. They are ball facts and are named as ball
+    # facts: "started pushed" is where it set off, not a claim about the face.
+    Fault(
+        focus=CoachingFocus.START_LINE,
+        metric="launch_direction",
+        unit="deg",
+        labels=("start pushed", "start pulled"),
+        measure=_ball(lambda ball: ball.launch_direction_degrees),
+        tolerance=2.0,
+        span=8.0,
+        mirrored=True,
+    ),
+    # Spin axis, so it is curvature rather than the line the ball finished on.
+    # Slice and hook are already the player's own terms — they mean curving
+    # away from and towards their own side — so the mirroring below leaves the
+    # word correct for a left-hander rather than reversing it.
+    Fault(
+        focus=CoachingFocus.CURVE,
+        metric="spin_axis",
+        unit="deg",
+        labels=("slice spin", "hook spin"),
+        measure=_ball(lambda ball: ball.spin_axis_degrees),
+        tolerance=4.0,
+        span=16.0,
+        mirrored=True,
     ),
     Fault(
         focus=CoachingFocus.SPEED,
@@ -174,12 +289,37 @@ FAULTS: tuple[Fault, ...] = (
         measure=_ball(lambda ball: ball.total_spin_rpm),
         absolute=False,
     ),
+    # Putting. Tighter bands: a degree of face on a putt is the start line,
+    # and a few millimetres of strike is a miss they can feel.
+    Fault(
+        focus=CoachingFocus.FACE_CONTROL,
+        metric="face_to_target",
+        unit="deg",
+        labels=("face open", "face closed"),
+        measure=_club(lambda club: club.face_to_target_degrees),
+        tolerance=0.75,
+        span=3.0,
+        mirrored=True,
+        clubs=PUTTING_CLUBS,
+    ),
+    Fault(
+        focus=CoachingFocus.STRIKE,
+        metric=None,
+        unit="mm",
+        labels=("toe strike", "heel strike"),
+        measure=_club(lambda club: club.impact_horizontal_mm),
+        tolerance=4.0,
+        span=15.0,
+        clubs=PUTTING_CLUBS,
+    ),
 )
 
 
-FAULTS_BY_FOCUS: Mapping[CoachingFocus, Fault] = {
-    fault.focus: fault for fault in FAULTS
-}
+FAULTS_BY_FOCUS: dict[CoachingFocus, Fault] = {}
+for _fault in FAULTS:
+    # First writer wins, so the full-swing row keeps the labels `is_positive`
+    # looks up. Putting rows share those labels and must not overwrite them.
+    FAULTS_BY_FOCUS.setdefault(_fault.focus, _fault)
 
 
 def is_positive(focus: CoachingFocus, label: str) -> bool:
@@ -256,6 +396,9 @@ def observe(
     has no absolute band and the player has no baseline yet.
     """
 
+    if not fault.applies_to(club):
+        return None
+
     raw = fault.measure(shot)
     if raw is None:
         return None
@@ -278,14 +421,32 @@ def observe(
         mean, None if summary is None else summary.standard_deviation, value
     )
 
-    scores = [
-        score
-        for score in (
-            absolute_severity(fault, deviation),
-            relative_severity(deviations),
-        )
-        if score is not None
-    ]
+    # A measurement inside its reviewed functional range is healthy, full
+    # stop: neither the fixed band nor the player's own scatter gets a vote.
+    #
+    # Both had to go. The fixed band is a tolerance around zero, so it scored
+    # the 3.7 degree draw 0.10 for having a sign at all. The statistics then
+    # scored it 0.82 for being unusual, and severity is the larger of the two,
+    # which is how a deliberate, well-struck shot came back as the worst thing
+    # in the session and produced SWING MORE ACROSS. Zero was never the
+    # target, and being unusual is not being wrong.
+    #
+    # The observation is still produced and still carries the reading, so the
+    # evidence records the path and a reinforcement can name it. Only the
+    # severity is zero.
+    functional = fault.is_functional(club, value)
+    scores = (
+        [0.0]
+        if functional
+        else [
+            score
+            for score in (
+                absolute_severity(fault, deviation),
+                relative_severity(deviations),
+            )
+            if score is not None
+        ]
+    )
     if not scores:
         return None
 

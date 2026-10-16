@@ -1,0 +1,918 @@
+{
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "phases",
+  "metrics",
+  "coach"
+ ],
+ "properties": {
+  "phases": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "setup",
+    "takeaway",
+    "backswing",
+    "top",
+    "transition",
+    "downswing",
+    "impact",
+    "release",
+    "finish"
+   ],
+   "properties": {
+    "setup": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "d",
+      "f",
+      "a",
+      "s",
+      "x"
+     ],
+     "properties": {
+      "d": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "f": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "a": {
+       "type": "string",
+       "enum": [
+        "d",
+        "f"
+       ]
+      },
+      "s": {
+       "type": "array",
+       "minItems": 7,
+       "maxItems": 7,
+       "items": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+           "type": "integer",
+           "minimum": 0,
+           "maximum": 100
+          }
+         }
+        ]
+       }
+      },
+      "x": {
+       "type": "array",
+       "minItems": 7,
+       "maxItems": 7,
+       "items": {
+        "type": "string",
+        "enum": [
+         "none",
+         "too_much",
+         "too_little",
+         "arms_first",
+         "inside",
+         "outside",
+         "standing_up",
+         "sway",
+         "shallow",
+         "deep",
+         "flat",
+         "steep",
+         "toward_ball",
+         "reverse",
+         "out",
+         "stuck",
+         "flying",
+         "behind",
+         "bent"
+        ]
+       }
+      }
+     }
+    },
+    "takeaway": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "d",
+      "f",
+      "a",
+      "s",
+      "x"
+     ],
+     "properties": {
+      "d": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "f": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "a": {
+       "type": "string",
+       "enum": [
+        "d",
+        "f"
+       ]
+      },
+      "s": {
+       "type": "array",
+       "minItems": 6,
+       "maxItems": 6,
+       "items": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+           "type": "integer",
+           "minimum": 0,
+           "maximum": 100
+          }
+         }
+        ]
+       }
+      },
+      "x": {
+       "type": "array",
+       "minItems": 6,
+       "maxItems": 6,
+       "items": {
+        "type": "string",
+        "enum": [
+         "none",
+         "too_much",
+         "too_little",
+         "arms_first",
+         "inside",
+         "outside",
+         "standing_up",
+         "sway",
+         "shallow",
+         "deep",
+         "flat",
+         "steep",
+         "toward_ball",
+         "reverse",
+         "out",
+         "stuck",
+         "flying",
+         "behind",
+         "bent"
+        ]
+       }
+      }
+     }
+    },
+    "backswing": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "d",
+      "f",
+      "a",
+      "s",
+      "x"
+     ],
+     "properties": {
+      "d": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "f": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "a": {
+       "type": "string",
+       "enum": [
+        "d",
+        "f"
+       ]
+      },
+      "s": {
+       "type": "array",
+       "minItems": 8,
+       "maxItems": 8,
+       "items": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+           "type": "integer",
+           "minimum": 0,
+           "maximum": 100
+          }
+         }
+        ]
+       }
+      },
+      "x": {
+       "type": "array",
+       "minItems": 8,
+       "maxItems": 8,
+       "items": {
+        "type": "string",
+        "enum": [
+         "none",
+         "too_much",
+         "too_little",
+         "arms_first",
+         "inside",
+         "outside",
+         "standing_up",
+         "sway",
+         "shallow",
+         "deep",
+         "flat",
+         "steep",
+         "toward_ball",
+         "reverse",
+         "out",
+         "stuck",
+         "flying",
+         "behind",
+         "bent"
+        ]
+       }
+      }
+     }
+    },
+    "top": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "d",
+      "f",
+      "a",
+      "s",
+      "x"
+     ],
+     "properties": {
+      "d": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "f": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "a": {
+       "type": "string",
+       "enum": [
+        "d",
+        "f"
+       ]
+      },
+      "s": {
+       "type": "array",
+       "minItems": 8,
+       "maxItems": 8,
+       "items": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+           "type": "integer",
+           "minimum": 0,
+           "maximum": 100
+          }
+         }
+        ]
+       }
+      },
+      "x": {
+       "type": "array",
+       "minItems": 8,
+       "maxItems": 8,
+       "items": {
+        "type": "string",
+        "enum": [
+         "none",
+         "too_much",
+         "too_little",
+         "arms_first",
+         "inside",
+         "outside",
+         "standing_up",
+         "sway",
+         "shallow",
+         "deep",
+         "flat",
+         "steep",
+         "toward_ball",
+         "reverse",
+         "out",
+         "stuck",
+         "flying",
+         "behind",
+         "bent"
+        ]
+       }
+      }
+     }
+    },
+    "transition": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "d",
+      "f",
+      "a",
+      "s",
+      "x"
+     ],
+     "properties": {
+      "d": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "f": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "a": {
+       "type": "string",
+       "enum": [
+        "d",
+        "f"
+       ]
+      },
+      "s": {
+       "type": "array",
+       "minItems": 7,
+       "maxItems": 7,
+       "items": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+           "type": "integer",
+           "minimum": 0,
+           "maximum": 100
+          }
+         }
+        ]
+       }
+      },
+      "x": {
+       "type": "array",
+       "minItems": 7,
+       "maxItems": 7,
+       "items": {
+        "type": "string",
+        "enum": [
+         "none",
+         "too_much",
+         "too_little",
+         "arms_first",
+         "inside",
+         "outside",
+         "standing_up",
+         "sway",
+         "shallow",
+         "deep",
+         "flat",
+         "steep",
+         "toward_ball",
+         "reverse",
+         "out",
+         "stuck",
+         "flying",
+         "behind",
+         "bent"
+        ]
+       }
+      }
+     }
+    },
+    "downswing": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "d",
+      "f",
+      "a",
+      "s",
+      "x"
+     ],
+     "properties": {
+      "d": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "f": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "a": {
+       "type": "string",
+       "enum": [
+        "d",
+        "f"
+       ]
+      },
+      "s": {
+       "type": "array",
+       "minItems": 7,
+       "maxItems": 7,
+       "items": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+           "type": "integer",
+           "minimum": 0,
+           "maximum": 100
+          }
+         }
+        ]
+       }
+      },
+      "x": {
+       "type": "array",
+       "minItems": 7,
+       "maxItems": 7,
+       "items": {
+        "type": "string",
+        "enum": [
+         "none",
+         "too_much",
+         "too_little",
+         "arms_first",
+         "inside",
+         "outside",
+         "standing_up",
+         "sway",
+         "shallow",
+         "deep",
+         "flat",
+         "steep",
+         "toward_ball",
+         "reverse",
+         "out",
+         "stuck",
+         "flying",
+         "behind",
+         "bent"
+        ]
+       }
+      }
+     }
+    },
+    "impact": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "d",
+      "f",
+      "a",
+      "s",
+      "x"
+     ],
+     "properties": {
+      "d": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "f": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "a": {
+       "type": "string",
+       "enum": [
+        "d",
+        "f"
+       ]
+      },
+      "s": {
+       "type": "array",
+       "minItems": 7,
+       "maxItems": 7,
+       "items": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+           "type": "integer",
+           "minimum": 0,
+           "maximum": 100
+          }
+         }
+        ]
+       }
+      },
+      "x": {
+       "type": "array",
+       "minItems": 7,
+       "maxItems": 7,
+       "items": {
+        "type": "string",
+        "enum": [
+         "none",
+         "too_much",
+         "too_little",
+         "arms_first",
+         "inside",
+         "outside",
+         "standing_up",
+         "sway",
+         "shallow",
+         "deep",
+         "flat",
+         "steep",
+         "toward_ball",
+         "reverse",
+         "out",
+         "stuck",
+         "flying",
+         "behind",
+         "bent"
+        ]
+       }
+      }
+     }
+    },
+    "release": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "d",
+      "f",
+      "a",
+      "s",
+      "x"
+     ],
+     "properties": {
+      "d": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "f": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "a": {
+       "type": "string",
+       "enum": [
+        "d",
+        "f"
+       ]
+      },
+      "s": {
+       "type": "array",
+       "minItems": 6,
+       "maxItems": 6,
+       "items": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+           "type": "integer",
+           "minimum": 0,
+           "maximum": 100
+          }
+         }
+        ]
+       }
+      },
+      "x": {
+       "type": "array",
+       "minItems": 6,
+       "maxItems": 6,
+       "items": {
+        "type": "string",
+        "enum": [
+         "none",
+         "too_much",
+         "too_little",
+         "arms_first",
+         "inside",
+         "outside",
+         "standing_up",
+         "sway",
+         "shallow",
+         "deep",
+         "flat",
+         "steep",
+         "toward_ball",
+         "reverse",
+         "out",
+         "stuck",
+         "flying",
+         "behind",
+         "bent"
+        ]
+       }
+      }
+     }
+    },
+    "finish": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "d",
+      "f",
+      "a",
+      "s",
+      "x"
+     ],
+     "properties": {
+      "d": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "f": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 18
+      },
+      "a": {
+       "type": "string",
+       "enum": [
+        "d",
+        "f"
+       ]
+      },
+      "s": {
+       "type": "array",
+       "minItems": 3,
+       "maxItems": 3,
+       "items": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+           "type": "integer",
+           "minimum": 0,
+           "maximum": 100
+          }
+         }
+        ]
+       }
+      },
+      "x": {
+       "type": "array",
+       "minItems": 3,
+       "maxItems": 3,
+       "items": {
+        "type": "string",
+        "enum": [
+         "none",
+         "too_much",
+         "too_little",
+         "arms_first",
+         "inside",
+         "outside",
+         "standing_up",
+         "sway",
+         "shallow",
+         "deep",
+         "flat",
+         "steep",
+         "toward_ball",
+         "reverse",
+         "out",
+         "stuck",
+         "flying",
+         "behind",
+         "bent"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "metrics": {
+   "type": "array",
+   "items": {
+    "anyOf": [
+     {
+      "type": "null"
+     },
+     {
+      "type": "array",
+      "items": {
+       "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+     }
+    ]
+   },
+   "minItems": 29,
+   "maxItems": 29
+  },
+  "coach": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "kind",
+    "cue",
+    "observation",
+    "instruction",
+    "reinforcement",
+    "evidence_frame_id"
+   ],
+   "properties": {
+    "kind": {
+     "type": "string",
+     "enum": [
+      "correction",
+      "reinforcement",
+      "none"
+     ]
+    },
+    "cue": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "FACE_OPEN",
+        "FACE_CLOSED",
+        "PATH_OUT_TO_IN",
+        "PATH_IN_TO_OUT",
+        "STRIKE_TOE",
+        "STRIKE_HEEL",
+        "TOO_STEEP",
+        "TOO_SHALLOW",
+        "START_PUSHED",
+        "START_PULLED",
+        "CURVE_SLICE",
+        "CURVE_HOOK",
+        "SPEED_RUSHED",
+        "SCATTER",
+        "FACE_CONTROL_GOOD",
+        "PATH_GOOD",
+        "STRIKE_GOOD",
+        "LOW_POINT_GOOD",
+        "SPEED_GOOD",
+        "START_LINE_GOOD",
+        "CURVE_GOOD",
+        "LAUNCH_GOOD",
+        "SPIN_GOOD",
+        "CONSISTENCY_GOOD"
+       ]
+      }
+     ]
+    },
+    "observation": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string",
+       "maxLength": 120
+      }
+     ]
+    },
+    "instruction": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string",
+       "maxLength": 120
+      }
+     ]
+    },
+    "reinforcement": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string",
+       "maxLength": 120
+      }
+     ]
+    },
+    "evidence_frame_id": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "DTL_01",
+        "DTL_02",
+        "DTL_03",
+        "DTL_04",
+        "DTL_05",
+        "DTL_06",
+        "DTL_07",
+        "DTL_08",
+        "DTL_09",
+        "DTL_10",
+        "DTL_11",
+        "DTL_12",
+        "DTL_13",
+        "DTL_14",
+        "DTL_15",
+        "DTL_16",
+        "DTL_17",
+        "DTL_18",
+        "FO_01",
+        "FO_02",
+        "FO_03",
+        "FO_04",
+        "FO_05",
+        "FO_06",
+        "FO_07",
+        "FO_08",
+        "FO_09",
+        "FO_10",
+        "FO_11",
+        "FO_12",
+        "FO_13",
+        "FO_14",
+        "FO_15",
+        "FO_16",
+        "FO_17",
+        "FO_18",
+        "IMPACT",
+        "ALL_VALUES"
+       ]
+      }
+     ]
+    }
+   }
+  }
+ }
+}

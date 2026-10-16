@@ -1,0 +1,736 @@
+{
+  "shot": "20261008T191545-2-09132997",
+  "views": [
+    "DTL"
+  ],
+  "requested_temporal_moments": 24,
+  "moment_count": 24,
+  "image_count": 24,
+  "max_gap_fraction": 0.06521739130434782,
+  "selected_capture_ticks": [
+    15,
+    16,
+    17,
+    18,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    31,
+    33,
+    35,
+    37,
+    40,
+    42,
+    44,
+    47,
+    49,
+    51
+  ],
+  "motion": [
+    {
+      "capture_tick": 15,
+      "replay_seconds": 0.0,
+      "motion_rate": 0.0,
+      "selected": true
+    },
+    {
+      "capture_tick": 16,
+      "replay_seconds": 0.0941,
+      "motion_rate": 14.1897,
+      "selected": true
+    },
+    {
+      "capture_tick": 17,
+      "replay_seconds": 0.1887,
+      "motion_rate": 14.4286,
+      "selected": true
+    },
+    {
+      "capture_tick": 18,
+      "replay_seconds": 0.2999,
+      "motion_rate": 16.3121,
+      "selected": true
+    },
+    {
+      "capture_tick": 19,
+      "replay_seconds": 0.3955,
+      "motion_rate": 15.6307,
+      "selected": false
+    },
+    {
+      "capture_tick": 20,
+      "replay_seconds": 0.4906,
+      "motion_rate": 17.2074,
+      "selected": true
+    },
+    {
+      "capture_tick": 21,
+      "replay_seconds": 0.6002,
+      "motion_rate": 14.017,
+      "selected": true
+    },
+    {
+      "capture_tick": 22,
+      "replay_seconds": 0.6956,
+      "motion_rate": 15.1218,
+      "selected": true
+    },
+    {
+      "capture_tick": 23,
+      "replay_seconds": 0.7916,
+      "motion_rate": 18.776,
+      "selected": true
+    },
+    {
+      "capture_tick": 24,
+      "replay_seconds": 0.8872,
+      "motion_rate": 20.3136,
+      "selected": true
+    },
+    {
+      "capture_tick": 25,
+      "replay_seconds": 0.9982,
+      "motion_rate": 16.7216,
+      "selected": true
+    },
+    {
+      "capture_tick": 26,
+      "replay_seconds": 1.0933,
+      "motion_rate": 20.2789,
+      "selected": true
+    },
+    {
+      "capture_tick": 27,
+      "replay_seconds": 1.1872,
+      "motion_rate": 14.6517,
+      "selected": true
+    },
+    {
+      "capture_tick": 28,
+      "replay_seconds": 1.2983,
+      "motion_rate": 12.243,
+      "selected": true
+    },
+    {
+      "capture_tick": 29,
+      "replay_seconds": 1.3944,
+      "motion_rate": 13.1326,
+      "selected": true
+    },
+    {
+      "capture_tick": 30,
+      "replay_seconds": 1.4419,
+      "motion_rate": 25.2499,
+      "selected": false
+    },
+    {
+      "capture_tick": 31,
+      "replay_seconds": 1.49,
+      "motion_rate": 31.0058,
+      "selected": true
+    },
+    {
+      "capture_tick": 32,
+      "replay_seconds": 1.5369,
+      "motion_rate": 24.6889,
+      "selected": false
+    },
+    {
+      "capture_tick": 33,
+      "replay_seconds": 1.6,
+      "motion_rate": 30.2435,
+      "selected": true
+    },
+    {
+      "capture_tick": 34,
+      "replay_seconds": 1.6465,
+      "motion_rate": 27.3074,
+      "selected": false
+    },
+    {
+      "capture_tick": 35,
+      "replay_seconds": 1.6931,
+      "motion_rate": 29.321,
+      "selected": true
+    },
+    {
+      "capture_tick": 36,
+      "replay_seconds": 1.7396,
+      "motion_rate": 30.106,
+      "selected": false
+    },
+    {
+      "capture_tick": 37,
+      "replay_seconds": 1.7857,
+      "motion_rate": 50.2268,
+      "selected": true
+    },
+    {
+      "capture_tick": 38,
+      "replay_seconds": 1.8483,
+      "motion_rate": 29.2522,
+      "selected": false
+    },
+    {
+      "capture_tick": 40,
+      "replay_seconds": 1.9414,
+      "motion_rate": 24.8064,
+      "selected": true
+    },
+    {
+      "capture_tick": 41,
+      "replay_seconds": 1.9885,
+      "motion_rate": 39.3407,
+      "selected": false
+    },
+    {
+      "capture_tick": 42,
+      "replay_seconds": 2.0359,
+      "motion_rate": 24.9933,
+      "selected": true
+    },
+    {
+      "capture_tick": 43,
+      "replay_seconds": 2.0996,
+      "motion_rate": 27.8363,
+      "selected": false
+    },
+    {
+      "capture_tick": 44,
+      "replay_seconds": 2.1471,
+      "motion_rate": 40.7676,
+      "selected": true
+    },
+    {
+      "capture_tick": 45,
+      "replay_seconds": 2.1943,
+      "motion_rate": 37.2831,
+      "selected": false
+    },
+    {
+      "capture_tick": 46,
+      "replay_seconds": 2.2418,
+      "motion_rate": 0.0058,
+      "selected": false
+    },
+    {
+      "capture_tick": 47,
+      "replay_seconds": 2.2888,
+      "motion_rate": 43.5867,
+      "selected": true
+    },
+    {
+      "capture_tick": 48,
+      "replay_seconds": 2.3358,
+      "motion_rate": 31.1395,
+      "selected": false
+    },
+    {
+      "capture_tick": 49,
+      "replay_seconds": 2.399,
+      "motion_rate": 27.2316,
+      "selected": true
+    },
+    {
+      "capture_tick": 50,
+      "replay_seconds": 2.4456,
+      "motion_rate": 31.9402,
+      "selected": false
+    },
+    {
+      "capture_tick": 51,
+      "replay_seconds": 2.4916,
+      "motion_rate": 26.6067,
+      "selected": true
+    }
+  ],
+  "moments": [
+    {
+      "ordinal": 1,
+      "capture_tick": 15,
+      "replay_seconds": 0.0,
+      "motion_rate": 0.0,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 15,
+          "file": "diagnostic/swing_behind/frame_015.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "06ae6b8b185adfc8",
+          "bytes": 64352,
+          "offset_seconds": 1.9157,
+          "replay_seconds": 0.0
+        }
+      ]
+    },
+    {
+      "ordinal": 2,
+      "capture_tick": 16,
+      "replay_seconds": 0.0941,
+      "motion_rate": 14.1897,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 16,
+          "file": "diagnostic/swing_behind/frame_016.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "17ec4cc1c5e65f79",
+          "bytes": 64277,
+          "offset_seconds": 2.0099,
+          "replay_seconds": 0.0941
+        }
+      ]
+    },
+    {
+      "ordinal": 3,
+      "capture_tick": 17,
+      "replay_seconds": 0.1887,
+      "motion_rate": 14.4286,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 17,
+          "file": "diagnostic/swing_behind/frame_017.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "0bd3c4c922ea15ef",
+          "bytes": 64388,
+          "offset_seconds": 2.1045,
+          "replay_seconds": 0.1887
+        }
+      ]
+    },
+    {
+      "ordinal": 4,
+      "capture_tick": 18,
+      "replay_seconds": 0.2999,
+      "motion_rate": 16.3121,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 18,
+          "file": "diagnostic/swing_behind/frame_018.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "b9e0214148b2a508",
+          "bytes": 65492,
+          "offset_seconds": 2.2156,
+          "replay_seconds": 0.2999
+        }
+      ]
+    },
+    {
+      "ordinal": 5,
+      "capture_tick": 20,
+      "replay_seconds": 0.4906,
+      "motion_rate": 17.2074,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 20,
+          "file": "diagnostic/swing_behind/frame_020.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "5ff1950428db4e4c",
+          "bytes": 66326,
+          "offset_seconds": 2.4063,
+          "replay_seconds": 0.4906
+        }
+      ]
+    },
+    {
+      "ordinal": 6,
+      "capture_tick": 21,
+      "replay_seconds": 0.6002,
+      "motion_rate": 14.017,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 21,
+          "file": "diagnostic/swing_behind/frame_021.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "2a9fd1a15e198d14",
+          "bytes": 65803,
+          "offset_seconds": 2.516,
+          "replay_seconds": 0.6002
+        }
+      ]
+    },
+    {
+      "ordinal": 7,
+      "capture_tick": 22,
+      "replay_seconds": 0.6956,
+      "motion_rate": 15.1218,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 22,
+          "file": "diagnostic/swing_behind/frame_022.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "3c089e79d4187099",
+          "bytes": 65917,
+          "offset_seconds": 2.6113,
+          "replay_seconds": 0.6956
+        }
+      ]
+    },
+    {
+      "ordinal": 8,
+      "capture_tick": 23,
+      "replay_seconds": 0.7916,
+      "motion_rate": 18.776,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 23,
+          "file": "diagnostic/swing_behind/frame_023.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "ffc816f6c494f21d",
+          "bytes": 65556,
+          "offset_seconds": 2.7073,
+          "replay_seconds": 0.7916
+        }
+      ]
+    },
+    {
+      "ordinal": 9,
+      "capture_tick": 24,
+      "replay_seconds": 0.8872,
+      "motion_rate": 20.3136,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 24,
+          "file": "diagnostic/swing_behind/frame_024.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "b3d738dce126d327",
+          "bytes": 65346,
+          "offset_seconds": 2.8029,
+          "replay_seconds": 0.8872
+        }
+      ]
+    },
+    {
+      "ordinal": 10,
+      "capture_tick": 25,
+      "replay_seconds": 0.9982,
+      "motion_rate": 16.7216,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 25,
+          "file": "diagnostic/swing_behind/frame_025.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "40867b3dd58f3a11",
+          "bytes": 66388,
+          "offset_seconds": 2.914,
+          "replay_seconds": 0.9982
+        }
+      ]
+    },
+    {
+      "ordinal": 11,
+      "capture_tick": 26,
+      "replay_seconds": 1.0933,
+      "motion_rate": 20.2789,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 26,
+          "file": "diagnostic/swing_behind/frame_026.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "9398ca8de590a55e",
+          "bytes": 65680,
+          "offset_seconds": 3.0091,
+          "replay_seconds": 1.0933
+        }
+      ]
+    },
+    {
+      "ordinal": 12,
+      "capture_tick": 27,
+      "replay_seconds": 1.1872,
+      "motion_rate": 14.6517,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 27,
+          "file": "diagnostic/swing_behind/frame_027.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "4bcff6a9e3cf1bfd",
+          "bytes": 66183,
+          "offset_seconds": 3.1029,
+          "replay_seconds": 1.1872
+        }
+      ]
+    },
+    {
+      "ordinal": 13,
+      "capture_tick": 28,
+      "replay_seconds": 1.2983,
+      "motion_rate": 12.243,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 28,
+          "file": "diagnostic/swing_behind/frame_028.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "6861d9fd306b08c3",
+          "bytes": 66648,
+          "offset_seconds": 3.2141,
+          "replay_seconds": 1.2983
+        }
+      ]
+    },
+    {
+      "ordinal": 14,
+      "capture_tick": 29,
+      "replay_seconds": 1.3944,
+      "motion_rate": 13.1326,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 29,
+          "file": "diagnostic/swing_behind/frame_029.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "f239a51db28a63c9",
+          "bytes": 66614,
+          "offset_seconds": 3.3101,
+          "replay_seconds": 1.3944
+        }
+      ]
+    },
+    {
+      "ordinal": 15,
+      "capture_tick": 31,
+      "replay_seconds": 1.49,
+      "motion_rate": 31.0058,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 31,
+          "file": "diagnostic/swing_behind/frame_031.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "5314e60916ee36e6",
+          "bytes": 66281,
+          "offset_seconds": 3.4057,
+          "replay_seconds": 1.49
+        }
+      ]
+    },
+    {
+      "ordinal": 16,
+      "capture_tick": 33,
+      "replay_seconds": 1.6,
+      "motion_rate": 30.2435,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 33,
+          "file": "diagnostic/swing_behind/frame_033.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "e13b3c90fdc50d32",
+          "bytes": 66396,
+          "offset_seconds": 3.5158,
+          "replay_seconds": 1.6
+        }
+      ]
+    },
+    {
+      "ordinal": 17,
+      "capture_tick": 35,
+      "replay_seconds": 1.6931,
+      "motion_rate": 29.321,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 35,
+          "file": "diagnostic/swing_behind/frame_035.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "5ab7261f90928c5f",
+          "bytes": 65924,
+          "offset_seconds": 3.6088,
+          "replay_seconds": 1.6931
+        }
+      ]
+    },
+    {
+      "ordinal": 18,
+      "capture_tick": 37,
+      "replay_seconds": 1.7857,
+      "motion_rate": 50.2268,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 37,
+          "file": "diagnostic/swing_behind/frame_037.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "90feda33e1537065",
+          "bytes": 66167,
+          "offset_seconds": 3.7015,
+          "replay_seconds": 1.7857
+        }
+      ]
+    },
+    {
+      "ordinal": 19,
+      "capture_tick": 40,
+      "replay_seconds": 1.9414,
+      "motion_rate": 24.8064,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 40,
+          "file": "diagnostic/swing_behind/frame_040.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "666e81e0c0c19792",
+          "bytes": 66060,
+          "offset_seconds": 3.8571,
+          "replay_seconds": 1.9414
+        }
+      ]
+    },
+    {
+      "ordinal": 20,
+      "capture_tick": 42,
+      "replay_seconds": 2.0359,
+      "motion_rate": 24.9933,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 42,
+          "file": "diagnostic/swing_behind/frame_042.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "aa3aef45955934ce",
+          "bytes": 63933,
+          "offset_seconds": 3.9517,
+          "replay_seconds": 2.0359
+        }
+      ]
+    },
+    {
+      "ordinal": 21,
+      "capture_tick": 44,
+      "replay_seconds": 2.1471,
+      "motion_rate": 40.7676,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 44,
+          "file": "diagnostic/swing_behind/frame_044.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "a1bf2d5f9a354235",
+          "bytes": 65509,
+          "offset_seconds": 4.0628,
+          "replay_seconds": 2.1471
+        }
+      ]
+    },
+    {
+      "ordinal": 22,
+      "capture_tick": 47,
+      "replay_seconds": 2.2888,
+      "motion_rate": 43.5867,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 47,
+          "file": "diagnostic/swing_behind/frame_047.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "53f9539e93db79a7",
+          "bytes": 66374,
+          "offset_seconds": 4.2045,
+          "replay_seconds": 2.2888
+        }
+      ]
+    },
+    {
+      "ordinal": 23,
+      "capture_tick": 49,
+      "replay_seconds": 2.399,
+      "motion_rate": 27.2316,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 49,
+          "file": "diagnostic/swing_behind/frame_049.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "3b462e5d03451df9",
+          "bytes": 66086,
+          "offset_seconds": 4.3147,
+          "replay_seconds": 2.399
+        }
+      ]
+    },
+    {
+      "ordinal": 24,
+      "capture_tick": 51,
+      "replay_seconds": 2.4916,
+      "motion_rate": 26.6067,
+      "frames": [
+        {
+          "view": "DTL",
+          "camera_id": "swing_behind",
+          "capture_tick": 51,
+          "file": "diagnostic/swing_behind/frame_051.jpg",
+          "width": 1002,
+          "height": 1480,
+          "metadata_sha256": "f0dc32c79484e8ee",
+          "bytes": 66054,
+          "offset_seconds": 4.4073,
+          "replay_seconds": 2.4916
+        }
+      ]
+    }
+  ]
+}

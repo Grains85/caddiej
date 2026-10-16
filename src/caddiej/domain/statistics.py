@@ -72,8 +72,6 @@ METRICS: tuple[Metric, ...] = (
     Metric("face_to_path", "degrees", _club(lambda club: club.face_to_path_degrees)),
 )
 
-METRICS_BY_NAME = {metric.name: metric for metric in METRICS}
-
 
 @dataclass(frozen=True, slots=True)
 class MetricSummary:
@@ -98,8 +96,13 @@ class MetricSummary:
         return self.maximum - self.minimum
 
 
-def summarise_metric(metric: Metric, shots: Sequence[Shot]) -> MetricSummary | None:
-    """Aggregate one measurement, or None if no shot carried it."""
+def _summarise_metric(metric: Metric, shots: Sequence[Shot]) -> MetricSummary | None:
+    """Aggregate one measurement, or None if no shot carried it.
+
+    Private: `summarise_metrics` is the whole of what anything outside this
+    module has ever wanted, and a public single-metric variant was two more
+    names in two `__all__` lists for no caller.
+    """
 
     values = [
         value for value in (metric.extract(shot) for shot in shots) if value is not None
@@ -122,7 +125,7 @@ def summarise_metric(metric: Metric, shots: Sequence[Shot]) -> MetricSummary | N
 
 
 def summarise_metrics(shots: Sequence[Shot]) -> dict[str, MetricSummary]:
-    summaries = ((metric.name, summarise_metric(metric, shots)) for metric in METRICS)
+    summaries = ((metric.name, _summarise_metric(metric, shots)) for metric in METRICS)
     return {name: summary for name, summary in summaries if summary is not None}
 
 

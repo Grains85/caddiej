@@ -11,13 +11,79 @@ import pytest
 
 from caddiej.speech.audio import (
     DEFAULT_SAMPLE_RATE,
+    MAX_GAIN,
     Audio,
+    amplify,
     chunks,
     from_wav,
     silence,
     to_wav,
 )
 from caddiej.speech.cache import AudioCache, voice_key
+
+
+def pcm(*samples: int) -> Audio:
+    """Audio from exact sample values, so a gain can be checked by hand."""
+
+    return Audio(
+        data=b"".join(value.to_bytes(2, "little", signed=True) for value in samples)
+    )
+
+
+def samples_of(audio: Audio) -> list[int]:
+    data = audio.data
+    return [
+        int.from_bytes(data[index : index + 2], "little", signed=True)
+        for index in range(0, len(data), 2)
+    ]
+
+
+class TestAmplify:
+    """One constant multiplier, clipped at the rail and counted out loud.
+
+    The measured reason it exists: Kokoro's `bm_george` peaks between 0.33 and
+    0.47 of full scale across the cached lines on the bay, so roughly a
+    doubling is headroom that was always there and never used.
+    """
+
+    def test_a_gain_scales_every_sample(self) -> None:
+        louder, clipped = amplify(pcm(100, -200, 0), 2.0)
+
+        assert samples_of(louder) == [200, -400, 0]
+        assert clipped == 0
+
+    def test_unity_gain_returns_the_same_audio_untouched(self) -> None:
+        quiet = pcm(100, -200)
+
+        louder, clipped = amplify(quiet, 1.0)
+
+        assert louder is quiet
+        assert clipped == 0
+
+    def test_peaks_are_clipped_rather_than_wrapped(self) -> None:
+        """Wrapping an overdriven sample inverts it, which is not loud, it is
+        a click. Clipping is the one failure mode that still sounds like a
+        voice."""
+
+        louder, clipped = amplify(pcm(20000, -20000, 10), 2.0)
+
+        assert samples_of(louder) == [32767, -32768, 20]
+        assert clipped == 2
+
+    def test_a_gain_that_would_only_distort_is_refused(self) -> None:
+        for bad in (0.0, -1.0, MAX_GAIN + 0.1):
+            with pytest.raises(ValueError, match="gain must be"):
+                amplify(pcm(100), bad)
+
+    def test_the_format_survives_being_made_louder(self) -> None:
+        quiet = Audio(data=b"\x10\x00" * 100, sample_rate=16_000)
+
+        louder, _ = amplify(quiet, 1.5)
+
+        assert louder.sample_rate == 16_000
+        assert louder.sample_width == 2
+        assert louder.channels == 1
+        assert louder.frame_count == quiet.frame_count
 
 
 def a_tone(seconds: float = 1.0) -> Audio:

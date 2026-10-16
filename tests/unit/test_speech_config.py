@@ -27,7 +27,7 @@ _CONTEXT_FIELDS = _JsonFormatter._CONTEXT_FIELDS
 
 
 def settings(**overrides: Any) -> Settings:
-    return Settings(**overrides)
+    return Settings(_env_file=None, **overrides)
 
 
 # --- the default is silent -------------------------------------------------
@@ -171,6 +171,9 @@ def test_the_cache_lives_under_the_media_root() -> None:
         ("SPEECH_VOICE", ""),
         ("SPEECH_SPEED", "0"),
         ("SPEECH_SPEED", "9"),
+        ("SPEECH_GAIN", "0"),
+        ("SPEECH_GAIN", "-1"),
+        ("SPEECH_GAIN", "8"),
         ("SPEECH_QUEUE_SIZE", "0"),
         ("SPEECH_MAX_CHARACTERS", "0"),
         ("SPEECH_RENDER_TIMEOUT", "0"),

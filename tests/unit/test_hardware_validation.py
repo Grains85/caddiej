@@ -49,6 +49,7 @@ def test_the_hardware_profile_is_valid(monkeypatch) -> None:
     assert settings.effects_enabled is False
     assert settings.assistant_api_enabled is False
     assert settings.obs_provision_floor_source is False
+    assert settings.floor_shot_video_enabled is False
 
 
 def test_the_hardware_profile_sets_only_known_variables() -> None:

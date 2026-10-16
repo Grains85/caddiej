@@ -300,10 +300,18 @@ connect budget must not become a stall in a real-time path.
 The domain does not call adapters directly. It speaks to ports — and the port is
 stated in the domain's own vocabulary, not the implementer's.
 
-`FloorPort` is implemented. It offers four things: show the address for a club,
-hide it, show a shot, clear it. It mentions no marker variants, no coordinates,
-and no colours, because those are decisions about how to draw a club rather than
-facts about golf. `FloorPresenter`, in the floor package, implements it by writing
+`FloorPort` is implemented. It offers a handful of things: light the hitting
+area and darken it, show the address for a club and hide it, show what the next
+shot needs and take it away, show a shot, clear it. It mentions no marker
+variants, no coordinates, and no colours, because those are decisions about how
+to draw a club rather than facts about golf.
+
+Lighting the bay is its own pair of calls rather than something the address
+does, and that is a scar. It used to be a side effect of `show_address` and
+`hide_address`, which made the light over a physical mat a property of whether a
+launch monitor had seen a ball — on real hardware the bay went dark the moment
+one was detected. A port method exists per capability, not per convenient
+caller, precisely so that two unrelated facts cannot share one branch. `FloorPresenter`, in the floor package, implements it by writing
 floor state. That split is the point: the rule "a driver is played from further
 forward, so it gets a different marker" is presentation, while "the club in play
 decides the address" is domain.
@@ -346,8 +354,12 @@ confined to this adapter exactly as `simpleobsws` is confined to the OBS one: no
 framework type appears outside it, and routes contain no logic — they read
 `FloorService` and hand work to the connection registry.
 
-- `GET /` serves the overlay page, `/static` its assets, and `GET /healthz`
-  reports the served state version and connected client count.
+- `GET /` serves the overlay page, `/static` its assets, `GET /snapshot`
+  returns the same JSON a Browser Source receives on the WebSocket, and
+  `GET /healthz` reports the served state version, connected client count,
+  overlay asset hash, and the static-file directory being served. Overlay
+  JS and CSS are at `/static/hud/<hash>/…` so OBS CEF cannot keep a
+  previous `state.js` by ignoring a query string.
 - `WS /ws` is the state feed. On connect the server sends `hello`, then a full
   snapshot, unprompted. Clients never need to ask for state.
 - The server binds to loopback by default (`HUD_HOST`, `HUD_PORT`).
@@ -452,12 +464,31 @@ showing a zero would put a number in front of a player that nothing measured.
 golf. It subscribes to the facts the room reports and asks `FloorPort` for what a
 player should be looking at:
 
+- the hitting area is lit for as long as the floor is up, because it is a fact
+  about the room rather than about a shot;
 - the club in play decides which address marker is shown;
 - a ball on the mat hides the marker, because the projector would otherwise be
   shining onto the ball about to be hit;
+- one information area holds either what the last shot did or what the next one
+  needs — a distance to the pin and the club it calls for — and never both,
+  because they are the same numbers in the same place and reading them stacked
+  is reading neither;
 - a shot replaces the address with the club's path and the launch numbers, for a
   few seconds;
 - once that has been read, the floor returns to showing where the next ball goes.
+
+The launch monitor's own state — READY, FINDING BALL — stays in the domain and
+on the wire, because the marker and the information area both branch on it and
+because it is the first thing to look at when a bay misbehaves. Those words are
+not drawn. The floor translates them onto the rear edge of the hitting strip:
+BALL READY, with the lamp lit, only when the device says READY; PLACE BALL
+otherwise. A player over a ball is still owed the distance to the pin.
+
+Which club a distance calls for is `domain.bag.recommend_club`: a target
+distance and a set of measured carries in, one club out, and no answer at all
+when either is missing. Where the carries come from is a `ClubDistanceProvider`,
+so replacing configuration with carries learned from shot history changes one
+object built in `app.py` and nothing in the rule or on the floor.
 
 Two rules are there because of what devices actually do. A device reporting
 nothing about readiness is not a device that is *not* ready, so only an explicit
@@ -549,6 +580,51 @@ not from configuration, so it stays correct when the configured port is 0.
 - Settings keys are validated against `GetInputDefaultSettings` before being
   written, because OBS silently ignores unknown keys, which would look like a
   CaddieJ bug after an OBS release renamed one.
+
+### Revealing ProTee's own replay panels (**Implemented**)
+
+An existing OBS Window Capture of one of ProTee's replay panels can be shown
+briefly after each `ShotDetected`. CaddieJ reuses
+`ObsClient.set_scene_item_visibility` (GetSceneItemId then
+SetSceneItemEnabled) on `OBS_FLOOR_SCENE`. It does not switch scenes, create
+the capture, crop it, transform it, or reorder the source stack.
+
+There are two such panels — Shot Video and Top Impact — and exactly one
+mechanism. `obs_reveal.TimedObsSource` is the whole of it; which panel an
+instance reveals is a `RevealFeature` value it is constructed with, and that
+one value is simultaneously its log prefix, the `obs_feature` field it
+reports itself under, and the bus subscriber name whose delivery policy
+`event_policy` declares. They were two packages holding two subclasses of the
+same shape, and the three names could disagree with each other.
+
+It waits on impact, not on the result. `ShotDetected` is the launch monitor's own
+trigger; `RoundShotObserved` is GSPro's completed shot, and `currentRound.dat`
+cannot be written until the ball has stopped — measured against ProTee's trigger
+on real hardware at 3.1 s for a chip and about 6.4 s for a full shot. A swing
+replay scheduled from the later of the two starts after the player has moved on.
+The floor's result panel still waits for `RoundShotObserved`, because that is when
+the numbers exist; keeping the two events semantically separate is what lets the
+decoration be early without the result being invented.
+
+The operator stacks `Shot Video` above `CaddieJ Floor` by hand. CaddieJ hides
+the source at startup and shutdown so OBS cannot leave it visible. A missing
+source or a down WebSocket is logged and ignored. The floor HUD keeps its own
+lifecycle underneath.
+
+**It cannot reach the floor HUD's path, and that is enforced in four places.**
+A shot result is a number the player can see; a replay is decoration, and §16
+applies at its sharpest here.
+
+- The bus worker never waits: the handler starts a task and returns.
+- Start-up never waits: the hide runs on its own task, so an OBS that is
+  unreachable cannot delay the floor state machine or the observers started
+  after it.
+- Delivery for `("shot_video", ShotDetected)` is `DROP`, so `publish` can
+  never block on this subscriber's queue — the publisher is the ProTee log
+  observer that also feeds the address HUD and the floor's readiness.
+- Every OBS command is bounded, so a socket OBS accepts and then ignores cannot
+  hold the one lock this service takes, and shutdown gives the final hide the
+  shutdown timeout rather than the whole grace period.
 
 ### Consequences of this design
 
@@ -964,6 +1040,57 @@ unit suite for this subsystem runs in under a second and needs no binary.
   coached shot can be traced to its footage; a clip of a shot nothing was said
   about is still only a file on disk.
 
+### Swing capture: ProTee's own replay, read off the screen (**Implemented**)
+
+The video pipeline above films the mat with a camera CaddieJ owns. Swing capture
+(`caddiej.swing_capture`) is the other source of swing imagery, and it owns
+nothing: ProTee Labs already films the swing on two cameras, knows when impact
+was, and draws two synchronised replays in its own window. CaddieJ photographs
+that window through the OBS connection the floor already uses.
+
+The separation is deliberate, and it is a separation of *provenance*. A clip is
+footage CaddieJ recorded from a device it opened, with timestamps it can reason
+about. These stills are pictures of somebody else's rendering, taken at moments
+CaddieJ guessed at. They are different enough that merging them into one concept
+would mean lying about one of them, which is why `SwingFramesReady` is not
+`SwingClipReady` and why the two have separate events, separate storage and
+separate configuration.
+
+Four rules shape the subsystem.
+
+- **ProTee is untouched.** No injection, no automation of its UI, no reading of
+  its encrypted recordings, and above all no opening of its cameras: a second
+  process claiming a camera ProTee owns would break the thing this is meant to
+  observe. The only interface is a screenshot request to OBS, which is a read.
+- **The event handler starts a task and returns.** A capture takes several
+  seconds by design, and the bus worker delivering `ShotDetected` also feeds the
+  floor. The subscriber's delivery policy is DROP for the same reason.
+- **Newest shot wins, completely.** One swing exists on disk and there is no
+  archive, so every overlap is a way to show a consumer half of one swing and
+  half of another. A capture is assembled under a hidden staging directory and
+  moved into place with a single rename, and the generation check that decides
+  who owns the disk runs *after* the frames are written — the case a check at
+  the start of a capture would miss.
+- **Timing is configuration, not knowledge.** Nobody has measured how long
+  ProTee takes to put the replay on screen. Every capture logs what it actually
+  did, and `metadata.json` records the configuration beside the frames, because
+  a set of stills that missed the replay is only interpretable next to the
+  timings that produced it.
+
+Selection decodes nothing. There is no JPEG decoder in the dependency set and
+this is not a reason to add one, so the only question asked of a still is
+whether its bytes differ from its neighbour's — which finds "the part of the
+window where something moved", not impact and not the swing. Both cameras are
+then selected against one timeline so the kept frames are the same moments seen
+twice. When the trimming finds nothing, a uniform spread across the whole window
+is the answer and the metadata says so; that fallback is the normal case, not
+the error case.
+
+The frames are timestamped, ordered, and carry their pixel size, which is what
+makes a later normalized annotation drawable. Phase classification and
+annotation rendering are §9's to build; this subsystem's contract ends at
+"stills exist, here they are".
+
 ---
 
 ## 9. Swing analysis and coaching (**Implemented**)
@@ -978,12 +1105,12 @@ The subsystem is split in two, and the split is what makes the rest safe.
 
 **Naming the fault is arithmetic.** `coaching/faults.py` holds a table of what
 can be wrong with a golf shot — face, path, strike, low point, speed, launch,
-spin — each with a tolerance, a scale, an ideal that varies by club, and a pair
-of labels for its two directions. `diagnose` scores every fault that the shot
-actually measured, against both a fixed band and the player's own recent shots
-with that club, and picks the worst one. It is offline, instant, free, and
-deterministic: the same shot always produces the same verdict. This tier alone
-puts a fault on the floor, and it is what a fresh checkout runs as.
+spin, start line, curve — each with a tolerance, a scale, an ideal that varies by
+club, and a pair of labels for its two directions. `diagnose` scores every fault
+that the shot actually measured, against both a fixed band and the player's own
+recent shots with that club, and picks the worst one. It is offline, instant,
+free, and deterministic: the same shot always produces the same verdict. This
+tier alone puts a fault on the floor, and it is what a fresh checkout runs as.
 
 **Wording it is the model's only job.** The model is handed the faults CaddieJ
 already measured and asked to pick one and phrase it. It cannot introduce a
@@ -998,6 +1125,51 @@ refused request, a timeout, a malformed reply, an answer that arrives after the
 next shot: all of them end with the templated line still on the floor, a row
 recorded saying what happened, and a counter moved in `health()`. Nothing
 raises, and nothing reaches the application.
+
+### Every shot gets one line, and it is one of two kinds
+
+A threshold that decides whether to speak at all produces a coach who appears
+only when something is wrong, which teaches a player to dread it. So the
+threshold decides *what kind* of line a shot gets rather than whether it gets
+one. `AdviceKind` in `domain/coaching.py` holds the three answers:
+
+- **`CORRECTION`** — a measured fault above `COACHING_SEVERITY_FINE`.
+- **`REINFORCEMENT`** — everything measured is inside its band. The line names
+  what worked and asks for it again, which is the only form of praise that
+  teaches anything.
+- **`NONE`** — nothing about the shot could be judged. Silence, and the only
+  silence left.
+
+`NONE` is a separate value rather than a severity of zero, and that is the whole
+reason the enum exists: a shot nobody can judge and a shot with nothing wrong
+with it are different facts, and no single number can carry both without lying
+about one of them. The distinction is load-bearing in the mode CaddieJ actually
+runs in — a shot read from GSPro's round file carries a ball speed and little
+else, so early in a session there is genuinely nothing to say.
+
+### One focus, kept long enough to learn
+
+`coaching/session.py` holds what the coach remembers between one shot and the
+next, and it is deliberately not a second history. A handful of numbers per
+focus, in this process, discarded when the run ends. Shot history is in SQLite
+and answers what happened; this answers what to say next, which has a much
+shorter horizon and is never queried while somebody is standing over a ball.
+
+Three rules, and they are the whole of it. **One focus at a time, and it is
+sticky** — adopted on a correction, kept until another fault is markedly worse
+or the same focus has come back clean three times, at which point it has been
+learned. **The trend is per focus, not per shot**, including the shots nothing
+was said about, which is what makes "the face has been coming down from six
+degrees to one and a half" a fact rather than an impression. **Improvement is
+CaddieJ's arithmetic**, not a model's judgement: a shot materially better than
+the trend behind it is a reinforcement, and the model is told so rather than
+asked to work it out.
+
+`SessionProgress` is passed *into* `diagnose` rather than reached for, so naming
+a fault stays a pure function of a shot, a baseline and a snapshot. It is taken
+before the shot is folded in, for the same reason a shot is not in its own
+baseline: a trend that already contains the shot being judged has nothing left
+to say about it.
 
 ### The flow
 
@@ -1074,6 +1246,28 @@ exception hierarchy — which also proves it works when the SDK is absent. No te
 in the suite can reach the network or spend anything, and `test_coaching_config`
 exists to keep that true by accident-proofing the defaults.
 
+### What a picture is allowed to prove
+
+With frames sent, the model may name a video-only focus — tempo, posture, early
+extension, sway — instead of a measured fault. That is the one place it
+contributes an observation rather than wording, and three limits are stated to
+it explicitly, because a model not told them fills the gap in plausibly:
+
+- **Where the camera is** (`VIDEO_CAMERA_VIEW`). Not detectable from footage;
+  somebody put it on a tripod. Face-on shows sway and posture and cannot show
+  plane; down-the-line is the reverse. The default is `unknown`, and the model is
+  told that rather than allowed to assume.
+- **When each still was taken**, signed against impact, plus whether that impact
+  time was measured or estimated (`TimeQuality`).
+- **That no swing position was detected.** Frames are chosen by seeking to time
+  offsets. A still is therefore offered as "0.45 seconds before impact" and
+  never as "the top of the backswing", because labelling a seek offset as a
+  swing position is how a model comes to describe a position nobody showed it.
+
+A picture may not contradict or restate a measurement. Vision gives qualitative
+biomechanics; the launch monitor gives quantitative facts, and where they
+disagree the instrument wins.
+
 ### What is deliberately not built
 
 - **Markerless club and body tracking.** The frame seam exists and the
@@ -1131,6 +1325,30 @@ enough for the next shot to arrive during it, and abandoning a sentence nobody h
 heard costs nothing. Once it is audible the rule reverses: cutting a two-second
 line in half to start another two-second line sounds like a fault, so an equal
 priority never interrupts. Only something genuinely more urgent does.
+
+Supersession alone leaves a gap, and `ShotCompleted` closes it. A newer coaching
+line replaces an older one, but there is not always a newer one: the next shot
+may produce no line at all, because nothing about it could be measured or the
+model failed on it. The old sentence would then still be waiting, and would be
+spoken to somebody who has already hit again — who would hear it as advice about
+the swing they just made. So a new shot discards anything unsaid about an earlier
+one, comparing `Utterance.shot_id` rather than clearing the queue, since coaching
+about a shot necessarily arrives *after* that shot completed. A line with no shot
+attached is not about a swing and a swing cannot make it stale.
+
+### The other voice in the room is not CaddieJ's
+
+The ProTee software says "ready" aloud when it finds the ball. Nothing in CaddieJ
+speaks a readiness line, and the only appearance of the word here is a log line
+CaddieJ *reads* — `VX status changed: READY FOR SHOT` in `adapters/protee/` —
+which is what puts `READY` on the floor as a status attribute. Silencing it is a
+question about ProTee's settings, and UI automation or audio interception to
+achieve it would be a far larger violation of this architecture than the noise is
+worth.
+
+CaddieJ does not add an acknowledgement of its own either. The floor's ball-lock
+pulse and brief tick say the same thing without a word, and a room that speaks on
+every ball as well as after every shot is a room nobody wants to practise in.
 
 The queue is short and drops from the tail, which is the least urgent and most
 recent thing in it. An arriving low-priority line is a candidate like any other,
@@ -1891,6 +2109,7 @@ Implemented today:
 src/caddiej/
 ├── __main__.py          # entry point: logging setup, run, exit codes
 ├── app.py               # lifecycle and dependency wiring
+├── cli.py               # the flags, and which diagnostic each one runs
 ├── config.py            # typed configuration via pydantic-settings
 ├── core/
 │   ├── events.py        # Event base type: id, UTC time, monotonic time, source
@@ -1898,12 +2117,15 @@ src/caddiej/
 │   └── event_bus.py     # AsyncEventBus: isolated subscribers, bounded queues
 ├── runtime/
 │   ├── lifecycle.py     # TaskSupervisor and shutdown signalling
+│   ├── logging.py       # structured output, and the fields it will carry
 │   └── backoff.py       # retry pacing with full jitter
 ├── domain/
 │   ├── shot.py          # normalized shot, ball, club and player models
 │   ├── media.py         # what a clip is, and where impact falls in it
 │   ├── coaching.py      # the fault vocabulary, a diagnosis, a piece of advice
 │   ├── speech.py        # what to say, how urgent it is, whether it goes stale
+│   ├── bag.py           # club carries, and which club a distance calls for
+│   ├── scoring.py       # par, strokes and the words golf uses for them
 │   ├── statistics.py    # golf arithmetic both history and coaching need
 │   ├── observation.py   # raw GSPro round-play result, not a launch-monitor Shot
 │   ├── events.py        # the typed vocabulary of what happened
@@ -1914,6 +2136,10 @@ src/caddiej/
 │   ├── state.py         # FloorState: immutable, versioned render state
 │   ├── service.py       # FloorService: the single writer
 │   ├── geometry.py      # physical plane, surface map, default / homography
+│   ├── layout.py        # one anchor and offsets from it; the coordinate model
+│   ├── putting.py       # the putting lane, and when the floor is in putting mode
+│   ├── flight.py        # a ball path becomes a trace on the surface
+│   ├── format.py        # metres and km/h as a golfer reads them off a mat
 │   ├── presenter.py     # FloorPresenter: golf decisions become geometry
 │   └── demo.py          # a scripted walk through every renderable state
 ├── persistence/
@@ -1931,12 +2157,15 @@ src/caddiej/
 │   ├── recorder.py      # one camera, recording, restarting when it dies
 │   ├── clips.py         # extraction, sidecar metadata, atomic publication
 │   ├── frames.py        # stills out of a clip, for anything that wants pictures
+│   ├── errors.py        # what a camera and a cut can fail with, named
 │   ├── service.py       # VideoService: bounded queue, worker, fail-soft
+│   ├── diagnose.py      # one real recording and one real cut, on demand
 │   └── fakes.py         # a fake FFmpeg, for tests that need no binary
 ├── coaching/
 │   ├── faults.py        # what can be wrong with a golf shot, and how badly
 │   ├── baseline.py      # what is normal for this player, with this club
-│   ├── diagnose.py      # the one fault worth mentioning, by arithmetic alone
+│   ├── diagnose.py      # the one thing worth saying, by arithmetic alone
+│   ├── session.py       # the sticky focus, and how it has been going
 │   ├── templates.py     # CaddieJ's own words for every fault
 │   ├── provider.py      # what a model provider is, in neutral terms
 │   ├── evidence.py      # the diagnosis, rendered for a prompt
@@ -1946,6 +2175,7 @@ src/caddiej/
 │   ├── frames.py        # the FrameSource seam, and which moments to ask for
 │   ├── factory.py       # choosing a provider from configuration
 │   ├── service.py       # AnalysisService: queue, budgets, events, fail-soft
+│   ├── diagnose.py      # one real request to the real provider, in prose
 │   └── fakes.py         # scripted providers, including the demo mode
 ├── speech/
 │   ├── audio.py         # rendered speech as PCM, and the WAV it is written as
@@ -1955,11 +2185,11 @@ src/caddiej/
 │   ├── cache.py         # the same sentence is not rendered twice
 │   ├── factory.py       # choosing an engine and an output from configuration
 │   ├── service.py       # SpeechService: one voice, priority, interruption
+│   ├── diagnose.py      # one real sentence out of the real speakers
 │   └── fakes.py         # a voice and a speaker that exist only in the process
 ├── lighting/
 │   ├── port.py          # what a set of lights is, plus one that changes nothing
 │   ├── modulation.py    # a measurement becomes a brightness, and nothing else
-│   ├── effects.py       # what the room does about a birdie, an eagle, an ace
 │   ├── factory.py       # choosing a lighting system from configuration
 │   ├── service.py       # LightingService: follow, budget, restore, fail-soft
 │   └── fakes.py         # lights that exist only inside the process
@@ -1972,6 +2202,16 @@ src/caddiej/
 │   ├── obs.py           # revealing a source somebody else built
 │   ├── factory.py       # choosing channels from configuration
 │   └── fakes.py         # channels that only record what they were asked
+├── obs_reveal/
+│   ├── features.py      # which ProTee views may be revealed: a table, not a type
+│   ├── timed_source.py  # TimedObsSource: show an existing source for a while
+│   └── diagnose.py      # one real OBS toggle, on demand, in prose
+├── swing_capture/
+│   ├── select.py        # which of the captured stills are worth keeping
+│   ├── store.py         # one swing on disk, replaced whole by the next
+│   ├── stills.py        # the captured JPEGs read back, for anything that coaches
+│   ├── service.py       # stills of ProTee's replay, through OBS, fail-soft
+│   └── diagnose.py      # one still from each source, without a golf shot
 ├── assistant/
 │   ├── contract.py      # the published models: the whole API, hand written
 │   ├── reads.py         # ReadFacade: internal objects become published ones
@@ -2009,7 +2249,10 @@ src/caddiej/
     │   ├── interposer.py  # the byte path: forward first, observe after
     │   ├── adapter.py     # frames to domain events
     │   ├── round_parse.py # currentRound.dat JSON, raw values only
+    │   ├── round_normalize.py # raw round values become domain observations
     │   ├── round_file.py  # read-only poller of currentRound.dat
+    │   ├── errors.py      # what can go wrong on the wire, named
+    │   ├── factory.py     # choosing simulate / observe / interpose
     │   ├── fakes.py       # a fake simulator and a fake launch monitor
     │   └── simulation.py  # a scripted round through the real adapter
     ├── protee/

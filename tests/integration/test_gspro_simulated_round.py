@@ -20,6 +20,7 @@ from caddiej.core.event_bus import AsyncEventBus
 from caddiej.domain.play import PlayFlow
 from caddiej.domain.shot import ClubKind
 from caddiej.floor import FloorPoint, FloorPresenter, FloorService, PhysicalPoint
+from caddiej.floor.layout import layout_from_tees
 from caddiej.floor.state import FloorState, MarkerVariant
 from caddiej.persistence import HistoryService, build_history_service
 
@@ -59,7 +60,7 @@ class Round:
         self.floor.add_listener(self.states.append)
         self.bus = AsyncEventBus()
         self.flow = PlayFlow(
-            floor=FloorPresenter(self.floor, tee=TEE),
+            floor=FloorPresenter(self.floor, layout_from_tees(tee=TEE)),
             publish=self.bus.publish,
             shot_display_seconds=shot_display_seconds,
         )

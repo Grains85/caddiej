@@ -11,8 +11,9 @@ query: the shot row knows its session and points at the clip.
 """
 
 import logging
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
+from shutil import rmtree
 from uuid import UUID
 
 logger = logging.getLogger(__name__)
@@ -102,6 +103,46 @@ class MediaLayout:
                 logger.warning("video_frame_file_kept", extra={"clip_path": str(path)})
             else:
                 removed += 1
+        return removed
+
+    def prune_clips(self, keep_days: int, today: date) -> int:
+        """Delete clip directories older than `keep_days` days.
+
+        By day rather than by file, because that is the unit they are written
+        in and a whole day is what somebody deciding they no longer need last
+        month's footage means. Nothing here was ever removed: the rolling
+        buffer is pruned and the stills are swept, but a finished clip and its
+        sidecar stayed for good, so a season of golf filled the disk and the
+        first thing to fail was whatever wrote next.
+
+        Zero keeps everything, for a bay that would rather manage this itself.
+        """
+
+        directory = self._root / "clips"
+        if keep_days <= 0 or not directory.exists():
+            return 0
+
+        cutoff = today - timedelta(days=keep_days)
+        removed = 0
+        for day in sorted(directory.iterdir()):
+            if not day.is_dir():
+                continue
+            try:
+                when = date.fromisoformat(day.name)
+            except ValueError:
+                # Not a day this wrote. Left alone rather than guessed at.
+                continue
+            if when >= cutoff:
+                continue
+            try:
+                rmtree(day)
+            except OSError:
+                # A file something still holds open, which on Windows is
+                # ordinary. Next start-up finds it again.
+                logger.warning("video_clip_day_kept", extra={"clip_path": str(day)})
+            else:
+                removed += 1
+                logger.info("video_clip_day_removed", extra={"clip_path": str(day)})
         return removed
 
     def relative(self, path: Path) -> Path:

@@ -11,11 +11,20 @@ import asyncio
 import logging
 from collections.abc import Callable, Iterator, Sequence
 
-from caddiej.floor.geometry import DEFAULT_CALIBRATION, FloorCalibration, FloorPoint
+from caddiej.floor.chamfer import ball_status
+from caddiej.floor.geometry import (
+    DEFAULT_CALIBRATION,
+    FloorCalibration,
+    FloorPoint,
+    PhysicalRect,
+    project_rect,
+)
 from caddiej.floor.service import FloorService
 from caddiej.floor.state import (
     ClubPath,
     FloorFlourish,
+    HittingStrip,
+    LockAcknowledgement,
     MarkerVariant,
     ShotMetrics,
 )
@@ -25,7 +34,11 @@ logger = logging.getLogger(__name__)
 Step = tuple[str, Callable[[FloorService], object]]
 
 
-def demo_steps(calibration: FloorCalibration | None = None) -> Sequence[Step]:
+def demo_steps(
+    calibration: FloorCalibration | None = None,
+    *,
+    scale: float = 6.0,
+) -> Sequence[Step]:
     """Every state the floor can currently render, in a reviewable order.
 
     Each step is named so the logs say what should be on the floor, which is how
@@ -39,11 +52,29 @@ def demo_steps(calibration: FloorCalibration | None = None) -> Sequence[Step]:
     left = FloorPoint(x=0.22, y=0.6)
     right = FloorPoint(x=0.78, y=0.6)
     green = FloorPoint(x=0.5, y=0.35)
+    strip_rect = PhysicalRect(x_m=0.5, y_m=0.72, width_m=0.30, depth_m=0.45)
+    strip = HittingStrip(
+        corners=project_rect(strip_rect, mapping),
+        visible=True,
+    )
 
     return (
         # The startup banner is full-surface, so it goes before floor elements
         # are shown. What text exists is the server's decision, not the CSS's.
         ("status_cleared", lambda s: s.set_status_text("")),
+        ("hitting_strip_on", lambda s: s.set_hitting_strip(strip)),
+        (
+            "ball_status_place",
+            lambda s: s.set_ball_status(
+                ball_status(strip_rect, "", mapping, scale=scale)
+            ),
+        ),
+        (
+            "ball_status_ready",
+            lambda s: s.set_ball_status(
+                ball_status(strip_rect, "READY", mapping, scale=scale)
+            ),
+        ),
         ("marker_normal_centre", lambda s: s.show_marker(tee, MarkerVariant.NORMAL)),
         ("marker_driver", lambda s: s.show_marker(tee, MarkerVariant.DRIVER)),
         (
@@ -56,6 +87,12 @@ def demo_steps(calibration: FloorCalibration | None = None) -> Sequence[Step]:
         ("marker_opposite_corner", lambda s: s.show_marker(FloorPoint(x=1.0, y=1.0))),
         ("marker_back_to_the_tee", lambda s: s.show_marker(tee, MarkerVariant.DRIVER)),
         ("marker_hidden_as_if_ball_detected", lambda s: s.hide_marker()),
+        (
+            "ball_lock_acknowledged",
+            lambda s: s.set_lock_acknowledgement(LockAcknowledgement()),
+        ),
+        ("ball_lock_cleared", lambda s: s.clear_lock_acknowledgement()),
+        ("hitting_strip_off", lambda s: s.hide_hitting_strip()),
         # A shot: straight, then the two misses, then the numbers.
         (
             "club_path_straight",
@@ -177,6 +214,8 @@ async def run_demo(
     step_seconds: float,
     steps: Sequence[Step] | None = None,
     calibration: FloorCalibration | None = None,
+    *,
+    scale: float = 6.0,
 ) -> None:
     """Drive the floor through every state on a loop until cancelled.
 
@@ -185,7 +224,7 @@ async def run_demo(
     projection you have to stand next to.
     """
 
-    resolved = demo_steps(calibration) if steps is None else steps
+    resolved = demo_steps(calibration, scale=scale) if steps is None else steps
     logger.info("floor_demo_started", extra={"floor_demo_steps": len(resolved)})
     try:
         for name, apply in cycle_steps(resolved):

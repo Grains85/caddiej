@@ -1,0 +1,76 @@
+{
+  "schema_version": "1",
+  "rulebook_version": "synthetic-1",
+  "approval_status": "synthetic_test_only",
+  "rules": [
+    {
+      "finding_id": "HAND_PATH_OUT",
+      "kind": "weakness",
+      "priority_rank": 1,
+      "min_confidence": 0.5,
+      "actionable": true,
+      "cue_id": "path_in",
+      "hud_text": "Path more in",
+      "speech_text": "Keep working on the hand path.",
+      "possible_causes": [
+        {
+          "statement": "A grip change is one unverified possibility.",
+          "status": "unverified"
+        }
+      ],
+      "contraindicated_while": [],
+      "observed_after": 1,
+      "confirmed_after": 2,
+      "mastered_after": 3,
+      "source": "synthetic fixture, not a coach"
+    },
+    {
+      "finding_id": "EARLY_EXTENSION",
+      "kind": "weakness",
+      "priority_rank": 2,
+      "min_confidence": 0.5,
+      "actionable": true,
+      "cue_id": "stay_in_posture",
+      "hud_text": "Stay in posture",
+      "speech_text": "Keep the posture you started with.",
+      "possible_causes": [],
+      "contraindicated_while": ["HAND_PATH_OUT"],
+      "observed_after": 1,
+      "confirmed_after": 2,
+      "mastered_after": 3,
+      "source": "synthetic fixture, not a coach"
+    },
+    {
+      "finding_id": "SECOND_ISSUE",
+      "kind": "weakness",
+      "priority_rank": 3,
+      "min_confidence": 0.5,
+      "actionable": true,
+      "cue_id": "second_cue",
+      "hud_text": "Next small change",
+      "speech_text": "One later change is enough.",
+      "possible_causes": [],
+      "contraindicated_while": [],
+      "observed_after": 1,
+      "confirmed_after": 2,
+      "mastered_after": 3,
+      "source": "synthetic fixture, not a coach"
+    },
+    {
+      "finding_id": "NOT_ACTIONABLE",
+      "kind": "weakness",
+      "priority_rank": 0,
+      "min_confidence": 0.5,
+      "actionable": false,
+      "cue_id": "unused",
+      "hud_text": "Do not use",
+      "speech_text": "This fixture is not a cue.",
+      "possible_causes": [],
+      "contraindicated_while": [],
+      "observed_after": 1,
+      "confirmed_after": 2,
+      "mastered_after": 3,
+      "source": "synthetic fixture, not a coach"
+    }
+  ]
+}

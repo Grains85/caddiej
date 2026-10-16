@@ -11,6 +11,8 @@ from caddiej.floor import (
     FloorPoint,
     FloorService,
     FloorState,
+    HittingStrip,
+    LockAcknowledgement,
     MarkerVariant,
     ShotMetrics,
 )
@@ -239,3 +241,52 @@ def test_an_impossible_celebration_is_rejected(
 ) -> None:
     with pytest.raises(ValueError):
         FloorFlourish(cue=cue, label=label, intensity=intensity, seconds=seconds)
+
+
+def test_the_hitting_strip_is_shown_and_hidden() -> None:
+    service = FloorService()
+    corners = (
+        FloorPoint(x=0.4, y=0.5),
+        FloorPoint(x=0.6, y=0.5),
+        FloorPoint(x=0.6, y=0.8),
+        FloorPoint(x=0.4, y=0.8),
+    )
+
+    shown = service.set_hitting_strip(HittingStrip(corners=corners, visible=True))
+    hidden = service.hide_hitting_strip()
+
+    assert shown.hitting_strip is not None
+    assert shown.hitting_strip.visible is True
+    assert hidden.hitting_strip is not None
+    assert hidden.hitting_strip.visible is False
+    assert hidden.hitting_strip.corners == corners
+
+
+def test_a_lock_acknowledgement_is_a_layer_over_the_lit_strip() -> None:
+    service = FloorService()
+    corners = (
+        FloorPoint(x=0.4, y=0.5),
+        FloorPoint(x=0.6, y=0.5),
+        FloorPoint(x=0.6, y=0.8),
+        FloorPoint(x=0.4, y=0.8),
+    )
+    service.set_hitting_strip(HittingStrip(corners=corners, visible=True, filled=True))
+    before = service.state
+
+    during = service.set_lock_acknowledgement(LockAcknowledgement(seconds=0.65))
+
+    assert during.lock_acknowledgement is not None
+    assert during.lock_acknowledgement.seconds == 0.65
+    assert during.hitting_strip == before.hitting_strip
+
+    after = service.clear_lock_acknowledgement()
+
+    assert after.lock_acknowledgement is None
+    assert after.hitting_strip == before.hitting_strip
+
+
+def test_an_impossible_lock_acknowledgement_is_rejected() -> None:
+    with pytest.raises(ValueError, match="positive finite"):
+        LockAcknowledgement(seconds=0.0)
+    with pytest.raises(ValueError, match="positive finite"):
+        LockAcknowledgement(seconds=math.inf)

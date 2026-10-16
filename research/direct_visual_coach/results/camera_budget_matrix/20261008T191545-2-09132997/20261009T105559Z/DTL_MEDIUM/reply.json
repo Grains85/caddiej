@@ -1,0 +1,117 @@
+{
+  "model": "gpt-5-mini-2025-08-07",
+  "reasoning_effort": "minimal",
+  "latency_seconds": 5.765999999828637,
+  "usage": {
+    "input_tokens": 38662,
+    "output_tokens": 610,
+    "reasoning_tokens": 0
+  },
+  "payload": {
+    "status": "no_proven_fault",
+    "handedness": {
+      "side": "right",
+      "confidence": 0.9,
+      "visual_basis": "Lead (left) side is closer to target at address; golfer's left hip and chest nearer the target in DTL setup frames (e.g. tick 15)."
+    },
+    "temporal_orientation": [
+      {
+        "capture_tick": 15,
+        "state": "setup",
+        "confidence": 0.9,
+        "visual_basis": "Golfer at address with club behind ball, no visible motion"
+      },
+      {
+        "capture_tick": 17,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club are leaving the ball; club shaft moving up and away from address"
+      },
+      {
+        "capture_tick": 19,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Continuation of takeaway; hands and club further away from ball"
+      },
+      {
+        "capture_tick": 20,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands higher and club continuing away from ball"
+      },
+      {
+        "capture_tick": 22,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Mid backswing; hands rising away from ball"
+      },
+      {
+        "capture_tick": 24,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club further on backswing, rising above address height"
+      },
+      {
+        "capture_tick": 26,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Late backswing; hands high and behind torso"
+      },
+      {
+        "capture_tick": 28,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Near top of backswing; hands high and club up"
+      },
+      {
+        "capture_tick": 30,
+        "state": "direction_change_region",
+        "confidence": 0.8,
+        "visual_basis": "Hands near top and starting to change direction (slight transition visible)"
+      },
+      {
+        "capture_tick": 33,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Club has begun downmoving toward the ball; hands and shaft moving down"
+      },
+      {
+        "capture_tick": 36,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Downswing continuing; hands approaching ball plane"
+      },
+      {
+        "capture_tick": 37,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Hands continuing toward the ball; club approaching strike area"
+      },
+      {
+        "capture_tick": 41,
+        "state": "after_strike",
+        "confidence": 0.8,
+        "visual_basis": "Follow-through with hands past impact area and torso turned toward target"
+      },
+      {
+        "capture_tick": 44,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Continuation of follow-through; club well past ball"
+      },
+      {
+        "capture_tick": 47,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Late follow-through; torso turned, club high"
+      },
+      {
+        "capture_tick": 51,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Finish pose; club over shoulder and body rotated toward target"
+      }
+    ],
+    "fault_candidates": []
+  }
+}

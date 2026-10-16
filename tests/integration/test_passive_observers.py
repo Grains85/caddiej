@@ -14,9 +14,11 @@ from caddiej.adapters.gspro.round_file import GSProRoundFileAdapter
 from caddiej.adapters.hud import ConnectionRegistry, HudServer, create_app
 from caddiej.adapters.protee.log_adapter import ProTeeLogAdapter
 from caddiej.core.event_bus import AsyncEventBus
+from caddiej.domain.bag import ClubDistanceProfile, StaticClubDistances
 from caddiej.domain.event_policy import delivery_for, queue_size_for
 from caddiej.domain.play import PlayFlow
 from caddiej.floor import FloorPresenter, FloorService, PhysicalPoint
+from caddiej.floor.layout import layout_from_tees
 
 pytestmark = pytest.mark.loopback
 
@@ -78,8 +80,16 @@ async def hud_stack(tmp_path: Path):
     registry = ConnectionRegistry()
     floor.add_listener(registry.broadcast)
     play = PlayFlow(
-        floor=FloorPresenter(floor, tee=PhysicalPoint(x_m=0.5, y_m=0.72)),
+        floor=FloorPresenter(
+            floor,
+            layout_from_tees(tee=PhysicalPoint(x_m=0.5, y_m=0.72), strip_filled=True),
+        ),
         publish=bus.publish,
+        club_distances=StaticClubDistances(
+            carries=ClubDistanceProfile.from_carries(
+                {"DR": 220.0, "5I": 155.0, "7I": 135.0, "PW": 98.0}
+            )
+        ),
     )
     play.subscribe(bus)
     play.start()
@@ -137,22 +147,65 @@ async def test_passive_observers_update_the_overlay(hud_stack: dict) -> None:
         assert first["type"] == "snapshot"
         seq = first["seq"]
 
+        # The turf light is up before anything has been observed, and every
+        # assertion below re-checks that it is still up.
+        assert first["state"]["hitting_strip"]["visible"] is True
+        assert first["state"]["hitting_strip"]["filled"] is True
+
+        # Lines in the shape ProTee actually writes them: an NLog prefix, and a
+        # field terminator *after* the JSON. A parser anchored on the end of the
+        # line matches the fixtures nobody typed that pipe into and nothing a
+        # real bay produces.
         with log_path.open("a", encoding="utf-8") as handle:
-            handle.write("VX status changed: READY FOR SHOT\n")
-            handle.write("Detected a right handed Driver\n")
+            handle.write(
+                "2026-09-16 11:41:18.0616|INFO|33|VX status changed: READY FOR SHOT|\n"
+            )
+            handle.write(
+                "2026-09-16 11:41:18.1000|INFO|42|Detected a right handed Driver|\n"
+            )
+            handle.write(
+                "2026-09-16 11:41:18.2968|INFO|33|GSPro read data: "
+                '{"Code":201,"Message":"GSPro Player Information",'
+                '"Player":{"Handed":"RH","Club":"DR","DistanceToTarget":347.0,'
+                '"Surface":null}}|\n'
+            )
 
         ready = await wait_for_state(
             ws,
             previous_seq=seq,
             check=lambda state: (
-                state.get("play_status") == "READY"
-                and state.get("club_label") == "DRIVER"
+                (state.get("address") or {}).get("distance_display") == "347 m"
             ),
         )
         seq = ready["seq"]
         state = ready["state"]
-        assert state["marker"]["visible"] is True
+        # READY is known to the server and drawn nowhere.
         assert floor.state.play_status == "READY"
+        assert state["play_status"] == "READY"
+        assert state["club_label"] == "DRIVER"
+        # The distance and the club arrive before the ball does, which is when
+        # the player is choosing what to hit. The marker is still up: different
+        # layer, different question.
+        assert state["marker"]["visible"] is True
+        assert state["address"]["recommended_club_display"] == "DR"
+        assert state["hitting_strip"]["visible"] is True
+
+        with log_path.open("a", encoding="utf-8") as handle:
+            handle.write(
+                "2026-09-16 11:41:35.0604|INFO|33|relative ballPos 1.2 0.0 3.4|\n"
+            )
+        addressed = await wait_for_state(
+            ws,
+            previous_seq=seq,
+            check=lambda state: state["marker"]["visible"] is False,
+        )
+        seq = addressed["seq"]
+        address = addressed["state"]["address"]
+        assert address["club_display"] == "DRIVER"
+        assert address["distance_display"] == "347 m"
+        # The bug from the bay: a ball on the mat used to take the light with
+        # the marker.
+        assert addressed["state"]["hitting_strip"]["visible"] is True
 
         shots = [a_shot("A"), a_shot("B"), a_shot("D")]
         round_path.write_text(json.dumps(shots), encoding="utf-8")
@@ -163,10 +216,10 @@ async def test_passive_observers_update_the_overlay(hud_stack: dict) -> None:
         )
         panel = result["state"]["round_result"]
         assert panel["shot_id"] == "D"
-        assert panel["ball_speed_raw"] == 32.84
-        assert panel["total_distance_raw"] == 248.5
+        assert "ball_speed_raw" not in panel
+        assert "total_distance_raw" not in panel
         assert panel["ball_speed_display"] == "118 km/h"
-        assert panel["total_distance_display"] == "249 m"
+        assert panel["shot_distance_display"] == "249 m"
         assert panel["hole"] == 3
         assert panel["hole_shot"] == 2
         assert panel["starting_surface_raw"] == 1
@@ -175,6 +228,10 @@ async def test_passive_observers_update_the_overlay(hud_stack: dict) -> None:
         flight = result["state"]["ball_flight"]
         assert flight is not None
         assert len(flight) == 2
+        # The result owns the information area; the pre-shot numbers stand down
+        # rather than being drawn through it. The light stays up regardless.
+        assert result["state"]["address"] is None
+        assert result["state"]["hitting_strip"]["visible"] is True
 
     health = hud_stack["gspro"].health()
     assert health.shots_observed == 1

@@ -62,6 +62,143 @@ body {
   overflow: visible;
 }
 
+/* Hitting strip. Physical rectangle corners arrive from Python; only
+   appearance is here. Kept quieter than the ball marker so the turf reads as
+   a pad rather than as a second target. */
+.hitting-strip {
+  fill: rgba(53, 255, 122, 0.07);
+  stroke: rgba(53, 255, 122, 0.45);
+  stroke-width: 0.35vmin;
+  opacity: 0;
+  filter: drop-shadow(0 0 0.45vmin rgba(53, 255, 122, 0.28));
+  transition: opacity 260ms ease-out;
+}
+
+.hitting-strip[data-visible="true"] {
+  opacity: 1;
+}
+
+/* When the chamfer is the rear edge, the rectangle must not also stroke that
+   edge: a second line would close the opening and turn the status into a box. */
+.hitting-strip[data-chamfer="true"] {
+  stroke: none;
+}
+
+.strip-sides {
+  fill: none;
+  stroke: rgba(53, 255, 122, 0.45);
+  stroke-width: 0.35vmin;
+  opacity: 0;
+}
+
+.strip-sides[data-visible="true"] {
+  opacity: 1;
+}
+
+.hitting-strip[data-filled="true"] ~ .strip-sides {
+  stroke: rgba(255, 255, 255, 0.9);
+}
+
+/* Compact chamfer. One stroke, no fill, no gradient. The lamp is a flat disc;
+   ready is the only state that makes it green. */
+.ball-status__edge {
+  fill: none;
+  stroke: #f4fff8;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+  stroke-miterlimit: 2;
+  opacity: 0;
+}
+
+.ball-status__edge[data-visible="true"] {
+  opacity: 1;
+}
+
+.ball-status {
+  opacity: 0;
+}
+
+.ball-status[data-visible="true"] {
+  opacity: 1;
+}
+
+.ball-status__label {
+  fill: rgba(244, 255, 248, 0.55);
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 500;
+}
+
+.ball-status[data-ready="true"] .ball-status__label {
+  fill: #f4fff8;
+}
+
+.ball-status__lamp {
+  fill: rgba(244, 255, 248, 0.35);
+}
+
+.ball-status[data-ready="true"] .ball-status__lamp {
+  fill: #3dff7a;
+}
+
+.ball-status__lamp-core {
+  fill: transparent;
+}
+
+.ball-status[data-ready="true"] .ball-status__lamp-core {
+  fill: #eafff3;
+}
+
+/* Lit rather than outlined: FLOOR_HITTING_STRIP_FILL asks the projector to work
+   as a light over the physical turf in a dark bay. Near-white with a green cast
+   because that is what actually brightens grass — a saturated green at this
+   opacity reads as a coloured shape and lights nothing. Flat and unanimated on
+   purpose: this is a work light, and anything moving under a player's feet while
+   they are over the ball is a distraction rather than a feature. */
+.hitting-strip[data-filled="true"] {
+  fill: rgba(222, 255, 235, 0.68);
+  stroke: rgba(255, 255, 255, 0.9);
+  filter: none;
+}
+
+/* One pulse on top of that light when the ball is found. The fill never drops
+   below the work-light opacity, so the pad does not go dark under the player. */
+.hitting-strip[data-filled="true"].hitting-strip--acknowledge {
+  animation: lock-flash var(--lock-ack-seconds, 0.65s) ease-out 1;
+}
+
+@keyframes lock-flash {
+  0% {
+    fill: rgba(255, 255, 255, 0.95);
+    stroke: rgb(255, 255, 255);
+  }
+  40% {
+    fill: rgba(236, 255, 244, 0.86);
+  }
+  100% {
+    fill: rgba(222, 255, 235, 0.68);
+    stroke: rgba(255, 255, 255, 0.9);
+  }
+}
+
+/* The marker sits on top of that light, so it is inverted to stay readable:
+   a bright ball on a dark floor, a dark ball on a lit pad. The polygon precedes
+   the marker group in the SVG, which is what lets the strip's own state select
+   it. */
+.hitting-strip[data-filled="true"] ~ .marker .marker__halo {
+  fill: rgba(4, 18, 10, 0.5);
+  opacity: 0.35;
+}
+
+.hitting-strip[data-filled="true"] ~ .marker .marker__ring {
+  stroke: rgba(4, 18, 10, 0.85);
+  filter: none;
+}
+
+.hitting-strip[data-filled="true"] ~ .marker .marker__ball {
+  fill: rgba(4, 18, 10, 0.92);
+  filter: none;
+}
+
 /* Ball marker.
  *
  * Colour carries the club so it reads from standing height without text, and
@@ -112,6 +249,45 @@ body {
   animation: pulse 2.4s ease-in-out infinite;
 }
 
+.lock-ack {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lock-ack[data-visible="true"] {
+  opacity: 1;
+}
+
+.lock-ack__mark {
+  fill: var(--floor-fg);
+  font-size: 9vmin;
+  font-weight: 800;
+  filter: drop-shadow(0 0 0.8vmin rgba(53, 255, 122, 0.85));
+}
+
+.lock-ack[data-visible="true"] .lock-ack__mark {
+  animation: lock-mark var(--lock-ack-seconds, 0.65s) ease-out 1 both;
+}
+
+@keyframes lock-mark {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
 @keyframes pulse {
   0%,
   100% {
@@ -120,6 +296,56 @@ body {
   50% {
     opacity: 1;
   }
+}
+
+/* Putting mode.
+ *
+ * A lane and a centre line, and nothing else. This is a floor projection in a
+ * dark bay rather than a dashboard: a putter wants an aiming line and a sense
+ * of width, and everything a full swing puts on the floor would be noise over
+ * a two metre roll. Quieter than the hitting strip on purpose — the lane is a
+ * guide, the pad is the light. */
+.putting-lane {
+  fill: rgba(255, 209, 102, 0.06);
+  stroke: rgba(255, 209, 102, 0.45);
+  stroke-width: 0.3vmin;
+  opacity: 0;
+  transition: opacity 260ms ease-out;
+}
+
+.putting-lane[data-visible="true"] {
+  opacity: 1;
+}
+
+.putting-lane__line {
+  stroke: var(--floor-putter);
+  stroke-width: 0.25vmin;
+  stroke-dasharray: 1.6vmin 1.6vmin;
+  stroke-linecap: round;
+  opacity: 0;
+  transition: opacity 260ms ease-out;
+}
+
+.putting-lane__line[data-visible="true"] {
+  opacity: 0.7;
+}
+
+/* The roll the ball actually made, drawn from the putter ball position. Solid
+   and brighter than the lane, because the lane is where the ball was meant to
+   go and this is where it went. */
+.putt-path {
+  fill: none;
+  stroke: var(--floor-fg);
+  stroke-width: 0.5vmin;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  filter: drop-shadow(0 0 0.6vmin var(--floor-putter));
+  transition: opacity 220ms ease-out;
+}
+
+.putt-path[data-visible="true"] {
+  opacity: 0.95;
 }
 
 /* Club path. Drawn under the marker so the ball stays readable. */
@@ -136,142 +362,91 @@ body {
   opacity: 0.95;
 }
 
-/* Shot metrics. Kept to the back edge of the surface so the hitting area stays
-   clear, and large enough to read while standing over the ball. */
-.metrics {
-  position: absolute;
-  top: 4%;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  gap: 6vw;
-  font-variant-numeric: tabular-nums;
-}
-
-.metric {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.1;
-}
-
-.metric__label {
-  font-size: clamp(0.6rem, 1.1vw, 1.1rem);
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--floor-dim);
-}
-
-.metric__value {
-  font-size: clamp(1.6rem, 4.4vw, 5rem);
-  font-weight: 700;
-  color: var(--floor-fg);
-  text-shadow: 0 0 0.3em rgba(72, 217, 255, 0.45);
-}
-
-.metric__unit {
-  font-size: clamp(0.55rem, 1vw, 1rem);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--floor-dim);
-}
-
-.metric__value--text {
-  font-size: clamp(0.9rem, 2.2vw, 2.4rem);
-}
-
-/* Passive-observation captions: READY / DRIVER. Not calibrated geometry. */
-.play-status {
-  position: absolute;
-  top: 18%;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  pointer-events: none;
-}
-
-.play-status__state {
-  font-size: clamp(1.4rem, 3.6vw, 4rem);
-  font-weight: 700;
-  color: var(--floor-accent);
-  text-shadow: 0 0 0.35em rgba(53, 255, 122, 0.45);
-}
-
-.play-status__club {
-  font-size: clamp(0.9rem, 2.2vw, 2.2rem);
-  font-weight: 600;
-  color: var(--floor-fg);
-}
-
-/* Raw GSPro round-play result. No unit suffixes: the numbers are unverified. */
-.round-result {
-  position: absolute;
-  top: 4%;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.2vh;
-  font-variant-numeric: tabular-nums;
-  pointer-events: none;
-}
-
-.round-result__meta {
-  display: flex;
-  gap: 1.5rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--floor-dim);
-  font-size: clamp(0.55rem, 1vw, 1rem);
-}
-
-.round-result__metrics {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 4vw;
-}
-
-/* Diagnostic ball-flight chart. Fitted 0..1 of this box, not the floor. */
+/* Open Connect launch numbers and the diagnostic flight chart stay in
+   FloorState and on the snapshot. They are not drawn on the projected floor. */
+.metrics,
 .ball-flight {
+  display: none;
+}
+
+/* The device's own words have no appearance. `#play-status` carries READY and
+   FINDING BALL as data attributes. The player-facing mark is the chamfer,
+   whose copy is BALL READY / PLACE BALL and whose geometry arrives as points.
+   A stylesheet must not be able to put the camera's words back on the floor. */
+
+/* One information area, used for address and for the result at different
+   moments. Python guarantees only one of the two is ever set. Primary
+   numbers and the recommended club are the size that reads from standing
+   height several metres away; the two short labels exist only to tell two
+   metre figures apart after a shot. */
+.info-area {
   position: absolute;
-  right: 4%;
-  bottom: 8%;
-  width: min(28vw, 36vh);
-  aspect-ratio: 1;
+  top: 6%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 2.4vh;
   pointer-events: none;
+  font-variant-numeric: tabular-nums;
 }
 
-.ball-flight__label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-size: clamp(0.55rem, 1vw, 0.95rem);
-  letter-spacing: 0.28em;
+/* Anchored to the hitting strip, once Python has said where that is.
+   `--anchor-info-*` are percentages of the surface, derived in metres from the
+   strip and mapped through the calibration before they got here; the only
+   arithmetic left is the half-width shift that centres the column on the
+   point. The unanchored rule above is what a snapshot with no anchors still
+   renders as, which is the placement the floor has always had. */
+#surface[data-anchored="true"] .info-area,
+#surface[data-anchored="true"] .advice {
+  top: var(--anchor-info-y);
+  left: var(--anchor-info-x);
+  right: auto;
+  width: 100vw;
+  transform: translateX(-50%);
+}
+
+#surface[data-anchored="true"] .advice {
+  top: var(--anchor-advice-y);
+  left: var(--anchor-advice-x);
+  transform: translate(-50%, calc(-1 * var(--advice-lift, 0px)));
+}
+
+.info-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.12em;
+}
+
+.info-figure__value {
+  font-size: clamp(4.2rem, 12vw, 13rem);
+  font-weight: 700;
+  line-height: 0.95;
+  color: var(--floor-fg);
+  text-shadow: 0 0 0.28em rgba(72, 217, 255, 0.5);
+}
+
+.info-figure__value--club {
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--floor-dim);
-  text-align: center;
+  text-shadow: 0 0 0.28em rgba(53, 255, 122, 0.45);
 }
 
-.ball-flight__chart {
-  width: 100%;
-  height: calc(100% - 1.4rem);
-  overflow: visible;
+.info-figure__label {
+  font-size: clamp(1.4rem, 3.4vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--floor-fg);
+  opacity: 0.78;
 }
 
-.ball-flight__path {
-  stroke: var(--floor-accent);
-  stroke-width: 0.02;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  fill: none;
-  filter: drop-shadow(0 0 0.4vmin var(--floor-accent));
+#round-result .info-figure__value {
+  text-shadow: 0 0 0.28em rgba(53, 255, 122, 0.4);
 }
 
 /* Coaching line.
@@ -286,13 +461,229 @@ body {
   left: 0;
   right: 0;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35em;
   text-align: center;
   padding: 0 6vw;
+  transform: translateY(calc(-1 * var(--advice-lift, 0px)));
+}
+
+/* Regions.
+ *
+ * When Python has worked out where the coaching goes — which it can whenever
+ * the hitting strip leaves room above it — the column above is replaced by
+ * four boxes placed at measured positions, and the lift hack is switched off.
+ * The lift was the old answer to the score landing on the mat: measure the
+ * overflow in the browser and slide the whole column up by it. It could only
+ * ever react to a collision, never prevent one, and it moved the instruction
+ * off the floor in order to get the score off the turf.
+ *
+ * Each box is its own stacking context with `overflow: hidden`, so a long
+ * observation crops inside its region instead of pushing the readings down
+ * onto the mat. Cropped words are recoverable by listening; words drawn over
+ * a hitting strip are not.
+ *
+ * `--region-px` is the box's height as a length, and every line inside a
+ * region is sized from it. That is the whole of the fix for the first
+ * hardware test's clipping: the rules below this point used to size type in
+ * `vw` while the boxes are fractions of `vh`, so on the projector's 4:3 image
+ * the score asked for 78 pixels of a 69-pixel box, the instruction 93 of 64
+ * and the labels 45 of 37. Type that is a fraction of its own box cannot
+ * overflow it, on any projector, and a bay with less room above its mat gets
+ * smaller words instead of cut ones. */
+#surface[data-anchored="true"] .advice[data-regions="true"] {
+  top: 0;
+  left: 0;
+  right: auto;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  display: block;
+  transform: none;
+}
+
+.advice[data-regions="true"] .advice__region {
+  position: absolute;
+  left: calc(var(--region-x) * 100%);
+  top: calc(var(--region-y) * 100%);
+  width: calc(var(--region-w) * 100%);
+  height: calc(var(--region-h) * 100%);
+  --region-px: calc(var(--region-h) * 100vh);
+  margin: 0;
+  overflow: hidden;
+}
+
+/* The text column is left-aligned in region mode. Centring reads well when the
+   coaching is one column in the middle of the floor; with a still beside it,
+   a ragged left edge makes the score, the observation and the action look like
+   three unrelated things rather than one paragraph to read downwards. */
+.advice[data-regions="true"] #advice-score,
+.advice[data-regions="true"] #advice-say,
+.advice[data-regions="true"] #advice-metrics {
+  text-align: left;
+  align-items: flex-start;
+}
+
+.advice[data-regions="true"] #advice-score {
+  --region-x: var(--coach-score-x);
+  --region-y: var(--coach-score-y);
+  --region-w: var(--coach-score-w);
+  --region-h: var(--coach-score-h);
+  /* One line, not a stacked label and figure. The label and the number share
+     a baseline so that "SWING SCORE 65" reads as a sentence and the figure
+     gets the whole height of the box instead of half of it. */
+  flex-direction: row;
+  align-items: baseline;
+  gap: 0.5em;
+}
+
+.advice[data-regions="true"] .advice__score-label {
+  font-size: calc(var(--region-px) * 0.26);
+  letter-spacing: 0.16em;
+}
+
+.advice[data-regions="true"] .advice__score-value {
+  font-size: calc(var(--region-px) * 0.74);
+  /* Not 0.95. A line box shorter than its font leaves the tops of the digits
+     outside it, and with the score's box at the very top of the image there
+     is nowhere for that overflow to go but off the screen — which is exactly
+     how a 65 arrived on the projector with its head cut off. */
+  line-height: 1;
+}
+
+.advice[data-regions="true"] .advice__score-scale {
+  font-size: calc(var(--region-px) * 0.3);
+}
+
+.advice[data-regions="true"] .advice__score-figure {
+  /* Tight against the number. "/ 100" is part of reading the score, not a
+     second fact beside it, and the old quarter-em of a 123-pixel font put it
+     thirty pixels away looking like one. */
+  gap: 0.1em;
+}
+
+.advice[data-regions="true"] #advice-evidence {
+  --region-x: var(--coach-evidence-x);
+  --region-y: var(--coach-evidence-y);
+  --region-w: var(--coach-evidence-w);
+  --region-h: var(--coach-evidence-h);
+  /* The panel is the box; the picture is `contain`ed in it, so a frame from
+     behind and a frame from the side both keep their own shape. The height
+     the class rule sets for the unanchored column must not survive here, or
+     the panel is sized by the viewport and the region by the mat. */
+  height: calc(var(--region-h) * 100%);
+  max-width: none;
+  object-fit: contain;
+  object-position: center;
+}
+
+.advice[data-regions="true"] #advice-say {
+  --region-x: var(--coach-observation-x);
+  --region-y: var(--coach-observation-y);
+  --region-w: var(--coach-observation-w);
+  --region-h: var(--coach-observation-h);
+  justify-content: center;
+  gap: 0.1em;
+}
+
+.advice[data-regions="true"] .advice__observation {
+  font-size: calc(var(--region-px) * 0.26);
+  /* The column's own gap spaces these now. Margins in em of a line whose size
+     is itself derived from the box were the other half of the overflow. */
+  margin: 0;
+}
+
+.advice[data-regions="true"] .advice__text {
+  font-size: calc(var(--region-px) * 0.4);
+  line-height: 1.1;
+}
+
+.advice[data-regions="true"] #advice-metrics {
+  --region-x: var(--coach-metrics-x);
+  --region-y: var(--coach-metrics-y);
+  --region-w: var(--coach-metrics-w);
+  --region-h: var(--coach-metrics-h);
+  justify-content: space-between;
+  gap: 0;
+}
+
+/* Readable from standing height, which the old fifteen-pixel label was not.
+   The player asked for the four readings to stay and the words naming them to
+   grow, and there is width to spare in a full-width row of four short things,
+   so the height goes into type rather than into spacing. */
+.advice[data-regions="true"] .advice__metric {
+  align-items: flex-start;
+  line-height: 1.1;
+}
+
+.advice[data-regions="true"] .advice__metric-label {
+  font-size: calc(var(--region-px) * 0.3);
+  letter-spacing: 0.1em;
+  opacity: 0.85;
+}
+
+.advice[data-regions="true"] .advice__metric-value {
+  font-size: calc(var(--region-px) * 0.52);
+}
+
+.advice__say {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+}
+
+/* The four readings, in one line across the bottom of the coaching. Label
+ * above value, because a player glancing down between swings is looking for
+ * the number and the word is only there to say which number it is. */
+.advice__metrics {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.2rem, 5vw, 5rem);
+  color: var(--advice-colour, var(--floor-watch));
+}
+
+.advice__metrics:not([hidden]) {
+  display: flex;
+}
+
+.advice__metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.05;
+}
+
+.advice__metric-label {
+  font-size: clamp(0.7rem, 1.5vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  opacity: 0.72;
+}
+
+.advice__metric-value {
+  font-size: clamp(1.3rem, 3.4vw, 3.4rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.advice__cue {
+  display: none;
+  width: 4.2em;
+  height: 4.2em;
+  object-fit: contain;
+}
+
+.advice__cue:not([hidden]) {
+  display: block;
 }
 
 .advice__text {
-  font-size: clamp(1.1rem, 3vw, 3.4rem);
+  font-size: clamp(1.6rem, 4.2vw, 4.2rem);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -317,6 +708,130 @@ body {
 .advice[data-pending="true"] .advice__text {
   opacity: 0.45;
   animation: breathe 1.6s ease-in-out infinite;
+}
+
+/* The result, read top to bottom: the score, the player's own still, what
+ * was seen, what to do. Stacked because each answers the question the one
+ * above it raises. The score is the one thing sized for the far end of the
+ * bay — a number someone glances at from the tee box between swings, at the
+ * same scale as the result figures — and the rest is read up close. */
+.advice__evidence {
+  display: none;
+  height: clamp(7.5rem, 22vh, 20rem);
+  max-width: 80vw;
+  object-fit: contain;
+  border: 1px solid var(--advice-colour, var(--floor-watch));
+}
+
+.advice__evidence:not([hidden]) {
+  display: block;
+}
+
+.advice__score {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  color: var(--advice-colour, var(--floor-watch));
+}
+
+.advice__score:not([hidden]) {
+  display: flex;
+}
+
+.advice__score-label {
+  font-size: clamp(1rem, 2.4vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+}
+
+.advice__score-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25em;
+}
+
+.advice__score-value {
+  font-size: clamp(4.2rem, 12vw, 13rem);
+  font-weight: 700;
+  line-height: 0.95;
+  text-shadow: 0 0 0.28em var(--advice-colour, var(--floor-watch));
+}
+
+.advice__score-scale {
+  font-size: clamp(1.4rem, 3.4vw, 3.6rem);
+  font-weight: 700;
+  opacity: 0.78;
+}
+
+/* Its own margins rather than the column's gap. The gap is sized for the
+ * stack's 16px root, which left a few pixels between the frame and this line
+ * and fewer between this line and the instruction's glow — enough for the
+ * three to read as one smudge from the tee box. Margins scale with this line,
+ * count in the panel's height, and vanish with the line when it is absent. */
+.advice__observation {
+  display: none;
+  margin: 0.6em 0 0.4em;
+  font-size: clamp(1.2rem, 3vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--floor-par);
+}
+
+.advice__observation:not([hidden]) {
+  display: block;
+}
+
+/* Coaching progress. A small strip under the advice row: a stage name and
+ * a bar that sweeps without ever filling, because there is no fraction to
+ * show. Never covers the ball status or the result. */
+.progress {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4em;
+  color: var(--floor-watch);
+  pointer-events: none;
+}
+
+.progress[hidden] {
+  display: none;
+}
+
+.progress__label {
+  font-size: clamp(0.8rem, 1.6vw, 1.6rem);
+  letter-spacing: 0.24em;
+}
+
+.progress__bar {
+  position: relative;
+  width: 12em;
+  height: 0.18em;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.progress__bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  background: currentColor;
+  animation: progress-sweep 1.4s ease-in-out infinite;
+}
+
+@keyframes progress-sweep {
+  from {
+    left: -30%;
+  }
+  to {
+    left: 100%;
+  }
 }
 
 /* Celebration layer.
@@ -554,10 +1069,19 @@ body {
   .status__text,
   .marker,
   .marker__ring,
+  .hitting-strip,
+  .strip-sides,
+  .ball-status,
+  .ball-status__edge,
+  .putting-lane,
+  .putting-lane__line,
+  .putt-path,
   .club-path,
   .advice__text,
+  .progress__bar::after,
   .flourish__label,
-  .flourish__ring {
+  .flourish__ring,
+  .lock-ack__mark {
     transition: none;
     animation: none;
   }
@@ -571,5 +1095,12 @@ body {
 
   .flourish__rings {
     display: none;
+  }
+
+  /* A frozen sweep would read as a fraction done. Full and dim reads as busy. */
+  .progress__bar::after {
+    left: 0;
+    width: 100%;
+    opacity: 0.5;
   }
 }

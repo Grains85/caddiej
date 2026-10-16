@@ -1,0 +1,132 @@
+Club: unknown.
+Player handedness: unknown.
+All pictures arrive as ONE image, the Swing Evidence Sheet. Each cell is one picture, its ID printed in the coloured bar above it with that camera's time, +seconds from the start of its replay. A picture IS a cell and its id IS the printed cell ID: name exactly that. DTL_ cells (blue) are SWING_BEHIND, down_the_line. FO_ cells (green) are SWING_SIDE, face_on. IMPACT is ProTee's impact graphic. ALL_VALUES (brown, along the bottom) is the All Values grid.
+The image labelled ALL_VALUES is ProTee's All Values grid.
+Camera cells in time order, as ID and +seconds from the start of that camera's replay; DTL_nn and FO_nn are the same moment from two cameras, and a time names no swing position. Only these may be given in "d" and "f", by number: DTL_01 +0.00s, DTL_02 +0.19s, DTL_03 +0.49s, DTL_04 +0.69s, DTL_05 +0.89s, DTL_06 +1.10s, DTL_07 +1.29s, DTL_08 +1.54s, DTL_09 +1.79s, DTL_10 +1.84s, DTL_11 +1.89s, DTL_12 +1.94s, DTL_13 +1.98s, DTL_14 +2.05s, DTL_15 +2.10s, DTL_16 +2.14s, DTL_17 +2.33s, DTL_18 +2.49s, FO_01 +0.00s, FO_02 +0.19s, FO_03 +0.49s, FO_04 +0.69s, FO_05 +0.89s, FO_06 +1.10s, FO_07 +1.29s, FO_08 +1.54s, FO_09 +1.79s, FO_10 +1.84s, FO_11 +1.89s, FO_12 +1.94s, FO_13 +1.98s, FO_14 +2.05s, FO_15 +2.10s, FO_16 +2.14s, FO_17 +2.33s, FO_18 +2.49s.
+IMPACT, ALL_VALUES are not camera cells: never in "d" or "f".
+Image ids for evidence_frame_id: DTL_01, DTL_02, DTL_03, DTL_04, DTL_05, DTL_06, DTL_07, DTL_08, DTL_09, DTL_10, DTL_11, DTL_12, DTL_13, DTL_14, DTL_15, DTL_16, DTL_17, DTL_18, FO_01, FO_02, FO_03, FO_04, FO_05, FO_06, FO_07, FO_08, FO_09, FO_10, FO_11, FO_12, FO_13, FO_14, FO_15, FO_16, FO_17, FO_18, IMPACT, ALL_VALUES.
+Metrics, in order, as N label: unit codes; direction codes.
+1 Ball Speed: unit 1=mph 2=km/h 3=m/s
+2 Club Speed: unit 1=mph 2=km/h 3=m/s
+3 Smash Factor: unit 1=ratio
+4 Face Angle: unit 1=deg; dir 1=open 2=closed
+5 Swing Path: unit 1=deg; dir 1=in_to_out 2=out_to_in
+6 Face To Path: unit 1=deg; dir 1=open 2=closed
+7 Attack Angle: unit 1=deg; signed as printed, dir 0
+8 Launch Angle: unit 1=deg
+9 Launch Direction: unit 1=deg; dir 1=left 2=right
+10 Total Spin: unit 1=rpm
+11 Spin Axis: unit 1=deg; dir 1=left 2=right
+12 Carry: unit 1=yd 2=m
+13 Dynamic Loft: unit 1=deg
+14 Impact Width: unit 1=mm 2=in; dir 1=toe 2=heel
+15 Impact Height: unit 1=mm 2=in; signed as printed, dir 0
+16 Back Spin: unit 1=rpm
+17 Side Spin: unit 1=rpm; dir 1=left 2=right
+18 Apex: unit 1=yd 2=m 3=ft
+19 Off Line: unit 1=yd 2=m; dir 1=left 2=right
+20 Apex Time: unit 1=s
+21 Air Time: unit 1=s
+22 Total Distance: unit 1=yd 2=m
+23 Bounce/Roll: unit 1=yd 2=m
+24 Descent Angle: unit 1=deg
+25 Lie: unit 1=deg; dir 1=upright 2=flat
+26 Spin Loft: unit 1=deg
+27 Rifle Spin: unit 1=rpm
+28 Closure Rate: unit 1=deg/s
+29 Curve: unit 1=yd 2=m; dir 1=left 2=right
+Swing checkpoints, one numbered group per phase; "s" and "x" follow this numbering. DTL lines are read from that phase's "d" cell, FO lines from its "f" cell, ANY lines from the camera named in "a". Each line is: N key [camera] - what to look for and the functional range; its direction words.
+setup (7):
+1 setup_hip_hinge [DTL] - bend from the hips: pelvis pushed back, chest over the ball, rather than bending from the waist or standing tall. dir none
+2 setup_knee_flex [DTL] - knees softly flexed over the balls of the feet; not locked, not squatting. dir none
+3 setup_spine_posture [DTL] - a fairly straight spine from pelvis to neck; not hunched or rounded, not hollowed. dir none
+4 setup_arm_hang [DTL] - arms hanging close to vertically from the shoulders, hands under the chin line; not reaching out towards the ball. dir too_much|too_little
+5 setup_hand_spacing [DTL] - a hand's width or so between the hands and the thighs; not crowded, not stretched away. dir none
+6 setup_shaft_position [FO] - the shaft at address roughly vertical or leaning slightly towards the target, hands not far behind the ball. Null unless the whole club is visible. dir none
+7 setup_balance [ANY] - stance width about shoulder width for a full swing and weight settled over the middle of the feet. dir none
+takeaway (6):
+1 takeaway_hand_path [DTL] - hands moving back close to the target line, just inside it; not rolled deep inside behind the body, not pushed out away from it. dir inside|outside
+2 takeaway_clubhead_outside_hands [DTL] - with the shaft near parallel to the ground, the clubhead level with or slightly outside the hands; not whipped inside behind them. Null unless the whole club is visible. dir inside|outside
+3 takeaway_posture [DTL] - spine angle and head height as at address; no early lift or dip. dir standing_up
+4 takeaway_hip_movement [FO] - hips starting to turn in place; no early slide away from the target. dir sway
+5 takeaway_body_led [ANY] - the chest and arms moving back together as one piece; not the hands and arms going alone while the chest stays. dir arms_first
+6 takeaway_arm_connection [ANY] - the triangle of arms and shoulders kept; upper arms staying on the chest. dir none
+backswing (8):
+1 backswing_hand_depth [DTL] - with the lead arm near parallel to the ground, hands moved in over roughly the trail toe line; not out over the ball, not pinned deep behind the trail hip. dir shallow|deep
+2 backswing_hand_height [DTL] - hands around chest height or above; not swung low and flat around the body. dir too_little|too_much
+3 backswing_shaft_pitch [DTL] - club steep in the backswing: with the lead arm parallel, the shaft fairly upright and pointing near the ball line; not laid flat behind the hands. Null unless the whole club is visible. dir flat|steep
+4 backswing_hip_depth [DTL] - the trail hip turning back and staying at or behind its address depth; not moving out towards the ball. dir toward_ball
+5 backswing_posture [DTL] - spine angle from address held; no standing up as the arms rise. dir standing_up
+6 backswing_centre [FO] - head and chest staying roughly over the ball area; the pelvis not sliding beyond the trail foot. dir sway|reverse
+7 backswing_arm_structure [ANY] - lead arm long without being rigid, trail elbow folding and pointing down. dir none
+8 backswing_body_turn [ANY] - chest well turned away from the target by this point with the hips turning less; the backswing made of turn rather than arm lift. dir too_little
+top (8):
+1 top_hand_depth [DTL] - hands behind and around the trail shoulder; not out in front of the chest over the ball, not wrapped deep behind the head. dir shallow|deep
+2 top_posture [DTL] - spine tilt and trail knee flex from address still there. dir standing_up
+3 top_shaft_position [DTL] - only if the whole club is in frame: the shaft near parallel to the target line, not crossed far over or laid far off. Null unless the whole club is visible. dir steep|flat
+4 top_centre [FO] - loaded into the trail side with the head and chest still over the ball area; not swayed past the trail foot, not leaning towards the target. dir sway|reverse
+5 top_hand_height [ANY] - hands at or above trail shoulder height. dir too_little|too_much
+6 top_arm_structure [ANY] - lead arm long and across the chest, trail elbow folded and pointing roughly down; not a collapsed lead arm or a flying trail elbow. dir none
+7 top_shoulder_turn [ANY] - shoulders fully turned, the back close to facing the target. dir too_little|too_much
+8 top_hip_turn [ANY] - pelvis turned clearly less than the shoulders; neither frozen nor spun out with them. dir too_little|too_much
+LEGACY KEYS. The group headed "transition" is P5, the lead arm parallel in the DOWNSWING. The word transition is legacy terminology and does NOT mean the top or the direction-change moment: that moment is P4. Checkpoint names beginning with transition_ are scored on the P5 cell; they do not move P5 to the top. The group headed "downswing" is P6, the shaft parallel in the downswing. It does NOT mean the first cell of the downswing and it does NOT mean P5.
+transition (7):
+1 transition_arms_lowering [DTL] - in the P5 cell, lead arm parallel coming down: the arms have dropped down more than they have moved out, the hands on a line falling towards the trail hip. dir too_little
+2 transition_hand_direction [DTL] - in the P5 cell: the hands working down and slightly in; not out towards the ball. dir out
+3 transition_trail_shoulder [DTL] - in the P5 cell: the trail shoulder working down and under; not out towards the ball. dir out
+4 transition_shallowing [DTL] - club shallow in the P5 cell: the shaft lying flatter than it was at P3 going back, behind the hands; not tipping out steeper. Null unless the whole club is visible. dir steep|flat
+5 transition_posture_space [DTL] - in the P5 cell: the space between the pelvis and the ball kept; no thrust of the hips towards the ball. dir toward_ball
+6 transition_pressure_shift [FO] - in the P5 cell: the pelvis already shifted towards the target; not still on the trail side. dir too_little
+7 transition_pelvis_initiation [ANY] - in the P5 cell: the lower body leading, the pelvis more unwound towards the target than the chest, chest and arms following; not the shoulders and arms unwound first. dir arms_first
+downswing (7):
+1 delivery_hand_path [DTL] - hands approaching from inside, close to the trail thigh; not out over the toe line. dir outside|inside
+2 delivery_shaft_plane [DTL] - with the shaft near parallel coming down, it points near or just outside the ball line from below the hands; not steep above them. Null unless the whole club is visible. dir steep|flat
+3 delivery_hip_depth [DTL] - the pelvis at or behind its address depth as it rotates; not moving in towards the ball. dir toward_ball
+4 delivery_posture [DTL] - chest still bent over the ball and the spine tilted; not standing up. dir standing_up
+5 delivery_trail_arm [DTL] - trail elbow in front of the trail hip and working towards it; not pinned behind the body, not away from it. dir stuck|flying
+6 delivery_pelvis_rotation [ANY] - pelvis already opening towards the target ahead of the chest. dir too_little
+7 delivery_body_arm_sync [ANY] - arms in front of the chest and moving with its rotation; not racing ahead of a body that has stopped, not trapped behind it. dir arms_first|behind
+impact (7):
+1 impact_hip_depth [DTL] - pelvis still at or near its address depth; not closer to the ball. dir toward_ball
+2 impact_posture [DTL] - forward bend of the spine kept and the head near its address height. dir standing_up
+3 impact_chest_rotation [FO] - chest a little open and still turning; not square and stopped. dir too_little
+4 impact_hand_position [FO] - hands level with or slightly ahead of the ball, towards the lead thigh; not behind it with the club passing them. dir behind
+5 impact_head_centre [FO] - head at or slightly behind the ball, not lunging past it. dir none
+6 impact_pelvis_rotation [ANY] - pelvis clearly open to the target at the strike while the chest is less open. dir too_little
+7 impact_arm_structure [ANY] - lead arm straight and in line with the shaft, trail arm slightly bent. dir bent
+release (6):
+1 release_club_exit [DTL] - club steep again after the ball: exiting up and around to the lead side rather than straight out and flat. Null unless the whole club is visible. dir flat
+2 release_posture [DTL] - spine tilt still there just after the ball; not already standing up. dir standing_up
+3 release_arm_connection [FO] - upper arms staying close together in front of the chest. dir none
+4 release_lead_arm_structure [ANY] - after the ball the lead arm extending and rotating over; not the lead elbow folding and pulling away from the body (a chicken wing). dir bent
+5 release_arm_extension [ANY] - both arms extended out towards the target after the ball; not pulled in and up. dir too_little
+6 release_body_rotation [ANY] - chest still turning through towards the target; not stopped with the arms flipping past. dir too_little
+finish (3):
+1 finish_balance [ANY] - balanced on the lead side and held; not stepping off or falling back. dir none
+2 finish_rotation [ANY] - fully rotated: chest and belt buckle facing the target, trail foot up on its toe. dir too_little
+3 finish_structure [ANY] - tall and stacked over the lead leg; not bent back in a reverse C. dir none
+Cues you may choose. Choose only from this list; it is the whole of what you may say:
+- FACE_OPEN (measured correction, focus face control, floor shows FACE OPEN then PASS THE TOE EARLY): The face pointed right of the target at impact for a right-hander.
+- FACE_CLOSED (measured correction, focus face control, floor shows FACE CLOSED then SLOW THE ROTATION): The face pointed left of the target at impact for a right-hander.
+- PATH_OUT_TO_IN (measured correction, focus path, floor shows OUT-TO-IN PATH then SWING FROM INSIDE): The club travelled left of the target line through impact.
+- PATH_IN_TO_OUT (measured correction, focus path, floor shows IN-TO-OUT PATH then SWING MORE ACROSS): The club travelled right of the target line through impact.
+- STRIKE_TOE (measured correction, focus strike, floor shows TOE STRIKE then STAND CLOSER): The ball was struck toward the toe.
+- STRIKE_HEEL (measured correction, focus strike, floor shows HEEL STRIKE then STAND FARTHER AWAY): The ball was struck toward the heel.
+- TOO_STEEP (measured correction, focus low point, floor shows STEEP ATTACK then CATCH IT RISING): The attack angle was steeper than this club wants.
+- TOO_SHALLOW (measured correction, focus low point, floor shows SHALLOW ATTACK then HIT DOWN): The attack angle was shallower than this club wants.
+- START_PUSHED (measured correction, focus start line, floor shows PUSHED START LINE then SQUARE EARLIER): The ball started right of the target for a right-hander.
+- START_PULLED (measured correction, focus start line, floor shows PULLED START LINE then HOLD THE FACE): The ball started left of the target for a right-hander.
+- CURVE_SLICE (measured correction, focus curve, floor shows SLICE SPIN then RELEASE SOONER): The ball had slice spin relative to the player.
+- CURVE_HOOK (measured correction, focus curve, floor shows HOOK SPIN then STEADY THE FACE): The ball had hook spin relative to the player.
+- SPEED_RUSHED (measured correction, focus speed, floor shows CLUB SPEED SPIKED then EASE THE TEMPO): Club speed was high against this player's own mean.
+- SCATTER (measured correction, focus consistency, floor shows WIDE DISPERSION then REPEAT YOUR TEMPO): Recent shots with this club were more spread than a tight group.
+- FACE_CONTROL_GOOD (measured reinforcement, focus face control, floor shows SQUARE FACE then GOOD FACE): The face was inside its band. Repeat the release.
+- PATH_GOOD (measured reinforcement, focus path, floor shows NEUTRAL PATH then GOOD PATH): The path was inside its band. Repeat that feeling.
+- STRIKE_GOOD (measured reinforcement, focus strike, floor shows CENTRED STRIKE then GOOD STRIKE): The strike was centred enough to confirm.
+- LOW_POINT_GOOD (measured reinforcement, focus low point, floor shows CLEAN ATTACK then CLEAN CONTACT): The attack angle sat near this club's ideal.
+- SPEED_GOOD (measured reinforcement, focus speed, floor shows STEADY SPEED then GOOD SPEED): Club speed was ordinary for this player.
+- START_LINE_GOOD (measured reinforcement, focus start line, floor shows STARTED ON LINE then GOOD START): The ball started on a line worth repeating.
+- CURVE_GOOD (measured reinforcement, focus curve, floor shows CONTROLLED CURVE then GOOD SHAPE): The curvature was inside its band.
+- LAUNCH_GOOD (measured reinforcement, focus launch, floor shows LAUNCH IN WINDOW then GOOD LAUNCH): Launch angle was ordinary for this player.
+- SPIN_GOOD (measured reinforcement, focus spin, floor shows SPIN IN WINDOW then GOOD SPIN): Spin was ordinary for this player.
+- CONSISTENCY_GOOD (measured reinforcement, focus consistency, floor shows TIGHT GROUP then REPEATING WELL): Recent shots with this club grouped tightly.

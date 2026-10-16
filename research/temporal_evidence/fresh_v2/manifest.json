@@ -1,0 +1,68 @@
+{
+ "test_set_size": 5,
+ "shots": [
+  {
+   "name": "20261008T191451-1-93738c0a",
+   "started_at": "2026-10-08T19:14:51.313751+00:00",
+   "preserved_at": "2026-10-08T19:15:02.672502+00:00",
+   "role": "test",
+   "order": 1,
+   "reason": null,
+   "metadata_sha256": "c5610f9d4fe3662fba49e49c0a7cfb2e0f311eaa90310688c1303e6fa94c9bb3"
+  },
+  {
+   "name": "20261008T191545-2-09132997",
+   "started_at": "2026-10-08T19:15:45.367814+00:00",
+   "preserved_at": "2026-10-08T19:16:05.299548+00:00",
+   "role": "test",
+   "order": 2,
+   "reason": null,
+   "metadata_sha256": "5fe6b392232848511be54781a98c6a2be150b3a768b29f14d27cd5c2b804255c"
+  },
+  {
+   "name": "20261008T191626-3-694d0a52",
+   "started_at": "2026-10-08T19:16:26.509419+00:00",
+   "preserved_at": "2026-10-08T19:16:41.045481+00:00",
+   "role": "test",
+   "order": 3,
+   "reason": null,
+   "metadata_sha256": "266992035e72917265e0608083f9d5024facaf87adec2c81850084c44ecbe101"
+  },
+  {
+   "name": "20261008T191658-4-d4b5abe1",
+   "started_at": "2026-10-08T19:16:58.331221+00:00",
+   "preserved_at": "2026-10-08T19:17:10.965003+00:00",
+   "role": "excluded",
+   "order": null,
+   "reason": "no diagnostic timeline (SWING_CAPTURE_DIAGNOSTIC_TIMELINE_SHOTS was 0 or used up)",
+   "metadata_sha256": "ba14207adb0601e460c8f97f0db840bf1e3cf8825fa1d5b8657d771ca53b17b2"
+  },
+  {
+   "name": "20261008T191738-5-218da675",
+   "started_at": "2026-10-08T19:17:38.665981+00:00",
+   "preserved_at": "2026-10-08T19:17:53.343918+00:00",
+   "role": "excluded",
+   "order": null,
+   "reason": "no diagnostic timeline (SWING_CAPTURE_DIAGNOSTIC_TIMELINE_SHOTS was 0 or used up)",
+   "metadata_sha256": "14a0c1510d80cad8d72bf096258f81ad87dab9f0d7a93c1914a6b9cfe233167e"
+  },
+  {
+   "name": "20261008T191913-6-345eaca1",
+   "started_at": "2026-10-08T19:19:13.390038+00:00",
+   "preserved_at": "2026-10-08T19:19:37.109740+00:00",
+   "role": "test",
+   "order": 4,
+   "reason": null,
+   "metadata_sha256": "ff4d476021dfe6714a778f959457d57a1ac53cbd7460d9c586b4cc9aca51a077"
+  },
+  {
+   "name": "20261008T191951-7-5b29909f",
+   "started_at": "2026-10-08T19:19:51.937594+00:00",
+   "preserved_at": "2026-10-08T19:20:11.628961+00:00",
+   "role": "test",
+   "order": 5,
+   "reason": null,
+   "metadata_sha256": "fcf34bb53e4c7db22dece08dd0cbb4e2ae1dac080cf53e61a9d7cfe8a9db5bb5"
+  }
+ ]
+}

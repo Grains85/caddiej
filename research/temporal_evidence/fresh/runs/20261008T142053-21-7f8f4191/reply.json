@@ -1,0 +1,534 @@
+{
+ "status": "ok",
+ "error": null,
+ "model": "gpt-5-mini",
+ "reasoning_effort": "minimal",
+ "max_output_tokens": 10000,
+ "timeout_seconds": 30.0,
+ "wall_seconds": 10.934,
+ "finished_at": "2026-10-08T14:26:43.090606+00:00",
+ "usage": {
+  "input_tokens": 13318,
+  "output_tokens": 891,
+  "reasoning_tokens": 0,
+  "cached_tokens": 3712,
+  "status": "completed"
+ },
+ "payload": {
+  "phases": {
+   "setup": {
+    "d": 1,
+    "f": 1,
+    "a": "d",
+    "s": [
+     [
+      95,
+      85
+     ],
+     [
+      85,
+      80
+     ],
+     [
+      90,
+      80
+     ],
+     [
+      90,
+      75
+     ],
+     [
+      85,
+      80
+     ],
+     [
+      90,
+      70
+     ],
+     [
+      80,
+      70
+     ]
+    ],
+    "x": [
+     "none",
+     "none",
+     "none",
+     "too_little",
+     "none",
+     "none",
+     "none"
+    ]
+   },
+   "takeaway": {
+    "d": 3,
+    "f": 3,
+    "a": "d",
+    "s": [
+     [
+      80,
+      70
+     ],
+     null,
+     [
+      85,
+      75
+     ],
+     [
+      75,
+      60
+     ],
+     [
+      80,
+      70
+     ],
+     [
+      85,
+      75
+     ]
+    ],
+    "x": [
+     "inside",
+     "none",
+     "standing_up",
+     "sway",
+     "arms_first",
+     "none"
+    ]
+   },
+   "backswing": {
+    "d": 6,
+    "f": 6,
+    "a": "d",
+    "s": [
+     [
+      80,
+      70
+     ],
+     [
+      80,
+      70
+     ],
+     null,
+     [
+      85,
+      70
+     ],
+     [
+      80,
+      65
+     ],
+     [
+      85,
+      70
+     ],
+     [
+      85,
+      75
+     ],
+     [
+      85,
+      75
+     ]
+    ],
+    "x": [
+     "shallow",
+     "too_little",
+     "none",
+     "toward_ball",
+     "standing_up",
+     "none",
+     "none",
+     "too_little"
+    ]
+   },
+   "top": {
+    "d": 7,
+    "f": 7,
+    "a": "d",
+    "s": [
+     [
+      85,
+      75
+     ],
+     [
+      80,
+      70
+     ],
+     null,
+     [
+      85,
+      70
+     ],
+     [
+      80,
+      70
+     ],
+     [
+      85,
+      75
+     ],
+     [
+      85,
+      75
+     ],
+     [
+      80,
+      70
+     ]
+    ],
+    "x": [
+     "shallow",
+     "standing_up",
+     "none",
+     "reverse",
+     "too_little",
+     "none",
+     "too_little",
+     "too_little"
+    ]
+   },
+   "transition": {
+    "d": 8,
+    "f": 8,
+    "a": "d",
+    "s": [
+     [
+      75,
+      60
+     ],
+     [
+      80,
+      65
+     ],
+     [
+      85,
+      75
+     ],
+     null,
+     [
+      80,
+      70
+     ],
+     [
+      70,
+      60
+     ],
+     [
+      75,
+      65
+     ]
+    ],
+    "x": [
+     "too_little",
+     "out",
+     "out",
+     "none",
+     "toward_ball",
+     "too_little",
+     "arms_first"
+    ]
+   },
+   "downswing": {
+    "d": 11,
+    "f": 11,
+    "a": "d",
+    "s": [
+     [
+      80,
+      70
+     ],
+     null,
+     [
+      80,
+      70
+     ],
+     [
+      80,
+      70
+     ],
+     [
+      80,
+      70
+     ],
+     [
+      75,
+      60
+     ],
+     [
+      80,
+      70
+     ]
+    ],
+    "x": [
+     "inside",
+     "none",
+     "toward_ball",
+     "standing_up",
+     "stuck",
+     "too_little",
+     "arms_first"
+    ]
+   },
+   "impact": {
+    "d": 13,
+    "f": 13,
+    "a": "f",
+    "s": [
+     [
+      80,
+      70
+     ],
+     [
+      80,
+      70
+     ],
+     [
+      75,
+      65
+     ],
+     [
+      80,
+      70
+     ],
+     [
+      85,
+      80
+     ],
+     [
+      80,
+      70
+     ],
+     [
+      85,
+      80
+     ]
+    ],
+    "x": [
+     "toward_ball",
+     "standing_up",
+     "too_little",
+     "behind",
+     "none",
+     "too_little",
+     "bent"
+    ]
+   },
+   "release": {
+    "d": 15,
+    "f": 15,
+    "a": "f",
+    "s": [
+     null,
+     [
+      80,
+      70
+     ],
+     [
+      85,
+      75
+     ],
+     [
+      80,
+      70
+     ],
+     [
+      80,
+      70
+     ],
+     [
+      80,
+      70
+     ]
+    ],
+    "x": [
+     "none",
+     "standing_up",
+     "none",
+     "bent",
+     "too_little",
+     "too_little"
+    ]
+   },
+   "finish": {
+    "d": 18,
+    "f": 18,
+    "a": "f",
+    "s": [
+     [
+      85,
+      80
+     ],
+     [
+      80,
+      75
+     ],
+     [
+      85,
+      80
+     ]
+    ],
+    "x": [
+     "none",
+     "too_little",
+     "none"
+    ]
+   }
+  },
+  "metrics": [
+   [
+    117,
+    1,
+    0
+   ],
+   [
+    132.5,
+    1,
+    0
+   ],
+   [
+    0.88,
+    1,
+    0
+   ],
+   [
+    0.6,
+    1,
+    1
+   ],
+   [
+    4.6,
+    1,
+    1
+   ],
+   [
+    4,
+    1,
+    2
+   ],
+   [
+    -7.8,
+    1,
+    0
+   ],
+   [
+    -2.8,
+    1,
+    0
+   ],
+   [
+    -0.2,
+    1,
+    1
+   ],
+   [
+    7105,
+    1,
+    0
+   ],
+   [
+    -177.8,
+    1,
+    2
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    15.1,
+    1,
+    0
+   ],
+   [
+    23.3,
+    1,
+    1
+   ],
+   [
+    -21.2,
+    2,
+    0
+   ],
+   [
+    -7100,
+    1,
+    0
+   ],
+   [
+    -269,
+    1,
+    2
+   ],
+   [
+    0,
+    1,
+    1
+   ],
+   [
+    -0.3,
+    1,
+    2
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    67.5,
+    1,
+    1
+   ],
+   [
+    67.5,
+    1,
+    1
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    1.5,
+    1,
+    1
+   ],
+   [
+    23.2,
+    1,
+    0
+   ],
+   [
+    -41,
+    1,
+    0
+   ],
+   [
+    2162,
+    1,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ]
+  ],
+  "coach": {
+   "kind": "correction",
+   "cue": "TOO_STEEP",
+   "observation": "Your attack was steep into the ball.",
+   "instruction": "Shallow the shaft earlier in transition to approach from slightly below.",
+   "reinforcement": null,
+   "evidence_frame_id": "ALL_VALUES"
+  }
+ }
+}

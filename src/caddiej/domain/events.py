@@ -15,11 +15,18 @@ from enum import StrEnum
 from uuid import UUID
 
 from caddiej.core.events import Event
-from caddiej.domain.coaching import Advice, AdviceFailure, CoachingFocus, Diagnosis
-from caddiej.domain.media import CaptureState, ClipFailure, ClipRef
+from caddiej.domain.coaching import (
+    Advice,
+    AdviceFailure,
+    CoachingFocus,
+    CoachMetric,
+    Diagnosis,
+)
+from caddiej.domain.media import CaptureState, ClipFailure, ClipRef, SwingCapture
 from caddiej.domain.observation import ObservedRoundShot
 from caddiej.domain.shot import Club, Handedness, Shot
 from caddiej.domain.speech import Envelope, SpeechOutcome, SpeechPriority
+from caddiej.domain.swing_score import SwingScore
 
 
 class LinkState(StrEnum):
@@ -38,9 +45,39 @@ class RejectionReason(StrEnum):
 
     UNPARSEABLE = "unparseable"
     SCHEMA_INVALID = "schema_invalid"
-    OVERSIZED = "oversized"
     NO_SHOT_DATA = "no_shot_data"
     IMPLAUSIBLE_VALUE = "implausible_value"
+
+
+class CoachingStage(StrEnum):
+    """Which part of coaching a swing is in, named for what is actually running.
+
+    Three because the pipeline has three waits a golfer can feel, and each is
+    a different thing to be waiting for: the swing burst reading ProTee's
+    panels, the one request to a model, and CaddieJ checking what came back.
+    There is deliberately no fraction here. None of the three reports how far
+    through it is — OBS does not, a model does not — so a percentage drawn
+    from these would be a number CaddieJ made up and a player would believe.
+    """
+
+    CAPTURING = "capturing"
+    ANALYZING = "analyzing"
+    COACHING = "coaching"
+
+
+@dataclass(frozen=True, slots=True)
+class EvidenceFrame:
+    """One still CaddieJ sent to a model, named so it can be found again.
+
+    A capture and a frame id within it, and never a path. The id is one of the
+    names `caddiej.swing_capture.store.frame_files` gives a capture's stills,
+    and the only way back to a file is that same exact lookup, so whatever
+    shows this frame shows the picture the model was actually given rather
+    than one that happens to be on disk under a similar name.
+    """
+
+    capture_id: UUID
+    frame_id: str
 
 
 # --- category bases -------------------------------------------------------
@@ -133,6 +170,18 @@ class ShotCompleted(ShotEvent):
 
     shot: Shot
 
+    trigger_id: str | None = None
+    """The launch monitor's own detection counter for this strike, when one was
+    seen; None on paths where no detection precedes the result.
+
+    The only thing joining the moment a club hit a ball to the moment the
+    simulator finished flying it. In observe mode those are seconds apart —
+    `ShotDetected` comes off ProTee's camera trigger, `RoundShotObserved` off a
+    file GSPro rewrites when the ball lands — and every subsystem that wants
+    both was correlating them by "the most recent one" through mutable state.
+    Carried on the event so the join is explicit, loggable and testable
+    instead of being re-derived, differently, in each subscriber."""
+
 
 @dataclass(frozen=True, slots=True)
 class ShotMessageRejected(ShotEvent):
@@ -160,7 +209,36 @@ class IncompleteShotDiscarded(ShotEvent):
 
 
 @dataclass(frozen=True, slots=True)
-class ShotDispatched(LaunchMonitorEvent):
+class ShotDetected(ShotEvent):
+    """The launch monitor detected a strike. It carries no numbers at all.
+
+    The earliest per-shot fact CaddieJ has, and the only one that means "a club
+    hit a ball just now". On ProTee it is the camera trigger, written about a
+    sixth of a second before the shot is sent to the simulator and seconds
+    before GSPro has finished flying the ball.
+
+    Deliberately separate from `RoundShotObserved`, which is the completed GSPro
+    result, and from `ShotIngested`, which requires a normalized `Shot`. This
+    event may not be treated as either: nothing about how the ball flew is
+    known at the moment it is published.
+
+    `trigger_id` is the device's own counter for the detection, as the device
+    wrote it. It distinguishes detections within one launch-monitor session and
+    is not a shot identity — it restarts when the device does. It is carried
+    forward onto `ShotCompleted`, which is what makes the two halves of one
+    swing joinable.
+
+    A `ShotEvent` and not a `LaunchMonitorEvent`, despite coming from the
+    device's own log. What it reports is a shot, not the state of a link or a
+    detector, and a subscriber asking the bus for everything about shots must
+    not miss the earliest shot fact there is.
+    """
+
+    trigger_id: str = ""
+
+
+@dataclass(frozen=True, slots=True)
+class ShotDispatched(ShotEvent):
     """The launch monitor said it sent a shot to the simulator.
 
     Not `ShotCompleted`: that event requires a normalized `Shot`, and the
@@ -172,13 +250,23 @@ class ShotDispatched(LaunchMonitorEvent):
 class RoundShotObserved(ShotEvent):
     """A newly completed round-play shot, observed after CaddieJ started.
 
-    Produced from GSPro's currentRound.dat. It is not a launch-monitor `Shot`:
-    values stay raw because their units have not been verified. Historical
-    shots already in the file at startup are recorded as a baseline and never
-    published.
+    Produced from GSPro's currentRound.dat. Historical shots already in the
+    file at startup are recorded as a baseline and never published.
     """
 
     shot: ObservedRoundShot
+    """The entry as the file wrote it. Values stay raw because most of their
+    units have not been verified, and this is what the floor presents."""
+
+    measured: Shot | None = None
+    """The same shot as the one measurement in it that has verified units, or
+    None when the entry carried none.
+
+    Both are on one event rather than two because they are one swing. The raw
+    entry is what the player reads; this is what history, coaching and video
+    work from, and splitting them would let a shot be presented and not
+    analysed, or analysed twice.
+    """
 
 
 # --- player ---------------------------------------------------------------
@@ -203,6 +291,18 @@ class HandednessChanged(PlayerEvent):
 
 
 # --- simulator ------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class TargetDistanceObserved(SimulatorEvent):
+    """GSPro's remaining distance to the current target, observed live.
+
+    Produced from ProTee's ``GSPro read data`` Code 201 line
+    (``Player.DistanceToTarget``). This is pre-shot remaining distance, not a
+    completed shot's ``TotalDistance`` or stale ``DistanceToPin``.
+    """
+
+    distance_raw: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -246,6 +346,24 @@ class SwingClipReady(CaptureEvent):
 
 
 @dataclass(frozen=True, slots=True)
+class SwingFramesReady(CaptureEvent):
+    """Stills of the swing that has just been hit are on disk and complete.
+
+    Published only after the capture directory has been put in place as a
+    whole, so a subscriber never reads a half-written swing. It says frames
+    exist and where they are; it says nothing about what is in them, because
+    nothing here has looked.
+
+    Not `SwingClipReady`: that is a video file CaddieJ recorded itself from a
+    camera it owns. This is a set of stills read back from what the launch
+    monitor's own software already rendered on screen, and the two have
+    different timing, different provenance and different trust.
+    """
+
+    capture: SwingCapture
+
+
+@dataclass(frozen=True, slots=True)
 class SwingClipFailed(CaptureEvent):
     """No clip could be produced for a shot, and this is why.
 
@@ -273,6 +391,40 @@ class ShotDiagnosed(CoachingEvent):
 
     diagnosis: Diagnosis
 
+    swing_score: SwingScore | None = None
+    """The swing's score, when this verdict comes after the readings did.
+
+    On the ProTee path a refused or unusable reply ends in this event rather
+    than in `AnalysisCompleted`, and the score was computed from the readings
+    before the reply was judged. Carried here so a template line reaches the
+    floor with the same score the stored record has; the number never
+    depended on the words, so losing the words must not lose it."""
+
+    metrics: tuple[CoachMetric, ...] = ()
+    """The four readings shown beside the line, for the same reason as the
+    score: they were read before the reply was judged, and a refused reply
+    must not take the player's carry off the floor with it."""
+
+
+@dataclass(frozen=True, slots=True)
+class CoachingProgress(CoachingEvent):
+    """A swing's coaching moved to a new stage. Presentation only.
+
+    The ProTee path has a trigger long before it has a shot id — the strike
+    is all there is until the reply is settled — so `trigger_id` is always
+    carried and `shot_id` whenever one exists. Whatever listens decides
+    currency from those, exactly as it does for the line itself; nothing about
+    this event can make stale work look current.
+
+    Published on the way past and never waited for. Losing one costs a frame
+    of animation; delaying the pipeline for one would cost the coaching it was
+    announcing.
+    """
+
+    stage: CoachingStage
+    trigger_id: str = ""
+    shot_id: UUID | None = None
+
 
 @dataclass(frozen=True, slots=True)
 class AnalysisStarted(CoachingEvent):
@@ -295,6 +447,13 @@ class AnalysisCompleted(CoachingEvent):
 
     shot_id: UUID
     advice: Advice
+
+    evidence: EvidenceFrame | None = None
+    """The still the line cites, in the capture it was sent from.
+
+    `advice.evidence_frame_id` alone names a frame without saying which swing
+    it belongs to, and the floor has to find the file. None whenever the line
+    cites nothing, which is every template and every GSPro-only line."""
 
 
 @dataclass(frozen=True, slots=True)

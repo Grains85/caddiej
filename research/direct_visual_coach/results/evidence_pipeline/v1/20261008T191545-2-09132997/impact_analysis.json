@@ -1,0 +1,584 @@
+{
+  "schema_version": "1",
+  "shot_id": "20261008T191545-2-09132997",
+  "fused": {
+    "schema_version": "1",
+    "shot_id": "20261008T191545-2-09132997",
+    "status": "estimated",
+    "provenance": {
+      "stage": "impact_estimation_fused",
+      "producer": "impact_estimator",
+      "producer_version": "1",
+      "created_at": null
+    },
+    "classification": "observed_ball_motion_onset",
+    "reason": "stationary_spot_changed_and_stayed_changed",
+    "confidence": 0.65,
+    "confidence_scale": "uncalibrated_heuristic",
+    "method": "local_ball_appearance_change",
+    "camera_id": "swing_behind",
+    "contact_interval_ticks": [
+      40,
+      41
+    ],
+    "contact_interval_seconds": [
+      3.8571,
+      3.9042
+    ],
+    "supporting_ticks": [
+      40,
+      41,
+      42
+    ],
+    "normalized_ball": [
+      0.772917,
+      0.657264
+    ],
+    "rejected_candidates": [
+      {
+        "normalized_x": 0.466667,
+        "normalized_y": 0.675599,
+        "reason": "no_motion_onset",
+        "onset_tick": null
+      },
+      {
+        "normalized_x": 0.014583,
+        "normalized_y": 0.96756,
+        "reason": "no_motion_onset",
+        "onset_tick": null
+      }
+    ],
+    "camera_estimates": [
+      {
+        "schema_version": "1",
+        "shot_id": "20261008T191545-2-09132997",
+        "status": "estimated",
+        "provenance": {
+          "stage": "impact_estimation",
+          "producer": "impact_estimator",
+          "producer_version": "1",
+          "created_at": null
+        },
+        "classification": "observed_ball_motion_onset",
+        "reason": "stationary_spot_changed_and_stayed_changed",
+        "confidence": 0.65,
+        "confidence_scale": "uncalibrated_heuristic",
+        "method": "local_ball_appearance_change",
+        "camera_id": "swing_behind",
+        "contact_interval_ticks": [
+          40,
+          41
+        ],
+        "contact_interval_seconds": [
+          3.8571,
+          3.9042
+        ],
+        "supporting_ticks": [
+          40,
+          41,
+          42
+        ],
+        "normalized_ball": [
+          0.772917,
+          0.657264
+        ],
+        "rejected_candidates": [
+          {
+            "normalized_x": 0.466667,
+            "normalized_y": 0.675599,
+            "reason": "no_motion_onset",
+            "onset_tick": null
+          },
+          {
+            "normalized_x": 0.014583,
+            "normalized_y": 0.96756,
+            "reason": "no_motion_onset",
+            "onset_tick": null
+          }
+        ],
+        "camera_estimates": [],
+        "parameters": [
+          [
+            "analysis_width",
+            480
+          ],
+          [
+            "ground_top",
+            0.4
+          ],
+          [
+            "ground_bottom",
+            0.97
+          ],
+          [
+            "reference_frames",
+            4
+          ],
+          [
+            "min_stable_seconds",
+            0.2
+          ],
+          [
+            "persist_frames",
+            2
+          ],
+          [
+            "persist_fraction",
+            0.7
+          ],
+          [
+            "min_area",
+            4
+          ],
+          [
+            "max_area",
+            200
+          ],
+          [
+            "min_aspect",
+            0.55
+          ],
+          [
+            "min_fill",
+            0.4
+          ],
+          [
+            "onset_gray",
+            20.0
+          ],
+          [
+            "stable_gray",
+            12.0
+          ],
+          [
+            "ring_ratio",
+            0.7
+          ],
+          [
+            "min_contrast",
+            12.0
+          ],
+          [
+            "disagreement_periods",
+            2.0
+          ]
+        ],
+        "warnings": [
+          "The interval is when a stationary spot left. The club meeting the ball was not observed, so this is not an inferred contact claim."
+        ]
+      },
+      {
+        "schema_version": "1",
+        "shot_id": "20261008T191545-2-09132997",
+        "status": "unresolved",
+        "provenance": {
+          "stage": "impact_estimation",
+          "producer": "impact_estimator",
+          "producer_version": "1",
+          "created_at": null
+        },
+        "classification": "unsupported",
+        "reason": "ball_not_visible",
+        "confidence": null,
+        "confidence_scale": "uncalibrated_heuristic",
+        "method": "local_ball_appearance_change",
+        "camera_id": "swing_side",
+        "contact_interval_ticks": null,
+        "contact_interval_seconds": null,
+        "supporting_ticks": [],
+        "normalized_ball": null,
+        "rejected_candidates": [],
+        "camera_estimates": [],
+        "parameters": [
+          [
+            "analysis_width",
+            480
+          ],
+          [
+            "ground_top",
+            0.4
+          ],
+          [
+            "ground_bottom",
+            0.97
+          ],
+          [
+            "reference_frames",
+            4
+          ],
+          [
+            "min_stable_seconds",
+            0.2
+          ],
+          [
+            "persist_frames",
+            2
+          ],
+          [
+            "persist_fraction",
+            0.7
+          ],
+          [
+            "min_area",
+            4
+          ],
+          [
+            "max_area",
+            200
+          ],
+          [
+            "min_aspect",
+            0.55
+          ],
+          [
+            "min_fill",
+            0.4
+          ],
+          [
+            "onset_gray",
+            20.0
+          ],
+          [
+            "stable_gray",
+            12.0
+          ],
+          [
+            "ring_ratio",
+            0.7
+          ],
+          [
+            "min_contrast",
+            12.0
+          ],
+          [
+            "disagreement_periods",
+            2.0
+          ]
+        ],
+        "warnings": []
+      }
+    ],
+    "parameters": [
+      [
+        "analysis_width",
+        480
+      ],
+      [
+        "ground_top",
+        0.4
+      ],
+      [
+        "ground_bottom",
+        0.97
+      ],
+      [
+        "reference_frames",
+        4
+      ],
+      [
+        "min_stable_seconds",
+        0.2
+      ],
+      [
+        "persist_frames",
+        2
+      ],
+      [
+        "persist_fraction",
+        0.7
+      ],
+      [
+        "min_area",
+        4
+      ],
+      [
+        "max_area",
+        200
+      ],
+      [
+        "min_aspect",
+        0.55
+      ],
+      [
+        "min_fill",
+        0.4
+      ],
+      [
+        "onset_gray",
+        20.0
+      ],
+      [
+        "stable_gray",
+        12.0
+      ],
+      [
+        "ring_ratio",
+        0.7
+      ],
+      [
+        "min_contrast",
+        12.0
+      ],
+      [
+        "disagreement_periods",
+        2.0
+      ]
+    ],
+    "warnings": [
+      "The interval is when a stationary spot left. The club meeting the ball was not observed, so this is not an inferred contact claim.",
+      "swing_side unresolved: ball_not_visible"
+    ]
+  },
+  "cameras": [
+    {
+      "schema_version": "1",
+      "shot_id": "20261008T191545-2-09132997",
+      "status": "estimated",
+      "provenance": {
+        "stage": "impact_estimation",
+        "producer": "impact_estimator",
+        "producer_version": "1",
+        "created_at": null
+      },
+      "classification": "observed_ball_motion_onset",
+      "reason": "stationary_spot_changed_and_stayed_changed",
+      "confidence": 0.65,
+      "confidence_scale": "uncalibrated_heuristic",
+      "method": "local_ball_appearance_change",
+      "camera_id": "swing_behind",
+      "contact_interval_ticks": [
+        40,
+        41
+      ],
+      "contact_interval_seconds": [
+        3.8571,
+        3.9042
+      ],
+      "supporting_ticks": [
+        40,
+        41,
+        42
+      ],
+      "normalized_ball": [
+        0.772917,
+        0.657264
+      ],
+      "rejected_candidates": [
+        {
+          "normalized_x": 0.466667,
+          "normalized_y": 0.675599,
+          "reason": "no_motion_onset",
+          "onset_tick": null
+        },
+        {
+          "normalized_x": 0.014583,
+          "normalized_y": 0.96756,
+          "reason": "no_motion_onset",
+          "onset_tick": null
+        }
+      ],
+      "camera_estimates": [],
+      "parameters": [
+        [
+          "analysis_width",
+          480
+        ],
+        [
+          "ground_top",
+          0.4
+        ],
+        [
+          "ground_bottom",
+          0.97
+        ],
+        [
+          "reference_frames",
+          4
+        ],
+        [
+          "min_stable_seconds",
+          0.2
+        ],
+        [
+          "persist_frames",
+          2
+        ],
+        [
+          "persist_fraction",
+          0.7
+        ],
+        [
+          "min_area",
+          4
+        ],
+        [
+          "max_area",
+          200
+        ],
+        [
+          "min_aspect",
+          0.55
+        ],
+        [
+          "min_fill",
+          0.4
+        ],
+        [
+          "onset_gray",
+          20.0
+        ],
+        [
+          "stable_gray",
+          12.0
+        ],
+        [
+          "ring_ratio",
+          0.7
+        ],
+        [
+          "min_contrast",
+          12.0
+        ],
+        [
+          "disagreement_periods",
+          2.0
+        ]
+      ],
+      "warnings": [
+        "The interval is when a stationary spot left. The club meeting the ball was not observed, so this is not an inferred contact claim."
+      ]
+    },
+    {
+      "schema_version": "1",
+      "shot_id": "20261008T191545-2-09132997",
+      "status": "unresolved",
+      "provenance": {
+        "stage": "impact_estimation",
+        "producer": "impact_estimator",
+        "producer_version": "1",
+        "created_at": null
+      },
+      "classification": "unsupported",
+      "reason": "ball_not_visible",
+      "confidence": null,
+      "confidence_scale": "uncalibrated_heuristic",
+      "method": "local_ball_appearance_change",
+      "camera_id": "swing_side",
+      "contact_interval_ticks": null,
+      "contact_interval_seconds": null,
+      "supporting_ticks": [],
+      "normalized_ball": null,
+      "rejected_candidates": [],
+      "camera_estimates": [],
+      "parameters": [
+        [
+          "analysis_width",
+          480
+        ],
+        [
+          "ground_top",
+          0.4
+        ],
+        [
+          "ground_bottom",
+          0.97
+        ],
+        [
+          "reference_frames",
+          4
+        ],
+        [
+          "min_stable_seconds",
+          0.2
+        ],
+        [
+          "persist_frames",
+          2
+        ],
+        [
+          "persist_fraction",
+          0.7
+        ],
+        [
+          "min_area",
+          4
+        ],
+        [
+          "max_area",
+          200
+        ],
+        [
+          "min_aspect",
+          0.55
+        ],
+        [
+          "min_fill",
+          0.4
+        ],
+        [
+          "onset_gray",
+          20.0
+        ],
+        [
+          "stable_gray",
+          12.0
+        ],
+        [
+          "ring_ratio",
+          0.7
+        ],
+        [
+          "min_contrast",
+          12.0
+        ],
+        [
+          "disagreement_periods",
+          2.0
+        ]
+      ],
+      "warnings": []
+    }
+  ],
+  "synchronization": {
+    "matched_ticks": 51,
+    "median_abs_delta_seconds": 0.0,
+    "max_abs_delta_seconds": 0.0,
+    "sufficient": true,
+    "note": "Cameras are compared by capture tick on offset_seconds. A shared tick is not treated as proof of synchronization."
+  },
+  "protee_shot_detected": {
+    "used": false,
+    "reason": "ProTee ShotDetected is not used. It is not an exact contact time on the replay frame clock, and this package does not treat it as one."
+  },
+  "performance": {
+    "total_seconds": 2.8084627999996883,
+    "stage_seconds": 1.52950729999975,
+    "impact_seconds": 0.22021849999964616,
+    "duplicates": {
+      "swing_behind": 1,
+      "swing_side": 1
+    },
+    "rejected_files": {
+      "swing_behind": [],
+      "swing_side": []
+    },
+    "high_motion": {
+      "swing_behind": {
+        "regions": 4,
+        "ticks": 11,
+        "selected_ticks": 7
+      },
+      "swing_side": {
+        "regions": 4,
+        "ticks": 14,
+        "selected_ticks": 7
+      }
+    },
+    "per_camera_budget": {
+      "swing_behind": 12,
+      "swing_side": 12
+    },
+    "working_set_bytes": 121376768,
+    "peak_working_set_bytes": 240472064
+  }
+}

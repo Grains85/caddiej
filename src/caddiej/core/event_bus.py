@@ -382,6 +382,7 @@ class AsyncEventBus:
         )
 
         refusals: list[str] = []
+        delivered = 0
         for subscriber in self._matching(stamped):
             policy = self._policy_for(subscriber, stamped)
             result = await subscriber.queue.offer(stamped, policy, now_ns)
@@ -397,6 +398,7 @@ class AsyncEventBus:
                     )
 
             if result is _Offer.ENQUEUED:
+                delivered += 1
                 self._note_enqueued()
             elif result is _Offer.COALESCED:
                 subscriber.coalesced += 1
@@ -440,6 +442,23 @@ class AsyncEventBus:
                 )
                 refusals.append(subscriber.name)
             elif result is _Offer.CLOSED:
+                if delivered:
+                    # A queue closed partway through the fan-out, after
+                    # subscribers earlier in the order already had the event.
+                    # Raising here would report a delivery that partly
+                    # happened as one that did not happen at all, and the
+                    # publisher — a passive observer, mid-chunk — would treat
+                    # it as a reason to abandon what it was doing. The
+                    # remaining subscribers are shutting down and are not
+                    # going to read anything anyway.
+                    logger.debug(
+                        "event_bus_partial_fanout",
+                        extra={
+                            "event_type": type(stamped).__name__,
+                            "subscriber": subscriber.name,
+                        },
+                    )
+                    break
                 raise EventBusClosed(self._state)
 
         if refusals:

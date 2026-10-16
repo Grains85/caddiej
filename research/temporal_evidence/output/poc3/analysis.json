@@ -1,0 +1,831 @@
+{
+ "raw_locate": [
+  [
+   1,
+   1
+  ],
+  [
+   3,
+   3
+  ],
+  [
+   6,
+   6
+  ],
+  [
+   5,
+   5
+  ],
+  [
+   7,
+   7
+  ],
+  [
+   11,
+   11
+  ],
+  [
+   13,
+   13
+  ],
+  [
+   15,
+   15
+  ],
+  [
+   18,
+   18
+  ]
+ ],
+ "raw_evidence": [
+  [
+   1,
+   1
+  ],
+  [
+   3,
+   3
+  ],
+  [
+   6,
+   6
+  ],
+  [
+   5,
+   5
+  ],
+  [
+   7,
+   7
+  ],
+  [
+   11,
+   11
+  ],
+  [
+   13,
+   13
+  ],
+  [
+   15,
+   15
+  ],
+  [
+   18,
+   18
+  ]
+ ],
+ "any_cameras": {
+  "setup_any": [
+   1,
+   80,
+   80
+  ],
+  "takeaway_any": [
+   1,
+   80,
+   80
+  ],
+  "backswing_any": [
+   1,
+   80,
+   80
+  ],
+  "top_any": [
+   2,
+   75,
+   0
+  ],
+  "transition_any": [
+   2,
+   65,
+   60
+  ],
+  "downswing_any": [
+   2,
+   65,
+   60
+  ],
+  "impact_any": [
+   2,
+   65,
+   60
+  ],
+  "release_any": [
+   2,
+   75,
+   60
+  ],
+  "finish_any": [
+   75,
+   70,
+   0
+  ]
+ },
+ "locate_notes": [
+  "dtl P3 DTL_06: order",
+  "dtl P4 DTL_05: order",
+  "fo P3 FO_06: order",
+  "fo P4 FO_05: order"
+ ],
+ "locate": [
+  {
+   "camera": "dtl",
+   "position": "P1",
+   "cell": "DTL_01",
+   "capture_index": 15,
+   "verdict": "correct",
+   "kept": true
+  },
+  {
+   "camera": "dtl",
+   "position": "P2",
+   "cell": "DTL_03",
+   "capture_index": 21,
+   "verdict": "correct",
+   "kept": true
+  },
+  {
+   "camera": "dtl",
+   "position": "P3",
+   "cell": "DTL_06",
+   "capture_index": 28,
+   "verdict": "wrong",
+   "kept": false
+  },
+  {
+   "camera": "dtl",
+   "position": "P4",
+   "cell": "DTL_05",
+   "capture_index": 26,
+   "verdict": "acceptable",
+   "kept": false
+  },
+  {
+   "camera": "dtl",
+   "position": "P5",
+   "cell": "DTL_07",
+   "capture_index": 30,
+   "verdict": "wrong",
+   "kept": true
+  },
+  {
+   "camera": "dtl",
+   "position": "P6",
+   "cell": "DTL_11",
+   "capture_index": 39,
+   "verdict": "correct",
+   "kept": true
+  },
+  {
+   "camera": "dtl",
+   "position": "P7",
+   "cell": "DTL_13",
+   "capture_index": 41,
+   "verdict": "correct",
+   "kept": true
+  },
+  {
+   "camera": "dtl",
+   "position": "P8",
+   "cell": "DTL_15",
+   "capture_index": 43,
+   "verdict": "correct",
+   "kept": true
+  },
+  {
+   "camera": "dtl",
+   "position": "P9",
+   "cell": "DTL_18",
+   "capture_index": 51,
+   "verdict": "correct",
+   "kept": true
+  },
+  {
+   "camera": "fo",
+   "position": "P1",
+   "cell": "FO_01",
+   "capture_index": 15,
+   "verdict": "correct",
+   "kept": true
+  },
+  {
+   "camera": "fo",
+   "position": "P2",
+   "cell": "FO_03",
+   "capture_index": 19,
+   "verdict": "correct",
+   "kept": true
+  },
+  {
+   "camera": "fo",
+   "position": "P3",
+   "cell": "FO_06",
+   "capture_index": 27,
+   "verdict": "acceptable",
+   "kept": false
+  },
+  {
+   "camera": "fo",
+   "position": "P4",
+   "cell": "FO_05",
+   "capture_index": 24,
+   "verdict": "wrong",
+   "kept": false
+  },
+  {
+   "camera": "fo",
+   "position": "P5",
+   "cell": "FO_07",
+   "capture_index": 29,
+   "verdict": "wrong",
+   "kept": true
+  },
+  {
+   "camera": "fo",
+   "position": "P6",
+   "cell": "FO_11",
+   "capture_index": 39,
+   "verdict": "correct",
+   "kept": true
+  },
+  {
+   "camera": "fo",
+   "position": "P7",
+   "cell": "FO_13",
+   "capture_index": 41,
+   "verdict": "correct",
+   "kept": true
+  },
+  {
+   "camera": "fo",
+   "position": "P8",
+   "cell": "FO_15",
+   "capture_index": 43,
+   "verdict": "correct",
+   "kept": true
+  },
+  {
+   "camera": "fo",
+   "position": "P9",
+   "cell": "FO_18",
+   "capture_index": 51,
+   "verdict": "correct",
+   "kept": true
+  }
+ ],
+ "evidence": [
+  {
+   "camera": "dtl",
+   "position": "P1",
+   "cell": "DTL_01",
+   "capture_index": 15,
+   "locate": "DTL_01",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "correct",
+   "used_by": [
+    "setup_dtl"
+   ]
+  },
+  {
+   "camera": "dtl",
+   "position": "P2",
+   "cell": "DTL_03",
+   "capture_index": 21,
+   "locate": "DTL_03",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "correct",
+   "used_by": [
+    "takeaway_dtl"
+   ]
+  },
+  {
+   "camera": "dtl",
+   "position": "P3",
+   "cell": "DTL_06",
+   "capture_index": 28,
+   "locate": "DTL_06",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "wrong",
+   "used_by": [
+    "backswing_dtl"
+   ]
+  },
+  {
+   "camera": "dtl",
+   "position": "P4",
+   "cell": "DTL_05",
+   "capture_index": 26,
+   "locate": "DTL_05",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "acceptable",
+   "used_by": [
+    "top_dtl"
+   ]
+  },
+  {
+   "camera": "dtl",
+   "position": "P5",
+   "cell": "DTL_07",
+   "capture_index": 30,
+   "locate": "DTL_07",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "wrong",
+   "used_by": [
+    "transition_dtl"
+   ]
+  },
+  {
+   "camera": "dtl",
+   "position": "P6",
+   "cell": "DTL_11",
+   "capture_index": 39,
+   "locate": "DTL_11",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "correct",
+   "used_by": [
+    "downswing_dtl"
+   ]
+  },
+  {
+   "camera": "dtl",
+   "position": "P7",
+   "cell": "DTL_13",
+   "capture_index": 41,
+   "locate": "DTL_13",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "correct",
+   "used_by": [
+    "impact_dtl"
+   ]
+  },
+  {
+   "camera": "dtl",
+   "position": "P8",
+   "cell": "DTL_15",
+   "capture_index": 43,
+   "locate": "DTL_15",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "correct",
+   "used_by": [
+    "release_dtl"
+   ]
+  },
+  {
+   "camera": "dtl",
+   "position": "P9",
+   "cell": "DTL_18",
+   "capture_index": 51,
+   "locate": "DTL_18",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "correct",
+   "used_by": []
+  },
+  {
+   "camera": "fo",
+   "position": "P1",
+   "cell": "FO_01",
+   "capture_index": 15,
+   "locate": "FO_01",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "correct",
+   "used_by": [
+    "setup_fo"
+   ]
+  },
+  {
+   "camera": "fo",
+   "position": "P2",
+   "cell": "FO_03",
+   "capture_index": 19,
+   "locate": "FO_03",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "correct",
+   "used_by": [
+    "takeaway_fo"
+   ]
+  },
+  {
+   "camera": "fo",
+   "position": "P3",
+   "cell": "FO_06",
+   "capture_index": 27,
+   "locate": "FO_06",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "acceptable",
+   "used_by": [
+    "backswing_fo"
+   ]
+  },
+  {
+   "camera": "fo",
+   "position": "P4",
+   "cell": "FO_05",
+   "capture_index": 24,
+   "locate": "FO_05",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "wrong",
+   "used_by": [
+    "top_fo"
+   ]
+  },
+  {
+   "camera": "fo",
+   "position": "P5",
+   "cell": "FO_07",
+   "capture_index": 29,
+   "locate": "FO_07",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "wrong",
+   "used_by": [
+    "transition_fo"
+   ]
+  },
+  {
+   "camera": "fo",
+   "position": "P6",
+   "cell": "FO_11",
+   "capture_index": 39,
+   "locate": "FO_11",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "correct",
+   "used_by": []
+  },
+  {
+   "camera": "fo",
+   "position": "P7",
+   "cell": "FO_13",
+   "capture_index": 41,
+   "locate": "FO_13",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "correct",
+   "used_by": [
+    "impact_fo"
+   ]
+  },
+  {
+   "camera": "fo",
+   "position": "P8",
+   "cell": "FO_15",
+   "capture_index": 43,
+   "locate": "FO_15",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "correct",
+   "used_by": [
+    "release_fo"
+   ]
+  },
+  {
+   "camera": "fo",
+   "position": "P9",
+   "cell": "FO_18",
+   "capture_index": 51,
+   "locate": "FO_18",
+   "equals_locate": true,
+   "validator": "ok",
+   "truth": "correct",
+   "used_by": []
+  }
+ ],
+ "evidence_counts": {
+  "entries": 18,
+  "equal_to_locate": 18,
+  "different_and_validator_ok": 0,
+  "different_and_validator_rejected": 0,
+  "different_and_truth_ok": 0,
+  "different_and_truth_wrong": 0
+ },
+ "list_use": {
+  "setup_dtl": [
+   "dtl",
+   "DTL_01",
+   "ok"
+  ],
+  "setup_fo": [
+   "fo",
+   "FO_01",
+   "ok"
+  ],
+  "takeaway_dtl": [
+   "dtl",
+   "DTL_03",
+   "ok"
+  ],
+  "takeaway_fo": [
+   "fo",
+   "FO_03",
+   "ok"
+  ],
+  "backswing_dtl": [
+   "dtl",
+   "DTL_06",
+   "ok"
+  ],
+  "backswing_fo": [
+   "fo",
+   "FO_06",
+   "ok"
+  ],
+  "top_dtl": [
+   "dtl",
+   "DTL_05",
+   "ok"
+  ],
+  "top_fo": [
+   "fo",
+   "FO_05",
+   "ok"
+  ],
+  "transition_dtl": [
+   "dtl",
+   "DTL_07",
+   "ok"
+  ],
+  "transition_fo": [
+   "fo",
+   "FO_07",
+   "ok"
+  ],
+  "downswing_dtl": [
+   "dtl",
+   "DTL_11",
+   "ok"
+  ],
+  "impact_dtl": [
+   "dtl",
+   "DTL_13",
+   "ok"
+  ],
+  "impact_fo": [
+   "fo",
+   "FO_13",
+   "ok"
+  ],
+  "release_dtl": [
+   "dtl",
+   "DTL_15",
+   "ok"
+  ],
+  "release_fo": [
+   "fo",
+   "FO_15",
+   "ok"
+  ]
+ },
+ "summary": {
+  "label": "POC3 hybrid",
+  "accepted": 24,
+  "rejected": 29,
+  "rejection_reasons": {
+   "deviation": 8,
+   "length": 20,
+   "shape": 1
+  },
+  "accepted_by_position_truth": {
+   "correct": 12,
+   "wrong": 9,
+   "acceptable": 3
+  },
+  "accepted_wrong_position": [
+   "backswing_hand_depth@DTL_06",
+   "backswing_hip_depth@DTL_06",
+   "backswing_posture@DTL_06",
+   "top_centre@FO_05",
+   "transition_arms_lowering@DTL_07",
+   "transition_hand_direction@DTL_07",
+   "transition_trail_shoulder@DTL_07",
+   "transition_posture_space@DTL_07",
+   "transition_pressure_shift@FO_07"
+  ],
+  "coverage": 0.69,
+  "coverage_level": "limited",
+  "mechanics": 67,
+  "phases": {
+   "setup": [
+    null,
+    0.17,
+    "1/7"
+   ],
+   "takeaway": [
+    null,
+    0.3,
+    "2/6"
+   ],
+   "backswing": [
+    77,
+    0.53,
+    "4/8"
+   ],
+   "top": [
+    72,
+    0.47,
+    "3/8"
+   ],
+   "transition": [
+    62,
+    0.71,
+    "5/7"
+   ],
+   "downswing": [
+    64,
+    0.62,
+    "4/7"
+   ],
+   "impact": [
+    66,
+    0.69,
+    "4/7"
+   ],
+   "release": [
+    null,
+    0.09,
+    "1/6"
+   ],
+   "finish": [
+    null,
+    0.0,
+    "0/3"
+   ]
+  },
+  "swing_score": 67,
+  "faults": [],
+  "root": "RootCause(fault=None, cue=None, reason='none', ranking=(), explains=(), sticky=False, frame_id=None, confidence=None, severity=None)",
+  "lesson_cue": null,
+  "authority": {
+   "cue": "FACE_CONTROL_GOOD",
+   "from_visual": false
+  },
+  "outcome": "reconciled -> CaddieJ's lesson FACE_CONTROL_GOOD",
+  "unanchored_accepts": 7,
+  "rejected_list": [
+   [
+    "setup_hip_hinge",
+    "deviation"
+   ],
+   [
+    "setup_knee_flex",
+    "deviation"
+   ],
+   [
+    "setup_spine_posture",
+    "deviation"
+   ],
+   [
+    "setup_hand_spacing",
+    "deviation"
+   ],
+   [
+    "setup_shaft_position",
+    "deviation"
+   ],
+   [
+    "setup_balance",
+    "length"
+   ],
+   [
+    "takeaway_hip_movement",
+    "deviation"
+   ],
+   [
+    "takeaway_body_led",
+    "length"
+   ],
+   [
+    "takeaway_arm_connection",
+    "length"
+   ],
+   [
+    "backswing_arm_structure",
+    "length"
+   ],
+   [
+    "backswing_body_turn",
+    "length"
+   ],
+   [
+    "top_hand_height",
+    "length"
+   ],
+   [
+    "top_arm_structure",
+    "length"
+   ],
+   [
+    "top_shoulder_turn",
+    "length"
+   ],
+   [
+    "top_hip_turn",
+    "length"
+   ],
+   [
+    "transition_pelvis_initiation",
+    "length"
+   ],
+   [
+    "delivery_pelvis_rotation",
+    "length"
+   ],
+   [
+    "delivery_body_arm_sync",
+    "length"
+   ],
+   [
+    "impact_head_centre",
+    "deviation"
+   ],
+   [
+    "impact_pelvis_rotation",
+    "length"
+   ],
+   [
+    "impact_arm_structure",
+    "length"
+   ],
+   [
+    "release_club_exit",
+    "shape"
+   ],
+   [
+    "release_arm_connection",
+    "deviation"
+   ],
+   [
+    "release_lead_arm_structure",
+    "length"
+   ],
+   [
+    "release_arm_extension",
+    "length"
+   ],
+   [
+    "release_body_rotation",
+    "length"
+   ],
+   [
+    "finish_balance",
+    "length"
+   ],
+   [
+    "finish_rotation",
+    "length"
+   ],
+   [
+    "finish_structure",
+    "length"
+   ]
+  ]
+ },
+ "usage": {
+  "input_tokens": 12940,
+  "output_tokens": 976,
+  "reasoning_tokens": 0,
+  "cached_tokens": 0,
+  "status": "completed"
+ },
+ "cost_usd": 0.005187,
+ "wall_seconds": 10.731,
+ "validate_seconds": 0.001,
+ "criteria_verdicts": {
+  "locate_wrong": [
+   4,
+   false
+  ],
+  "p7": [
+   {
+    "dtl": 41,
+    "fo": 41
+   },
+   true
+  ],
+  "accepted": [
+   24,
+   false
+  ],
+  "wrong_position_accepted": [
+   9,
+   false
+  ],
+  "output_tokens": [
+   976,
+   "pass"
+  ]
+ }
+}

@@ -13,9 +13,12 @@ a template or from a language model, and `source` says which.
 
 That split is what lets a language model be absent, slow, wrong or unaffordable
 without the floor going blank: the fault was already named before anything was
-asked. It is also why nothing here can express an action. An advice is two short
-strings and a label — no coordinate, no club, no score, no verb with an object —
-so a subscriber can display it or speak it and can do nothing else with it.
+asked. It is also why nothing here can express an action. An advice is a few
+short strings, a label and at most the id of a picture CaddieJ already took — no
+coordinate, no club, no verb with an object — so a subscriber can display it or
+speak it and can do nothing else with it. The one number it may carry, a
+`SwingScore`, is CaddieJ's arithmetic over the readings and rides on the line
+only so that it reaches the same places; no word a model wrote went into it.
 """
 
 from dataclasses import dataclass
@@ -23,7 +26,10 @@ from datetime import datetime
 from enum import StrEnum
 from uuid import UUID
 
+from caddiej.domain.cues import ConfidenceSource, CueId
 from caddiej.domain.shot import ClubKind, Handedness
+from caddiej.domain.swing_review import SwingReview
+from caddiej.domain.swing_score import SwingScore
 
 # Below `FINE` nothing is worth saying, which is what `CoachingFocus.NONE` is
 # for. Above `FAULT` the floor draws the line more insistently. Both are here
@@ -42,12 +48,18 @@ class CoachingFocus(StrEnum):
     one idea per shot, and this is a list of ideas rather than of measurements.
     """
 
-    # Rankable from what the launch monitor measured.
+    # Rankable from club delivery, where a device reports it.
     FACE_CONTROL = "face_control"
     PATH = "path"
     STRIKE = "strike"
     LOW_POINT = "low_point"
     SPEED = "speed"
+    # Rankable from the ball alone, which is all a passive observer ever gets.
+    # Kept separate from the club faults above rather than folded into them: a
+    # ball that started off line and a face that was open are different facts,
+    # and naming the second from the first would be inventing a measurement.
+    START_LINE = "start_line"
+    CURVE = "curve"
     LAUNCH = "launch"
     SPIN = "spin"
     CONSISTENCY = "consistency"
@@ -71,6 +83,28 @@ OBSERVED_FOCUSES = frozenset(
     }
 )
 """The focuses no number can rank, so no severity can be computed for them."""
+
+
+class AdviceKind(StrEnum):
+    """What a line is for, which is not the same as how bad the shot was.
+
+    A severity says how far a measurement sits from where it should be. It
+    cannot say whether the useful thing to do about that is to ask for a change
+    or to confirm one, and overloading it to mean both is how a coach ends up
+    either finding a fault in a good swing or saying nothing after one.
+    """
+
+    CORRECTION = "correction"
+    """Something is worth changing, and the line names one thing to change."""
+
+    REINFORCEMENT = "reinforcement"
+    """Nothing needs changing, or the thing being worked on got better. The
+    line confirms the movement that produced it, which is what makes a good
+    shot worth talking about."""
+
+    NONE = "none"
+    """Nothing was measured well enough to say anything. Silence, and the only
+    honest answer when there is no evidence."""
 
 
 class SeveritySource(StrEnum):
@@ -155,6 +189,31 @@ class Observation:
 
 
 @dataclass(frozen=True, slots=True)
+class CoachMetric:
+    """One number a player wants beside the lesson, already formatted.
+
+    Four of these reach the floor: carry, face, path and club speed. They are
+    not a second opinion about the swing and nothing downstream computes with
+    them — they are strings, because the one job here is to put what the
+    launch monitor said somewhere a player standing over the next ball can
+    read it.
+
+    `value` keeps the device's own unit and the device's own direction word.
+    CaddieJ does not convert a carry to metres or turn "Out-to-In" into a
+    minus sign: every conversion is a chance to disagree with the screen the
+    player can also see, and a number on the floor that contradicts ProTee is
+    worse than no number. A metric the grid did not carry is simply not in the
+    tuple, so the strip shows three values cleanly rather than a dash.
+    """
+
+    label: str
+    """CARRY, FACE, PATH, CLUB. Two to five characters, read at a glance."""
+
+    value: str
+    """The reading as ProTee wrote it: "152.1 yd", "0.7° OPEN", "1.7° OUT-TO-IN"."""
+
+
+@dataclass(frozen=True, slots=True)
 class FocusCandidate:
     """A fault that was measurable on this shot, and how bad it was."""
 
@@ -172,8 +231,9 @@ class Diagnosis:
     the polish.
 
     `display` and `speech` are the templated words. They are empty when the
-    focus is `NONE`, because saying nothing is the correct thing to say about a
-    good shot.
+    focus is `NONE`, which now means only one thing: nothing about this shot
+    was measured well enough to talk about. A shot with nothing wrong is not
+    that — it is a `REINFORCEMENT`, and it has words.
     """
 
     shot_id: UUID
@@ -192,6 +252,28 @@ class Diagnosis:
     choose from, unless it was given frames."""
 
     observations: tuple[Observation, ...] = ()
+    kind: AdviceKind = AdviceKind.NONE
+    improving: bool = False
+    """Whether this focus is measurably better than it recently was.
+
+    Set from the player's own last few shots on the same focus, so it is a fact
+    about a session rather than about a shot. It is what lets the same severity
+    read as "still open" on one swing and "much better" on the next."""
+
+    focus_shots: int = 0
+    """How many shots in a row coaching has stayed on this focus."""
+
+    cue: CueId | None = None
+    """The templated cue this diagnosis names, if one is admissible."""
+
+    admissible_cues: tuple[CueId, ...] = ()
+    """Every cue this shot may be given. The model's schema is this list."""
+
+    unmeasured: tuple[str, ...] = ()
+    """Faults the device did not report. Stated so a model cannot invent them."""
+
+    target_distance_m: float | None = None
+    """How far the next shot needs to travel, when the simulator said."""
 
     @property
     def band(self) -> AdviceBand:
@@ -214,8 +296,15 @@ class Diagnosis:
 class Advice:
     """What to show and what to say about one shot.
 
-    `display` is two to four words for a projector read from standing height.
-    `speech` is one coaching idea, which may be an affirmation followed by one
+    `display` is two to four words for a projector read from standing height,
+    and it is the action: what to do. `observation` is the same size and says
+    what was seen, so the floor can put the fact above the instruction rather
+    than leaving a player to work out why they are being told to release
+    sooner. Both are CaddieJ's words, looked up from the cue, and never the
+    model's — a headline a model wrote is a headline a model could have
+    invented.
+
+    `speech` is one coaching idea, which may be an observation followed by one
     instruction. Nothing speaks it yet; it is produced and stored so that voice,
     when it arrives, has something to say that was not invented in real time.
     """
@@ -228,6 +317,61 @@ class Advice:
     created_at: datetime
     severity_source: SeveritySource = SeveritySource.MEASURED
     source: AdviceSource = AdviceSource.TEMPLATE
+    kind: AdviceKind = AdviceKind.CORRECTION
+    """Correction or reinforcement, decided by CaddieJ and never by a model.
+
+    It travels with the line because it is what a later session review needs to
+    tell "the face was open fifteen times" from "the face was good fifteen
+    times", and because the two read identically once they are only words."""
+
+    cue: CueId | None = None
+    confidence: float | None = None
+    confidence_source: ConfidenceSource | None = None
+    observation: str = ""
+    """What was seen, as the cue registry words it. Empty without a cue."""
+
+    spoken_observation: str = ""
+    """What was seen, as one sentence. Kept apart so a surface that shows the
+    headline and the instruction separately does not have to split a sentence
+    to do it.
+
+    From a model it is that model's observation, already validated and already
+    the first half of `speech`. On a line CaddieJ gave in a cue's reviewed
+    words it is the cue's own explanation, and it is not in `speech`: that
+    sentence was written to define the cue, in terms such as "for a
+    right-hander" that are true on a page and wrong said aloud to a
+    left-hander. Empty when the reply offered none or there is no cue."""
+
+    evidence_frame_id: str | None = None
+    """Which of the stills sent with this shot's request shows the fault.
+
+    Only ever one of the ids that request actually carried, so it names a file
+    CaddieJ wrote rather than a picture a model imagined. None is an honest
+    answer — the fault was measured, or no single frame shows it — and is what
+    every template line carries."""
+
+    swing_score: SwingScore | None = None
+    """CaddieJ's 0..100 for the swing, computed from the evidence alone.
+
+    Carried on the line so the floor and history reach it by the same route,
+    and attached whichever words the line ended up with: the score never
+    depended on them, so a refused reply or a template fallback loses nothing.
+    None where nothing was read to score, which is every GSPro line."""
+
+    metrics: tuple[CoachMetric, ...] = ()
+    """The few readings worth showing beside the lesson, already formatted.
+
+    Rides with the line for the same reason the score does: it was produced
+    by the same request, it belongs to the same swing, and a surface that
+    gets one should not have to go somewhere else for the other. Empty on
+    every line nothing was read for."""
+
+    review: SwingReview | None = None
+    """CaddieJ's faults, root cause and lesson progress for this swing.
+
+    Computed from the checkpoint scores, never from model prose, and
+    attached whichever words the line ended up with. None on every line no
+    swing was scored for."""
 
     @property
     def band(self) -> AdviceBand:
@@ -277,3 +421,10 @@ class AdviceOutcome:
     detail: str | None = None
     clip_path: str | None = None
     fingerprint: str | None = None
+    capture_id: str | None = None
+    panels_used: str | None = None
+    evidence_grades: str | None = None
+    evidence_frame_id: str | None = None
+    """The still the line points at, as `Advice` carries it. Copied onto the
+    row because the capture directory it resolves in is pruned within a few
+    shots, and the id is the part of the provenance that outlives it."""

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calipers — floor-size refinement</title>
+  <style>
+    :root {
+      --turf: #0c110f;
+      --page: #080a09;
+      --ink: #f4fff8;
+      --ink-dim: rgba(244, 255, 248, 0.58);
+      --line: rgba(244, 255, 248, 0.34);
+      --live: rgba(244, 255, 248, 0.96);
+      --halo: rgba(244, 255, 248, 0.14);
+      --led: #3dff7a;
+      --led-hot: #eafff3;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      padding: 28px 28px 72px;
+    }
+
+    .kicker {
+      margin: 0 0 10px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    .lede {
+      max-width: 62ch;
+      margin: 14px 0 0;
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--ink-dim);
+    }
+
+    article {
+      margin-top: 48px;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 2.4rem 1fr;
+      column-gap: 12px;
+      align-items: baseline;
+      margin-bottom: 10px;
+      max-width: 340mm;
+    }
+
+    .num {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      color: var(--led);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .meta p,
+    .spec {
+      grid-column: 2;
+      margin: 5px 0 0;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--ink-dim);
+    }
+
+    .spec {
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.01em;
+    }
+
+    .bay {
+      background: var(--turf);
+      line-height: 0;
+      width: max-content;
+    }
+
+    svg {
+      display: block;
+      width: 340mm;
+      height: auto;
+    }
+
+    .quiet {
+      fill: rgba(244, 255, 248, 0.035);
+      stroke: var(--line);
+    }
+
+    .edge {
+      fill: none;
+      stroke: rgba(244, 255, 248, 0.62);
+      stroke-linecap: butt;
+    }
+
+    .halo,
+    .core {
+      fill: none;
+      stroke-linecap: butt;
+      stroke-linejoin: miter;
+      stroke-miterlimit: 2;
+    }
+
+    .halo { stroke: var(--halo); }
+    .core { stroke: var(--live); }
+
+    .readout {
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      fill: var(--ink);
+    }
+
+    .led-glow { fill: var(--led); opacity: 0.2; }
+    .led { fill: var(--led); }
+    .led-hot { fill: var(--led-hot); }
+  </style>
+</head>
+<body>
+  <p class="kicker">Calipers · refinement</p>
+  <h1>Ball ready, at floor size</h1>
+  <p class="lede">
+    The same caliper, drawn 1:1 in millimetres. The strip is the default
+    hitting strip, 300 mm wide; only its rear is in frame. Each study changes
+    one part of the geometry. Compact and Wider are the two layouts.
+  </p>
+  <div id="studies"></div>
+
+  <script>
+    const STRIP_W = 300;
+    const STRIP_X = 20;
+    const CANVAS_W = 340;
+    const SHOWN_DEPTH = 48;
+    const TOP = 14;
+    const CX = STRIP_X + STRIP_W / 2;
+
+    const BASE = {
+      gap: 7,
+      stroke: 0.7,
+      fontSize: 11,
+      weight: 500,
+      tracking: 0.22,
+      lamp: 2.2,
+      side: 5,
+      run: 18,
+      tick: 4,
+      foot: 9,
+    };
+
+    const studies = [
+      ["01", "Baseline", "The caliper at a size that can live on the mat.", {}],
+      ["02", "Near", "The words sit closer to the rear edge.", { gap: 3.5 }],
+      ["03", "Set back", "More turf between the words and the edge.", { gap: 12 }],
+      ["04", "Short arms", "The diagonals and the feet reach less far along the edge.", { run: 8, foot: 4, tick: 3, side: 4 }],
+      ["05", "Long arms", "The diagonals and the feet travel further, so the join reads as part of the edge.", { run: 34, foot: 18 }],
+      ["06", "Fine line", "A lighter stroke.", { stroke: 0.4 }],
+      ["07", "Firm line", "A slightly heavier stroke.", { stroke: 1.2 }],
+      ["08", "Quiet type", "Smaller, lighter words and a smaller lamp.", { fontSize: 8.5, weight: 400, lamp: 1.6 }],
+      ["09", "Clear type", "Larger words, a little more weight, and a larger lamp.", { fontSize: 14, weight: 600, lamp: 3.2 }],
+      ["10", "Compact", "Closer to the edge, shorter arms, tighter type.", {
+        gap: 4, run: 9, tick: 2.4, foot: 4.5, side: 2.8,
+        fontSize: 9.5, tracking: 0.16, lamp: 1.8, weight: 500,
+      }],
+      ["11", "Wider", "More room beside the words, and longer feet along the edge.", {
+        gap: 8, side: 8, run: 28, tick: 6, foot: 14,
+        fontSize: 12, tracking: 0.26,
+      }],
+    ];
+
+    const ns = "http://www.w3.org/2000/svg";
+
+    function el(name, attrs) {
+      const node = document.createElementNS(ns, name);
+      for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
+      return node;
+    }
+
+    function specLine(spec) {
+      return [
+        `Gap ${trim(spec.gap)} mm`,
+        `stroke ${trim(spec.stroke)} mm`,
+        `type ${trim(spec.fontSize)} mm / ${spec.weight}`,
+        `lamp ${trim(spec.lamp)} mm`,
+        `arm ${trim(spec.run)} mm`,
+        `foot ${trim(spec.foot)} mm`,
+      ].join("  ·  ");
+    }
+
+    function trim(n) {
+      return Number(n.toFixed(1)).toString();
+    }
+
+    function readout(svg, spec) {
+      const text = el("text", {
+        class: "readout",
+        x: CX,
+        y: 0,
+        "text-anchor": "middle",
+        "dominant-baseline": "middle",
+      });
+      text.setAttribute("font-size", spec.fontSize);
+      text.setAttribute("font-weight", spec.weight);
+      text.setAttribute("letter-spacing", `${spec.tracking}em`);
+      text.textContent = "BALL READY";
+      svg.append(text);
+
+      const lampR = spec.lamp / 2;
+      const lampGap = 2.2;
+      let box = text.getBBox();
+      const visualLeft = box.x - lampGap - lampR * 2;
+      const shift = CX - (visualLeft + box.x + box.width) / 2;
+      text.setAttribute("y", String(TOP + box.height / 2));
+      text.setAttribute("x", String(CX + shift));
+      box = text.getBBox();
+
+      const measured = {
+        left: box.x - lampGap - lampR * 2,
+        right: box.x + box.width,
+        top: box.y,
+        bottom: box.y + box.height,
+        cy: box.y + box.height / 2,
+        lampCx: box.x - lampGap - lampR,
+      };
+
+      const lamp = el("g", {});
+      lamp.append(el("circle", { class: "led-glow", cx: measured.lampCx, cy: measured.cy, r: lampR * 2.3 }));
+      lamp.append(el("circle", { class: "led", cx: measured.lampCx, cy: measured.cy, r: lampR }));
+      lamp.append(el("circle", { class: "led-hot", cx: measured.lampCx, cy: measured.cy, r: lampR * 0.38 }));
+      svg.insertBefore(lamp, text);
+      return measured;
+    }
+
+    function draw(svg, spec) {
+      const box = readout(svg, spec);
+      const edge = box.bottom + spec.gap;
+      const bottom = edge + SHOWN_DEPTH;
+
+      svg.append(el("rect", {
+        class: "quiet",
+        x: STRIP_X,
+        y: edge,
+        width: STRIP_W,
+        height: SHOWN_DEPTH,
+        "stroke-width": 0.45,
+      }));
+      svg.append(el("line", {
+        class: "edge",
+        x1: STRIP_X,
+        y1: edge,
+        x2: STRIP_X + STRIP_W,
+        y2: edge,
+        "stroke-width": 0.5,
+      }));
+
+      const y = box.top - 1.1;
+      const x1 = box.left - spec.side;
+      const x2 = box.right + spec.side;
+      const paths = [
+        `M ${x1 - spec.run - spec.foot} ${edge} H ${x1 - spec.run} L ${x1} ${y} H ${x1 + spec.tick}`,
+        `M ${x2 + spec.run + spec.foot} ${edge} H ${x2 + spec.run} L ${x2} ${y} H ${x2 - spec.tick}`,
+      ];
+      const live = el("g", {});
+      for (const d of paths) {
+        live.append(el("path", { class: "halo", d, "stroke-width": spec.stroke + 0.7 }));
+        live.append(el("path", { class: "core", d, "stroke-width": spec.stroke }));
+      }
+      svg.append(live);
+      svg.setAttribute("viewBox", `0 0 ${CANVAS_W} ${bottom + 8}`);
+    }
+
+    const root = document.getElementById("studies");
+    for (const [num, name, note, overrides] of studies) {
+      const spec = { ...BASE, ...overrides };
+      const article = document.createElement("article");
+      article.innerHTML = `
+        <div class="meta">
+          <span class="num">${num}</span>
+          <h2>${name}</h2>
+          <p>${note}</p>
+          <p class="spec">${specLine(spec)}</p>
+        </div>
+      `;
+      const bay = document.createElement("div");
+      bay.className = "bay";
+      const svg = el("svg", {
+        role: "img",
+        "aria-label": `${name}. Ball ready, calipers on the rear edge.`,
+      });
+      bay.append(svg);
+      article.append(bay);
+      root.append(article);
+      draw(svg, spec);
+    }
+  </script>
+</body>
+</html>

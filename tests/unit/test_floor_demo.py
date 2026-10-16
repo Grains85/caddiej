@@ -45,6 +45,22 @@ def test_the_sequence_covers_hiding_the_marker() -> None:
     assert any(not state.marker.visible for state in seen)
 
 
+def test_the_sequence_covers_the_hitting_strip() -> None:
+    service = FloorService()
+    seen = apply_all(service)
+
+    assert any(
+        state.hitting_strip is not None and state.hitting_strip.visible
+        for state in seen
+    )
+    assert any(
+        state.hitting_strip is not None and not state.hitting_strip.visible
+        for state in seen
+    )
+    assert any(state.lock_acknowledgement is not None for state in seen)
+    assert seen[-1].lock_acknowledgement is None
+
+
 def test_the_sequence_covers_metrics_and_club_path_appearing_and_clearing() -> None:
     service = FloorService()
     seen = apply_all(service)

@@ -1,0 +1,185 @@
+{
+ "shot": "20261008T142305-23-3d49f492",
+ "status": "ok",
+ "error": null,
+ "wire_failures": [],
+ "decode_notes": [],
+ "validator_notes": [],
+ "groups": {
+  "dtl_P1": [
+   "DTL_01",
+   16,
+   true
+  ],
+  "dtl_P2": [
+   "DTL_03",
+   20,
+   true
+  ],
+  "dtl_P3": [
+   "DTL_06",
+   27,
+   true
+  ],
+  "dtl_P4": [
+   "DTL_06",
+   27,
+   true
+  ],
+  "dtl_P5": [
+   "DTL_13",
+   42,
+   true
+  ],
+  "dtl_P6": [
+   "DTL_14",
+   43,
+   true
+  ],
+  "dtl_P7": [
+   "DTL_15",
+   44,
+   true
+  ],
+  "dtl_P8": [
+   "DTL_16",
+   45,
+   true
+  ],
+  "dtl_P9": [
+   "DTL_18",
+   51,
+   true
+  ],
+  "fo_P1": [
+   "FO_01",
+   16,
+   true
+  ],
+  "fo_P2": [
+   "FO_03",
+   20,
+   true
+  ],
+  "fo_P3": [
+   "FO_06",
+   27,
+   true
+  ],
+  "fo_P4": [
+   "FO_06",
+   27,
+   true
+  ],
+  "fo_P5": [
+   "FO_13",
+   42,
+   true
+  ],
+  "fo_P6": [
+   "FO_14",
+   43,
+   true
+  ],
+  "fo_P7": [
+   "FO_15",
+   44,
+   true
+  ],
+  "fo_P8": [
+   "FO_16",
+   45,
+   true
+  ],
+  "fo_P9": [
+   "FO_18",
+   51,
+   true
+  ]
+ },
+ "returned_checkpoints": 53,
+ "accepted": 53,
+ "rejected": 0,
+ "rejection_reasons": {},
+ "coverage": 1.0,
+ "phase_scores": {
+  "setup": [
+   86,
+   1.0,
+   "7/7"
+  ],
+  "takeaway": [
+   77,
+   0.8,
+   "5/6"
+  ],
+  "backswing": [
+   81,
+   0.88,
+   "7/8"
+  ],
+  "top": [
+   82,
+   0.94,
+   "7/8"
+  ],
+  "transition": [
+   74,
+   0.88,
+   "6/7"
+  ],
+  "downswing": [
+   77,
+   0.88,
+   "6/7"
+  ],
+  "impact": [
+   78,
+   1.0,
+   "7/7"
+  ],
+  "release": [
+   78,
+   0.91,
+   "5/6"
+  ],
+  "finish": [
+   85,
+   1.0,
+   "3/3"
+  ]
+ },
+ "swing_score": 79,
+ "faults": [],
+ "root": "RootCause(fault=None, cue=None, reason='none', ranking=(), explains=(), sticky=False, frame_id=None, confidence=None, severity=None)",
+ "lesson_cue": null,
+ "authority": {
+  "cue": "CURVE_SLICE",
+  "from_visual": false
+ },
+ "outcome": "reconciled -> CaddieJ's lesson CURVE_SLICE",
+ "model_coach": {
+  "kind": "correction",
+  "cue": "PATH_OUT_TO_IN",
+  "observation": "Your path moved out-to-in through impact.",
+  "instruction": "Swing more from inside toward the target.",
+  "reinforcement": null,
+  "evidence_frame_id": "ALL_VALUES"
+ },
+ "usage": {
+  "input_tokens": 13318,
+  "output_tokens": 893,
+  "reasoning_tokens": 0,
+  "cached_tokens": 3712,
+  "status": "completed"
+ },
+ "cost_usd": 0.0051155,
+ "timings_s": {
+  "capture": 4.533679,
+  "render": 0.598,
+  "openai": 9.789,
+  "validate": 0.001,
+  "strike_to_verdict": 14.92
+ },
+ "reply_sha256": "7b98a2fa34391a470497d839554ea6b1693b9fb5dbad973cb43be2ce485e4b01"
+}

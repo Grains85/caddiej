@@ -1,0 +1,93 @@
+{
+  "model": "gpt-5-mini-2025-08-07",
+  "reasoning_effort": "minimal",
+  "latency_seconds": 6.639999999664724,
+  "usage": {
+    "input_tokens": 58539,
+    "output_tokens": 531,
+    "reasoning_tokens": 0
+  },
+  "payload": {
+    "status": "no_proven_fault",
+    "handedness": {
+      "side": "right",
+      "confidence": 0.9,
+      "visual_basis": "Face-on and DTL at address (tick 15) show left side closer to target (lead side left) and right hand trailing; typical right-handed setup."
+    },
+    "temporal_orientation": [
+      {
+        "capture_tick": 15,
+        "state": "setup",
+        "confidence": 0.9,
+        "visual_basis": "Golfer at address, club behind ball, no movement visible."
+      },
+      {
+        "capture_tick": 18,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club are lifting away from the ball compared with address; takeaway visible."
+      },
+      {
+        "capture_tick": 20,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Continued motion away from the ball; club and hands farther from address."
+      },
+      {
+        "capture_tick": 23,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club continue up and back; still moving away."
+      },
+      {
+        "capture_tick": 25,
+        "state": "direction_change_region",
+        "confidence": 0.9,
+        "visual_basis": "Hands near top and club transition visible; rotation changing toward the ball begins."
+      },
+      {
+        "capture_tick": 28,
+        "state": "moving_away",
+        "confidence": 0.6,
+        "visual_basis": "DTL shows near-top position; slight ambiguity whether start of down is at 25-28 but motion still high."
+      },
+      {
+        "capture_tick": 31,
+        "state": "moving_away",
+        "confidence": 0.6,
+        "visual_basis": "Hands near/at top in some frames; some frames show start of transition but overall still at/near top."
+      },
+      {
+        "capture_tick": 36,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Club clearly moving back toward the ball from the top in both views."
+      },
+      {
+        "capture_tick": 37,
+        "state": "moving_toward_ball",
+        "confidence": 0.95,
+        "visual_basis": "Hands and club descending toward the ball; approach to strike visible."
+      },
+      {
+        "capture_tick": 41,
+        "state": "moving_toward_ball",
+        "confidence": 0.95,
+        "visual_basis": "Downswing continuation with hands moving toward ball; impact region approaching."
+      },
+      {
+        "capture_tick": 46,
+        "state": "after_strike",
+        "confidence": 0.95,
+        "visual_basis": "Frames show follow-through after contact; club past strike point."
+      },
+      {
+        "capture_tick": 51,
+        "state": "after_strike",
+        "confidence": 0.95,
+        "visual_basis": "Late follow-through / finish pose; club well past ball."
+      }
+    ],
+    "fault_candidates": []
+  }
+}

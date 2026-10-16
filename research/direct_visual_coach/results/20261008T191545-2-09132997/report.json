@@ -1,0 +1,172 @@
+{
+  "shot": "20261008T191545-2-09132997",
+  "experiment": "direct_visual_coach",
+  "sent": true,
+  "model": "gpt-5-mini",
+  "answered_model": "gpt-5-mini-2025-08-07",
+  "reasoning_effort": "minimal",
+  "selected_capture_ticks": [
+    15,
+    19,
+    24,
+    27,
+    35,
+    41,
+    42,
+    51
+  ],
+  "motion_rates": [
+    {
+      "capture_tick": 15,
+      "replay_seconds": 0.0,
+      "motion_rate": 0.0
+    },
+    {
+      "capture_tick": 19,
+      "replay_seconds": 0.3955,
+      "motion_rate": 27.8967
+    },
+    {
+      "capture_tick": 24,
+      "replay_seconds": 0.8872,
+      "motion_rate": 23.5842
+    },
+    {
+      "capture_tick": 27,
+      "replay_seconds": 1.1872,
+      "motion_rate": 26.3933
+    },
+    {
+      "capture_tick": 35,
+      "replay_seconds": 1.6931,
+      "motion_rate": 41.0512
+    },
+    {
+      "capture_tick": 41,
+      "replay_seconds": 1.9885,
+      "motion_rate": 67.0689
+    },
+    {
+      "capture_tick": 42,
+      "replay_seconds": 2.0359,
+      "motion_rate": 47.3429
+    },
+    {
+      "capture_tick": 51,
+      "replay_seconds": 2.4916,
+      "motion_rate": 45.9455
+    }
+  ],
+  "image_inputs": 16,
+  "estimated_input_tokens": 34714,
+  "input_tokens": 34528,
+  "output_tokens": 726,
+  "reasoning_tokens": 0,
+  "openai_latency_s": 8.125,
+  "estimated_cost_usd": 0.010084,
+  "cost_basis": "measured_usage",
+  "diagnosis": {
+    "status": "coachable",
+    "temporal_orientation": [
+      {
+        "capture_tick": 15,
+        "state": "setup",
+        "confidence": 0.9,
+        "visual_basis": "address posture, club behind ball, no visible movement"
+      },
+      {
+        "capture_tick": 19,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "club and hands lifting away from the ball on both DTL and FO"
+      },
+      {
+        "capture_tick": 24,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "continuing backswing; hands and club further away and higher"
+      },
+      {
+        "capture_tick": 27,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "near top of backswing; club fully away above head"
+      },
+      {
+        "capture_tick": 35,
+        "state": "direction_change_region",
+        "confidence": 0.8,
+        "visual_basis": "DTL shows transition with club starting down; FO shows hands starting toward ball"
+      },
+      {
+        "capture_tick": 41,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "shaft and hands clearly moving down and toward ball on both views"
+      },
+      {
+        "capture_tick": 42,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "continued downswing; club approaching impact region"
+      },
+      {
+        "capture_tick": 51,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "follow-through posture and club past impact on both views"
+      }
+    ],
+    "primary_issue": "Early lateral slide of the upper body (torso/shoulder) toward the target on the downswing, causing the arms to come across and the club to swing too steep/inside-out into impact.",
+    "root_cause": {
+      "mechanic": "lateral shift of the upper body/lead shoulder toward the target during transition and early downswing",
+      "observation": "face-on and DTL frames show the torso/lead shoulder moving toward the target as the hands begin down (early in downswing), with the arms pulled across the chest",
+      "view": "BOTH",
+      "evidence_ticks": [
+        35,
+        41,
+        42
+      ],
+      "confidence": 0.85
+    },
+    "causal_chain": [
+      "During transition the torso/lead shoulder shifts laterally toward the target (tick 35)",
+      "That lateral move pulls the arms and hands across the body on the downswing (ticks 41-42)",
+      "Those arm positions force a steeper/inside swing plane into impact and inconsistent clubface control at strike (tick 51)"
+    ],
+    "instruction": "On the next swing pause the lateral shift \u2014 feel your lead shoulder hold slightly back and rotate down rather than slide toward the target during the first part of the downswing; start the downswing with a shallow rotational bump of the hips and a controlled drop of the hands rather than shifting the torso laterally.",
+    "feel": "hold the lead shoulder back",
+    "confidence": 0.82
+  },
+  "evidence_frames": [
+    {
+      "view": "FO",
+      "capture_tick": 35,
+      "role": "cause",
+      "observation": "lead shoulder rotated and already moving toward target as club begins down (torso not held back)"
+    },
+    {
+      "view": "DTL",
+      "capture_tick": 41,
+      "role": "consequence",
+      "observation": "hands and shaft moving down with the club inside and steep relative to earlier plane"
+    },
+    {
+      "view": "FO",
+      "capture_tick": 42,
+      "role": "consequence",
+      "observation": "arms pulled across chest and torso ahead of hands, showing lateral movement of upper body toward target"
+    },
+    {
+      "view": "DTL",
+      "capture_tick": 51,
+      "role": "consequence",
+      "observation": "follow-through shows impact delivered from a path influenced by early torso shift (club across body)"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "problems": []
+  },
+  "production_reconciliation": false
+}

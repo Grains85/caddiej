@@ -67,11 +67,18 @@ class EffectsHealth:
     than intended, which nobody will notice, while a failed `end` means an output
     is still showing something and will keep showing it. Those are not the same
     severity and should not share a number.
+
+    `channels` used to list only the reachable ones, which made a configured
+    output whose bridge was down look exactly like an output nobody configured.
+    Both are reported now, because the whole point of an effect is that it is
+    silent when it does not happen: there is no failure for an operator to
+    notice, so `/healthz` is the only place it can be noticed at all.
     """
 
     enabled: bool
     available: bool
     channels: tuple[str, ...]
+    unreachable_channels: tuple[str, ...]
     playing: str | None
     plays: int
     refused: int
@@ -418,6 +425,9 @@ class EffectDirector:
             available=self.is_available,
             channels=tuple(
                 channel.name for channel in self._channels if channel.is_available
+            ),
+            unreachable_channels=tuple(
+                channel.name for channel in self._channels if not channel.is_available
             ),
             playing=None if self._playing is None else self._playing.cue,
             plays=self.plays,

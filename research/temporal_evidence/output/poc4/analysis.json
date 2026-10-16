@@ -1,0 +1,362 @@
+{
+ "raw_phases": {
+  "setup": {
+   "d": 1,
+   "f": 1,
+   "a": "d"
+  },
+  "takeaway": {
+   "d": 3,
+   "f": 3,
+   "a": "d"
+  },
+  "backswing": {
+   "d": 6,
+   "f": 6,
+   "a": "d"
+  },
+  "top": {
+   "d": 7,
+   "f": 7,
+   "a": "d"
+  },
+  "transition": {
+   "d": 8,
+   "f": 8,
+   "a": "d"
+  },
+  "downswing": {
+   "d": 11,
+   "f": 11,
+   "a": "d"
+  },
+  "impact": {
+   "d": 13,
+   "f": 13,
+   "a": "f"
+  },
+  "release": {
+   "d": 15,
+   "f": 15,
+   "a": "f"
+  },
+  "finish": {
+   "d": 18,
+   "f": 18,
+   "a": "f"
+  }
+ },
+ "group_notes": [],
+ "groups": [
+  {
+   "phase": "setup",
+   "position": "P1",
+   "camera": "dtl",
+   "cell": "DTL_01",
+   "capture_index": 15,
+   "rule_verdict": "correct",
+   "kept": true,
+   "checkpoints_on_group": 6
+  },
+  {
+   "phase": "takeaway",
+   "position": "P2",
+   "camera": "dtl",
+   "cell": "DTL_03",
+   "capture_index": 21,
+   "rule_verdict": "correct",
+   "kept": true,
+   "checkpoints_on_group": 5
+  },
+  {
+   "phase": "backswing",
+   "position": "P3",
+   "camera": "dtl",
+   "cell": "DTL_06",
+   "capture_index": 28,
+   "rule_verdict": "wrong",
+   "kept": true,
+   "checkpoints_on_group": 7
+  },
+  {
+   "phase": "top",
+   "position": "P4",
+   "camera": "dtl",
+   "cell": "DTL_07",
+   "capture_index": 30,
+   "rule_verdict": "correct",
+   "kept": true,
+   "checkpoints_on_group": 7
+  },
+  {
+   "phase": "transition",
+   "position": "P5",
+   "camera": "dtl",
+   "cell": "DTL_08",
+   "capture_index": 34,
+   "rule_verdict": "wrong",
+   "kept": true,
+   "checkpoints_on_group": 6
+  },
+  {
+   "phase": "downswing",
+   "position": "P6",
+   "camera": "dtl",
+   "cell": "DTL_11",
+   "capture_index": 39,
+   "rule_verdict": "correct",
+   "kept": true,
+   "checkpoints_on_group": 7
+  },
+  {
+   "phase": "impact",
+   "position": "P7",
+   "camera": "dtl",
+   "cell": "DTL_13",
+   "capture_index": 41,
+   "rule_verdict": "correct",
+   "kept": true,
+   "checkpoints_on_group": 2
+  },
+  {
+   "phase": "release",
+   "position": "P8",
+   "camera": "dtl",
+   "cell": "DTL_15",
+   "capture_index": 43,
+   "rule_verdict": "correct",
+   "kept": true,
+   "checkpoints_on_group": 2
+  },
+  {
+   "phase": "finish",
+   "position": "P9",
+   "camera": "dtl",
+   "cell": "DTL_18",
+   "capture_index": 51,
+   "rule_verdict": "correct",
+   "kept": true,
+   "checkpoints_on_group": 0
+  },
+  {
+   "phase": "setup",
+   "position": "P1",
+   "camera": "fo",
+   "cell": "FO_01",
+   "capture_index": 15,
+   "rule_verdict": "correct",
+   "kept": true,
+   "checkpoints_on_group": 1
+  },
+  {
+   "phase": "takeaway",
+   "position": "P2",
+   "camera": "fo",
+   "cell": "FO_03",
+   "capture_index": 19,
+   "rule_verdict": "correct",
+   "kept": true,
+   "checkpoints_on_group": 1
+  },
+  {
+   "phase": "backswing",
+   "position": "P3",
+   "camera": "fo",
+   "cell": "FO_06",
+   "capture_index": 27,
+   "rule_verdict": "acceptable",
+   "kept": true,
+   "checkpoints_on_group": 1
+  },
+  {
+   "phase": "top",
+   "position": "P4",
+   "camera": "fo",
+   "cell": "FO_07",
+   "capture_index": 29,
+   "rule_verdict": "acceptable",
+   "kept": true,
+   "checkpoints_on_group": 1
+  },
+  {
+   "phase": "transition",
+   "position": "P5",
+   "camera": "fo",
+   "cell": "FO_08",
+   "capture_index": 32,
+   "rule_verdict": "acceptable",
+   "kept": true,
+   "checkpoints_on_group": 1
+  },
+  {
+   "phase": "downswing",
+   "position": "P6",
+   "camera": "fo",
+   "cell": "FO_11",
+   "capture_index": 39,
+   "rule_verdict": "correct",
+   "kept": true,
+   "checkpoints_on_group": 0
+  },
+  {
+   "phase": "impact",
+   "position": "P7",
+   "camera": "fo",
+   "cell": "FO_13",
+   "capture_index": 41,
+   "rule_verdict": "correct",
+   "kept": true,
+   "checkpoints_on_group": 5
+  },
+  {
+   "phase": "release",
+   "position": "P8",
+   "camera": "fo",
+   "cell": "FO_15",
+   "capture_index": 43,
+   "rule_verdict": "correct",
+   "kept": true,
+   "checkpoints_on_group": 4
+  },
+  {
+   "phase": "finish",
+   "position": "P9",
+   "camera": "fo",
+   "cell": "FO_18",
+   "capture_index": 51,
+   "rule_verdict": "correct",
+   "kept": true,
+   "checkpoints_on_group": 3
+  }
+ ],
+ "group_counts": {
+  "correct": 13,
+  "wrong": 2,
+  "acceptable": 3
+ },
+ "returned_checkpoints": 53,
+ "summary": {
+  "label": "POC4 vx14c",
+  "accepted": 53,
+  "rejected": 0,
+  "rejection_reasons": {},
+  "accepted_by_position_truth": {
+   "correct": 39,
+   "wrong": 11,
+   "acceptable": 3
+  },
+  "accepted_wrong_position": [
+   "backswing_hand_depth@DTL_06",
+   "backswing_hand_height@DTL_06",
+   "backswing_hip_depth@DTL_06",
+   "backswing_posture@DTL_06",
+   "backswing_arm_structure@DTL_06",
+   "backswing_body_turn@DTL_06",
+   "transition_arms_lowering@DTL_08",
+   "transition_hand_direction@DTL_08",
+   "transition_trail_shoulder@DTL_08",
+   "transition_posture_space@DTL_08",
+   "transition_pelvis_initiation@DTL_08"
+  ],
+  "coverage": 1.0,
+  "coverage_level": "full",
+  "mechanics": 73,
+  "phases": {
+   "setup": [
+    83,
+    1.0,
+    "7/7"
+   ],
+   "takeaway": [
+    72,
+    0.8,
+    "5/6"
+   ],
+   "backswing": [
+    74,
+    0.88,
+    "7/8"
+   ],
+   "top": [
+    77,
+    0.94,
+    "7/8"
+   ],
+   "transition": [
+    68,
+    0.88,
+    "6/7"
+   ],
+   "downswing": [
+    68,
+    0.88,
+    "6/7"
+   ],
+   "impact": [
+    72,
+    1.0,
+    "7/7"
+   ],
+   "release": [
+    73,
+    0.91,
+    "5/6"
+   ],
+   "finish": [
+    77,
+    1.0,
+    "3/3"
+   ]
+  },
+  "swing_score": 73,
+  "faults": [],
+  "root": "RootCause(fault=None, cue=None, reason='none', ranking=(), explains=(), sticky=False, frame_id=None, confidence=None, severity=None)",
+  "lesson_cue": null,
+  "authority": {
+   "cue": "FACE_CONTROL_GOOD",
+   "from_visual": false
+  },
+  "outcome": "reconciled -> CaddieJ's lesson FACE_CONTROL_GOOD",
+  "rejected_list": []
+ },
+ "usage": {
+  "input_tokens": 13333,
+  "output_tokens": 901,
+  "reasoning_tokens": 0,
+  "cached_tokens": 0,
+  "status": "completed"
+ },
+ "cost_usd": 0.00513525,
+ "wall_seconds": 10.254,
+ "validate_seconds": 0.001,
+ "strike_to_verdict_seconds": 15.33,
+ "criteria_verdicts": {
+  "wrong_group_cells": [
+   2,
+   false
+  ],
+  "p7": [
+   {
+    "dtl": 41,
+    "fo": 41
+   },
+   true
+  ],
+  "accepted": [
+   53,
+   true
+  ],
+  "wrong_position_accepted": [
+   11,
+   false
+  ],
+  "wire_shape_rejections": [
+   0,
+   true
+  ],
+  "output_tokens": [
+   901,
+   "pass"
+  ]
+ }
+}

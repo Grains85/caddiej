@@ -16,6 +16,7 @@ lost, so every drop is counted, logged, and visible in `health()`.
 
 import asyncio
 import logging
+import sqlite3
 from collections import OrderedDict
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
@@ -27,6 +28,8 @@ from uuid import UUID, uuid4
 from caddiej.core.event_bus import EventBus
 from caddiej.domain.coaching import AdviceOutcome
 from caddiej.domain.events import ShotCompleted
+from caddiej.domain.shot import ClubKind
+from caddiej.domain.vx import CoachResult
 from caddiej.persistence.analytics import SessionAnalytics, summarise_session
 from caddiej.persistence.database import Database
 from caddiej.persistence.records import (
@@ -35,8 +38,14 @@ from caddiej.persistence.records import (
     SessionRecord,
     StoredAdvice,
     StoredShot,
+    StoredSwingScore,
+    coach_result_row,
 )
-from caddiej.persistence.repository import HistoryRepository, insert_shots
+from caddiej.persistence.repository import (
+    HistoryRepository,
+    insert_coach_result,
+    insert_shots,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -469,6 +478,67 @@ class HistoryService:
             return record
 
         return await self._read(write, default=None, writes=True)
+
+    async def record_coach_result(self, result: CoachResult) -> bool:
+        """Store one ProTee-only coaching outcome. Never raises.
+
+        No shot to wait for: this path has no shot row. The session row is
+        written with it if no shot has written it yet, so an evening coached
+        without GSPro is still an evening in history.
+        """
+
+        if not self._available or self._session is None:
+            return False
+        session = None if self._session_stored else self._session
+        row = coach_result_row(self._session.session_id, result)
+
+        def write(connection: sqlite3.Connection) -> None:
+            insert_coach_result(connection, row, session)
+
+        try:
+            await self._database.run(write)
+        except Exception as error:
+            self.write_failures += 1
+            self._fail("history_coach_result_failed", error)
+            return False
+        self._session_stored = True
+        logger.info(
+            "coaching_session_recorded",
+            extra={
+                "coaching_strike_id": str(result.strike_id),
+                "shot_trigger_id": result.trigger_id or "",
+                "coaching_reason": result.status,
+                "coach_metrics_status": result.metrics_status,
+                "coach_metrics_read": row["metrics_read"],
+            },
+        )
+        return True
+
+    async def coach_results(
+        self, session_id: UUID | None = None
+    ) -> list[dict[str, object]]:
+        target = self._resolve(session_id)
+        if target is None:
+            return []
+        return await self._read(
+            lambda repository: repository.coach_results(target), default=[]
+        )
+
+    async def swing_scores(
+        self,
+        club: ClubKind | None = None,
+        limit: int = 50,
+        session_id: UUID | None = None,
+    ) -> list[StoredSwingScore]:
+        """The session's recent Swing Scores, oldest first, for a trend."""
+
+        target = self._resolve(session_id)
+        if target is None or limit <= 0:
+            return []
+        return await self._read(
+            lambda repository: repository.swing_scores(target, club, limit),
+            default=[],
+        )
 
     async def _await_shot(self, shot_id: UUID) -> None:
         """Wait, briefly, for a shot to reach the disk.

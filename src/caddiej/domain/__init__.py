@@ -5,6 +5,14 @@ knowledge of any external system: dependencies point inward, so nothing here
 imports an adapter.
 """
 
+from caddiej.domain.bag import (
+    ClubCarry,
+    ClubDistanceProfile,
+    ClubDistanceProvider,
+    ClubRecommendation,
+    StaticClubDistances,
+    recommend_club,
+)
 from caddiej.domain.coaching import (
     SEVERITY_FAULT,
     SEVERITY_FINE,
@@ -20,6 +28,15 @@ from caddiej.domain.coaching import (
     Observation,
     SeveritySource,
     band_for,
+)
+from caddiej.domain.cues import (
+    CapturePanel,
+    ConfidenceSource,
+    CueId,
+    EvidenceGrade,
+    PanelKind,
+    PanelView,
+    VisualClaim,
 )
 from caddiej.domain.events import (
     AnalysisCompleted,
@@ -55,8 +72,18 @@ from caddiej.domain.events import (
     SpeechStarted,
     SwingClipFailed,
     SwingClipReady,
+    SwingFramesReady,
+    TargetDistanceObserved,
 )
-from caddiej.domain.media import CaptureState, ClipFailure, ClipRef, TimeQuality
+from caddiej.domain.media import (
+    CaptureState,
+    ClipFailure,
+    ClipRef,
+    SwingCameraCapture,
+    SwingCapture,
+    SwingFrame,
+    TimeQuality,
+)
 from caddiej.domain.observation import (
     BallPathPoint,
     ObservedRoundShot,
@@ -86,7 +113,6 @@ from caddiej.domain.statistics import (
     Metric,
     MetricSummary,
     club_of,
-    summarise_metric,
     summarise_metrics,
 )
 
@@ -109,10 +135,17 @@ __all__ = [
     "BallPathPoint",
     "CameraStateChanged",
     "CaptureEvent",
+    "CapturePanel",
     "CaptureState",
+    "ConfidenceSource",
+    "CueId",
     "Club",
+    "ClubCarry",
     "ClubDelivery",
+    "ClubDistanceProfile",
+    "ClubDistanceProvider",
     "ClubKind",
+    "ClubRecommendation",
     "ClubSelected",
     "ClipFailure",
     "ClipRef",
@@ -122,6 +155,7 @@ __all__ = [
     "Diagnosis",
     "DuplicateShotIgnored",
     "Envelope",
+    "EvidenceGrade",
     "FloorPort",
     "FocusCandidate",
     "Handedness",
@@ -137,6 +171,8 @@ __all__ = [
     "MetricSummary",
     "Observation",
     "ObservedRoundShot",
+    "PanelKind",
+    "PanelView",
     "PlayFlow",
     "RoundShotObserved",
     "PlayerEvent",
@@ -159,13 +195,20 @@ __all__ = [
     "SpeechOutcome",
     "SpeechPriority",
     "SpeechStarted",
+    "StaticClubDistances",
+    "SwingCameraCapture",
+    "SwingCapture",
     "SwingClipFailed",
     "SwingClipReady",
+    "SwingFrame",
+    "SwingFramesReady",
+    "TargetDistanceObserved",
     "TimeQuality",
     "Utterance",
+    "VisualClaim",
     "WorldPoint",
     "band_for",
     "club_of",
-    "summarise_metric",
+    "recommend_club",
     "summarise_metrics",
 ]

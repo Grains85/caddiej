@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ball status — rear edge of the hitting strip</title>
+  <style>
+    :root {
+      --turf: #0c110f;
+      --page: #080a09;
+      --ink: #f4fff8;
+      --ink-dim: rgba(244, 255, 248, 0.58);
+      --line: rgba(244, 255, 248, 0.34);
+      --live: rgba(244, 255, 248, 0.96);
+      --halo: rgba(244, 255, 248, 0.14);
+      --led: #3dff7a;
+      --led-hot: #eafff3;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      padding: 56px 32px 96px;
+    }
+
+    .wrap {
+      max-width: 880px;
+      margin: 0 auto;
+    }
+
+    .kicker {
+      margin: 0 0 12px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      line-height: 1.25;
+    }
+
+    .lede {
+      max-width: 64ch;
+      margin: 16px 0 0;
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--ink-dim);
+    }
+
+    article {
+      margin-top: 64px;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 2.5rem 1fr;
+      column-gap: 14px;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+
+    .num {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      color: var(--led);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .meta p {
+      grid-column: 2;
+      margin: 6px 0 0;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--ink-dim);
+    }
+
+    .bay {
+      background: var(--turf);
+      line-height: 0;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .quiet {
+      fill: rgba(244, 255, 248, 0.035);
+      stroke: var(--line);
+      stroke-width: 1.5;
+    }
+
+    .ball-ring {
+      fill: none;
+      stroke: rgba(244, 255, 248, 0.28);
+      stroke-width: 1.5;
+    }
+
+    .ball {
+      fill: rgba(244, 255, 248, 0.92);
+    }
+
+    .halo {
+      fill: none;
+      stroke: var(--halo);
+      stroke-width: 3.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .core {
+      fill: none;
+      stroke: var(--live);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .edge {
+      fill: none;
+      stroke: rgba(244, 255, 248, 0.62);
+      stroke-width: 1.5;
+      stroke-linecap: butt;
+    }
+
+    .miter .halo,
+    .miter .core {
+      stroke-linejoin: miter;
+      stroke-linecap: butt;
+    }
+
+    .readout {
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: 0.24em;
+      fill: var(--ink);
+    }
+
+    .led-glow {
+      fill: var(--led);
+      opacity: 0.22;
+    }
+
+    .led {
+      fill: var(--led);
+    }
+
+    .led-hot {
+      fill: var(--led-hot);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="kicker">Projected floor</p>
+    <h1>Ball status, just behind the hitting strip</h1>
+    <p class="lede">
+      The mat stays a clean rectangle. The words sit on the turf beyond its far
+      edge — the side away from the player — and a thin line is all that joins
+      them to that edge. Flat colour, no fill, no gradient. The green lamp is
+      the only saturated mark, and it lights when a ball is detected.
+    </p>
+
+    <article>
+      <div class="meta">
+        <span class="num">01</span>
+        <h2>Feet</h2>
+        <p>Each bracket stands on the rear edge, runs up beside the words, and turns in. The foot lies along the edge.</p>
+      </div>
+      <div class="bay">
+        <svg viewBox="0 36 840 228" data-kind="feet" role="img" aria-label="Feet. Ball ready, with brackets standing on the rear edge."></svg>
+      </div>
+    </article>
+
+    <article>
+      <div class="meta">
+        <span class="num">02</span>
+        <h2>Calipers</h2>
+        <p>A diagonal leaves the edge, rises to the top of the words, and turns in as a short tick.</p>
+      </div>
+      <div class="bay">
+        <svg viewBox="0 36 840 228" data-kind="calipers" role="img" aria-label="Calipers. Ball ready, with diagonals planted on the rear edge."></svg>
+      </div>
+    </article>
+
+    <article>
+      <div class="meta">
+        <span class="num">03</span>
+        <h2>Chamfer</h2>
+        <p>The rear edge itself steps up on a bevel, passes over the words, and steps back down.</p>
+      </div>
+      <div class="bay">
+        <svg viewBox="0 36 840 228" data-kind="chamfer" role="img" aria-label="Chamfer. Ball ready, under a bevel that continues the rear edge."></svg>
+      </div>
+    </article>
+
+    <article>
+      <div class="meta">
+        <span class="num">04</span>
+        <h2>Collar</h2>
+        <p>A shallow rounded lip. The line runs along the edge, sweeps over the words, and returns. Open toward the mat.</p>
+      </div>
+      <div class="bay">
+        <svg viewBox="0 36 840 228" data-kind="collar" role="img" aria-label="Collar. Ball ready, under a rounded lip joined to the rear edge."></svg>
+      </div>
+    </article>
+
+    <article>
+      <div class="meta">
+        <span class="num">05</span>
+        <h2>Horizon</h2>
+        <p>A line at the height of the words, broken to let them sit in the gap. The break drops to the rear edge.</p>
+      </div>
+      <div class="bay">
+        <svg viewBox="0 36 840 228" data-kind="horizon" role="img" aria-label="Horizon. Ball ready, set into a broken line that drops to the rear edge."></svg>
+      </div>
+    </article>
+
+    <article>
+      <div class="meta">
+        <span class="num">06</span>
+        <h2>Index</h2>
+        <p>A rounded line wraps the top and sides only. One short stem pins the open bottom to the middle of the edge.</p>
+      </div>
+      <div class="bay">
+        <svg viewBox="0 36 840 228" data-kind="index" role="img" aria-label="Index. Ball ready, in an open rounded frame stemmed to the rear edge."></svg>
+      </div>
+    </article>
+
+    <article>
+      <div class="meta">
+        <span class="num">07</span>
+        <h2>Fiducial</h2>
+        <p>An open tray under the words, a centre stem, and two alignment ticks on the edge. The quietest of the set.</p>
+      </div>
+      <div class="bay">
+        <svg viewBox="0 36 840 228" data-kind="fiducial" role="img" aria-label="Fiducial. Ball ready, on an open tray stemmed to the rear edge."></svg>
+      </div>
+    </article>
+  </div>
+
+  <script>
+    const EDGE = 156;
+    const LAND = EDGE + 1.6;
+    const STRIP = { x: 64, y: EDGE, w: 712, h: 96 };
+    const CX = STRIP.x + STRIP.w / 2;
+    const TEXT_Y = 118;
+
+    const ns = "http://www.w3.org/2000/svg";
+
+    function el(name, attrs) {
+      const node = document.createElementNS(ns, name);
+      for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+      return node;
+    }
+
+    function stroke(parent, d, miter) {
+      const group = el("g", miter ? { class: "miter" } : {});
+      group.append(el("path", { class: "halo", d }));
+      group.append(el("path", { class: "core", d }));
+      parent.append(group);
+    }
+
+    function readout(svg) {
+      const text = el("text", {
+        class: "readout",
+        x: String(CX),
+        y: String(TEXT_Y),
+        "text-anchor": "middle",
+        "dominant-baseline": "middle",
+      });
+      text.textContent = "BALL READY";
+      svg.append(text);
+
+      let box = text.getBBox();
+      const dotR = 3.6;
+      const gap = 12;
+      const visualLeft = box.x - gap - dotR * 2;
+      const visualRight = box.x + box.width;
+      const shift = CX - (visualLeft + visualRight) / 2;
+      text.setAttribute("x", String(CX + shift));
+      box = text.getBBox();
+
+      const measured = {
+        left: box.x - gap - dotR * 2,
+        right: box.x + box.width,
+        top: box.y,
+        bottom: box.y + box.height,
+        cy: box.y + box.height / 2,
+        dotCx: box.x - gap - dotR,
+      };
+
+      const dot = el("g", {});
+      dot.append(el("circle", {
+        class: "led-glow",
+        cx: String(measured.dotCx),
+        cy: String(measured.cy),
+        r: "8",
+      }));
+      dot.append(el("circle", {
+        class: "led",
+        cx: String(measured.dotCx),
+        cy: String(measured.cy),
+        r: String(dotR),
+      }));
+      dot.append(el("circle", {
+        class: "led-hot",
+        cx: String(measured.dotCx),
+        cy: String(measured.cy),
+        r: "1.5",
+      }));
+      svg.insertBefore(dot, text);
+      return measured;
+    }
+
+    function mat(svg) {
+      svg.append(el("rect", {
+        class: "quiet",
+        x: String(STRIP.x),
+        y: String(STRIP.y),
+        width: String(STRIP.w),
+        height: String(STRIP.h),
+      }));
+      const ball = { cx: CX, cy: STRIP.y + STRIP.h * 0.56 };
+      svg.append(el("circle", {
+        class: "ball-ring",
+        cx: String(ball.cx),
+        cy: String(ball.cy),
+        r: "16",
+      }));
+      svg.append(el("circle", {
+        class: "ball",
+        cx: String(ball.cx),
+        cy: String(ball.cy),
+        r: "6.5",
+      }));
+      svg.append(el("line", {
+        class: "edge",
+        x1: String(STRIP.x),
+        y1: String(EDGE),
+        x2: String(STRIP.x + STRIP.w),
+        y2: String(EDGE),
+      }));
+    }
+
+    const frames = {
+      feet(box) {
+        const x1 = box.left - 18;
+        const x2 = box.right + 18;
+        const top = box.top - 7;
+        const serif = 22;
+        const foot = 26;
+        return [
+          `M ${x1 - foot} ${EDGE} H ${x1} V ${top} H ${x1 + serif}`,
+          `M ${x2 + foot} ${EDGE} H ${x2} V ${top} H ${x2 - serif}`,
+        ];
+      },
+
+      calipers(box) {
+        const y = box.top - 2;
+        const x1 = box.left - 10;
+        const x2 = box.right + 10;
+        const rise = EDGE - y;
+        const run = Math.max(36, rise * 0.85);
+        const arm = 18;
+        const foot = 22;
+        return [
+          `M ${x1 - run - foot} ${EDGE} H ${x1 - run} L ${x1} ${y} H ${x1 + arm}`,
+          `M ${x2 + run + foot} ${EDGE} H ${x2 + run} L ${x2} ${y} H ${x2 - arm}`,
+        ];
+      },
+
+      chamfer(box) {
+        const cap = box.top - 11;
+        const x1 = box.left - 18;
+        const x2 = box.right + 18;
+        const run = 40;
+        const foot = 28;
+        return [
+          `M ${x1 - run - foot} ${EDGE} H ${x1 - run} L ${x1} ${cap} H ${x2} L ${x2 + run} ${EDGE} H ${x2 + run + foot}`,
+        ];
+      },
+
+      collar(box) {
+        const x1 = box.left - 22;
+        const x2 = box.right + 22;
+        const cap = box.top - 12;
+        const foot = 32;
+        const bow = 22;
+        return [
+          `M ${x1 - foot} ${EDGE} H ${x1} C ${x1} ${EDGE - bow} ${x1} ${cap} ${x1 + bow} ${cap} H ${x2 - bow} C ${x2} ${cap} ${x2} ${EDGE - bow} ${x2} ${EDGE} H ${x2 + foot}`,
+        ];
+      },
+
+      horizon(box) {
+        const y = box.cy;
+        const x1 = box.left - 16;
+        const x2 = box.right + 16;
+        const arm = 48;
+        const foot = 24;
+        return [
+          `M ${x1 - arm} ${y} H ${x1} V ${LAND}`,
+          `M ${x2 + arm} ${y} H ${x2} V ${LAND}`,
+          `M ${x1 - foot} ${EDGE} H ${x1 + 10}`,
+          `M ${x2 + foot} ${EDGE} H ${x2 - 10}`,
+        ];
+      },
+
+      index(box) {
+        const x1 = box.left - 14;
+        const x2 = box.right + 14;
+        const cap = box.top - 8;
+        const bottom = box.bottom + 5;
+        const r = 11;
+        const mid = (box.left + box.right) / 2;
+        const foot = 20;
+        return [
+          `M ${x1} ${bottom} V ${cap + r} Q ${x1} ${cap} ${x1 + r} ${cap} H ${x2 - r} Q ${x2} ${cap} ${x2} ${cap + r} V ${bottom}`,
+          `M ${mid} ${bottom} V ${LAND}`,
+          `M ${mid - foot} ${EDGE} H ${mid + foot}`,
+        ];
+      },
+
+      fiducial(box) {
+        const y = box.bottom + 5;
+        const x1 = box.left - 4;
+        const x2 = box.right + 4;
+        const mid = (box.left + box.right) / 2;
+        const tick = (x2 - x1) / 2 + 28;
+        return [
+          `M ${x1} ${y - 14} V ${y} H ${x2} V ${y - 14}`,
+          `M ${mid} ${y} V ${LAND}`,
+          `M ${mid - 18} ${EDGE} H ${mid + 18}`,
+          `M ${mid - tick} ${EDGE} V ${EDGE - 14}`,
+          `M ${mid + tick} ${EDGE} V ${EDGE - 14}`,
+        ];
+      },
+    };
+
+    function draw(svg) {
+      const kind = svg.dataset.kind;
+      mat(svg);
+      const live = el("g", { class: "live" });
+      svg.append(live);
+      const box = readout(svg);
+      const paths = frames[kind](box);
+      const miter = kind === "chamfer" || kind === "calipers" || kind === "feet" || kind === "horizon" || kind === "fiducial";
+      for (const d of paths) stroke(live, d, miter);
+    }
+
+    for (const svg of document.querySelectorAll("svg[data-kind]")) draw(svg);
+  </script>
+</body>
+</html>

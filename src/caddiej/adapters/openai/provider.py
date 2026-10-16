@@ -29,6 +29,7 @@ import time
 from typing import Any
 
 from caddiej.adapters.openai.errors import classify
+from caddiej.adapters.openai.pricing import estimate_cost
 from caddiej.coaching.provider import (
     AdviceRequest,
     ImageInput,
@@ -117,6 +118,9 @@ class OpenAIAdviceProvider:
         assert module is not None, "complete called on an unconfigured provider"
 
         started = time.monotonic()
+        options: dict[str, Any] = {}
+        if request.reasoning_effort:
+            options["reasoning"] = {"effort": request.reasoning_effort}
         try:
             response = await self._connect().responses.create(
                 model=self._model,
@@ -127,39 +131,51 @@ class OpenAIAdviceProvider:
                         "content": [
                             {"type": "input_text", "text": request.instructions},
                             {"type": "input_text", "text": request.evidence},
-                            *(self._image(image) for image in request.images),
+                            *self._image_parts(request.images),
                         ],
                     }
                 ],
                 text={
                     "format": {
                         "type": "json_schema",
-                        "name": "swing_advice",
+                        "name": request.schema_name,
                         "schema": dict(request.schema),
                         "strict": True,
                     }
                 },
                 max_output_tokens=request.max_output_tokens,
                 timeout=request.timeout_seconds,
+                **options,
             )
         except Exception as error:
             raise classify(module, error) from error
 
         elapsed = time.monotonic() - started
+        _log_usage(response, request, elapsed, self._model)
         return ProviderReply(
             payload=_payload(response),
             model=getattr(response, "model", self._model) or self._model,
             latency_seconds=elapsed,
             input_tokens=_usage(response, "input_tokens"),
             output_tokens=_usage(response, "output_tokens"),
+            reasoning_tokens=_reasoning_tokens(response),
         )
+
+    def _image_parts(self, images: tuple[ImageInput, ...]) -> list[dict[str, str]]:
+        parts: list[dict[str, str]] = []
+        for image in images:
+            announced = _announce(image)
+            if announced:
+                parts.append({"type": "input_text", "text": announced})
+            parts.append(self._image(image))
+        return parts
 
     def _image(self, image: ImageInput) -> dict[str, str]:
         encoded = base64.b64encode(image.data).decode("ascii")
         return {
             "type": "input_image",
             "image_url": f"data:{image.media_type};base64,{encoded}",
-            "detail": self._detail,
+            "detail": image.detail or self._detail,
         }
 
     async def aclose(self) -> None:
@@ -167,6 +183,22 @@ class OpenAIAdviceProvider:
         self._client = None
         if client is not None:
             await client.close()
+
+
+def _announce(image: ImageInput) -> str:
+    """The text placed before an image: its id first, so it can be cited.
+
+    The id is what the reply schema enumerates and the label is what the
+    picture shows. Putting the two side by side is what lets a model say
+    "swing_side_02" because it is the face-on frame at impact, rather than
+    because it was the second picture it happened to look at.
+    """
+
+    if image.frame_id and image.label:
+        return f"Next image: {image.frame_id} ({image.label})"
+    if image.frame_id or image.label:
+        return f"Next image: {image.frame_id or image.label}"
+    return ""
 
 
 def _payload(response: Any) -> dict[str, Any]:
@@ -200,3 +232,56 @@ def _usage(response: Any, field: str) -> int | None:
     usage = getattr(response, "usage", None)
     value = getattr(usage, field, None)
     return int(value) if isinstance(value, int) else None
+
+
+def _reasoning_tokens(response: Any) -> int | None:
+    details = getattr(getattr(response, "usage", None), "output_tokens_details", None)
+    value = getattr(details, "reasoning_tokens", None)
+    return int(value) if isinstance(value, int) else None
+
+
+def _log_usage(
+    response: Any, request: AdviceRequest, elapsed: float, model: str
+) -> None:
+    """What the reply cost, complete or not. Counts only, never content.
+
+    Logged before the reply is judged, so an incomplete one still says whether
+    the ceiling went on reasoning or on the visible JSON. The dollar figure is
+    an estimate from `pricing.py` and may be None; see there for why it is
+    never more than a log field.
+    """
+
+    status = getattr(response, "status", None)
+    reason = getattr(getattr(response, "incomplete_details", None), "reason", None)
+    incomplete = status == "incomplete"
+    input_tokens = _usage(response, "input_tokens")
+    output_tokens = _usage(response, "output_tokens")
+    answered = getattr(response, "model", None)
+    priced = answered if isinstance(answered, str) and answered else model
+    (logger.warning if incomplete else logger.info)(
+        "coaching_openai_usage",
+        extra={
+            "coaching_response_status": str(status or "unknown"),
+            "coaching_reason": str(reason) if incomplete else "",
+            "coaching_usage_input": input_tokens,
+            "coaching_usage_output": output_tokens,
+            "coaching_usage_reasoning": _reasoning_tokens(response),
+            "coaching_usage_total": _usage(response, "total_tokens"),
+            "coaching_output_ceiling": request.max_output_tokens,
+            "coaching_reasoning_effort": request.reasoning_effort or "default",
+            "coaching_latency_ms": round(elapsed * 1000),
+            "coaching_cost_usd": _cost(priced, input_tokens, output_tokens),
+        },
+    )
+
+
+def _cost(
+    model: str, input_tokens: int | None, output_tokens: int | None
+) -> float | None:
+    """Best effort. A pricing failure must never become a coaching failure."""
+
+    try:
+        cost = estimate_cost(model, input_tokens, output_tokens)
+    except Exception:
+        return None
+    return None if cost is None else round(cost, 6)

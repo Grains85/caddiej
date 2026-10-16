@@ -20,10 +20,12 @@ slow, over budget or wrong changes only how well the line is worded.
 
 from caddiej.coaching.baseline import Baseline, ClubBaseline
 from caddiej.coaching.cache import AdviceCache, fingerprint
+from caddiej.coaching.cues import CUES, CUES_BY_ID, admissible_cues, preferred_cue
 from caddiej.coaching.diagnose import consistency_of, diagnose
 from caddiej.coaching.evidence import render
 from caddiej.coaching.faults import FAULTS, Fault, oriented
 from caddiej.coaching.frames import DEFAULT_OFFSETS, FrameSource, offsets_for
+from caddiej.coaching.probe import probe_coach, probe_coach_cues
 from caddiej.coaching.prompt import PROMPT_VERSION, build_request, reply_schema
 from caddiej.coaching.provider import (
     AdviceProvider,
@@ -38,10 +40,13 @@ from caddiej.coaching.provider import (
     ProviderUnavailableError,
 )
 from caddiej.coaching.service import AnalysisHealth, AnalysisService
+from caddiej.coaching.session import CoachingSession, FocusTrend, SessionProgress
 from caddiej.coaching.templates import display_for, legal_displays, speech_for
 from caddiej.coaching.validate import AdviceRejected, from_diagnosis, validate
 
 __all__ = [
+    "CUES",
+    "CUES_BY_ID",
     "DEFAULT_OFFSETS",
     "FAULTS",
     "PROMPT_VERSION",
@@ -53,7 +58,9 @@ __all__ = [
     "AnalysisService",
     "Baseline",
     "ClubBaseline",
+    "CoachingSession",
     "Fault",
+    "FocusTrend",
     "FrameSource",
     "ImageInput",
     "ProviderError",
@@ -63,6 +70,8 @@ __all__ = [
     "ProviderReplyError",
     "ProviderTimeoutError",
     "ProviderUnavailableError",
+    "SessionProgress",
+    "admissible_cues",
     "build_request",
     "consistency_of",
     "diagnose",
@@ -72,6 +81,9 @@ __all__ = [
     "legal_displays",
     "offsets_for",
     "oriented",
+    "preferred_cue",
+    "probe_coach",
+    "probe_coach_cues",
     "render",
     "reply_schema",
     "speech_for",

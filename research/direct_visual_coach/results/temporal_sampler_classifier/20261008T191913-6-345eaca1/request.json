@@ -1,0 +1,650 @@
+{
+  "shot": "20261008T191913-6-345eaca1",
+  "experiment": "temporal_sampler_classifier",
+  "classifier": "simple_visual_classifier",
+  "model": "gpt-5-mini",
+  "reasoning_effort": "minimal",
+  "detail": "high",
+  "max_output_tokens": 6000,
+  "timeout_seconds": 120.0,
+  "schema_name": "simple_visual_classifier",
+  "catalog_fault_count": 26,
+  "catalog_fields_sent": [
+    "id",
+    "name",
+    "visual_definition",
+    "preferred_views"
+  ],
+  "catalog": [
+    {
+      "id": "SETUP_ARMS_NOT_HANGING",
+      "name": "Arms reach instead of hanging",
+      "visual_definition": "At address the elbows are locked and the hands are held out toward the ball, well away from a hang under the shoulders. The longer reach of a longer club, with the elbows soft, is not this fault.",
+      "preferred_views": [
+        "DTL",
+        "FO"
+      ]
+    },
+    {
+      "id": "SETUP_WEIGHT_TOWARD_TOES",
+      "name": "Address balance leans toward the ball",
+      "visual_definition": "At address the knees sit ahead of the ankles and the heels look unloaded, so the body leans toward the ball. Knee flex with the pressure still in the middle of the feet is not this fault.",
+      "preferred_views": [
+        "DTL"
+      ]
+    },
+    {
+      "id": "TAKEAWAY_HANDS_LED",
+      "name": "Hands start back before the chest",
+      "visual_definition": "The hands and club move away while the chest and pelvis are still near their address orientation. A takeaway in which the chest turns and the hands go with it is not this fault.",
+      "preferred_views": [
+        "FO"
+      ]
+    },
+    {
+      "id": "TAKEAWAY_CLUB_INSIDE",
+      "name": "Clubhead rolls inside early",
+      "visual_definition": "As the club first leaves the ball, the clubhead wraps inside the hands and around the body while the hands are still low. A clubhead that is only slightly inside the ball line, and still in front of the torso, is not this fault.",
+      "preferred_views": [
+        "DTL"
+      ]
+    },
+    {
+      "id": "TAKEAWAY_CLUB_OUTSIDE",
+      "name": "Clubhead moves outside early",
+      "visual_definition": "As the club first leaves the ball, the clubhead moves away from the body, outside the hands, while the hands are still low. A small move that leaves the clubhead in front of the hands, and an outside path much later, are not this fault.",
+      "preferred_views": [
+        "DTL"
+      ]
+    },
+    {
+      "id": "TAKEAWAY_FACE_ROLLED_SHUT",
+      "name": "Clubface rolls shut immediately",
+      "visual_definition": "While the hands are still near address height, the toe turns sharply up and the clubface rolls closed. A gradual toe-up as the shaft rises toward parallel is normal and is not this fault.",
+      "preferred_views": [
+        "DTL"
+      ]
+    },
+    {
+      "id": "BACKSWING_LEAD_ARM_COLLAPSED",
+      "name": "Lead arm folds into the head",
+      "visual_definition": "By the end of the movement away, the lead elbow has folded so far that the hands sit against the head or the trail ear and the lead arm is much shorter than the shoulder width. A bent lead elbow with space between the hands and the head is normal and is not this fault.",
+      "preferred_views": [
+        "FO"
+      ]
+    },
+    {
+      "id": "BACKSWING_ARMS_LIFT_WITHOUT_CHEST",
+      "name": "Arms lift while the chest stays square",
+      "visual_definition": "By the end of the movement away, the hands are high and the chest still faces the ball, much as it did at address. A chest that has clearly turned away, even if the turn is not a full shoulder turn, is not this fault.",
+      "preferred_views": [
+        "FO"
+      ]
+    },
+    {
+      "id": "BACKSWING_SWAY_OFF_BALL",
+      "name": "Hips slide away from the target",
+      "visual_definition": "During the movement away, the pelvis translates away from the target until the trail hip moves outside the trail foot. Hip rotation that keeps the trail hip over the trail foot is not this fault.",
+      "preferred_views": [
+        "FO"
+      ]
+    },
+    {
+      "id": "BACKSWING_REVERSE_PIVOT",
+      "name": "Body moves toward the target going back",
+      "visual_definition": "During the movement away, the pelvis or head translates toward the target while the club moves away. A later move onto the lead side during the downswing is normal and is not this fault.",
+      "preferred_views": [
+        "FO"
+      ]
+    },
+    {
+      "id": "BACKSWING_POSTURE_RISE",
+      "name": "Hip depth is lost on the way back",
+      "visual_definition": "During the movement away, the pelvis moves toward the ball and the torso becomes more upright than it was at address. Standing taller only after the strike, or losing depth only on the way down, is not this fault.",
+      "preferred_views": [
+        "DTL"
+      ]
+    },
+    {
+      "id": "TRANSITION_UPPER_BODY_FIRST",
+      "name": "Chest starts down before the arms drop",
+      "visual_definition": "At the change of direction the chest rotates back toward the target while the hands are still high and the pelvis has not yet turned ahead of that chest. Shoulders that are open later, after the arms have lowered, are normal and are not this fault.",
+      "preferred_views": [
+        "FO"
+      ]
+    },
+    {
+      "id": "TRAIL_SHOULDER_OUT_EARLY",
+      "name": "Trail shoulder works outward early",
+      "visual_definition": "At the change of direction or as the club first moves toward the ball, the trail shoulder displaces outward toward the ball, away from the trail hip, and the hands move outward with it. Chest rotation that only carries the lead shoulder toward the target is not this fault.",
+      "preferred_views": [
+        "DTL"
+      ]
+    },
+    {
+      "id": "UPPER_BODY_SLIDE_TARGETWARD",
+      "name": "Upper torso slides toward the target",
+      "visual_definition": "Early in the movement toward the ball, both shoulders and the head translate toward the target together, more than the pelvis does. The lead shoulder moving targetward because the chest is rotating, while the trail shoulder stays back, is not this fault.",
+      "preferred_views": [
+        "FO"
+      ]
+    },
+    {
+      "id": "TRANSITION_ARMS_SEPARATE",
+      "name": "Arms throw outward off the chest",
+      "visual_definition": "As the club starts toward the ball, the upper arms leave the torso and the gap between the arms and the chest grows while the hands move away from the body. Arms that lower while staying in front of the chest are not this fault.",
+      "preferred_views": [
+        "FO"
+      ]
+    },
+    {
+      "id": "HAND_PATH_OUT",
+      "name": "Hands travel outward toward the ball",
+      "visual_definition": "While the club is moving toward the ball, the hands travel farther from the body than they were at address, out toward the ball. Hands that drop closer to the body, and a clubhead that is outside only because the face has rotated, are not this fault.",
+      "preferred_views": [
+        "DTL"
+      ]
+    },
+    {
+      "id": "STEEP_DELIVERY",
+      "name": "Shaft delivers steeper than the forearm",
+      "visual_definition": "While the club is moving toward the ball, the shaft is markedly steeper than the forearm beside it, so the club sits above that arm rather than lying with it. An upright lie at address, or a steep-looking shaft at the top, is not this fault.",
+      "preferred_views": [
+        "DTL"
+      ]
+    },
+    {
+      "id": "OUT_TO_IN_DELIVERY",
+      "name": "Clubhead approaches across the ball",
+      "visual_definition": "While the club is moving toward the ball, the clubhead is farther from the torso than the hands and is traveling toward the torso. An open chest, a steep shaft with the clubhead still moving at the ball, or a frame after the ball, is not this fault.",
+      "preferred_views": [
+        "DTL"
+      ]
+    },
+    {
+      "id": "HAND_PATH_STUCK_INSIDE",
+      "name": "Hands stay stuck behind the trail hip",
+      "visual_definition": "While the club is moving toward the ball and the hands are nearing it, the hands are still behind the trail hip and the shaft lies well under the forearm beside it. An inside path, or hands that were deep only at the top, is not this fault.",
+      "preferred_views": [
+        "DTL"
+      ]
+    },
+    {
+      "id": "EARLY_EXTENSION",
+      "name": "Hips move toward the ball before impact",
+      "visual_definition": "From the change of direction through delivery, the pelvis loses the depth it had earlier and moves toward the ball. Standing tall after the strike, or hip rotation seen face-on, is not this fault.",
+      "preferred_views": [
+        "DTL"
+      ]
+    },
+    {
+      "id": "DELIVERY_POSTURE_RISE",
+      "name": "Chest rises before the ball",
+      "visual_definition": "While the club is moving toward the ball, the forward tilt decreases and the chest lifts relative to address, so the torso stands up before the strike. The hips moving toward the ball is a different fault. A tall finish after the strike is not this fault.",
+      "preferred_views": [
+        "DTL"
+      ]
+    },
+    {
+      "id": "PELVIS_CLEARS_BEFORE_ARMS_DROP",
+      "name": "Hips face the target before the arms drop",
+      "visual_definition": "At the change of direction the pelvis has rotated so far that the belt buckle points toward the target while the hands are still up by the trail shoulder and have not started down. A pelvis that has only started to turn while the arms begin to drop is normal and is not this fault.",
+      "preferred_views": [
+        "FO"
+      ]
+    },
+    {
+      "id": "EARLY_RELEASE",
+      "name": "Wrist angle is thrown away early",
+      "visual_definition": "While the hands are still well above the ball, the angle between the lead forearm and the shaft opens and the clubhead moves away from the hands. The clubhead passing the hands at the ball is a later fault. Keeping that angle into delivery is not this fault.",
+      "preferred_views": [
+        "DTL"
+      ]
+    },
+    {
+      "id": "HANDS_FLIP_AT_STRIKE",
+      "name": "Clubhead passes the hands at the ball",
+      "visual_definition": "As the club reaches the ball, the trail hand crosses and the clubhead passes the hands, with the lead wrist breaking down. The wrist angle opening while the hands are still high is an earlier fault. A release after the ball has been passed is not this fault.",
+      "preferred_views": [
+        "DTL",
+        "FO"
+      ]
+    },
+    {
+      "id": "CHICKEN_WING",
+      "name": "Lead elbow folds just after the strike",
+      "visual_definition": "Just after the strike the lead elbow bends and the lead arm folds toward the chest instead of extending. A bent lead arm at the top, or a fold that begins only late in the finish, is not this fault.",
+      "preferred_views": [
+        "FO"
+      ]
+    },
+    {
+      "id": "FINISH_BALANCE_LOST",
+      "name": "Body falls off the finish",
+      "visual_definition": "After the strike the body keeps falling toward the ball or the lead side collapses, so the finish cannot be held. A full turn onto the lead foot, with the trail toe coming up as part of that turn, is not this fault.",
+      "preferred_views": [
+        "DTL",
+        "FO"
+      ]
+    }
+  ],
+  "image_inputs": 24,
+  "estimated_input_tokens": 48388,
+  "image_bytes": 1588645,
+  "system": "You are a visual golf swing classifier.\n\nStudy the chronological Down-the-Line images of one golf swing.\n\nIdentify which faults from the supplied CaddieJ Visual Fault Catalog are clearly visible in this swing.\n\nFor each detected fault:\n- return the catalog fault_id\n- confidence from 0 to 1\n- cite the capture ticks that best show it\n- briefly describe the visible evidence\n\nUse the visual_definition to understand each fault.\n\nDo not invent faults that are not visibly supported.\nDo not infer an upstream cause merely because a downstream effect is visible.\nDo not return a fault simply because it is common.\nIf no catalog fault is clearly visible, return no_proven_fault.\n\nYou are classifying visible mechanics, not coaching the golfer.\n",
+  "instructions": "Fill the JSON object and nothing else.\n\nOnly Down-the-Line frames are attached. No Face-On frame is attached. Do not assume a Face-On view exists.\n\nCapture ticks increase through the swing. A higher capture_tick is later. A lower capture_tick is earlier.\n\nTEMPORAL ORIENTATION\n\ntemporal_orientation is diagnostic context. It records the visible direction of the swing. It does not decide which faults may be returned.\n\ntemporal_orientation has exactly one object for every capture_tick you were shown, in increasing tick order, and no others.\n\nstate is exactly one of:\n- setup: the golfer is in place and the swing has not started\n- moving_away: the hands or club are moving away from the ball\n- direction_change_region: the motion is changing from away to toward the ball, and that change is visible from these frames\n- moving_toward_ball: the hands or club are moving toward the ball\n- after_strike: the motion has continued past the ball\n- uncertain: these frames do not show the direction\n\nRead the states in that order. A later tick may stay in the same state or move to a later state. It must not go back to an earlier state. uncertain may sit on any tick and does not force the ticks around it.\nInclude direction_change_region only when the change of direction is visible. Leave it out when the frames do not show the change.\nvisual_basis is a short description of what is visible that establishes the direction. confidence is from 0 to 1.\n\nA fault may cite whichever supplied ticks visually demonstrate that fault's visual_definition.\n\nHANDEDNESS\n\nhandedness.side is exactly one of right, left, or uncertain.\nright means a right-handed golfer: the lead side is the golfer's left, closer to the target.\nleft means a left-handed golfer: the lead side is the golfer's right, closer to the target.\nuncertain means the frames do not show which side is closer to the target.\nvisual_basis is what is visible that establishes the side. confidence is from 0 to 1.\n\nYou may use a visually established side when a visual_definition says lead or trail.\nIf side is uncertain, do not fabricate a lead or trail observation.\n\nCLASSIFICATION\n\nstatus is \"classified\" when one or more catalog faults are clearly visible, and \"no_proven_fault\" when none are.\nfault_candidates is empty when status is no_proven_fault.\n\nWhen a fault is clearly visible, return:\n- fault_id copied from the catalog\n- confidence from 0 to 1\n- evidence: one or more items, each with a capture_tick you were shown and a visual_basis describing what is visible there\n\nThere is no minimum number of faults. Zero faults is a complete answer.\nDo not add a lesson, a drill, a feel, a floor cue, a cause chain, or a fault name that is not in the catalog.\n",
+  "evidence": "No launch-monitor image and no launch-monitor numbers are attached.\n\nThe images are 24 separate original full-resolution Down-the-Line frames. No Face-On frame is attached.\nThey are chronological.\nEach image has capture_tick. A larger capture_tick is later. A smaller capture_tick is earlier.\nEach image has relative_timestamp_seconds, seconds from the first captured frame of this recording.\nFrame spacing is intentionally non-uniform. A smaller time gap means the local sampler chose denser temporal coverage.\nDTL is Swing Behind (down the line). Do not assume a Face-On view exists.\ntemporal_orientation must contain each of these capture ticks once.\n\nImage 1 of 24: capture_tick 15, relative_timestamp_seconds 1.3870\nImage 2 of 24: capture_tick 17, relative_timestamp_seconds 1.5927, seconds_since_previous_image 0.2057\nImage 3 of 24: capture_tick 19, relative_timestamp_seconds 1.7974, seconds_since_previous_image 0.2047\nImage 4 of 24: capture_tick 22, relative_timestamp_seconds 2.0834, seconds_since_previous_image 0.2860\nImage 5 of 24: capture_tick 24, relative_timestamp_seconds 2.2880, seconds_since_previous_image 0.2046\nImage 6 of 24: capture_tick 26, relative_timestamp_seconds 2.4941, seconds_since_previous_image 0.2061\nImage 7 of 24: capture_tick 27, relative_timestamp_seconds 2.5891, seconds_since_previous_image 0.0950\nImage 8 of 24: capture_tick 29, relative_timestamp_seconds 2.7943, seconds_since_previous_image 0.2052\nImage 9 of 24: capture_tick 33, relative_timestamp_seconds 2.9995, seconds_since_previous_image 0.2052\nImage 10 of 24: capture_tick 34, relative_timestamp_seconds 3.0477, seconds_since_previous_image 0.0482\nImage 11 of 24: capture_tick 35, relative_timestamp_seconds 3.0949, seconds_since_previous_image 0.0472\nImage 12 of 24: capture_tick 36, relative_timestamp_seconds 3.1414, seconds_since_previous_image 0.0465\nImage 13 of 24: capture_tick 37, relative_timestamp_seconds 3.1885, seconds_since_previous_image 0.0471\nImage 14 of 24: capture_tick 38, relative_timestamp_seconds 3.2364, seconds_since_previous_image 0.0479\nImage 15 of 24: capture_tick 39, relative_timestamp_seconds 3.2992, seconds_since_previous_image 0.0628\nImage 16 of 24: capture_tick 40, relative_timestamp_seconds 3.3473, seconds_since_previous_image 0.0481\nImage 17 of 24: capture_tick 42, relative_timestamp_seconds 3.4433, seconds_since_previous_image 0.0960\nImage 18 of 24: capture_tick 43, relative_timestamp_seconds 3.4914, seconds_since_previous_image 0.0481\nImage 19 of 24: capture_tick 44, relative_timestamp_seconds 3.5395, seconds_since_previous_image 0.0481\nImage 20 of 24: capture_tick 46, relative_timestamp_seconds 3.6515, seconds_since_previous_image 0.1120\nImage 21 of 24: capture_tick 47, relative_timestamp_seconds 3.6981, seconds_since_previous_image 0.0466\nImage 22 of 24: capture_tick 48, relative_timestamp_seconds 3.7447, seconds_since_previous_image 0.0466\nImage 23 of 24: capture_tick 49, relative_timestamp_seconds 3.7918, seconds_since_previous_image 0.0471\nImage 24 of 24: capture_tick 51, relative_timestamp_seconds 3.8870, seconds_since_previous_image 0.0952\n\nVISUAL FAULT CATALOG\nEach object is one existing catalog fault. The fields are id, name, visual_definition, and preferred_views. preferred_views names the camera that usually shows the fault. Only Down-the-Line frames are attached. Judge each visual_definition from those frames.\n[{\"id\":\"SETUP_ARMS_NOT_HANGING\",\"name\":\"Arms reach instead of hanging\",\"visual_definition\":\"At address the elbows are locked and the hands are held out toward the ball, well away from a hang under the shoulders. The longer reach of a longer club, with the elbows soft, is not this fault.\",\"preferred_views\":[\"DTL\",\"FO\"]},{\"id\":\"SETUP_WEIGHT_TOWARD_TOES\",\"name\":\"Address balance leans toward the ball\",\"visual_definition\":\"At address the knees sit ahead of the ankles and the heels look unloaded, so the body leans toward the ball. Knee flex with the pressure still in the middle of the feet is not this fault.\",\"preferred_views\":[\"DTL\"]},{\"id\":\"TAKEAWAY_HANDS_LED\",\"name\":\"Hands start back before the chest\",\"visual_definition\":\"The hands and club move away while the chest and pelvis are still near their address orientation. A takeaway in which the chest turns and the hands go with it is not this fault.\",\"preferred_views\":[\"FO\"]},{\"id\":\"TAKEAWAY_CLUB_INSIDE\",\"name\":\"Clubhead rolls inside early\",\"visual_definition\":\"As the club first leaves the ball, the clubhead wraps inside the hands and around the body while the hands are still low. A clubhead that is only slightly inside the ball line, and still in front of the torso, is not this fault.\",\"preferred_views\":[\"DTL\"]},{\"id\":\"TAKEAWAY_CLUB_OUTSIDE\",\"name\":\"Clubhead moves outside early\",\"visual_definition\":\"As the club first leaves the ball, the clubhead moves away from the body, outside the hands, while the hands are still low. A small move that leaves the clubhead in front of the hands, and an outside path much later, are not this fault.\",\"preferred_views\":[\"DTL\"]},{\"id\":\"TAKEAWAY_FACE_ROLLED_SHUT\",\"name\":\"Clubface rolls shut immediately\",\"visual_definition\":\"While the hands are still near address height, the toe turns sharply up and the clubface rolls closed. A gradual toe-up as the shaft rises toward parallel is normal and is not this fault.\",\"preferred_views\":[\"DTL\"]},{\"id\":\"BACKSWING_LEAD_ARM_COLLAPSED\",\"name\":\"Lead arm folds into the head\",\"visual_definition\":\"By the end of the movement away, the lead elbow has folded so far that the hands sit against the head or the trail ear and the lead arm is much shorter than the shoulder width. A bent lead elbow with space between the hands and the head is normal and is not this fault.\",\"preferred_views\":[\"FO\"]},{\"id\":\"BACKSWING_ARMS_LIFT_WITHOUT_CHEST\",\"name\":\"Arms lift while the chest stays square\",\"visual_definition\":\"By the end of the movement away, the hands are high and the chest still faces the ball, much as it did at address. A chest that has clearly turned away, even if the turn is not a full shoulder turn, is not this fault.\",\"preferred_views\":[\"FO\"]},{\"id\":\"BACKSWING_SWAY_OFF_BALL\",\"name\":\"Hips slide away from the target\",\"visual_definition\":\"During the movement away, the pelvis translates away from the target until the trail hip moves outside the trail foot. Hip rotation that keeps the trail hip over the trail foot is not this fault.\",\"preferred_views\":[\"FO\"]},{\"id\":\"BACKSWING_REVERSE_PIVOT\",\"name\":\"Body moves toward the target going back\",\"visual_definition\":\"During the movement away, the pelvis or head translates toward the target while the club moves away. A later move onto the lead side during the downswing is normal and is not this fault.\",\"preferred_views\":[\"FO\"]},{\"id\":\"BACKSWING_POSTURE_RISE\",\"name\":\"Hip depth is lost on the way back\",\"visual_definition\":\"During the movement away, the pelvis moves toward the ball and the torso becomes more upright than it was at address. Standing taller only after the strike, or losing depth only on the way down, is not this fault.\",\"preferred_views\":[\"DTL\"]},{\"id\":\"TRANSITION_UPPER_BODY_FIRST\",\"name\":\"Chest starts down before the arms drop\",\"visual_definition\":\"At the change of direction the chest rotates back toward the target while the hands are still high and the pelvis has not yet turned ahead of that chest. Shoulders that are open later, after the arms have lowered, are normal and are not this fault.\",\"preferred_views\":[\"FO\"]},{\"id\":\"TRAIL_SHOULDER_OUT_EARLY\",\"name\":\"Trail shoulder works outward early\",\"visual_definition\":\"At the change of direction or as the club first moves toward the ball, the trail shoulder displaces outward toward the ball, away from the trail hip, and the hands move outward with it. Chest rotation that only carries the lead shoulder toward the target is not this fault.\",\"preferred_views\":[\"DTL\"]},{\"id\":\"UPPER_BODY_SLIDE_TARGETWARD\",\"name\":\"Upper torso slides toward the target\",\"visual_definition\":\"Early in the movement toward the ball, both shoulders and the head translate toward the target together, more than the pelvis does. The lead shoulder moving targetward because the chest is rotating, while the trail shoulder stays back, is not this fault.\",\"preferred_views\":[\"FO\"]},{\"id\":\"TRANSITION_ARMS_SEPARATE\",\"name\":\"Arms throw outward off the chest\",\"visual_definition\":\"As the club starts toward the ball, the upper arms leave the torso and the gap between the arms and the chest grows while the hands move away from the body. Arms that lower while staying in front of the chest are not this fault.\",\"preferred_views\":[\"FO\"]},{\"id\":\"HAND_PATH_OUT\",\"name\":\"Hands travel outward toward the ball\",\"visual_definition\":\"While the club is moving toward the ball, the hands travel farther from the body than they were at address, out toward the ball. Hands that drop closer to the body, and a clubhead that is outside only because the face has rotated, are not this fault.\",\"preferred_views\":[\"DTL\"]},{\"id\":\"STEEP_DELIVERY\",\"name\":\"Shaft delivers steeper than the forearm\",\"visual_definition\":\"While the club is moving toward the ball, the shaft is markedly steeper than the forearm beside it, so the club sits above that arm rather than lying with it. An upright lie at address, or a steep-looking shaft at the top, is not this fault.\",\"preferred_views\":[\"DTL\"]},{\"id\":\"OUT_TO_IN_DELIVERY\",\"name\":\"Clubhead approaches across the ball\",\"visual_definition\":\"While the club is moving toward the ball, the clubhead is farther from the torso than the hands and is traveling toward the torso. An open chest, a steep shaft with the clubhead still moving at the ball, or a frame after the ball, is not this fault.\",\"preferred_views\":[\"DTL\"]},{\"id\":\"HAND_PATH_STUCK_INSIDE\",\"name\":\"Hands stay stuck behind the trail hip\",\"visual_definition\":\"While the club is moving toward the ball and the hands are nearing it, the hands are still behind the trail hip and the shaft lies well under the forearm beside it. An inside path, or hands that were deep only at the top, is not this fault.\",\"preferred_views\":[\"DTL\"]},{\"id\":\"EARLY_EXTENSION\",\"name\":\"Hips move toward the ball before impact\",\"visual_definition\":\"From the change of direction through delivery, the pelvis loses the depth it had earlier and moves toward the ball. Standing tall after the strike, or hip rotation seen face-on, is not this fault.\",\"preferred_views\":[\"DTL\"]},{\"id\":\"DELIVERY_POSTURE_RISE\",\"name\":\"Chest rises before the ball\",\"visual_definition\":\"While the club is moving toward the ball, the forward tilt decreases and the chest lifts relative to address, so the torso stands up before the strike. The hips moving toward the ball is a different fault. A tall finish after the strike is not this fault.\",\"preferred_views\":[\"DTL\"]},{\"id\":\"PELVIS_CLEARS_BEFORE_ARMS_DROP\",\"name\":\"Hips face the target before the arms drop\",\"visual_definition\":\"At the change of direction the pelvis has rotated so far that the belt buckle points toward the target while the hands are still up by the trail shoulder and have not started down. A pelvis that has only started to turn while the arms begin to drop is normal and is not this fault.\",\"preferred_views\":[\"FO\"]},{\"id\":\"EARLY_RELEASE\",\"name\":\"Wrist angle is thrown away early\",\"visual_definition\":\"While the hands are still well above the ball, the angle between the lead forearm and the shaft opens and the clubhead moves away from the hands. The clubhead passing the hands at the ball is a later fault. Keeping that angle into delivery is not this fault.\",\"preferred_views\":[\"DTL\"]},{\"id\":\"HANDS_FLIP_AT_STRIKE\",\"name\":\"Clubhead passes the hands at the ball\",\"visual_definition\":\"As the club reaches the ball, the trail hand crosses and the clubhead passes the hands, with the lead wrist breaking down. The wrist angle opening while the hands are still high is an earlier fault. A release after the ball has been passed is not this fault.\",\"preferred_views\":[\"DTL\",\"FO\"]},{\"id\":\"CHICKEN_WING\",\"name\":\"Lead elbow folds just after the strike\",\"visual_definition\":\"Just after the strike the lead elbow bends and the lead arm folds toward the chest instead of extending. A bent lead arm at the top, or a fold that begins only late in the finish, is not this fault.\",\"preferred_views\":[\"FO\"]},{\"id\":\"FINISH_BALANCE_LOST\",\"name\":\"Body falls off the finish\",\"visual_definition\":\"After the strike the body keeps falling toward the ball or the lead side collapses, so the finish cannot be held. A full turn onto the lead foot, with the trail toe coming up as part of that turn, is not this fault.\",\"preferred_views\":[\"DTL\",\"FO\"]}]",
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "classified",
+          "no_proven_fault"
+        ]
+      },
+      "handedness": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "side": {
+            "type": "string",
+            "enum": [
+              "right",
+              "left",
+              "uncertain"
+            ]
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "visual_basis": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "side",
+          "confidence",
+          "visual_basis"
+        ]
+      },
+      "temporal_orientation": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "capture_tick": {
+              "type": "integer"
+            },
+            "state": {
+              "type": "string",
+              "enum": [
+                "setup",
+                "moving_away",
+                "direction_change_region",
+                "moving_toward_ball",
+                "after_strike",
+                "uncertain"
+              ]
+            },
+            "confidence": {
+              "type": "number"
+            },
+            "visual_basis": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "capture_tick",
+            "state",
+            "confidence",
+            "visual_basis"
+          ]
+        }
+      },
+      "fault_candidates": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "fault_id": {
+              "type": "string",
+              "enum": [
+                "SETUP_ARMS_NOT_HANGING",
+                "SETUP_WEIGHT_TOWARD_TOES",
+                "TAKEAWAY_HANDS_LED",
+                "TAKEAWAY_CLUB_INSIDE",
+                "TAKEAWAY_CLUB_OUTSIDE",
+                "TAKEAWAY_FACE_ROLLED_SHUT",
+                "BACKSWING_LEAD_ARM_COLLAPSED",
+                "BACKSWING_ARMS_LIFT_WITHOUT_CHEST",
+                "BACKSWING_SWAY_OFF_BALL",
+                "BACKSWING_REVERSE_PIVOT",
+                "BACKSWING_POSTURE_RISE",
+                "TRANSITION_UPPER_BODY_FIRST",
+                "TRAIL_SHOULDER_OUT_EARLY",
+                "UPPER_BODY_SLIDE_TARGETWARD",
+                "TRANSITION_ARMS_SEPARATE",
+                "HAND_PATH_OUT",
+                "STEEP_DELIVERY",
+                "OUT_TO_IN_DELIVERY",
+                "HAND_PATH_STUCK_INSIDE",
+                "EARLY_EXTENSION",
+                "DELIVERY_POSTURE_RISE",
+                "PELVIS_CLEARS_BEFORE_ARMS_DROP",
+                "EARLY_RELEASE",
+                "HANDS_FLIP_AT_STRIKE",
+                "CHICKEN_WING",
+                "FINISH_BALANCE_LOST"
+              ]
+            },
+            "confidence": {
+              "type": "number"
+            },
+            "evidence": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "capture_tick": {
+                    "type": "integer"
+                  },
+                  "visual_basis": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "capture_tick",
+                  "visual_basis"
+                ]
+              }
+            }
+          },
+          "required": [
+            "fault_id",
+            "confidence",
+            "evidence"
+          ]
+        }
+      }
+    },
+    "required": [
+      "status",
+      "handedness",
+      "temporal_orientation",
+      "fault_candidates"
+    ]
+  },
+  "images": [
+    {
+      "capture_tick": 15,
+      "relative_timestamp_seconds": 1.387,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_015.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 64374,
+      "sha256": "f45995c5eb146c374e2ab3fec1920e2415de13a9071601ac2da1f0422c67be77",
+      "detail": "high",
+      "label": "DTL capture_tick 15, relative_timestamp_seconds 1.3870, Down-the-Line, image 1 of 24"
+    },
+    {
+      "capture_tick": 17,
+      "relative_timestamp_seconds": 1.5927,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_017.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 65421,
+      "sha256": "e3f1deee154da9ad10999207847316667fa15b8ba9d706976d60968b197433ed",
+      "detail": "high",
+      "label": "DTL capture_tick 17, relative_timestamp_seconds 1.5927, Down-the-Line, image 2 of 24"
+    },
+    {
+      "capture_tick": 19,
+      "relative_timestamp_seconds": 1.7974,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_019.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66120,
+      "sha256": "9c94237f2417c95df83c88a0c13f7cd8d9dd43d7b56e80f8161e097d1a30df86",
+      "detail": "high",
+      "label": "DTL capture_tick 19, relative_timestamp_seconds 1.7974, Down-the-Line, image 3 of 24"
+    },
+    {
+      "capture_tick": 22,
+      "relative_timestamp_seconds": 2.0834,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_022.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66650,
+      "sha256": "f9941a6da023f18980a19b4b645d43879f241c83474de749823e320374641fa1",
+      "detail": "high",
+      "label": "DTL capture_tick 22, relative_timestamp_seconds 2.0834, Down-the-Line, image 4 of 24"
+    },
+    {
+      "capture_tick": 24,
+      "relative_timestamp_seconds": 2.288,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_024.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66865,
+      "sha256": "eda91c3f8a97144bb86f1725c73c1c8239c06aab4e88a387b18ac2923800d374",
+      "detail": "high",
+      "label": "DTL capture_tick 24, relative_timestamp_seconds 2.2880, Down-the-Line, image 5 of 24"
+    },
+    {
+      "capture_tick": 26,
+      "relative_timestamp_seconds": 2.4941,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_026.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66876,
+      "sha256": "eab28bf194e7212ca4bf69dfdcc297519c90f0aeabf8fad647f08fa05aa2e8cc",
+      "detail": "high",
+      "label": "DTL capture_tick 26, relative_timestamp_seconds 2.4941, Down-the-Line, image 6 of 24"
+    },
+    {
+      "capture_tick": 27,
+      "relative_timestamp_seconds": 2.5891,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_027.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66430,
+      "sha256": "6258443b5198ae30dbc15bf127775e51701bd34ae023442c51dc7648cd3aa6fa",
+      "detail": "high",
+      "label": "DTL capture_tick 27, relative_timestamp_seconds 2.5891, Down-the-Line, image 7 of 24"
+    },
+    {
+      "capture_tick": 29,
+      "relative_timestamp_seconds": 2.7943,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_029.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66468,
+      "sha256": "9a208aa23843d95577d2b9691fd46cf561edd5072ded7b6831422ed5a2fb14a6",
+      "detail": "high",
+      "label": "DTL capture_tick 29, relative_timestamp_seconds 2.7943, Down-the-Line, image 8 of 24"
+    },
+    {
+      "capture_tick": 33,
+      "relative_timestamp_seconds": 2.9995,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_033.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66313,
+      "sha256": "26861acb6f73ace9d47e4ff3c9007155e82ad428d6403290b91500c03bfaa04a",
+      "detail": "high",
+      "label": "DTL capture_tick 33, relative_timestamp_seconds 2.9995, Down-the-Line, image 9 of 24"
+    },
+    {
+      "capture_tick": 34,
+      "relative_timestamp_seconds": 3.0477,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_034.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66791,
+      "sha256": "bf79576b44dd38d48e19b32fd7f4ad06669d7742aaaf7ad01284a3e91effa48d",
+      "detail": "high",
+      "label": "DTL capture_tick 34, relative_timestamp_seconds 3.0477, Down-the-Line, image 10 of 24"
+    },
+    {
+      "capture_tick": 35,
+      "relative_timestamp_seconds": 3.0949,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_035.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66528,
+      "sha256": "396865808b9e217497d4f759f3fc01b62cf9e8a9c553e4ae482731c3ee8dc52e",
+      "detail": "high",
+      "label": "DTL capture_tick 35, relative_timestamp_seconds 3.0949, Down-the-Line, image 11 of 24"
+    },
+    {
+      "capture_tick": 36,
+      "relative_timestamp_seconds": 3.1414,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_036.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66837,
+      "sha256": "aecc17bb0480a834ea66c45733632d88f1f0bf51c681774c8dc53050c0889aeb",
+      "detail": "high",
+      "label": "DTL capture_tick 36, relative_timestamp_seconds 3.1414, Down-the-Line, image 12 of 24"
+    },
+    {
+      "capture_tick": 37,
+      "relative_timestamp_seconds": 3.1885,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_037.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66890,
+      "sha256": "1e542485a7ea4cb89ac8b22811a942b7c637a6cd41550293c8b545de1f6bc02e",
+      "detail": "high",
+      "label": "DTL capture_tick 37, relative_timestamp_seconds 3.1885, Down-the-Line, image 13 of 24"
+    },
+    {
+      "capture_tick": 38,
+      "relative_timestamp_seconds": 3.2364,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_038.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 67330,
+      "sha256": "fa01bc4e5bbd6fc3f27bbbb79e0a263fff3ff3962c6ec24b68afce314786535f",
+      "detail": "high",
+      "label": "DTL capture_tick 38, relative_timestamp_seconds 3.2364, Down-the-Line, image 14 of 24"
+    },
+    {
+      "capture_tick": 39,
+      "relative_timestamp_seconds": 3.2992,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_039.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66412,
+      "sha256": "8b182deef928048f1b512ede91fda0128931d87e796ca8de28622834779f8cee",
+      "detail": "high",
+      "label": "DTL capture_tick 39, relative_timestamp_seconds 3.2992, Down-the-Line, image 15 of 24"
+    },
+    {
+      "capture_tick": 40,
+      "relative_timestamp_seconds": 3.3473,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_040.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66080,
+      "sha256": "d755cb1a1e38cb6337773e4dafc00e4e893753bde3fd9af7a53db75d2bf44ebe",
+      "detail": "high",
+      "label": "DTL capture_tick 40, relative_timestamp_seconds 3.3473, Down-the-Line, image 16 of 24"
+    },
+    {
+      "capture_tick": 42,
+      "relative_timestamp_seconds": 3.4433,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_042.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 64231,
+      "sha256": "b7ee6b543eb15e51d0bde1dec7f7d49ed5ce5a9fcc66ee4335c49967c68ce8b3",
+      "detail": "high",
+      "label": "DTL capture_tick 42, relative_timestamp_seconds 3.4433, Down-the-Line, image 17 of 24"
+    },
+    {
+      "capture_tick": 43,
+      "relative_timestamp_seconds": 3.4914,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_043.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 64686,
+      "sha256": "2a6d1bf2ab497e61aae95b3bab0a704399eab5f516e4700c75b7c90fcf45f191",
+      "detail": "high",
+      "label": "DTL capture_tick 43, relative_timestamp_seconds 3.4914, Down-the-Line, image 18 of 24"
+    },
+    {
+      "capture_tick": 44,
+      "relative_timestamp_seconds": 3.5395,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_044.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 65786,
+      "sha256": "4d148278817b186337992caa0b5d15eadfd99b8599e9f4058a2b88566a673a82",
+      "detail": "high",
+      "label": "DTL capture_tick 44, relative_timestamp_seconds 3.5395, Down-the-Line, image 19 of 24"
+    },
+    {
+      "capture_tick": 46,
+      "relative_timestamp_seconds": 3.6515,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_046.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66241,
+      "sha256": "e1eeb24d3dd762be9f25ce0eb023634958f901f17b646abd5d536e4d14b80447",
+      "detail": "high",
+      "label": "DTL capture_tick 46, relative_timestamp_seconds 3.6515, Down-the-Line, image 20 of 24"
+    },
+    {
+      "capture_tick": 47,
+      "relative_timestamp_seconds": 3.6981,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_047.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66455,
+      "sha256": "7d9fbdbf56134871c5e22ac6feec65d68c9055528d9730714e9a58d93a9940e6",
+      "detail": "high",
+      "label": "DTL capture_tick 47, relative_timestamp_seconds 3.6981, Down-the-Line, image 21 of 24"
+    },
+    {
+      "capture_tick": 48,
+      "relative_timestamp_seconds": 3.7447,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_048.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66331,
+      "sha256": "60ba331724186d81b8e6bd177b390a9748940965b7716a08b7c24c43f12c9aad",
+      "detail": "high",
+      "label": "DTL capture_tick 48, relative_timestamp_seconds 3.7447, Down-the-Line, image 22 of 24"
+    },
+    {
+      "capture_tick": 49,
+      "relative_timestamp_seconds": 3.7918,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_049.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66384,
+      "sha256": "0aea1c5ee2ab41ebe1c8848ba1656d061907d488288df2baabae17f57ddecede",
+      "detail": "high",
+      "label": "DTL capture_tick 49, relative_timestamp_seconds 3.7918, Down-the-Line, image 23 of 24"
+    },
+    {
+      "capture_tick": 51,
+      "relative_timestamp_seconds": 3.887,
+      "path": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh_v2\\shots\\20261008T191913-6-345eaca1\\diagnostic\\swing_behind\\frame_051.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66146,
+      "sha256": "9a7c3ec9571b7c369601e426504cf649032e8217f9fddf23f3d072e9ce9a7942",
+      "detail": "high",
+      "label": "DTL capture_tick 51, relative_timestamp_seconds 3.8870, Down-the-Line, image 24 of 24"
+    }
+  ]
+}

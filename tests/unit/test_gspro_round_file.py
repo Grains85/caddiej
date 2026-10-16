@@ -5,7 +5,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from caddiej.adapters.gspro.round_file import GSProRoundFileAdapter, RoundObserverStatus
+import pytest
+
+from caddiej.adapters.gspro.round_file import (
+    _SEEN_LIMIT,
+    GSProRoundFileAdapter,
+    RoundObserverStatus,
+)
 from caddiej.adapters.gspro.round_parse import parse_round_document
 from caddiej.core.events import Event
 from caddiej.domain.events import RoundShotObserved
@@ -238,3 +244,238 @@ async def test_no_path_waits(tmp_path: Path) -> None:
 
     assert await subject.poll() == ()
     assert subject.health().status is RoundObserverStatus.WAITING
+
+
+class TestAShotIsNotLostToAMomentaryFailure:
+    """This observer is the only thing that knows a shot happened.
+
+    In observe mode there is no other source of the result: if a publish
+    raises and the shot has already been marked seen, the file will never be
+    read for it again and it is gone for the session. So a shot is marked seen
+    only once it has actually been published, and an unchanged file is still
+    read while a retry is owed.
+    """
+
+    class Refusing(Collector):
+        def __init__(self, failures: int) -> None:
+            super().__init__()
+            self.remaining = failures
+
+        async def publish(self, event: Event) -> None:
+            if self.remaining:
+                self.remaining -= 1
+                raise RuntimeError("the bus said no")
+            await super().publish(event)
+
+    async def test_a_refused_shot_is_retried_on_the_next_poll(
+        self, tmp_path: Path
+    ) -> None:
+        path = tmp_path / "currentRound.dat"
+        write_round(path, [a_shot("A")])
+        collector = self.Refusing(failures=1)
+        subject = adapter(path, collector)
+        await subject.poll()
+
+        write_round(path, [a_shot("A"), a_shot("B")])
+        await subject.poll()
+        # The file has not changed, which used to mean it was not read.
+        await subject.poll()
+
+        assert [shot.shot_id for shot in collector.shots()] == ["B"]
+
+    async def test_a_deferred_shot_is_counted(self, tmp_path: Path) -> None:
+        path = tmp_path / "currentRound.dat"
+        write_round(path, [a_shot("A")])
+        collector = self.Refusing(failures=1)
+        subject = adapter(path, collector)
+        await subject.poll()
+
+        write_round(path, [a_shot("A"), a_shot("B")])
+        await subject.poll()
+
+        assert subject.health().shots_deferred == 1
+
+    async def test_a_shot_behind_a_refused_one_is_not_skipped(
+        self, tmp_path: Path
+    ) -> None:
+        """Order matters: B and C in one read, B refused. Publishing C anyway
+        would put the round's shots on the floor out of order and mark B seen
+        by omission."""
+
+        path = tmp_path / "currentRound.dat"
+        write_round(path, [a_shot("A")])
+        collector = self.Refusing(failures=1)
+        subject = adapter(path, collector)
+        await subject.poll()
+
+        write_round(path, [a_shot("A"), a_shot("B"), a_shot("C")])
+        await subject.poll()
+        await subject.poll()
+
+        assert [shot.shot_id for shot in collector.shots()] == ["B", "C"]
+
+
+class TestWhatTheObserverSaysAboutItself:
+    """`/healthz` said `WATCHING` whether or not a byte had ever been read."""
+
+    async def test_a_file_that_cannot_be_read_becomes_degraded(
+        self, tmp_path: Path
+    ) -> None:
+        path = tmp_path / "currentRound.dat"
+        write_round(path, [a_shot("A")])
+        collector = Collector()
+        subject = adapter(path, collector)
+        await subject.poll()
+
+        path.unlink()
+        path.mkdir()
+        for _ in range(6):
+            await subject.poll()
+
+        health = subject.health()
+        assert health.status is RoundObserverStatus.DEGRADED
+        assert health.read_failures >= 5
+
+    async def test_a_successful_read_says_when(self, tmp_path: Path) -> None:
+        path = tmp_path / "currentRound.dat"
+        write_round(path, [a_shot("A")])
+        subject = adapter(path, Collector())
+
+        await subject.poll()
+
+        assert subject.health().last_read_at is not None
+
+    async def test_a_missing_file_is_waiting_rather_than_degraded(
+        self, tmp_path: Path
+    ) -> None:
+        # GSPro not being open yet is the normal start of a session, not a
+        # fault worth colouring a dashboard over.
+        subject = adapter(tmp_path / "currentRound.dat", Collector())
+
+        for _ in range(6):
+            await subject.poll()
+
+        assert subject.health().status is RoundObserverStatus.WAITING
+
+
+class TestATornReadDoesNotBlindTheObserverForGood:
+    """The observer skips a file whose size and mtime have not moved.
+
+    It used to record those two numbers before trying to parse, so a read
+    that came back half-written — `stat` and the read are two calls, and
+    GSPro can finish between them — left the metadata of a *complete* file
+    against a document that had not been understood. Every poll after that
+    agreed the file was unchanged and never opened it again. The round went
+    on; the observer was reading nothing and reporting `watching`.
+    """
+
+    @staticmethod
+    def tear_one_read(monkeypatch: pytest.MonkeyPatch) -> None:
+        """Make the next `read_text` return half a file, and later ones all of it.
+
+        The file on disk is whole the entire time and its size and mtime never
+        move. That is the point: the damage is in the buffer one read came
+        back with, not in the bytes GSPro left behind, so nothing about the
+        file afterwards tells the observer to look again.
+        """
+
+        real = Path.read_text
+        torn = [True]
+
+        def read_text(self: Path, *args: object, **kwargs: object) -> str:
+            text = real(self, *args, **kwargs)  # type: ignore[arg-type]
+            if torn[0]:
+                torn[0] = False
+                return text[: len(text) // 2]
+            return text
+
+        monkeypatch.setattr(Path, "read_text", read_text)
+
+    async def test_the_next_poll_reads_the_file_again(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        path = tmp_path / "currentRound.dat"
+        write_round(path, [a_shot("A")])
+        collector = Collector()
+        subject = adapter(path, collector)
+        await subject.poll()
+
+        write_round(path, [a_shot("A"), a_shot("B")])
+        self.tear_one_read(monkeypatch)
+        assert await subject.poll() == ()
+
+        # Nothing about the file changes between the two polls. The only way
+        # the shot arrives is if the observer opens it a second time.
+        emitted = await subject.poll()
+
+        assert [shot.shot_id for shot in emitted] == ["B"]
+
+    async def test_a_document_that_will_not_parse_is_degraded(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        path = tmp_path / "currentRound.dat"
+        write_round(path, [a_shot("A")])
+        subject = adapter(path, Collector())
+        await subject.poll()
+
+        write_round(path, [a_shot("A"), a_shot("B")])
+        self.tear_one_read(monkeypatch)
+        await subject.poll()
+
+        assert subject.health().status is RoundObserverStatus.DEGRADED
+
+    async def test_a_document_that_parses_again_is_watching(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        path = tmp_path / "currentRound.dat"
+        write_round(path, [a_shot("A")])
+        subject = adapter(path, Collector())
+        await subject.poll()
+        write_round(path, [a_shot("A"), a_shot("B")])
+        self.tear_one_read(monkeypatch)
+        await subject.poll()
+
+        await subject.poll()
+
+        assert subject.health().status is RoundObserverStatus.WATCHING
+
+
+class TestTheObserverDoesNotGrowAllDay:
+    """`_seen` held every id GSPro ever wrote, for as long as the process ran.
+
+    Small per shot, and the only unbounded structure in the one subsystem
+    whose whole purpose is to be left running.
+    """
+
+    def test_remembering_is_bounded(self, tmp_path: Path) -> None:
+        subject = adapter(tmp_path / "currentRound.dat", Collector())
+
+        for index in range(_SEEN_LIMIT + 50):
+            subject._remember(f"S{index}")
+
+        assert len(subject._seen) == _SEEN_LIMIT
+
+    def test_the_oldest_id_is_the_one_forgotten(self, tmp_path: Path) -> None:
+        subject = adapter(tmp_path / "currentRound.dat", Collector())
+
+        for index in range(_SEEN_LIMIT + 1):
+            subject._remember(f"S{index}")
+
+        assert "S0" not in subject._seen
+        assert f"S{_SEEN_LIMIT}" in subject._seen
+
+    async def test_a_shot_still_in_the_document_is_not_offered_twice(
+        self, tmp_path: Path
+    ) -> None:
+        path = tmp_path / "currentRound.dat"
+        write_round(path, [a_shot("A")])
+        collector = Collector()
+        subject = adapter(path, collector)
+        await subject.poll()
+
+        write_round(path, [a_shot("A"), a_shot("B")])
+        assert [shot.shot_id for shot in await subject.poll()] == ["B"]
+
+        write_round(path, [a_shot("A"), a_shot("B"), a_shot("C")])
+
+        assert [shot.shot_id for shot in await subject.poll()] == ["C"]

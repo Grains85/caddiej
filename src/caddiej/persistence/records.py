@@ -10,22 +10,26 @@ Column names match domain field names wherever the domain has one, so the SQL
 below can be read against `domain/shot.py` without a translation table.
 """
 
+import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from sqlite3 import Row
-from typing import Any, Literal, cast
-from uuid import UUID
+from typing import Any, cast
+from uuid import UUID, uuid4
 
 from caddiej.domain.coaching import (
     Advice,
     AdviceFailure,
+    AdviceKind,
     AdviceOutcome,
     AdviceSource,
     AdviceStatus,
     CoachingFocus,
     SeveritySource,
 )
+from caddiej.domain.cues import ConfidenceSource, CueId, EvidenceGrade, PanelView
 from caddiej.domain.shot import (
+    SHOT_SOURCE_KINDS,
     BallLaunch,
     Club,
     ClubDelivery,
@@ -33,7 +37,21 @@ from caddiej.domain.shot import (
     Handedness,
     Shot,
     ShotSource,
+    ShotSourceKind,
 )
+from caddiej.domain.swing_checkpoints import CheckpointId, CoverageLevel, Deviation
+from caddiej.domain.swing_phase import SwingPhase
+from caddiej.domain.swing_review import SwingReview
+from caddiej.domain.swing_score import (
+    CheckpointScore,
+    MechanicalScore,
+    PhaseScore,
+    ScoreComponent,
+    ScoreComponentId,
+    SwingScore,
+    VisualRating,
+)
+from caddiej.domain.vx import VX_METRICS_PROVENANCE, CoachResult
 
 _BALL_COLUMNS = (
     "ball_speed_mph",
@@ -186,6 +204,23 @@ def shot_row(stored: StoredShot) -> dict[str, Any]:
     }
 
 
+def _source_kind(value: object) -> ShotSourceKind:
+    """The provenance column, checked against what the domain actually allows.
+
+    This used to be a cast at a hand-written list of three kinds, which had
+    drifted: `gspro_round` — the only kind a passively observed session ever
+    writes — was missing from it. A cast does nothing at runtime, so every
+    observed shot was read back through a type that said it could not exist,
+    and the round trip the schema tests rely on had never once carried a
+    production shot. Checked against the one definition instead, and loud
+    when a row says something the domain has never heard of.
+    """
+
+    if isinstance(value, str) and value in SHOT_SOURCE_KINDS:
+        return cast(ShotSourceKind, value)
+    raise ValueError(f"unknown shot source kind in history: {value!r}")
+
+
 def stored_shot(row: Row) -> StoredShot:
     """Rebuild a shot from its row, measurements and provenance included."""
 
@@ -193,10 +228,7 @@ def stored_shot(row: Row) -> StoredShot:
         shot=Shot(
             shot_id=UUID(row["shot_id"]),
             source=ShotSource(
-                kind=cast(
-                    Literal["gspro_connect", "replay", "synthetic"],
-                    row["source_kind"],
-                ),
+                kind=_source_kind(row["source_kind"]),
                 device_session_id=UUID(row["source_device_session_id"]),
                 observed_at=_instant(row["observed_at"]),
                 # Only ever meaningful inside the process that measured it, so
@@ -350,6 +382,15 @@ def advice_row(stored: StoredAdvice) -> dict[str, Any]:
         "failure_reason": None if outcome.failure is None else outcome.failure.value,
         "detail": outcome.detail,
         "clip_path": outcome.clip_path,
+        "cue_id": None if advice.cue is None else advice.cue.value,
+        "confidence": advice.confidence,
+        "confidence_source": (
+            None if advice.confidence_source is None else advice.confidence_source.value
+        ),
+        "evidence_grades": outcome.evidence_grades,
+        "capture_id": outcome.capture_id,
+        "panels_used": outcome.panels_used,
+        "kind": advice.kind.value,
     }
 
 
@@ -368,6 +409,10 @@ def stored_advice(row: Row) -> StoredAdvice:
                 created_at=_instant(row["created_at"]),
                 severity_source=SeveritySource(row["severity_source"]),
                 source=AdviceSource(row["source"]),
+                kind=_advice_kind(row),
+                cue=_cue_id(row),
+                confidence=row["confidence"] if "confidence" in row.keys() else None,
+                confidence_source=_confidence_source(row),
             ),
             status=AdviceStatus(row["status"]),
             baseline_shots=row["baseline_shots"],
@@ -387,5 +432,429 @@ def stored_advice(row: Row) -> StoredAdvice:
             detail=row["detail"],
             clip_path=row["clip_path"],
             fingerprint=row["fingerprint"],
+            capture_id=row["capture_id"] if "capture_id" in row.keys() else None,
+            panels_used=row["panels_used"] if "panels_used" in row.keys() else None,
+            evidence_grades=(
+                row["evidence_grades"] if "evidence_grades" in row.keys() else None
+            ),
         ),
+    )
+
+
+def _cue_id(row: Row) -> CueId | None:
+    if "cue_id" not in row.keys() or not row["cue_id"]:
+        return None
+    try:
+        return CueId(row["cue_id"])
+    except ValueError:
+        return None
+
+
+def _confidence_source(row: Row) -> ConfidenceSource | None:
+    if "confidence_source" not in row.keys() or not row["confidence_source"]:
+        return None
+    try:
+        return ConfidenceSource(row["confidence_source"])
+    except ValueError:
+        return None
+
+
+def _advice_kind(row: Row) -> AdviceKind:
+    if "kind" not in row.keys() or not row["kind"]:
+        return AdviceKind.CORRECTION
+    try:
+        return AdviceKind(row["kind"])
+    except ValueError:
+        return AdviceKind.CORRECTION
+
+
+def coach_result_row(session_id: UUID, result: CoachResult) -> dict[str, object]:
+    """A ProTee-only coaching outcome as a `coach_results` row.
+
+    Metrics are stored whole, nulls included, as JSON: every reading keeps its
+    unit and ProTee's direction word, so nothing about how it was written is
+    lost to a column type.
+    """
+
+    metrics = result.metrics
+    return {
+        "result_id": str(uuid4()),
+        "session_id": str(session_id),
+        "strike_id": str(result.strike_id),
+        "trigger_id": result.trigger_id,
+        "capture_id": None if result.capture_id is None else str(result.capture_id),
+        "created_at": result.created_at.isoformat(),
+        "status": result.status,
+        "kind": result.kind,
+        "focus": result.focus,
+        "cue_id": result.cue_id,
+        "display": result.display,
+        "speech": result.speech,
+        "severity": result.severity,
+        "confidence": result.confidence,
+        "confidence_source": result.confidence_source,
+        "provider": result.provider,
+        "model": result.model,
+        "prompt_version": result.prompt_version,
+        "latency_ms": result.latency_ms,
+        "input_images": result.input_images,
+        "swing_images": result.swing_images,
+        "input_tokens": result.input_tokens,
+        "output_tokens": result.output_tokens,
+        "metrics_source": result.metrics_source,
+        "metrics_status": result.metrics_status,
+        "metrics_provenance": None if metrics is None else VX_METRICS_PROVENANCE,
+        "metrics_read": 0 if metrics is None else len(metrics.available),
+        "metrics_json": (
+            None if metrics is None else json.dumps(metrics.as_dict(), sort_keys=False)
+        ),
+        "metrics_image": result.metrics_image,
+        "metrics_captured_at": (
+            None
+            if result.metrics_captured_at is None
+            else result.metrics_captured_at.isoformat()
+        ),
+        "panels_used": result.panels_used,
+        "evidence_grades": result.evidence_grades,
+        "failure_reason": result.failure_reason,
+        "detail": result.detail,
+        **swing_score_columns(
+            result.swing_score, review=result.review, final_cue=result.cue_id
+        ),
+    }
+
+
+@dataclass(frozen=True, slots=True)
+class StoredSwingScore:
+    """One strike's score as history holds it, for drawing a session trend."""
+
+    strike_id: UUID
+    created_at: datetime
+    score: SwingScore
+
+
+def swing_score_columns(
+    score: SwingScore | None,
+    *,
+    review: SwingReview | None = None,
+    final_cue: str | None = None,
+) -> dict[str, object]:
+    """The four `coach_results` columns a score occupies.
+
+    The JSON is written in a fixed key order with Python's shortest round-trip
+    float repr, so the same score always produces the same text and reading it
+    back produces the same floats.
+
+    The rubric version is in the document as well as in its own column, and
+    reading never assumes the current one. A `swing-score-v1` row is a
+    delivery-only score of five components and it stays one: the v2 keys it
+    has no values for read back absent rather than as zeros, which is the same
+    rule the scoring itself follows. Rescoring last season's shots under this
+    season's rubric would make a session trend a graph of CaddieJ's edits.
+    """
+
+    if score is None:
+        return {
+            "swing_score": None,
+            "swing_score_rubric": None,
+            "swing_score_club": None,
+            "swing_score_json": None,
+        }
+    document: dict[str, object] = {
+        "rubric_version": score.rubric_version,
+        "value": score.value,
+        "available_weight": score.available_weight,
+        "delivery_value": score.delivery_value,
+        "visual_value": score.visual_value,
+        "ceiling": score.ceiling,
+        "club": None if score.club is None else score.club.value,
+        "components": [
+            {
+                "component": item.component.value,
+                "weight": item.weight,
+                "grade": item.grade.value,
+                "metrics": list(item.metrics),
+                "value": item.value,
+                "sub_score": item.sub_score,
+                "rating": None if item.rating is None else item.rating.value,
+                "frame_id": item.frame_id,
+                "confidence": item.confidence,
+            }
+            for item in score.components
+        ],
+    }
+    if score.mechanics is not None:
+        document["mechanics"] = _mechanics_document(score.mechanics)
+    if review is not None:
+        document["review"] = review_document(review, final_cue)
+    return {
+        "swing_score": score.value,
+        "swing_score_rubric": score.rubric_version,
+        "swing_score_club": None if score.club is None else score.club.value,
+        "swing_score_json": json.dumps(document),
+    }
+
+
+def swing_score_of(text: str) -> SwingScore:
+    """Rebuild a score from its JSON. Raises on a document it did not write."""
+
+    document = json.loads(text)
+    club = document["club"]
+    mechanics, legacy = _mechanics_of(document.get("mechanics"))
+    return SwingScore(
+        value=document["value"],
+        components=tuple(
+            ScoreComponent(
+                component=ScoreComponentId(item["component"]),
+                weight=int(item["weight"]),
+                grade=EvidenceGrade(item["grade"]),
+                metrics=tuple(str(name) for name in item["metrics"]),
+                value=item["value"],
+                sub_score=item["sub_score"],
+                rating=_visual_rating(item.get("rating")),
+                frame_id=item.get("frame_id"),
+                confidence=item.get("confidence"),
+            )
+            for item in document["components"]
+        ),
+        available_weight=int(document["available_weight"]),
+        club=None if club is None else ClubKind(club),
+        rubric_version=str(document["rubric_version"]),
+        delivery_value=document.get("delivery_value"),
+        visual_value=document.get("visual_value"),
+        ceiling=document.get("ceiling"),
+        mechanics=mechanics,
+        legacy_mechanics_json=legacy,
+    )
+
+
+def _mechanics_document(mechanics: MechanicalScore) -> dict[str, object]:
+    """Swing Score V4, written out whole.
+
+    Every checkpoint in the catalogue, assessed or not, with its whole
+    provenance: score, confidence, picture, camera, the phase the model said
+    the picture shows, its factual note, the direction of the miss, and the
+    score it asked for if that was clamped. The phase roll-up and the ceiling
+    that bound are written too, so a stored score can be read without
+    re-implementing the rubric.
+    """
+
+    return {
+        "value": mechanics.value,
+        "raw_value": mechanics.raw_value,
+        "coverage": mechanics.coverage,
+        "coverage_level": mechanics.coverage_level.value,
+        "confidence": mechanics.confidence,
+        "ceiling": mechanics.ceiling,
+        "ceiling_reasons": list(mechanics.ceiling_reasons),
+        "capped": [item.value for item in mechanics.capped],
+        "checkpoints": [
+            {
+                "checkpoint": item.checkpoint.value,
+                "phase": item.phase.value,
+                "weight": item.weight,
+                "scoreable": item.scoreable,
+                "score": item.score,
+                "confidence": item.confidence,
+                "frame_id": item.frame_id,
+                "seen_phase": None
+                if item.seen_phase is None
+                else item.seen_phase.value,
+                "view": item.view.value,
+                "observation": item.observation,
+                "deviation": None if item.deviation is None else item.deviation.value,
+                "capped_from": item.capped_from,
+            }
+            for item in mechanics.checkpoints
+        ],
+        "phases": [
+            {
+                "phase": item.phase.value,
+                "weight": item.weight,
+                "value": item.value,
+                "coverage": item.coverage,
+                "confidence": item.confidence,
+                "assessed": item.assessed,
+                "scoreable": item.scoreable,
+                "mean": item.mean,
+                "worst": None if item.worst is None else item.worst.value,
+                "level": item.level.value,
+            }
+            for item in mechanics.phases
+        ],
+    }
+
+
+def _mechanics_of(raw: object) -> tuple[MechanicalScore | None, str | None]:
+    """The v4 mechanics, or a v3 block kept verbatim, or nothing."""
+
+    if not isinstance(raw, dict):
+        return None, None
+    if "checkpoints" not in raw:
+        return None, json.dumps(raw)
+    return (
+        MechanicalScore(
+            checkpoints=tuple(
+                CheckpointScore(
+                    checkpoint=CheckpointId(item["checkpoint"]),
+                    phase=SwingPhase(item["phase"]),
+                    weight=int(item["weight"]),
+                    scoreable=bool(item["scoreable"]),
+                    score=item.get("score"),
+                    confidence=item.get("confidence"),
+                    frame_id=item.get("frame_id"),
+                    seen_phase=_phase_or_none(item.get("seen_phase")),
+                    view=PanelView(item.get("view", PanelView.NONE.value)),
+                    observation=str(item.get("observation") or ""),
+                    deviation=_deviation_or_none(item.get("deviation")),
+                    capped_from=item.get("capped_from"),
+                )
+                for item in raw["checkpoints"]
+            ),
+            phases=tuple(
+                PhaseScore(
+                    phase=SwingPhase(item["phase"]),
+                    weight=int(item["weight"]),
+                    value=item.get("value"),
+                    coverage=float(item.get("coverage", 0.0)),
+                    confidence=float(item.get("confidence", 0.0)),
+                    assessed=int(item.get("assessed", 0)),
+                    scoreable=int(item.get("scoreable", 0)),
+                    mean=item.get("mean"),
+                    worst=_checkpoint_or_none(item.get("worst")),
+                    level=CoverageLevel(
+                        item.get("level", CoverageLevel.INSUFFICIENT.value)
+                    ),
+                )
+                for item in raw["phases"]
+            ),
+            value=raw["value"],
+            coverage=float(raw["coverage"]),
+            coverage_level=CoverageLevel(raw["coverage_level"]),
+            confidence=float(raw["confidence"]),
+            raw_value=raw.get("raw_value"),
+            ceiling=raw.get("ceiling"),
+            ceiling_reasons=tuple(str(item) for item in raw.get("ceiling_reasons", ())),
+            capped=tuple(CheckpointId(item) for item in raw.get("capped", ())),
+        ),
+        None,
+    )
+
+
+def review_document(
+    review: SwingReview, final_cue: str | None = None
+) -> dict[str, object]:
+    """Faults, root-cause ranking, session lesson and deltas, as JSON."""
+
+    root = review.root
+    progress = review.progress
+    return {
+        "source": review.source.value,
+        "final_cue": final_cue,
+        "previous_score": review.previous_score,
+        "protee": [item.value for item in review.protee],
+        "faults": [
+            {
+                "fault": item.fault.value,
+                "phase": item.phase.value,
+                "severity": item.severity,
+                "confidence": item.confidence,
+                "seen_confidence": item.seen_confidence,
+                "triggers": [name.value for name in item.triggers],
+                "supporting": [name.value for name in item.supporting],
+                "worst_score": item.worst_score,
+                "frame_id": item.frame_id,
+                "corroborated_by": [sign.value for sign in item.corroborated_by],
+            }
+            for item in review.faults
+        ],
+        "root": None
+        if root is None
+        else {
+            "fault": None if root.fault is None else root.fault.value,
+            "cue": None if root.cue is None else root.cue.value,
+            "reason": root.reason,
+            "explains": [item.value for item in root.explains],
+            "sticky": root.sticky,
+            "frame_id": root.frame_id,
+            "confidence": root.confidence,
+            "severity": root.severity,
+            "ranking": [
+                {
+                    "fault": row.fault.value,
+                    "priority": row.priority,
+                    "effective": row.effective,
+                    "explained_by": None
+                    if row.explained_by is None
+                    else row.explained_by.value,
+                    "explains": [item.value for item in row.explains],
+                    "coachable": row.coachable,
+                }
+                for row in root.ranking
+            ],
+        },
+        "lesson": None
+        if progress is None
+        else {
+            "fault": progress.fault.value,
+            "cue": progress.cue.value,
+            "phase": progress.phase.value,
+            "checkpoints": [item.value for item in progress.checkpoints],
+            "verdict": progress.verdict.value,
+            "mode": progress.mode.value,
+            "score": progress.score,
+            "baseline": progress.baseline,
+            "previous": progress.previous,
+            "delta": progress.delta,
+            "shots": progress.shots,
+            "improved_shots": progress.improved_shots,
+            "solved_shots": progress.solved_shots,
+            "headline": progress.headline,
+            "next_fault": None
+            if progress.next_fault is None
+            else progress.next_fault.value,
+        },
+        "deltas": [
+            {
+                "checkpoint": item.checkpoint.value,
+                "previous": item.previous,
+                "current": item.current,
+                "delta": item.delta,
+            }
+            for item in review.deltas
+        ],
+    }
+
+
+def review_of(text: str | None) -> dict[str, Any] | None:
+    """The stored review document, as written, or None on a row without one."""
+
+    if not text:
+        return None
+    document = json.loads(text)
+    review = document.get("review") if isinstance(document, dict) else None
+    return review if isinstance(review, dict) else None
+
+
+def _phase_or_none(value: object) -> SwingPhase | None:
+    return None if value is None else SwingPhase(str(value))
+
+
+def _deviation_or_none(value: object) -> Deviation | None:
+    return None if value is None else Deviation(str(value))
+
+
+def _checkpoint_or_none(value: object) -> CheckpointId | None:
+    return None if value is None else CheckpointId(str(value))
+
+
+def _visual_rating(value: object) -> VisualRating | None:
+    return None if value is None else VisualRating(str(value))
+
+
+def stored_swing_score(row: Row) -> StoredSwingScore:
+    return StoredSwingScore(
+        strike_id=UUID(row["strike_id"]),
+        created_at=_instant(row["created_at"]),
+        score=swing_score_of(row["swing_score_json"]),
     )

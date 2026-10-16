@@ -26,6 +26,29 @@ from caddiej.video.layout import MediaLayout
 logger = logging.getLogger(__name__)
 
 
+def build_frame_extractor(
+    media_root: Path | str,
+    binary: str = "ffmpeg",
+    width: int = 512,
+    timeout_seconds: float = 10.0,
+    run_command: Run = run,
+) -> "FrameExtractor":
+    """The stills extractor a live run constructs, without starting a camera.
+
+    Coaching asks `VideoService.frames`, which is this extractor behind a
+    `FrameSource` seam. A diagnostic that built its own decoder would pass
+    while the one the coach uses stayed broken.
+    """
+
+    return FrameExtractor(
+        MediaLayout(media_root),
+        binary=binary,
+        run_command=run_command,
+        width=width,
+        timeout_seconds=timeout_seconds,
+    )
+
+
 class FrameExtractor:
     """Turns a clip and a list of offsets into JPEG stills."""
 

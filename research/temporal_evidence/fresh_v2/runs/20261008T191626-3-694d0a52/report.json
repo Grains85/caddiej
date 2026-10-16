@@ -1,0 +1,187 @@
+{
+ "shot": "20261008T191626-3-694d0a52",
+ "status": "ok",
+ "error": null,
+ "wire_failures": [],
+ "decode_notes": [],
+ "validator_notes": [],
+ "groups": {
+  "dtl_P1": [
+   "DTL_01",
+   14,
+   true
+  ],
+  "dtl_P2": [
+   "DTL_02",
+   17,
+   true
+  ],
+  "dtl_P3": [
+   "DTL_06",
+   25,
+   true
+  ],
+  "dtl_P4": [
+   "DTL_07",
+   27,
+   true
+  ],
+  "dtl_P5": [
+   "DTL_09",
+   35,
+   true
+  ],
+  "dtl_P6": [
+   "DTL_11",
+   37,
+   true
+  ],
+  "dtl_P7": [
+   "DTL_13",
+   39,
+   true
+  ],
+  "dtl_P8": [
+   "DTL_15",
+   41,
+   true
+  ],
+  "dtl_P9": [
+   "DTL_18",
+   51,
+   true
+  ],
+  "fo_P1": [
+   "FO_01",
+   14,
+   true
+  ],
+  "fo_P2": [
+   "FO_02",
+   17,
+   true
+  ],
+  "fo_P3": [
+   "FO_06",
+   25,
+   true
+  ],
+  "fo_P4": [
+   "FO_07",
+   27,
+   true
+  ],
+  "fo_P5": [
+   "FO_09",
+   35,
+   true
+  ],
+  "fo_P6": [
+   "FO_11",
+   37,
+   true
+  ],
+  "fo_P7": [
+   "FO_13",
+   39,
+   true
+  ],
+  "fo_P8": [
+   "FO_15",
+   41,
+   true
+  ],
+  "fo_P9": [
+   "FO_18",
+   51,
+   true
+  ]
+ },
+ "returned_checkpoints": 57,
+ "accepted": 53,
+ "rejected": 4,
+ "rejection_reasons": {
+  "low_confidence": 4
+ },
+ "coverage": 1.0,
+ "phase_scores": {
+  "setup": [
+   76,
+   1.0,
+   "7/7"
+  ],
+  "takeaway": [
+   77,
+   0.8,
+   "5/6"
+  ],
+  "backswing": [
+   78,
+   0.88,
+   "7/8"
+  ],
+  "top": [
+   74,
+   0.94,
+   "7/8"
+  ],
+  "transition": [
+   67,
+   0.88,
+   "6/7"
+  ],
+  "downswing": [
+   73,
+   0.88,
+   "6/7"
+  ],
+  "impact": [
+   74,
+   1.0,
+   "7/7"
+  ],
+  "release": [
+   78,
+   0.91,
+   "5/6"
+  ],
+  "finish": [
+   82,
+   1.0,
+   "3/3"
+  ]
+ },
+ "swing_score": 74,
+ "faults": [],
+ "root": "RootCause(fault=None, cue=None, reason='none', ranking=(), explains=(), sticky=False, frame_id=None, confidence=None, severity=None)",
+ "lesson_cue": null,
+ "authority": {
+  "cue": "FACE_CLOSED",
+  "from_visual": false
+ },
+ "outcome": "reconciled -> CaddieJ's lesson FACE_CLOSED",
+ "model_coach": {
+  "kind": "correction",
+  "cue": "PATH_IN_TO_OUT",
+  "observation": "Your club moved from inside to out through impact.",
+  "instruction": "Swing more across the ball from outside to in.",
+  "reinforcement": null,
+  "evidence_frame_id": "ALL_VALUES"
+ },
+ "usage": {
+  "input_tokens": 13960,
+  "output_tokens": 909,
+  "reasoning_tokens": 0,
+  "cached_tokens": 4736,
+  "status": "completed"
+ },
+ "cost_usd": 0.005308,
+ "timings_s": {
+  "capture": 4.525729,
+  "render": 0.654,
+  "openai": 11.307,
+  "validate": 0.001,
+  "strike_to_verdict": 16.49
+ },
+ "reply_sha256": "c864ce05ab9998b2ab7b597e86fb2497816a987c51780152a1976a5ff7a497e2"
+}

@@ -55,6 +55,11 @@ class Database:
         self._path = Path(path)
         self._busy_timeout_seconds = busy_timeout_seconds
         self._read_only = read_only
+        # How long shutdown waits for the database thread to exit. Derived
+        # from the busy timeout because that is the longest a statement is
+        # allowed to sit waiting for the file, and so the longest an honest
+        # wait can be; anything past it is a thread that is not coming back.
+        self._close_timeout = busy_timeout_seconds + 1.0
         self._executor: ThreadPoolExecutor | None = None
         self._connection: sqlite3.Connection | None = None
         self.schema_version = 0
@@ -168,13 +173,32 @@ class Database:
         loop = asyncio.get_running_loop()
         if connection is not None:
             try:
-                await loop.run_in_executor(executor, connection.close)
+                # Bounded for the same reason as the join. The close is queued
+                # behind whatever the thread is already running, so a
+                # statement that will not finish would otherwise hold
+                # shutdown here indefinitely.
+                async with asyncio.timeout(self._close_timeout):
+                    await loop.run_in_executor(executor, connection.close)
+            except TimeoutError:
+                logger.warning("history_database_close_timed_out")
             except Exception:
                 logger.exception("history_database_close_failed")
         # Wait for the thread: on Windows the file stays locked until the
         # connection's thread has actually exited, and pytest cannot clean
         # tmp_path while that lock is held.
-        executor.shutdown(wait=True)
+        #
+        # Waited on another thread, and bounded, because the join itself is
+        # blocking. Called directly it stops the event loop until the database
+        # thread exits, which is fine when the thread is idle and is not when
+        # a statement submitted before shutdown is still running: the loop
+        # freezes, and the shutdown timeouts meant to bound this are all
+        # timers on that loop, so none of them can fire. Better to give up the
+        # lock on the file than to hang the process holding it.
+        try:
+            async with asyncio.timeout(self._close_timeout):
+                await asyncio.to_thread(executor.shutdown, True)
+        except TimeoutError:
+            logger.warning("history_database_thread_lingering")
         logger.info("history_database_closed")
 
     async def run[ResultType](

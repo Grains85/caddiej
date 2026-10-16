@@ -1,0 +1,2782 @@
+{
+  "schema_version": "1",
+  "shot_id": "20261008T191545-2-09132997",
+  "camera_id": "swing_behind",
+  "coordinate_space": "normalized_image_xy_origin_top_left",
+  "visibility_min": 0.5,
+  "pose_backend": "mediapipe_pose_landmarker_video",
+  "pose_model": "pose_landmarker_full_float16",
+  "tracked_landmarks": [
+    "left_shoulder",
+    "right_shoulder",
+    "left_elbow",
+    "right_elbow",
+    "left_wrist",
+    "right_wrist",
+    "left_hip",
+    "right_hip"
+  ],
+  "frames": [
+    {
+      "capture_tick": 1,
+      "timestamp_seconds": 0.5212,
+      "relative_file": "diagnostic/swing_behind/frame_001.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "9dbff0396a72a266",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 2,
+      "timestamp_seconds": 0.6008,
+      "relative_file": "diagnostic/swing_behind/frame_002.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "b8fd9420efb450f1",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 3,
+      "timestamp_seconds": 0.7094,
+      "relative_file": "diagnostic/swing_behind/frame_003.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "f6479d8bf6d37654",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 4,
+      "timestamp_seconds": 0.8045,
+      "relative_file": "diagnostic/swing_behind/frame_004.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "30923e3465e3f296",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 5,
+      "timestamp_seconds": 0.9141,
+      "relative_file": "diagnostic/swing_behind/frame_005.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "d9364a2e3439b1b9",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 6,
+      "timestamp_seconds": 1.0088,
+      "relative_file": "diagnostic/swing_behind/frame_006.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "f5a8ef06443567dd",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 7,
+      "timestamp_seconds": 1.1039,
+      "relative_file": "diagnostic/swing_behind/frame_007.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "769ac77d420b13ce",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 8,
+      "timestamp_seconds": 1.2134,
+      "relative_file": "diagnostic/swing_behind/frame_008.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "b434355782e64c26",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 9,
+      "timestamp_seconds": 1.3096,
+      "relative_file": "diagnostic/swing_behind/frame_009.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "f49febcacb5969ca",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 10,
+      "timestamp_seconds": 1.4057,
+      "relative_file": "diagnostic/swing_behind/frame_010.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "ef7d2d5eed372825",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 11,
+      "timestamp_seconds": 1.486,
+      "relative_file": "diagnostic/swing_behind/frame_011.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "12100daac0e8aeb6",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 12,
+      "timestamp_seconds": 1.6141,
+      "relative_file": "diagnostic/swing_behind/frame_012.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "2231207d84648773",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 13,
+      "timestamp_seconds": 1.71,
+      "relative_file": "diagnostic/swing_behind/frame_013.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "9b9cce36a96eeb2e",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 14,
+      "timestamp_seconds": 1.8046,
+      "relative_file": "diagnostic/swing_behind/frame_014.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "42e70e25bb9df1a7",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 15,
+      "timestamp_seconds": 1.9157,
+      "relative_file": "diagnostic/swing_behind/frame_015.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "06ae6b8b185adfc8",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 16,
+      "timestamp_seconds": 2.0099,
+      "relative_file": "diagnostic/swing_behind/frame_016.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "17ec4cc1c5e65f79",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 17,
+      "timestamp_seconds": 2.1045,
+      "relative_file": "diagnostic/swing_behind/frame_017.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "0bd3c4c922ea15ef",
+      "pose_detected": false,
+      "pose_presence": null,
+      "landmarks": {},
+      "missing_landmarks": [
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip"
+      ]
+    },
+    {
+      "capture_tick": 18,
+      "timestamp_seconds": 2.2156,
+      "relative_file": "diagnostic/swing_behind/frame_018.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "b9e0214148b2a508",
+      "pose_detected": true,
+      "pose_presence": 0.995092,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.492623,
+          "y": 0.257786,
+          "visibility": 0.998797,
+          "presence": 0.999794,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.455493,
+          "y": 0.24644,
+          "visibility": 0.99988,
+          "presence": 0.998967,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.484923,
+          "y": 0.361824,
+          "visibility": 0.111736,
+          "presence": 0.998738,
+          "used": false
+        },
+        "right_elbow": {
+          "x": 0.457525,
+          "y": 0.35499,
+          "visibility": 0.969893,
+          "presence": 0.995801,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.526876,
+          "y": 0.43012,
+          "visibility": 0.124407,
+          "presence": 0.989862,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.530661,
+          "y": 0.428562,
+          "visibility": 0.918743,
+          "presence": 0.987007,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.382773,
+          "y": 0.406213,
+          "visibility": 0.983262,
+          "presence": 0.998148,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.351402,
+          "y": 0.402214,
+          "visibility": 0.985902,
+          "presence": 0.992423,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_elbow",
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 19,
+      "timestamp_seconds": 2.3112,
+      "relative_file": "diagnostic/swing_behind/frame_019.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "0408493468cd3e90",
+      "pose_detected": true,
+      "pose_presence": 0.994343,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.502617,
+          "y": 0.265091,
+          "visibility": 0.998661,
+          "presence": 0.998761,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.438811,
+          "y": 0.241089,
+          "visibility": 0.999883,
+          "presence": 0.999183,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.4912,
+          "y": 0.351797,
+          "visibility": 0.111436,
+          "presence": 0.993671,
+          "used": false
+        },
+        "right_elbow": {
+          "x": 0.456847,
+          "y": 0.340441,
+          "visibility": 0.972219,
+          "presence": 0.996764,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.533771,
+          "y": 0.364628,
+          "visibility": 0.122654,
+          "presence": 0.989644,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.539016,
+          "y": 0.41645,
+          "visibility": 0.923887,
+          "presence": 0.996336,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.401195,
+          "y": 0.402768,
+          "visibility": 0.982861,
+          "presence": 0.994452,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.348817,
+          "y": 0.394749,
+          "visibility": 0.985694,
+          "presence": 0.985935,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_elbow",
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 20,
+      "timestamp_seconds": 2.4063,
+      "relative_file": "diagnostic/swing_behind/frame_020.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "5ff1950428db4e4c",
+      "pose_detected": true,
+      "pose_presence": 0.995135,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.510203,
+          "y": 0.264459,
+          "visibility": 0.998482,
+          "presence": 0.99864,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.430182,
+          "y": 0.230495,
+          "visibility": 0.999891,
+          "presence": 0.999676,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.487769,
+          "y": 0.339733,
+          "visibility": 0.105776,
+          "presence": 0.993627,
+          "used": false
+        },
+        "right_elbow": {
+          "x": 0.453902,
+          "y": 0.319792,
+          "visibility": 0.974642,
+          "presence": 0.998804,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.525706,
+          "y": 0.367975,
+          "visibility": 0.116694,
+          "presence": 0.984888,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.545759,
+          "y": 0.386776,
+          "visibility": 0.92957,
+          "presence": 0.998311,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.405588,
+          "y": 0.402042,
+          "visibility": 0.982975,
+          "presence": 0.99446,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.348141,
+          "y": 0.391604,
+          "visibility": 0.986392,
+          "presence": 0.992674,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_elbow",
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 21,
+      "timestamp_seconds": 2.516,
+      "relative_file": "diagnostic/swing_behind/frame_021.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "2a9fd1a15e198d14",
+      "pose_detected": true,
+      "pose_presence": 0.994619,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.517983,
+          "y": 0.263329,
+          "visibility": 0.998162,
+          "presence": 0.998013,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.416911,
+          "y": 0.220019,
+          "visibility": 0.999896,
+          "presence": 0.999751,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.487642,
+          "y": 0.334083,
+          "visibility": 0.112491,
+          "presence": 0.991823,
+          "used": false
+        },
+        "right_elbow": {
+          "x": 0.414985,
+          "y": 0.294634,
+          "visibility": 0.976898,
+          "presence": 0.998825,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.470103,
+          "y": 0.346749,
+          "visibility": 0.116374,
+          "presence": 0.978449,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.532523,
+          "y": 0.347614,
+          "visibility": 0.934893,
+          "presence": 0.998903,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.417993,
+          "y": 0.400414,
+          "visibility": 0.982852,
+          "presence": 0.996172,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.346881,
+          "y": 0.388078,
+          "visibility": 0.986943,
+          "presence": 0.995013,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_elbow",
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 22,
+      "timestamp_seconds": 2.6113,
+      "relative_file": "diagnostic/swing_behind/frame_022.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "3c089e79d4187099",
+      "pose_detected": true,
+      "pose_presence": 0.996564,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.498502,
+          "y": 0.255679,
+          "visibility": 0.998097,
+          "presence": 0.998181,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.410377,
+          "y": 0.215188,
+          "visibility": 0.999898,
+          "presence": 0.999261,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.483712,
+          "y": 0.297376,
+          "visibility": 0.123711,
+          "presence": 0.995741,
+          "used": false
+        },
+        "right_elbow": {
+          "x": 0.422369,
+          "y": 0.275917,
+          "visibility": 0.978219,
+          "presence": 0.997337,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.475796,
+          "y": 0.265522,
+          "visibility": 0.136561,
+          "presence": 0.994418,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.528378,
+          "y": 0.288907,
+          "visibility": 0.937423,
+          "presence": 0.997806,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.421899,
+          "y": 0.396761,
+          "visibility": 0.984248,
+          "presence": 0.996804,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.347495,
+          "y": 0.384441,
+          "visibility": 0.988045,
+          "presence": 0.992963,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_elbow",
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 23,
+      "timestamp_seconds": 2.7073,
+      "relative_file": "diagnostic/swing_behind/frame_023.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "ffc816f6c494f21d",
+      "pose_detected": true,
+      "pose_presence": 0.9984,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.484136,
+          "y": 0.255532,
+          "visibility": 0.99825,
+          "presence": 0.999268,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.392882,
+          "y": 0.220159,
+          "visibility": 0.99989,
+          "presence": 0.998315,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.548118,
+          "y": 0.265842,
+          "visibility": 0.198943,
+          "presence": 0.999273,
+          "used": false
+        },
+        "right_elbow": {
+          "x": 0.423574,
+          "y": 0.244174,
+          "visibility": 0.97947,
+          "presence": 0.999203,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.52917,
+          "y": 0.21531,
+          "visibility": 0.211714,
+          "presence": 0.999412,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.524105,
+          "y": 0.228061,
+          "visibility": 0.941384,
+          "presence": 0.998919,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.426277,
+          "y": 0.395043,
+          "visibility": 0.985792,
+          "presence": 0.9982,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.348459,
+          "y": 0.385068,
+          "visibility": 0.989206,
+          "presence": 0.994612,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_elbow",
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 24,
+      "timestamp_seconds": 2.8029,
+      "relative_file": "diagnostic/swing_behind/frame_024.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "b3d738dce126d327",
+      "pose_detected": true,
+      "pose_presence": 0.998941,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.486705,
+          "y": 0.244778,
+          "visibility": 0.998371,
+          "presence": 0.99926,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.387308,
+          "y": 0.220221,
+          "visibility": 0.999886,
+          "presence": 0.999151,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.53027,
+          "y": 0.225467,
+          "visibility": 0.226314,
+          "presence": 0.999142,
+          "used": false
+        },
+        "right_elbow": {
+          "x": 0.400039,
+          "y": 0.207545,
+          "visibility": 0.981007,
+          "presence": 0.999488,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.530229,
+          "y": 0.178991,
+          "visibility": 0.254762,
+          "presence": 0.998281,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.469659,
+          "y": 0.170501,
+          "visibility": 0.946064,
+          "presence": 0.999437,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.42898,
+          "y": 0.392622,
+          "visibility": 0.987181,
+          "presence": 0.998896,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.35154,
+          "y": 0.385254,
+          "visibility": 0.990263,
+          "presence": 0.997874,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_elbow",
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 25,
+      "timestamp_seconds": 2.914,
+      "relative_file": "diagnostic/swing_behind/frame_025.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "40867b3dd58f3a11",
+      "pose_detected": true,
+      "pose_presence": 0.998749,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.495226,
+          "y": 0.243138,
+          "visibility": 0.998449,
+          "presence": 0.997339,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.36795,
+          "y": 0.218353,
+          "visibility": 0.999864,
+          "presence": 0.99776,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.532154,
+          "y": 0.222286,
+          "visibility": 0.286004,
+          "presence": 0.998999,
+          "used": false
+        },
+        "right_elbow": {
+          "x": 0.357071,
+          "y": 0.191623,
+          "visibility": 0.982224,
+          "presence": 0.999648,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.524154,
+          "y": 0.149055,
+          "visibility": 0.321867,
+          "presence": 0.999128,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.438529,
+          "y": 0.125723,
+          "visibility": 0.950714,
+          "presence": 0.999805,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.434142,
+          "y": 0.38667,
+          "visibility": 0.988455,
+          "presence": 0.998939,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.351472,
+          "y": 0.377588,
+          "visibility": 0.991229,
+          "presence": 0.998372,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_elbow",
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 26,
+      "timestamp_seconds": 3.0091,
+      "relative_file": "diagnostic/swing_behind/frame_026.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "9398ca8de590a55e",
+      "pose_detected": true,
+      "pose_presence": 0.997679,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.513977,
+          "y": 0.228786,
+          "visibility": 0.998516,
+          "presence": 0.995808,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.366424,
+          "y": 0.213081,
+          "visibility": 0.999848,
+          "presence": 0.996565,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.538292,
+          "y": 0.206745,
+          "visibility": 0.354126,
+          "presence": 0.99896,
+          "used": false
+        },
+        "right_elbow": {
+          "x": 0.314014,
+          "y": 0.184229,
+          "visibility": 0.983613,
+          "presence": 0.999452,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.512381,
+          "y": 0.118899,
+          "visibility": 0.387797,
+          "presence": 0.999519,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.393482,
+          "y": 0.105903,
+          "visibility": 0.955,
+          "presence": 0.999903,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.437679,
+          "y": 0.382031,
+          "visibility": 0.989583,
+          "presence": 0.9961,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.351445,
+          "y": 0.375555,
+          "visibility": 0.992089,
+          "presence": 0.995123,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_elbow",
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 27,
+      "timestamp_seconds": 3.1029,
+      "relative_file": "diagnostic/swing_behind/frame_027.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "4bcff6a9e3cf1bfd",
+      "pose_detected": true,
+      "pose_presence": 0.998213,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.512535,
+          "y": 0.226423,
+          "visibility": 0.998572,
+          "presence": 0.996617,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.365174,
+          "y": 0.212426,
+          "visibility": 0.999845,
+          "presence": 0.997825,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.535996,
+          "y": 0.203591,
+          "visibility": 0.416214,
+          "presence": 0.9994,
+          "used": false
+        },
+        "right_elbow": {
+          "x": 0.292374,
+          "y": 0.182418,
+          "visibility": 0.984977,
+          "presence": 0.999665,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.451104,
+          "y": 0.112529,
+          "visibility": 0.447265,
+          "presence": 0.999788,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.373058,
+          "y": 0.107269,
+          "visibility": 0.958731,
+          "presence": 0.999937,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.441049,
+          "y": 0.381204,
+          "visibility": 0.990597,
+          "presence": 0.996404,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.350652,
+          "y": 0.373818,
+          "visibility": 0.992861,
+          "presence": 0.996069,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_elbow",
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 28,
+      "timestamp_seconds": 3.2141,
+      "relative_file": "diagnostic/swing_behind/frame_028.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "6861d9fd306b08c3",
+      "pose_detected": true,
+      "pose_presence": 0.995261,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.518752,
+          "y": 0.228472,
+          "visibility": 0.998551,
+          "presence": 0.99084,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.369328,
+          "y": 0.215522,
+          "visibility": 0.999833,
+          "presence": 0.995018,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.509433,
+          "y": 0.199223,
+          "visibility": 0.472182,
+          "presence": 0.999249,
+          "used": false
+        },
+        "right_elbow": {
+          "x": 0.285739,
+          "y": 0.188277,
+          "visibility": 0.986139,
+          "presence": 0.999437,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.409109,
+          "y": 0.12058,
+          "visibility": 0.500701,
+          "presence": 0.999751,
+          "used": true
+        },
+        "right_wrist": {
+          "x": 0.350136,
+          "y": 0.119808,
+          "visibility": 0.961959,
+          "presence": 0.999897,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.444845,
+          "y": 0.381553,
+          "visibility": 0.991487,
+          "presence": 0.988748,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.354148,
+          "y": 0.374142,
+          "visibility": 0.993546,
+          "presence": 0.98915,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_elbow"
+      ]
+    },
+    {
+      "capture_tick": 29,
+      "timestamp_seconds": 3.3101,
+      "relative_file": "diagnostic/swing_behind/frame_029.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "f239a51db28a63c9",
+      "pose_detected": true,
+      "pose_presence": 0.996031,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.534858,
+          "y": 0.231911,
+          "visibility": 0.998512,
+          "presence": 0.995406,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.403237,
+          "y": 0.20436,
+          "visibility": 0.999814,
+          "presence": 0.995509,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.502386,
+          "y": 0.204121,
+          "visibility": 0.514319,
+          "presence": 0.999092,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.358214,
+          "y": 0.187033,
+          "visibility": 0.98412,
+          "presence": 0.998428,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.408054,
+          "y": 0.143629,
+          "visibility": 0.538786,
+          "presence": 0.999383,
+          "used": true
+        },
+        "right_wrist": {
+          "x": 0.356584,
+          "y": 0.157339,
+          "visibility": 0.960559,
+          "presence": 0.999239,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.444695,
+          "y": 0.381804,
+          "visibility": 0.992283,
+          "presence": 0.993178,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.359759,
+          "y": 0.372803,
+          "visibility": 0.994156,
+          "presence": 0.988015,
+          "used": true
+        }
+      },
+      "missing_landmarks": []
+    },
+    {
+      "capture_tick": 30,
+      "timestamp_seconds": 3.3576,
+      "relative_file": "diagnostic/swing_behind/frame_030.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "06d3a0385b66c968",
+      "pose_detected": true,
+      "pose_presence": 0.988761,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.540349,
+          "y": 0.24364,
+          "visibility": 0.998347,
+          "presence": 0.983716,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.412016,
+          "y": 0.207126,
+          "visibility": 0.999686,
+          "presence": 0.977649,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.50386,
+          "y": 0.213874,
+          "visibility": 0.549713,
+          "presence": 0.997679,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.363044,
+          "y": 0.173467,
+          "visibility": 0.980329,
+          "presence": 0.997752,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.411362,
+          "y": 0.160942,
+          "visibility": 0.569571,
+          "presence": 0.998667,
+          "used": true
+        },
+        "right_wrist": {
+          "x": 0.367805,
+          "y": 0.144953,
+          "visibility": 0.953758,
+          "presence": 0.998517,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.444535,
+          "y": 0.382237,
+          "visibility": 0.99294,
+          "presence": 0.983341,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.360496,
+          "y": 0.371957,
+          "visibility": 0.994663,
+          "presence": 0.972763,
+          "used": true
+        }
+      },
+      "missing_landmarks": []
+    },
+    {
+      "capture_tick": 31,
+      "timestamp_seconds": 3.4057,
+      "relative_file": "diagnostic/swing_behind/frame_031.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "5314e60916ee36e6",
+      "pose_detected": true,
+      "pose_presence": 0.997989,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.548635,
+          "y": 0.24803,
+          "visibility": 0.998426,
+          "presence": 0.998479,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.437828,
+          "y": 0.206885,
+          "visibility": 0.999707,
+          "presence": 0.998395,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.478695,
+          "y": 0.212157,
+          "visibility": 0.58508,
+          "presence": 0.999634,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.384109,
+          "y": 0.162948,
+          "visibility": 0.978843,
+          "presence": 0.999106,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.387876,
+          "y": 0.158478,
+          "visibility": 0.59729,
+          "presence": 0.999374,
+          "used": true
+        },
+        "right_wrist": {
+          "x": 0.372387,
+          "y": 0.147469,
+          "visibility": 0.94064,
+          "presence": 0.999467,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.443401,
+          "y": 0.384255,
+          "visibility": 0.993576,
+          "presence": 0.99667,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.363273,
+          "y": 0.371631,
+          "visibility": 0.995158,
+          "presence": 0.992788,
+          "used": true
+        }
+      },
+      "missing_landmarks": []
+    },
+    {
+      "capture_tick": 32,
+      "timestamp_seconds": 3.4526,
+      "relative_file": "diagnostic/swing_behind/frame_032.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "f703a809671bef57",
+      "pose_detected": true,
+      "pose_presence": 0.994549,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.559579,
+          "y": 0.251443,
+          "visibility": 0.99844,
+          "presence": 0.99757,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.454777,
+          "y": 0.207184,
+          "visibility": 0.999707,
+          "presence": 0.990069,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.476928,
+          "y": 0.212999,
+          "visibility": 0.622496,
+          "presence": 0.999643,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.376259,
+          "y": 0.175485,
+          "visibility": 0.976228,
+          "presence": 0.995409,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.365801,
+          "y": 0.157475,
+          "visibility": 0.633684,
+          "presence": 0.999593,
+          "used": true
+        },
+        "right_wrist": {
+          "x": 0.379661,
+          "y": 0.175338,
+          "visibility": 0.935774,
+          "presence": 0.998216,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.443684,
+          "y": 0.387405,
+          "visibility": 0.994054,
+          "presence": 0.994304,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.363498,
+          "y": 0.371248,
+          "visibility": 0.995548,
+          "presence": 0.981586,
+          "used": true
+        }
+      },
+      "missing_landmarks": []
+    },
+    {
+      "capture_tick": 33,
+      "timestamp_seconds": 3.5158,
+      "relative_file": "diagnostic/swing_behind/frame_033.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "e13b3c90fdc50d32",
+      "pose_detected": true,
+      "pose_presence": 0.996808,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.554859,
+          "y": 0.252416,
+          "visibility": 0.998409,
+          "presence": 0.997839,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.450406,
+          "y": 0.208143,
+          "visibility": 0.999724,
+          "presence": 0.997203,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.467422,
+          "y": 0.222234,
+          "visibility": 0.652212,
+          "presence": 0.999473,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.360096,
+          "y": 0.204768,
+          "visibility": 0.97536,
+          "presence": 0.995045,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.365112,
+          "y": 0.158896,
+          "visibility": 0.663049,
+          "presence": 0.999082,
+          "used": true
+        },
+        "right_wrist": {
+          "x": 0.352718,
+          "y": 0.171332,
+          "visibility": 0.936284,
+          "presence": 0.998031,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.443639,
+          "y": 0.392018,
+          "visibility": 0.994468,
+          "presence": 0.996597,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.36256,
+          "y": 0.371643,
+          "visibility": 0.995903,
+          "presence": 0.991197,
+          "used": true
+        }
+      },
+      "missing_landmarks": []
+    },
+    {
+      "capture_tick": 34,
+      "timestamp_seconds": 3.5623,
+      "relative_file": "diagnostic/swing_behind/frame_034.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "ae7065c7b7d85f7e",
+      "pose_detected": true,
+      "pose_presence": 0.997301,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.553433,
+          "y": 0.253443,
+          "visibility": 0.998401,
+          "presence": 0.997985,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.454548,
+          "y": 0.209766,
+          "visibility": 0.999738,
+          "presence": 0.996554,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.458788,
+          "y": 0.228701,
+          "visibility": 0.675998,
+          "presence": 0.999491,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.359453,
+          "y": 0.203948,
+          "visibility": 0.974746,
+          "presence": 0.996094,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.363667,
+          "y": 0.166935,
+          "visibility": 0.686641,
+          "presence": 0.999346,
+          "used": true
+        },
+        "right_wrist": {
+          "x": 0.351413,
+          "y": 0.172653,
+          "visibility": 0.936959,
+          "presence": 0.998165,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.441859,
+          "y": 0.393404,
+          "visibility": 0.994789,
+          "presence": 0.997456,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.361525,
+          "y": 0.371794,
+          "visibility": 0.99621,
+          "presence": 0.993318,
+          "used": true
+        }
+      },
+      "missing_landmarks": []
+    },
+    {
+      "capture_tick": 35,
+      "timestamp_seconds": 3.6088,
+      "relative_file": "diagnostic/swing_behind/frame_035.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "5ab7261f90928c5f",
+      "pose_detected": true,
+      "pose_presence": 0.995779,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.553766,
+          "y": 0.257491,
+          "visibility": 0.99837,
+          "presence": 0.997618,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.455032,
+          "y": 0.213038,
+          "visibility": 0.99975,
+          "presence": 0.995914,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.460183,
+          "y": 0.23222,
+          "visibility": 0.69993,
+          "presence": 0.999335,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.3573,
+          "y": 0.215635,
+          "visibility": 0.972866,
+          "presence": 0.991983,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.366419,
+          "y": 0.169355,
+          "visibility": 0.71089,
+          "presence": 0.999169,
+          "used": true
+        },
+        "right_wrist": {
+          "x": 0.347533,
+          "y": 0.176708,
+          "visibility": 0.93704,
+          "presence": 0.99707,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.441743,
+          "y": 0.394088,
+          "visibility": 0.995042,
+          "presence": 0.996135,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.361008,
+          "y": 0.371827,
+          "visibility": 0.996474,
+          "presence": 0.989006,
+          "used": true
+        }
+      },
+      "missing_landmarks": []
+    },
+    {
+      "capture_tick": 36,
+      "timestamp_seconds": 3.6553,
+      "relative_file": "diagnostic/swing_behind/frame_036.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "3d9bb2a861be266f",
+      "pose_detected": true,
+      "pose_presence": 0.996334,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.553165,
+          "y": 0.26828,
+          "visibility": 0.998203,
+          "presence": 0.995423,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.454019,
+          "y": 0.220254,
+          "visibility": 0.999765,
+          "presence": 0.997046,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.460898,
+          "y": 0.241917,
+          "visibility": 0.723468,
+          "presence": 0.999018,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.334243,
+          "y": 0.23992,
+          "visibility": 0.973239,
+          "presence": 0.992143,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.364068,
+          "y": 0.172783,
+          "visibility": 0.730415,
+          "presence": 0.998664,
+          "used": true
+        },
+        "right_wrist": {
+          "x": 0.354699,
+          "y": 0.204185,
+          "visibility": 0.939499,
+          "presence": 0.998552,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.439385,
+          "y": 0.398964,
+          "visibility": 0.995334,
+          "presence": 0.996589,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.360214,
+          "y": 0.375715,
+          "visibility": 0.996757,
+          "presence": 0.99324,
+          "used": true
+        }
+      },
+      "missing_landmarks": []
+    },
+    {
+      "capture_tick": 37,
+      "timestamp_seconds": 3.7015,
+      "relative_file": "diagnostic/swing_behind/frame_037.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "90feda33e1537065",
+      "pose_detected": true,
+      "pose_presence": 0.994096,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.551865,
+          "y": 0.278647,
+          "visibility": 0.998085,
+          "presence": 0.996673,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.466617,
+          "y": 0.234403,
+          "visibility": 0.999777,
+          "presence": 0.997454,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.476591,
+          "y": 0.310028,
+          "visibility": 0.660488,
+          "presence": 0.986915,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.361622,
+          "y": 0.25913,
+          "visibility": 0.974261,
+          "presence": 0.989105,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.44655,
+          "y": 0.308644,
+          "visibility": 0.671577,
+          "presence": 0.990821,
+          "used": true
+        },
+        "right_wrist": {
+          "x": 0.377511,
+          "y": 0.20814,
+          "visibility": 0.944479,
+          "presence": 0.997912,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.430546,
+          "y": 0.40761,
+          "visibility": 0.995619,
+          "presence": 0.998214,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.360151,
+          "y": 0.387556,
+          "visibility": 0.996952,
+          "presence": 0.995674,
+          "used": true
+        }
+      },
+      "missing_landmarks": []
+    },
+    {
+      "capture_tick": 38,
+      "timestamp_seconds": 3.764,
+      "relative_file": "diagnostic/swing_behind/frame_038.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "5f6bafcb7c45d296",
+      "pose_detected": true,
+      "pose_presence": 0.967967,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.516935,
+          "y": 0.273171,
+          "visibility": 0.997834,
+          "presence": 0.995335,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.487215,
+          "y": 0.259103,
+          "visibility": 0.999706,
+          "presence": 0.963709,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.454592,
+          "y": 0.276741,
+          "visibility": 0.629041,
+          "presence": 0.990568,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.419729,
+          "y": 0.27348,
+          "visibility": 0.945719,
+          "presence": 0.913403,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.444441,
+          "y": 0.251884,
+          "visibility": 0.652599,
+          "presence": 0.983786,
+          "used": true
+        },
+        "right_wrist": {
+          "x": 0.41842,
+          "y": 0.254306,
+          "visibility": 0.917965,
+          "presence": 0.951939,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.402011,
+          "y": 0.408157,
+          "visibility": 0.995389,
+          "presence": 0.989628,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.365749,
+          "y": 0.403648,
+          "visibility": 0.996777,
+          "presence": 0.955369,
+          "used": true
+        }
+      },
+      "missing_landmarks": []
+    },
+    {
+      "capture_tick": 39,
+      "timestamp_seconds": 3.8101,
+      "relative_file": "diagnostic/swing_behind/frame_039.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "5f6bafcb7c45d296",
+      "pose_detected": true,
+      "pose_presence": 0.984986,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.517501,
+          "y": 0.272911,
+          "visibility": 0.997729,
+          "presence": 0.998286,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.484045,
+          "y": 0.253767,
+          "visibility": 0.999689,
+          "presence": 0.989453,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.457346,
+          "y": 0.283645,
+          "visibility": 0.592533,
+          "presence": 0.991368,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.429545,
+          "y": 0.261311,
+          "visibility": 0.942726,
+          "presence": 0.960159,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.453403,
+          "y": 0.272782,
+          "visibility": 0.610538,
+          "presence": 0.985392,
+          "used": true
+        },
+        "right_wrist": {
+          "x": 0.43755,
+          "y": 0.23598,
+          "visibility": 0.917873,
+          "presence": 0.977303,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.406632,
+          "y": 0.413837,
+          "visibility": 0.995393,
+          "presence": 0.9962,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.365426,
+          "y": 0.402561,
+          "visibility": 0.996773,
+          "presence": 0.981731,
+          "used": true
+        }
+      },
+      "missing_landmarks": []
+    },
+    {
+      "capture_tick": 40,
+      "timestamp_seconds": 3.8571,
+      "relative_file": "diagnostic/swing_behind/frame_040.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "666e81e0c0c19792",
+      "pose_detected": true,
+      "pose_presence": 0.994421,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.527065,
+          "y": 0.284131,
+          "visibility": 0.9973,
+          "presence": 0.998937,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.48712,
+          "y": 0.261907,
+          "visibility": 0.999674,
+          "presence": 0.997427,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.48935,
+          "y": 0.355904,
+          "visibility": 0.539069,
+          "presence": 0.995812,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.432306,
+          "y": 0.346382,
+          "visibility": 0.94539,
+          "presence": 0.993854,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.53597,
+          "y": 0.392115,
+          "visibility": 0.560259,
+          "presence": 0.992979,
+          "used": true
+        },
+        "right_wrist": {
+          "x": 0.524446,
+          "y": 0.391759,
+          "visibility": 0.918865,
+          "presence": 0.995796,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.409397,
+          "y": 0.411264,
+          "visibility": 0.993252,
+          "presence": 0.995893,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.377213,
+          "y": 0.399873,
+          "visibility": 0.994987,
+          "presence": 0.984669,
+          "used": true
+        }
+      },
+      "missing_landmarks": []
+    },
+    {
+      "capture_tick": 41,
+      "timestamp_seconds": 3.9042,
+      "relative_file": "diagnostic/swing_behind/frame_041.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "d4cf325dbba6250d",
+      "pose_detected": true,
+      "pose_presence": 0.969356,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.517347,
+          "y": 0.276814,
+          "visibility": 0.997265,
+          "presence": 0.999113,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.51319,
+          "y": 0.264298,
+          "visibility": 0.999688,
+          "presence": 0.996695,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.502051,
+          "y": 0.359134,
+          "visibility": 0.48961,
+          "presence": 0.994034,
+          "used": false
+        },
+        "right_elbow": {
+          "x": 0.507169,
+          "y": 0.360808,
+          "visibility": 0.939268,
+          "presence": 0.980924,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.547334,
+          "y": 0.445143,
+          "visibility": 0.507808,
+          "presence": 0.946267,
+          "used": true
+        },
+        "right_wrist": {
+          "x": 0.56119,
+          "y": 0.450124,
+          "visibility": 0.902914,
+          "presence": 0.856774,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.409555,
+          "y": 0.395009,
+          "visibility": 0.991587,
+          "presence": 0.995784,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.397936,
+          "y": 0.396215,
+          "visibility": 0.994558,
+          "presence": 0.985262,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_elbow"
+      ]
+    },
+    {
+      "capture_tick": 42,
+      "timestamp_seconds": 3.9517,
+      "relative_file": "diagnostic/swing_behind/frame_042.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "aa3aef45955934ce",
+      "pose_detected": true,
+      "pose_presence": 0.968836,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.496957,
+          "y": 0.253486,
+          "visibility": 0.996182,
+          "presence": 0.99633,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.526957,
+          "y": 0.266923,
+          "visibility": 0.999621,
+          "presence": 0.990098,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.49616,
+          "y": 0.345747,
+          "visibility": 0.443275,
+          "presence": 0.989148,
+          "used": false
+        },
+        "right_elbow": {
+          "x": 0.519298,
+          "y": 0.363518,
+          "visibility": 0.927938,
+          "presence": 0.974684,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.515375,
+          "y": 0.418364,
+          "visibility": 0.45971,
+          "presence": 0.939433,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.548167,
+          "y": 0.439394,
+          "visibility": 0.87816,
+          "presence": 0.881845,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.407812,
+          "y": 0.388288,
+          "visibility": 0.988811,
+          "presence": 0.993763,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.411509,
+          "y": 0.394216,
+          "visibility": 0.992954,
+          "presence": 0.985391,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_elbow",
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 43,
+      "timestamp_seconds": 4.0153,
+      "relative_file": "diagnostic/swing_behind/frame_043.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "f260bf5712832821",
+      "pose_detected": true,
+      "pose_presence": 0.97317,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.472028,
+          "y": 0.223556,
+          "visibility": 0.996432,
+          "presence": 0.999662,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.563273,
+          "y": 0.265766,
+          "visibility": 0.999633,
+          "presence": 0.995247,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.346947,
+          "y": 0.260188,
+          "visibility": 0.491339,
+          "presence": 0.996437,
+          "used": false
+        },
+        "right_elbow": {
+          "x": 0.479888,
+          "y": 0.346393,
+          "visibility": 0.878307,
+          "presence": 0.945888,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.293909,
+          "y": 0.29144,
+          "visibility": 0.452884,
+          "presence": 0.977275,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.424967,
+          "y": 0.351838,
+          "visibility": 0.807846,
+          "presence": 0.886557,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.396217,
+          "y": 0.382275,
+          "visibility": 0.989264,
+          "presence": 0.994726,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.442561,
+          "y": 0.394828,
+          "visibility": 0.993366,
+          "presence": 0.989568,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_elbow",
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 44,
+      "timestamp_seconds": 4.0628,
+      "relative_file": "diagnostic/swing_behind/frame_044.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "a1bf2d5f9a354235",
+      "pose_detected": true,
+      "pose_presence": 0.987833,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.442351,
+          "y": 0.226035,
+          "visibility": 0.996666,
+          "presence": 0.999636,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.563568,
+          "y": 0.264524,
+          "visibility": 0.999653,
+          "presence": 0.998962,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.34416,
+          "y": 0.262018,
+          "visibility": 0.515705,
+          "presence": 0.993555,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.524006,
+          "y": 0.328681,
+          "visibility": 0.847899,
+          "presence": 0.981025,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.35633,
+          "y": 0.286962,
+          "visibility": 0.41595,
+          "presence": 0.988148,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.45142,
+          "y": 0.347295,
+          "visibility": 0.73496,
+          "presence": 0.946038,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.392437,
+          "y": 0.384957,
+          "visibility": 0.990088,
+          "presence": 0.997791,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.463133,
+          "y": 0.399984,
+          "visibility": 0.993956,
+          "presence": 0.997512,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 45,
+      "timestamp_seconds": 4.11,
+      "relative_file": "diagnostic/swing_behind/frame_045.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "9ad035629c8f9917",
+      "pose_detected": true,
+      "pose_presence": 0.997462,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.440595,
+          "y": 0.230596,
+          "visibility": 0.996394,
+          "presence": 0.998395,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.554228,
+          "y": 0.263707,
+          "visibility": 0.999538,
+          "presence": 0.997069,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.348308,
+          "y": 0.25684,
+          "visibility": 0.53358,
+          "presence": 0.998117,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.523709,
+          "y": 0.317635,
+          "visibility": 0.780612,
+          "presence": 0.994382,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.378469,
+          "y": 0.224422,
+          "visibility": 0.406613,
+          "presence": 0.997723,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.480006,
+          "y": 0.272329,
+          "visibility": 0.663991,
+          "presence": 0.994556,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.393721,
+          "y": 0.389207,
+          "visibility": 0.990979,
+          "presence": 0.999722,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.476166,
+          "y": 0.404569,
+          "visibility": 0.994533,
+          "presence": 0.999735,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 46,
+      "timestamp_seconds": 4.1575,
+      "relative_file": "diagnostic/swing_behind/frame_046.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "9a582489f53fbfeb",
+      "pose_detected": true,
+      "pose_presence": 0.995212,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.437717,
+          "y": 0.2329,
+          "visibility": 0.996255,
+          "presence": 0.998831,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.556937,
+          "y": 0.262092,
+          "visibility": 0.999385,
+          "presence": 0.996442,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.354456,
+          "y": 0.259184,
+          "visibility": 0.565953,
+          "presence": 0.997476,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.526487,
+          "y": 0.310822,
+          "visibility": 0.7341,
+          "presence": 0.987757,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.390612,
+          "y": 0.224051,
+          "visibility": 0.395793,
+          "presence": 0.996407,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.485287,
+          "y": 0.263834,
+          "visibility": 0.601434,
+          "presence": 0.986756,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.39426,
+          "y": 0.393013,
+          "visibility": 0.991686,
+          "presence": 0.998924,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.47713,
+          "y": 0.406495,
+          "visibility": 0.995033,
+          "presence": 0.999105,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 47,
+      "timestamp_seconds": 4.2045,
+      "relative_file": "diagnostic/swing_behind/frame_047.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "53f9539e93db79a7",
+      "pose_detected": true,
+      "pose_presence": 0.997782,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.445079,
+          "y": 0.22781,
+          "visibility": 0.996392,
+          "presence": 0.999256,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.564197,
+          "y": 0.261623,
+          "visibility": 0.999062,
+          "presence": 0.993493,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.350211,
+          "y": 0.24375,
+          "visibility": 0.600368,
+          "presence": 0.99856,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.544912,
+          "y": 0.267186,
+          "visibility": 0.698037,
+          "presence": 0.996542,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.400047,
+          "y": 0.202481,
+          "visibility": 0.407536,
+          "presence": 0.998799,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.49894,
+          "y": 0.207247,
+          "visibility": 0.548609,
+          "presence": 0.996467,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.404835,
+          "y": 0.392221,
+          "visibility": 0.992427,
+          "presence": 0.999716,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.494278,
+          "y": 0.405416,
+          "visibility": 0.995479,
+          "presence": 0.999424,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 48,
+      "timestamp_seconds": 4.2516,
+      "relative_file": "diagnostic/swing_behind/frame_048.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "bb819e3adc0309c7",
+      "pose_detected": true,
+      "pose_presence": 0.998418,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.434603,
+          "y": 0.223824,
+          "visibility": 0.99671,
+          "presence": 0.999774,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.561926,
+          "y": 0.257014,
+          "visibility": 0.998919,
+          "presence": 0.994909,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.328448,
+          "y": 0.235321,
+          "visibility": 0.639213,
+          "presence": 0.999378,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.561984,
+          "y": 0.263501,
+          "visibility": 0.675966,
+          "presence": 0.996717,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.399513,
+          "y": 0.187924,
+          "visibility": 0.4531,
+          "presence": 0.999604,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.521329,
+          "y": 0.199489,
+          "visibility": 0.498569,
+          "presence": 0.997464,
+          "used": false
+        },
+        "left_hip": {
+          "x": 0.40995,
+          "y": 0.391782,
+          "visibility": 0.993147,
+          "presence": 0.999879,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.498665,
+          "y": 0.404683,
+          "visibility": 0.995893,
+          "presence": 0.999622,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_wrist",
+        "right_wrist"
+      ]
+    },
+    {
+      "capture_tick": 49,
+      "timestamp_seconds": 4.3147,
+      "relative_file": "diagnostic/swing_behind/frame_049.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "3b462e5d03451df9",
+      "pose_detected": true,
+      "pose_presence": 0.9971,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.520279,
+          "y": 0.228156,
+          "visibility": 0.996858,
+          "presence": 0.994612,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.462849,
+          "y": 0.237114,
+          "visibility": 0.998978,
+          "presence": 0.997198,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.455809,
+          "y": 0.234796,
+          "visibility": 0.650442,
+          "presence": 0.994045,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.357945,
+          "y": 0.225204,
+          "visibility": 0.702031,
+          "presence": 0.998731,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.455439,
+          "y": 0.20187,
+          "visibility": 0.466848,
+          "presence": 0.996886,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.434034,
+          "y": 0.181523,
+          "visibility": 0.536026,
+          "presence": 0.999541,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.477119,
+          "y": 0.391604,
+          "visibility": 0.993657,
+          "presence": 0.997789,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.45359,
+          "y": 0.387714,
+          "visibility": 0.996243,
+          "presence": 0.998001,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_wrist"
+      ]
+    },
+    {
+      "capture_tick": 50,
+      "timestamp_seconds": 4.3613,
+      "relative_file": "diagnostic/swing_behind/frame_050.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "af676eb613ccbec0",
+      "pose_detected": true,
+      "pose_presence": 0.988993,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.478991,
+          "y": 0.227924,
+          "visibility": 0.997122,
+          "presence": 0.999014,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.488635,
+          "y": 0.234917,
+          "visibility": 0.998736,
+          "presence": 0.981918,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.362058,
+          "y": 0.215316,
+          "visibility": 0.672797,
+          "presence": 0.996723,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.374103,
+          "y": 0.229486,
+          "visibility": 0.66233,
+          "presence": 0.971831,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.445476,
+          "y": 0.186966,
+          "visibility": 0.44884,
+          "presence": 0.994937,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.467795,
+          "y": 0.196258,
+          "visibility": 0.486231,
+          "presence": 0.971409,
+          "used": false
+        },
+        "left_hip": {
+          "x": 0.460259,
+          "y": 0.392238,
+          "visibility": 0.994132,
+          "presence": 0.999286,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.465336,
+          "y": 0.388714,
+          "visibility": 0.996464,
+          "presence": 0.996824,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_wrist",
+        "right_wrist"
+      ]
+    },
+    {
+      "capture_tick": 51,
+      "timestamp_seconds": 4.4073,
+      "relative_file": "diagnostic/swing_behind/frame_051.jpg",
+      "width": 1002,
+      "height": 1480,
+      "sha256": "f0dc32c79484e8ee",
+      "pose_detected": true,
+      "pose_presence": 0.994541,
+      "landmarks": {
+        "left_shoulder": {
+          "x": 0.527495,
+          "y": 0.228691,
+          "visibility": 0.997136,
+          "presence": 0.993023,
+          "used": true
+        },
+        "right_shoulder": {
+          "x": 0.4514,
+          "y": 0.228941,
+          "visibility": 0.998727,
+          "presence": 0.993648,
+          "used": true
+        },
+        "left_elbow": {
+          "x": 0.442266,
+          "y": 0.216544,
+          "visibility": 0.670496,
+          "presence": 0.990928,
+          "used": true
+        },
+        "right_elbow": {
+          "x": 0.351152,
+          "y": 0.219157,
+          "visibility": 0.679709,
+          "presence": 0.996349,
+          "used": true
+        },
+        "left_wrist": {
+          "x": 0.446386,
+          "y": 0.199611,
+          "visibility": 0.447619,
+          "presence": 0.991378,
+          "used": false
+        },
+        "right_wrist": {
+          "x": 0.435978,
+          "y": 0.18489,
+          "visibility": 0.503275,
+          "presence": 0.997744,
+          "used": true
+        },
+        "left_hip": {
+          "x": 0.484251,
+          "y": 0.392317,
+          "visibility": 0.994538,
+          "presence": 0.996684,
+          "used": true
+        },
+        "right_hip": {
+          "x": 0.44612,
+          "y": 0.389345,
+          "visibility": 0.99674,
+          "presence": 0.996579,
+          "used": true
+        }
+      },
+      "missing_landmarks": [
+        "left_wrist"
+      ]
+    }
+  ]
+}

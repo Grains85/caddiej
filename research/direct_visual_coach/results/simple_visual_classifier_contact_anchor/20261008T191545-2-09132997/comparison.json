@@ -1,0 +1,348 @@
+{
+  "note": "Descriptive comparison only. Neither result is ground truth, and neither is marked as the winner.",
+  "contact_anchor_tick": 41,
+  "old_simple_classifier": {
+    "temporal_orientation": [
+      {
+        "capture_tick": 15,
+        "state": "setup"
+      },
+      {
+        "capture_tick": 16,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 17,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 18,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 20,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 21,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 22,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 23,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 24,
+        "state": "direction_change_region"
+      },
+      {
+        "capture_tick": 25,
+        "state": "moving_toward_ball"
+      },
+      {
+        "capture_tick": 26,
+        "state": "moving_toward_ball"
+      },
+      {
+        "capture_tick": 27,
+        "state": "moving_toward_ball"
+      },
+      {
+        "capture_tick": 28,
+        "state": "moving_toward_ball"
+      },
+      {
+        "capture_tick": 29,
+        "state": "moving_toward_ball"
+      },
+      {
+        "capture_tick": 31,
+        "state": "after_strike"
+      },
+      {
+        "capture_tick": 33,
+        "state": "after_strike"
+      },
+      {
+        "capture_tick": 35,
+        "state": "after_strike"
+      },
+      {
+        "capture_tick": 37,
+        "state": "after_strike"
+      },
+      {
+        "capture_tick": 40,
+        "state": "after_strike"
+      },
+      {
+        "capture_tick": 42,
+        "state": "after_strike"
+      },
+      {
+        "capture_tick": 44,
+        "state": "after_strike"
+      },
+      {
+        "capture_tick": 47,
+        "state": "after_strike"
+      },
+      {
+        "capture_tick": 49,
+        "state": "after_strike"
+      },
+      {
+        "capture_tick": 51,
+        "state": "after_strike"
+      }
+    ],
+    "fault_candidates": [
+      {
+        "fault_id": "HAND_PATH_OUT",
+        "confidence": 0.88,
+        "evidence_ticks": [
+          25,
+          26,
+          28
+        ]
+      },
+      {
+        "fault_id": "STEEP_DELIVERY",
+        "confidence": 0.8,
+        "evidence_ticks": [
+          25,
+          27
+        ]
+      },
+      {
+        "fault_id": "OUT_TO_IN_DELIVERY",
+        "confidence": 0.75,
+        "evidence_ticks": [
+          27,
+          29
+        ]
+      },
+      {
+        "fault_id": "EARLY_RELEASE",
+        "confidence": 0.5,
+        "evidence_ticks": [
+          27,
+          29
+        ]
+      }
+    ],
+    "latency_seconds": 10.717999999877065,
+    "input_tokens": 47649,
+    "output_tokens": 1140,
+    "estimated_cost_usd": 0.01419225
+  },
+  "contact_anchored_classifier": {
+    "temporal_orientation": [
+      {
+        "capture_tick": 15,
+        "state": "setup"
+      },
+      {
+        "capture_tick": 16,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 17,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 18,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 20,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 21,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 22,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 23,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 24,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 25,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 26,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 27,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 28,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 29,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 31,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 33,
+        "state": "moving_away"
+      },
+      {
+        "capture_tick": 35,
+        "state": "direction_change_region"
+      },
+      {
+        "capture_tick": 37,
+        "state": "moving_toward_ball"
+      },
+      {
+        "capture_tick": 40,
+        "state": "moving_toward_ball"
+      },
+      {
+        "capture_tick": 42,
+        "state": "after_strike"
+      },
+      {
+        "capture_tick": 44,
+        "state": "after_strike"
+      },
+      {
+        "capture_tick": 47,
+        "state": "after_strike"
+      },
+      {
+        "capture_tick": 49,
+        "state": "after_strike"
+      },
+      {
+        "capture_tick": 51,
+        "state": "after_strike"
+      }
+    ],
+    "fault_candidates": [
+      {
+        "fault_id": "HAND_PATH_OUT",
+        "confidence": 0.8,
+        "evidence_ticks": [
+          37,
+          40
+        ]
+      },
+      {
+        "fault_id": "OUT_TO_IN_DELIVERY",
+        "confidence": 0.7,
+        "evidence_ticks": [
+          37,
+          40
+        ]
+      },
+      {
+        "fault_id": "DELIVERY_POSTURE_RISE",
+        "confidence": 0.6,
+        "evidence_ticks": [
+          37,
+          40
+        ]
+      },
+      {
+        "fault_id": "EARLY_RELEASE",
+        "confidence": 0.5,
+        "evidence_ticks": [
+          37
+        ]
+      },
+      {
+        "fault_id": "FINISH_BALANCE_LOST",
+        "confidence": 0.6,
+        "evidence_ticks": [
+          47,
+          51
+        ]
+      }
+    ],
+    "latency_seconds": 11.657000000122935,
+    "input_tokens": 48075,
+    "output_tokens": 1097,
+    "estimated_cost_usd": 0.01421275
+  },
+  "false_early_after_strike_boundary_disappeared": true,
+  "old_after_strike_before_contact": [
+    31,
+    33,
+    35,
+    37,
+    40
+  ],
+  "new_after_strike_before_contact": [],
+  "faults_remaining": [
+    {
+      "fault_id": "EARLY_RELEASE",
+      "old_confidence": 0.5,
+      "new_confidence": 0.5,
+      "old_evidence_ticks": [
+        27,
+        29
+      ],
+      "new_evidence_ticks": [
+        37
+      ],
+      "evidence_ticks_moved": true
+    },
+    {
+      "fault_id": "HAND_PATH_OUT",
+      "old_confidence": 0.88,
+      "new_confidence": 0.8,
+      "old_evidence_ticks": [
+        25,
+        26,
+        28
+      ],
+      "new_evidence_ticks": [
+        37,
+        40
+      ],
+      "evidence_ticks_moved": true
+    },
+    {
+      "fault_id": "OUT_TO_IN_DELIVERY",
+      "old_confidence": 0.75,
+      "new_confidence": 0.7,
+      "old_evidence_ticks": [
+        27,
+        29
+      ],
+      "new_evidence_ticks": [
+        37,
+        40
+      ],
+      "evidence_ticks_moved": true
+    }
+  ],
+  "faults_removed": [
+    "STEEP_DELIVERY"
+  ],
+  "faults_added": [
+    "DELIVERY_POSTURE_RISE",
+    "FINISH_BALANCE_LOST"
+  ]
+}

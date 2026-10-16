@@ -1,0 +1,292 @@
+{
+ "shot": "20261008T191626-3-694d0a52",
+ "sealed": true,
+ "instructions": "Fill this from the canonical full-resolution originals BEFORE opening any model reply, review image or selected cell. contact_tick is the capture tick where the clubhead is at the ball and the struck ball is still on/at the mat. A later frame where the ball has already departed is post-impact and must not be labelled contact. P6 is shaft-parallel-to-ground during downswing/delivery. Because capture cadence may place exact shaft-horizontal between two frames, the nearest captured frame BETWEEN a valid P5 and P7 is acceptable when the shaft has clearly just passed or is just approaching horizontal. It must not be graded acceptable merely because it is temporally near P6: the visible shaft geometry must support it. best: the capture tick or ticks that show the position. acceptable: every tick that may be graded acceptable, and it must include best. Record P1-P9: M1/M2 grade P3-P9, M4 counts the checkpoints of every position. Every P6 acceptable tick lies after every P5 best tick and before contact_tick. Capture ticks only: never a sheet cell ID.",
+ "dtl": {
+  "contact_tick": 40,
+  "ticks": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   32,
+   33,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43,
+   44,
+   45,
+   46,
+   47,
+   48,
+   49,
+   50,
+   51
+  ],
+  "positions": {
+   "P1": {
+    "best": [
+     15
+    ],
+    "acceptable": [
+     14,
+     15,
+     16,
+     17
+    ]
+   },
+   "P2": {
+    "best": [
+     20
+    ],
+    "acceptable": [
+     19,
+     20
+    ]
+   },
+   "P3": {
+    "best": [
+     24
+    ],
+    "acceptable": [
+     23,
+     24
+    ]
+   },
+   "P4": {
+    "best": [
+     33
+    ],
+    "acceptable": [
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35
+    ]
+   },
+   "P5": {
+    "best": [
+     37
+    ],
+    "acceptable": [
+     37
+    ]
+   },
+   "P6": {
+    "best": [
+     38
+    ],
+    "acceptable": [
+     38,
+     39
+    ]
+   },
+   "P7": {
+    "best": [
+     40
+    ],
+    "acceptable": [
+     40
+    ]
+   },
+   "P8": {
+    "best": [
+     41
+    ],
+    "acceptable": [
+     41
+    ]
+   },
+   "P9": {
+    "best": [
+     42
+    ],
+    "acceptable": [
+     42,
+     43
+    ]
+   }
+  }
+ },
+ "fo": {
+  "contact_tick": 40,
+  "ticks": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   32,
+   33,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43,
+   44,
+   45,
+   46,
+   47,
+   48,
+   49,
+   50,
+   51
+  ],
+  "positions": {
+   "P1": {
+    "best": [
+     15
+    ],
+    "acceptable": [
+     14,
+     15,
+     16,
+     17
+    ]
+   },
+   "P2": {
+    "best": [
+     20
+    ],
+    "acceptable": [
+     19,
+     20
+    ]
+   },
+   "P3": {
+    "best": [
+     24
+    ],
+    "acceptable": [
+     23,
+     24
+    ]
+   },
+   "P4": {
+    "best": [
+     33
+    ],
+    "acceptable": [
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35
+    ]
+   },
+   "P5": {
+    "best": [
+     37
+    ],
+    "acceptable": [
+     37
+    ]
+   },
+   "P6": {
+    "best": [
+     38
+    ],
+    "acceptable": [
+     38,
+     39
+    ]
+   },
+   "P7": {
+    "best": [
+     40
+    ],
+    "acceptable": [
+     40
+    ]
+   },
+   "P8": {
+    "best": [
+     41
+    ],
+    "acceptable": [
+     41
+    ]
+   },
+   "P9": {
+    "best": [
+     42
+    ],
+    "acceptable": [
+     42,
+     43
+    ]
+   }
+  }
+ },
+ "sealed_at": "2026-10-08T19:51:17.323620+00:00"
+}

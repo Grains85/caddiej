@@ -22,10 +22,11 @@ has been run against the real thing yet:
 
 | Path | Developed against | Run against the real thing |
 | --- | --- | --- |
-| GSPro Open Connect interpose | a fake device and a fake GSPro | not yet |
-| Passive ProTee log + GSPro currentRound.dat | unit/integration tests with temp files | files verified on hardware; CaddieJ observer not yet run in the bay |
+| Passive ProTee log + GSPro currentRound.dat (**the production path**) | unit/integration tests with temp files | files verified on hardware; CaddieJ observer not yet run in the bay |
+| GSPro Open Connect interpose (diagnostics only) | a fake device and a fake GSPro | not yet |
 | Swing video | FFmpeg's generated picture, and a fake FFmpeg | not yet |
-| Coaching with a model | a stub SDK and a scripted provider | not yet |
+| Swing capture from ProTee's replay | a stub OBS and a fake clock | not yet: the capture timing is unmeasured |
+| Coaching with a model (Coach V1) | a stub SDK and a scripted provider | not yet: capture timing and visual-cue quality need a real bay |
 | Speech | a fake voice and a recording sink | not yet |
 | Lighting | a stub Hue bridge | not yet |
 | Assistant API over MCP | CaddieJ's own client over a real socket | not yet |
@@ -66,8 +67,13 @@ launch numbers, and a coached fault. Ctrl+C stops it.
 Two other things worth trying immediately:
 
 ```shell
-caddiej --check-config    # what would run, where files go, what is installed
-FLOOR_DEMO=1 caddiej      # every state the projection can render, on a loop
+caddiej --check-config         # what would run, where files go, what is installed
+caddiej --check-coach-cues     # the closed cue table, offline
+caddiej --check-coach          # the real coaching pipeline, no golf shot required
+caddiej --check-speech         # one spoken line through Kokoro, no golf required
+caddiej --check-video-frames   # four coaching stills from the newest swing clip
+caddiej --check-swing-capture  # one still from each configured ProTee panel, via OBS
+FLOOR_DEMO=1 caddiej           # every state the projection can render, on a loop
 ```
 
 CaddieJ writes `caddiej.sqlite3` and `media/` into the directory you start it
@@ -97,6 +103,7 @@ reported rather than fatal.
 | **[GSPro ingestion](docs/gspro.md)** — CaddieJ sits between the launch monitor and GSPro and forwards everything verbatim | GSPro | off |
 | **[Coaching](docs/coaching.md)** — the one thing most worth fixing, from your own recent shots; optionally worded by a model | nothing, or `.[ai]` | on, offline |
 | **[Swing video](docs/video.md)** — a clip of every swing cut around impact, never re-encoded | FFmpeg | off |
+| **[Swing capture](docs/swing-capture.md)** — stills of the two Swing Video panels ProTee already draws, read back through OBS | OBS, two cropped sources | off |
 | **[Speech](docs/speech.md)** — the coached line said out loud by a model on your machine | `.[tts]` | off |
 | **[Lighting](docs/lighting.md)** — the room dipping in the gaps between words | `.[hue]` | off |
 | **[Celebrations](docs/celebrations.md)** — one reaction across floor, voice, lights and OBS when a hole finishes | nothing | on, inert |
@@ -210,12 +217,14 @@ virtual environments, or secrets — run from the repository root:
 ./scripts/package-project.sh
 ```
 
-This is macOS/Linux developer tooling, not a runtime dependency, and is not
-expected to run on Windows. The script writes `dist/CaddieJ-review.txt` (a
+This is developer tooling, not a runtime dependency. It runs on macOS, Linux,
+and Git for Windows bash. The script writes `dist/CaddieJ-review.txt` (a
 plain-text bundle for ChatGPT upload) and `dist/CaddieJ-review.zip` (a
-supplementary archive). It excludes `.git/`, `.venv/`, `.env`, runtime SQLite
-files, `media/`, and other local-only artifacts, and it aborts if obvious
-secrets appear to be present in files that would be packaged.
+supplementary archive). ZIP creation uses Unix `zip`/`unzip` when they are
+available, and otherwise Windows PowerShell so no extra packages are required.
+It excludes `.git/`, `.venv/`, `.env`, runtime SQLite files, `media/`, and
+other local-only artifacts, and it aborts if obvious secrets appear to be
+present in files that would be packaged.
 
 ---
 

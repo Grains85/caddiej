@@ -363,6 +363,24 @@ class TestNothingHereCanBreakAnything:
             assert table.director.is_available is False
             assert table.director.health().channels == ()
 
+    async def test_a_configured_channel_that_cannot_be_reached_is_named(self) -> None:
+        """An effect that does not happen is silent by design.
+
+        Nothing goes wrong on screen, nobody hears a failure, and so a channel
+        whose bridge is down looks identical to a channel nobody configured —
+        unless health names it. `/healthz` is the only place this is visible.
+        """
+
+        async with Table(
+            RecordingChannel(channel_name="floor"),
+            RecordingChannel(channel_name="lights", available=False),
+        ) as table:
+            health = table.director.health()
+
+            assert health.available is True
+            assert health.channels == ("floor",)
+            assert health.unreachable_channels == ("lights",)
+
     async def test_the_event_path_returns_without_waiting(self) -> None:
         """A handler that stayed for the length of a celebration would leave
         the next hole sitting on the effects queue until this one ended."""

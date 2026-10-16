@@ -11,6 +11,7 @@ around a swing that happened four seconds ago is arithmetic rather than a wait.
 """
 
 import asyncio
+import logging
 from collections.abc import Callable
 from pathlib import Path
 
@@ -22,6 +23,7 @@ from caddiej.core.events import Event
 from caddiej.domain.events import (
     CameraStateChanged,
     ShotCompleted,
+    ShotDetected,
     SwingClipFailed,
     SwingClipReady,
 )
@@ -209,6 +211,182 @@ async def test_a_reporting_delay_puts_impact_earlier_than_the_message(
         assert (event.shot.source.observed_at - clip.impact_at).total_seconds() == 1.0
 
 
+# --- where the clip window is centred --------------------------------------
+
+
+class TestTheClipIsCentredOnTheStrikeNotTheReport:
+    """`SHOT_REPORT_LAG_SECONDS` is a guess, and in observe mode a bad one.
+
+    The fixed lag was measured against GSPro Connect, which reports a shot in
+    under a second. Production is observe mode, where the shot arrives by
+    polling `currentRound.dat` — a file GSPro cannot write until the ball has
+    stopped. Measured in the bay on 2026-09-16 the gap was 3.1 s on a chip and
+    about 6.4 s on a full shot, against a configured lag of 1.0 s, so every
+    clip was centred seconds after impact on a golfer walking away.
+
+    CaddieJ already knows when the strike happened: the ProTee observer
+    published `ShotDetected` at the time. The fix is to remember that instant
+    and join the completed shot back to it by trigger id, rather than
+    subtracting a constant from the wrong clock reading.
+    """
+
+    async def strike(self, run: Harness, trigger_id: str, ago: float) -> None:
+        """A detection the service handled `ago` seconds before now.
+
+        The clock is wound back around the call rather than forward after it,
+        because winding forward would carry the whole harness past the end of
+        the recorded buffer and the clip would fail for an unrelated reason.
+        """
+
+        now = run.clock.now
+        run.clock.now = now - ago
+        try:
+            await run.service.on_shot_detected(
+                ShotDetected(trigger_id=trigger_id, source="protee_log")
+            )
+        finally:
+            run.clock.now = now
+
+    def completed(
+        self, run: Harness, make_shot: ShotBuilder, trigger_id: str | None
+    ) -> ShotCompleted:
+        return ShotCompleted(
+            shot=make_shot(observed_monotonic=run.clock()), trigger_id=trigger_id
+        )
+
+    def delay(self, caplog: pytest.LogCaptureFixture) -> float:
+        """How far before the report the clip was centred, from the log."""
+
+        requested = [
+            record
+            for record in caplog.records
+            if record.getMessage() == "video_clip_requested"
+        ]
+        assert len(requested) == 1
+        return float(requested[0].video_report_delay_seconds)
+
+    async def test_the_window_is_measured_from_the_detection(
+        self, harness, make_shot: ShotBuilder, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        # Five seconds between the strike and the report, which is a full shot
+        # in observe mode, against a one second configured lag.
+        async with harness(lag=1.0) as run:
+            await run.recording()
+            await self.strike(run, "16", ago=5.0)
+
+            with caplog.at_level(logging.INFO):
+                await run.service.on_shot_completed(
+                    self.completed(run, make_shot, "16")
+                )
+                await until(lambda: run.published.of(SwingClipReady))
+
+            assert self.delay(caplog) == pytest.approx(5.0)
+            assert run.service.health().clips_anchored == 1
+
+    async def test_a_shot_with_no_detection_falls_back_to_the_configured_lag(
+        self, harness, make_shot: ShotBuilder
+    ) -> None:
+        """GSPro Connect mode has no ProTee observer, so there is no detection
+        to join to and the old estimate is the best available."""
+
+        async with harness(lag=1.0) as run:
+            await run.recording()
+
+            await run.service.on_shot_completed(run.swing(make_shot, ago=4.0))
+            await until(lambda: run.published.of(SwingClipReady))
+
+            clip = run.published.of(SwingClipReady)[0].clip
+            assert clip.impact_offset_seconds >= 2.0
+            assert run.service.health().clips_anchored == 0
+            assert run.service.health().clips_unanchored == 1
+
+    async def test_a_detection_nothing_ever_completed_is_not_kept_forever(
+        self, harness, make_shot: ShotBuilder
+    ) -> None:
+        """A practice swing that ProTee triggered on and GSPro never scored
+        must not anchor the next real shot half a minute later."""
+
+        async with harness(lag=1.0) as run:
+            await run.recording()
+            await self.strike(run, "16", ago=90.0)
+
+            await run.service.on_shot_completed(
+                ShotCompleted(
+                    shot=make_shot(observed_monotonic=run.clock() - 4.0),
+                    trigger_id="16",
+                )
+            )
+            await until(lambda: run.published.of(SwingClipReady))
+
+            assert run.service.health().clips_unanchored == 1
+
+    async def test_a_detection_is_matched_by_trigger_id_not_by_arrival(
+        self, harness, make_shot: ShotBuilder, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """An explicit join, not "the most recent detection".
+
+        Newest-wins is right for the floor, where the player is looking at one
+        panel. It is wrong here: a practice swing ProTee triggered on between
+        the strike and GSPro writing the file would otherwise steal the clip.
+        """
+
+        async with harness(lag=1.0) as run:
+            await run.recording()
+            await self.strike(run, "16", ago=6.0)
+            await self.strike(run, "17", ago=3.0)
+
+            with caplog.at_level(logging.INFO):
+                await run.service.on_shot_completed(
+                    self.completed(run, make_shot, "17")
+                )
+                await until(lambda: run.published.of(SwingClipReady))
+
+            assert self.delay(caplog) == pytest.approx(3.0)
+            assert run.service.health().clips_anchored == 1
+
+    async def test_the_measured_delay_is_logged_for_every_shot(
+        self, harness, make_shot: ShotBuilder, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """So the lag stops being a guess. An operator can read the real gap
+        between strike and report out of any session's log, anchored or not."""
+
+        async with harness(lag=1.0) as run:
+            await run.recording()
+            await self.strike(run, "16", ago=5.0)
+
+            with caplog.at_level(logging.INFO):
+                await run.service.on_shot_completed(
+                    self.completed(run, make_shot, "16")
+                )
+                await until(lambda: run.published.of(SwingClipReady))
+
+            requested = [
+                record
+                for record in caplog.records
+                if record.getMessage() == "video_clip_requested"
+            ]
+            assert requested[0].video_anchor == "detection"
+            assert requested[0].shot_trigger_id == "16"
+
+    async def test_an_unanchored_shot_says_so_in_the_same_field(
+        self, harness, make_shot: ShotBuilder, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        async with harness(lag=1.0) as run:
+            await run.recording()
+
+            with caplog.at_level(logging.INFO):
+                await run.service.on_shot_completed(run.swing(make_shot, ago=4.0))
+                await until(lambda: run.published.of(SwingClipReady))
+
+            requested = [
+                record
+                for record in caplog.records
+                if record.getMessage() == "video_clip_requested"
+            ]
+            assert requested[0].video_anchor == "report"
+            assert self.delay(caplog) == pytest.approx(1.0), "the configured lag"
+
+
 # --- staying off the event path --------------------------------------------
 
 
@@ -379,7 +557,14 @@ async def test_a_missing_ffmpeg_disables_video_rather_than_startup(
 
         assert run.spawn.commands == []
         assert run.published.of(SwingClipReady) == []
-        assert run.service.health().clips_requested == 0
+        # Refused rather than ignored. A session configured to film promised
+        # coaching a clip, and coaching waits for one until it is told
+        # otherwise — so staying quiet here costs every swing its whole
+        # footage budget before it works out there is no camera.
+        assert [failed.detail for failed in run.published.of(SwingClipFailed)] == [
+            "no camera was filming"
+        ]
+        assert run.service.health().clips_failed == 1
 
 
 # --- reporting -------------------------------------------------------------

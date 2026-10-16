@@ -17,6 +17,7 @@ import argparse
 import importlib.util
 import os
 import shutil
+from collections.abc import Callable
 from pathlib import Path
 
 from pydantic import SecretStr, ValidationError
@@ -76,6 +77,144 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--check-obs-shot-video",
+        action="store_true",
+        help=(
+            "show the configured OBS Shot Video source for a moment and hide it "
+            "again, to prove CaddieJ can control it, then exit"
+        ),
+    )
+    parser.add_argument(
+        "--check-obs-top-impact",
+        action="store_true",
+        help=(
+            "show the configured OBS Top Impact source for a moment and hide it "
+            "again, to prove CaddieJ can control it, then exit"
+        ),
+    )
+    parser.add_argument(
+        "--check-swing-capture",
+        action="store_true",
+        help=(
+            "take one screenshot from each configured swing capture source, "
+            "save them where they can be opened, and report their size, then "
+            "exit; no golf shot is required"
+        ),
+    )
+    parser.add_argument(
+        "--check-speech",
+        action="store_true",
+        help=(
+            "speak one short line through the configured voice and speaker, "
+            "to prove CaddieJ can talk, then exit"
+        ),
+    )
+    parser.add_argument(
+        "--check-video-frames",
+        action="store_true",
+        help=(
+            "extract the production coaching stills from the newest recorded "
+            "swing clip, to prove the analysis video path works, then exit"
+        ),
+    )
+    parser.add_argument(
+        "--check-coach",
+        action="store_true",
+        help=(
+            "run one synthetic shot through the production coaching pipeline "
+            "(diagnose, evidence, OpenAI if configured, validate, cue, speech), "
+            "then exit; no golf shot is required"
+        ),
+    )
+    parser.add_argument(
+        "--check-coach-cues",
+        action="store_true",
+        help=(
+            "print the Coach V1 cue table and the admissible set for "
+            "synthetic full-swing, putting, left-handed and observe-mode shots, "
+            "then exit"
+        ),
+    )
+    parser.add_argument(
+        "--check-coach-request",
+        action="store_true",
+        help=(
+            "measure the ProTee coach request built from the newest stored shot "
+            "(prompt, evidence, schema, every image's size and estimated tokens) "
+            "and the capture's own timing, then exit; makes no API call"
+        ),
+    )
+    parser.add_argument(
+        "--benchmark-coach",
+        action="store_true",
+        help=(
+            "replay one stored shot's evidence against one or more OpenAI "
+            "configurations and print latency, tokens and cost per run, then "
+            "exit; no golf shot, and nothing is written, published or spoken"
+        ),
+    )
+    benchmark = parser.add_argument_group(
+        "coach benchmark",
+        "Options for --benchmark-coach and --check-coach-request. Lists are "
+        "comma-separated; every combination of models, efforts and details runs.",
+    )
+    benchmark.add_argument(
+        "--benchmark-evidence",
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help=(
+            "a stored shot directory under media/swing_shots; default the newest. "
+            "With --check-coach, the one real request is made from that shot"
+        ),
+    )
+    benchmark.add_argument(
+        "--benchmark-models",
+        type=_names,
+        default=None,
+        metavar="LIST",
+        help="models to compare; default COACHING_MODEL",
+    )
+    benchmark.add_argument(
+        "--benchmark-efforts",
+        type=_choices(("omit", "none", "minimal", "low", "medium", "high")),
+        default=None,
+        metavar="LIST",
+        help=(
+            "reasoning efforts: omit (send no parameter at all), none, minimal, "
+            "low, medium, high; default COACHING_REASONING_EFFORT. Models differ "
+            "on which they accept, and one that refuses a value says so"
+        ),
+    )
+    benchmark.add_argument(
+        "--benchmark-detail",
+        type=_choices(("low", "high", "auto")),
+        default=None,
+        metavar="LIST",
+        help="image detail for the swing frames; default low, as in production",
+    )
+    benchmark.add_argument(
+        "--benchmark-repeats",
+        type=_bounded_int(1, 20),
+        default=1,
+        metavar="N",
+        help="runs per configuration, so variance is visible (1-20, default 1)",
+    )
+    benchmark.add_argument(
+        "--benchmark-max-output-tokens",
+        type=_bounded_int(1, 16000),
+        default=None,
+        metavar="N",
+        help="output ceiling per request; default COACHING_PROTEE_MAX_OUTPUT_TOKENS",
+    )
+    benchmark.add_argument(
+        "--benchmark-timeout",
+        type=_bounded_float(0.1, 300.0),
+        default=None,
+        metavar="SECONDS",
+        help="per-request timeout; default COACH_OPENAI_TIMEOUT_SECONDS",
+    )
+    parser.add_argument(
         "--log-level",
         choices=_LOG_LEVELS,
         default=None,
@@ -84,6 +223,58 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     return parser
+
+
+def _names(raw: str) -> tuple[str, ...]:
+    """A comma-separated list, each item once, none of them empty."""
+
+    items = tuple(dict.fromkeys(item.strip() for item in raw.split(",")))
+    if not items or any(not item for item in items):
+        raise argparse.ArgumentTypeError(
+            f"expected a comma-separated list, got {raw!r}"
+        )
+    return items
+
+
+def _choices(allowed: tuple[str, ...]) -> Callable[[str], tuple[str, ...]]:
+    def parse(raw: str) -> tuple[str, ...]:
+        items = tuple(item.lower() for item in _names(raw))
+        unknown = [item for item in items if item not in allowed]
+        if unknown:
+            raise argparse.ArgumentTypeError(
+                f"{', '.join(unknown)} not one of {', '.join(allowed)}"
+            )
+        return items
+
+    return parse
+
+
+def _bounded_int(low: int, high: int) -> Callable[[str], int]:
+    def parse(raw: str) -> int:
+        try:
+            value = int(raw)
+        except ValueError:
+            raise argparse.ArgumentTypeError(f"{raw!r} is not a whole number") from None
+        if not low <= value <= high:
+            raise argparse.ArgumentTypeError(f"{value} is not between {low} and {high}")
+        return value
+
+    return parse
+
+
+def _bounded_float(low: float, high: float) -> Callable[[str], float]:
+    def parse(raw: str) -> float:
+        try:
+            value = float(raw)
+        except ValueError:
+            raise argparse.ArgumentTypeError(f"{raw!r} is not a number") from None
+        if not low <= value <= high:
+            raise argparse.ArgumentTypeError(
+                f"{value:g} is not between {low:g} and {high:g}"
+            )
+        return value
+
+    return parse
 
 
 def resolve_log_level(requested: str | None) -> str:
@@ -167,6 +358,10 @@ def describe(settings: Settings, root: Path | None = None) -> str:
         f"  Lighting             {_lighting(settings)}",
         f"  Celebrations         {_effects(settings)}",
         f"  Assistant API        {_assistant(settings)}",
+        f"  ProTee Shot Video    {_shot_video(settings)}",
+        f"  ProTee Top Impact    {_top_impact(settings)}",
+        f"  Floor layout         {_floor_layout(settings)}",
+        f"  Swing capture        {_swing_capture(settings, here)}",
         "",
         "Optional dependencies:",
     ]
@@ -279,6 +474,123 @@ def _assistant(settings: Settings) -> str:
         f"on — http://{settings.assistant_api_host}:{settings.assistant_api_port}/v1"
         f" ({writes})"
     )
+
+
+def _shot_video(settings: Settings) -> str:
+    """Whether a shot will briefly reveal the OBS source, and which one.
+
+    Reports the scene and source names because the whole feature is two strings
+    matching what somebody typed into OBS by hand, and a mismatch is invisible
+    until a shot fails to produce a replay.
+    """
+
+    if not settings.floor_shot_video_enabled:
+        return "off (FLOOR_SHOT_VIDEO_ENABLED=false)"
+    password = "set" if settings.obs_password.get_secret_value() else "NOT SET"
+    # "after impact" because the delay used to be measured from GSPro's completed
+    # shot, and somebody reading this line needs to know which clock it is on.
+    observer = (
+        "" if settings.protee_observer_enabled else ", needs PROTEE_OBSERVER_ENABLED"
+    )
+    return (
+        f"on — {settings.obs_floor_scene!r} / {settings.obs_shot_video_source!r} "
+        f"{settings.floor_shot_video_delay_seconds:g}s after impact for "
+        f"{settings.floor_shot_video_duration_seconds:g}s "
+        f"(OBS_PASSWORD {password}{observer})"
+    )
+
+
+def _top_impact(settings: Settings) -> str:
+    """The same two strings again, for the other ProTee view."""
+
+    if not settings.floor_top_impact_enabled:
+        return "off (FLOOR_TOP_IMPACT_ENABLED=false)"
+    password = "set" if settings.obs_password.get_secret_value() else "NOT SET"
+    observer = (
+        "" if settings.protee_observer_enabled else ", needs PROTEE_OBSERVER_ENABLED"
+    )
+    return (
+        f"on — {settings.obs_floor_scene!r} / {settings.obs_top_impact_source!r} "
+        f"{settings.floor_top_impact_delay_seconds:g}s after impact for "
+        f"{settings.floor_top_impact_duration_seconds:g}s "
+        f"(OBS_PASSWORD {password}{observer})"
+    )
+
+
+def _floor_layout(settings: Settings) -> str:
+    """The anchor, and the three ball positions it resolves to, in metres.
+
+    Absolute rather than as offsets, because this line exists to be compared
+    against a tape measure on a real bay — and because an older `.env` that
+    still sets FLOOR_TEE_X_M has had it folded into an offset by now, and the
+    only honest way to show what that did is to show where the ball ends up.
+    """
+
+    strip_x = settings.floor_hitting_strip_x_m
+    strip_y = settings.floor_hitting_strip_y_m
+    places = [
+        ("iron", settings.floor_ball_iron_dx_m, settings.floor_ball_iron_dy_m),
+        ("driver", settings.floor_ball_driver_dx_m, settings.floor_ball_driver_dy_m),
+        ("putter", settings.floor_ball_putter_dx_m, settings.floor_ball_putter_dy_m),
+    ]
+    balls = ", ".join(
+        f"{name} {strip_x + dx:.2f},{strip_y + dy:.2f}" for name, dx, dy in places
+    )
+    lane = (
+        f"{settings.floor_putting_lane_length_m:g}×"
+        f"{settings.floor_putting_lane_width_m:g} m"
+        if settings.floor_putting_lane
+        else "off"
+    )
+    return (
+        f"strip {strip_x:.2f},{strip_y:.2f} m "
+        f"({settings.floor_hitting_strip_width_m:g}×"
+        f"{settings.floor_hitting_strip_depth_m:g} m) — "
+        f"ball {balls} — putting lane {lane}"
+    )
+
+
+def _swing_capture(settings: Settings, here: Path) -> str:
+    """Whether stills of the configured OBS panels are taken, from what, and where.
+
+    Names every panel because each source string has to match what was typed
+    into OBS, and reports the timing because every value in it is a first guess
+    until a real shot corrects it.
+    """
+
+    if not settings.swing_capture_enabled:
+        return "off (SWING_CAPTURE_ENABLED=false)"
+    observer = (
+        "" if settings.protee_observer_enabled else ", needs PROTEE_OBSERVER_ENABLED"
+    )
+    panels = settings.capture_panels()
+    named = (
+        ", ".join(
+            f"{panel.panel_id}={panel.source!r} ({panel.kind.value})"
+            for panel in panels
+        )
+        or "no panel source named"
+    )
+    return (
+        f"on — {named}, "
+        f"dynamic {settings.swing_capture_initial_delay_seconds:g}+"
+        f"{settings.swing_capture_duration_seconds:g}s at "
+        f"{settings.swing_capture_fps:g} fps{_downswing(settings)}, "
+        f"static {settings.swing_capture_static_delay_seconds:g}+"
+        f"{settings.swing_capture_static_duration_seconds:g}s → "
+        f"{_where(settings.swing_capture_output_dir, here)} "
+        f"(keeping {settings.swing_capture_selected_frames} stills total"
+        f"{observer})"
+    )
+
+
+def _downswing(settings: Settings) -> str:
+    fps = settings.swing_capture_downswing_fps
+    if fps <= settings.swing_capture_fps:
+        return ""
+    start = settings.swing_capture_downswing_delay_seconds
+    end = start + settings.swing_capture_downswing_duration_seconds
+    return f" ({fps:g} fps {start:g}-{end:g}s)"
 
 
 def _extras(settings: Settings) -> list[str]:

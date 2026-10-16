@@ -89,6 +89,28 @@ def a_shot(face: float = 6.5) -> Shot:
     )
 
 
+def a_shot_with_no_evidence() -> Shot:
+    """A shot nothing rankable was measured about: no club data at all, and
+    only the ball numbers that need a baseline no first shot has yet."""
+
+    return Shot(
+        shot_id=uuid4(),
+        source=ShotSource(
+            kind="synthetic",
+            device_session_id=uuid4(),
+            observed_at=NOW,
+            observed_monotonic=0.0,
+        ),
+        ball=BallLaunch(
+            speed_mph=148.0,
+            launch_angle_degrees=12.6,
+            launch_direction_degrees=None,
+        ),
+        handedness=Handedness.RIGHT,
+        club=Club(kind=ClubKind.DRIVER, vendor_code="D"),
+    )
+
+
 class Table:
     """Coaching, speech and lighting on one real bus, so a test can hit a ball."""
 
@@ -227,12 +249,15 @@ class TestASwingBecomesLight:
         assert table.lights.snapshots == 1
         assert len(table.lights.applied) > table.lights.snapshots
 
-    async def test_a_good_shot_leaves_the_lights_alone(self) -> None:
+    async def test_a_shot_nothing_was_measured_about_leaves_the_lights_alone(
+        self,
+    ) -> None:
         """Lighting follows speech, and speech follows the coached line. A shot
-        with nothing wrong with it produces neither."""
+        nothing was measured about produces neither — which is now the only
+        case that does not, since a good shot gets a reinforcement."""
 
         async with Table() as table:
-            await table.hit(a_shot(face=0.2))
+            await table.hit(a_shot_with_no_evidence())
             await table.settled()
 
         assert table.of(SpeechStarted) == []

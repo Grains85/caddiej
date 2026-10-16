@@ -7,13 +7,14 @@ another's, a player who is consistently bad, and a good shot.
 """
 
 from collections.abc import Callable
+from dataclasses import replace
 from datetime import UTC, datetime
 from uuid import uuid4
 
 from caddiej.coaching import Baseline, diagnose
 from caddiej.coaching.diagnose import PREFERENCE_TOLERANCE, consistency_of
 from caddiej.coaching.faults import IDEAL_ATTACK, oriented
-from caddiej.domain.coaching import SEVERITY_FINE, CoachingFocus
+from caddiej.domain.coaching import SEVERITY_FINE, AdviceKind, CoachingFocus
 from caddiej.domain.shot import (
     BallLaunch,
     Club,
@@ -36,6 +37,8 @@ def a_shot(
     strike: float | None = None,
     club_speed: float | None = None,
     launch: float = 12.6,
+    launch_direction: float | None = 0.0,
+    spin_axis: float | None = None,
     spin: float | None = 2400.0,
     carry: float | None = 265.0,
     speed: float = 148.0,
@@ -55,7 +58,8 @@ def a_shot(
         ball=BallLaunch(
             speed_mph=speed,
             launch_angle_degrees=launch,
-            launch_direction_degrees=0.0,
+            launch_direction_degrees=launch_direction,
+            spin_axis_degrees=spin_axis,
             total_spin_rpm=spin,
             carry_yards=carry,
         ),
@@ -80,13 +84,32 @@ def cold(club: ClubKind = ClubKind.DRIVER) -> object:
 # --- what a fault is ------------------------------------------------------
 
 
-def test_a_shot_with_nothing_wrong_is_left_alone() -> None:
+def test_a_shot_with_nothing_wrong_is_told_so_rather_than_picked_apart() -> None:
     # The most important case in the file. A coach who finds something wrong
-    # with every swing is a coach nobody listens to, so "nothing to say" has to
-    # be a real answer rather than the least bad fault.
+    # with every swing is a coach nobody listens to — so a clean shot must not
+    # be given the least bad of its faults — but a coach who says nothing after
+    # a good one has thrown away the best chance of it being repeated.
     diagnosis = diagnose(a_shot(), cold())
 
+    assert diagnosis.kind is AdviceKind.REINFORCEMENT
+    assert diagnosis.focus is not CoachingFocus.NONE
+    assert diagnosis.severity < SEVERITY_FINE
+    assert diagnosis.display
+    assert diagnosis.speech
+
+
+def test_a_shot_nothing_measured_is_the_only_silence_left() -> None:
+    # Silence is now a statement about the evidence rather than about the swing.
+    # No club data and no ball data means nothing could be ranked, and a
+    # sentence with nothing under it would be invented.
+    bare = replace(
+        a_shot(launch_direction=None, spin=None, carry=None), club_delivery=None
+    )
+
+    diagnosis = diagnose(bare, cold())
+
     assert diagnosis.focus is CoachingFocus.NONE
+    assert diagnosis.kind is AdviceKind.NONE
     assert diagnosis.display == ""
     assert diagnosis.speech == ""
     assert not diagnosis.is_worth_saying
@@ -96,7 +119,7 @@ def test_an_open_face_is_named_and_scored() -> None:
     diagnosis = diagnose(a_shot(face=6.5), cold())
 
     assert diagnosis.focus is CoachingFocus.FACE_CONTROL
-    assert diagnosis.display == "FACE OPEN"
+    assert diagnosis.display == "PASS THE TOE EARLY"
     assert diagnosis.speech
     assert diagnosis.severity > SEVERITY_FINE
 
@@ -106,18 +129,21 @@ def test_a_closed_face_is_the_other_fault_and_the_other_instruction() -> None:
     shut_face = diagnose(a_shot(face=-6.5), cold())
 
     assert shut_face.focus is CoachingFocus.FACE_CONTROL
-    assert shut_face.display == "FACE CLOSED"
+    assert shut_face.display == "SLOW THE ROTATION"
     # Same fault, opposite direction, so the same severity and a different fix.
     assert shut_face.severity == open_face.severity
     assert shut_face.speech != open_face.speech
 
 
-def test_a_face_barely_off_square_is_not_worth_mentioning() -> None:
-    # Inside the tolerance. Nobody hits it dead square, and saying so every
-    # shot is how the floor becomes wallpaper.
+def test_a_face_barely_off_square_is_not_asked_to_change() -> None:
+    # Inside the tolerance. Nobody hits it dead square, so this is a shot to
+    # confirm rather than a degree and a half to correct.
     diagnosis = diagnose(a_shot(face=1.5), cold())
 
-    assert diagnosis.focus is CoachingFocus.NONE
+    assert diagnosis.kind is AdviceKind.REINFORCEMENT
+    assert diagnosis.severity < SEVERITY_FINE
+    # And the words are about what went right, not about the number.
+    assert "1.5" not in diagnosis.speech
 
 
 def test_the_worst_fault_wins_and_only_one_is_chosen() -> None:
@@ -149,28 +175,33 @@ def test_an_open_face_is_open_for_a_left_handed_player_too() -> None:
     right = diagnose(a_shot(face=6.5, handedness=Handedness.RIGHT), cold())
     left = diagnose(a_shot(face=-6.5, handedness=Handedness.LEFT), cold())
 
-    assert right.display == "FACE OPEN"
-    assert left.display == "FACE OPEN"
+    assert right.display == "PASS THE TOE EARLY"
+    assert left.display == "PASS THE TOE EARLY"
     assert left.speech == right.speech
 
 
 def test_a_path_is_mirrored_and_a_strike_is_not() -> None:
     # A path is relative to the target, so it mirrors. The toe and the heel are
     # parts of the club, so they do not.
-    left_path = diagnose(a_shot(path=-6.0, handedness=Handedness.LEFT), cold())
-    right_path = diagnose(a_shot(path=6.0, handedness=Handedness.RIGHT), cold())
-    assert left_path.display == right_path.display == "IN TO OUT"
+    #
+    # Nine degrees rather than six, because six is inside a driver's functional
+    # window and no longer a fault at all. The subject here is the mirroring,
+    # so the number has to be one that produces a path fault for either player
+    # or the assertion is about nothing. See `test_coach_path_window`.
+    left_path = diagnose(a_shot(path=-9.0, handedness=Handedness.LEFT), cold())
+    right_path = diagnose(a_shot(path=9.0, handedness=Handedness.RIGHT), cold())
+    assert left_path.display == right_path.display == "SWING MORE ACROSS"
 
     left_strike = diagnose(a_shot(strike=20.0, handedness=Handedness.LEFT), cold())
     right_strike = diagnose(a_shot(strike=20.0, handedness=Handedness.RIGHT), cold())
-    assert left_strike.display == right_strike.display == "TOE STRIKE"
+    assert left_strike.display == right_strike.display == "STAND CLOSER"
 
 
 def test_unknown_handedness_is_treated_as_right_handed() -> None:
     # The common case and the only defensible guess.
     unknown = diagnose(a_shot(face=6.5, handedness=Handedness.UNKNOWN), cold())
 
-    assert unknown.display == "FACE OPEN"
+    assert unknown.display == "PASS THE TOE EARLY"
     assert oriented(6.5, Handedness.UNKNOWN) == 6.5
 
 
@@ -183,9 +214,11 @@ def test_hitting_down_is_right_for_an_iron_and_wrong_for_a_driver() -> None:
     iron = diagnose(a_shot(club=ClubKind.IRON, attack=-4.0), cold(ClubKind.IRON))
     driver = diagnose(a_shot(club=ClubKind.DRIVER, attack=-4.0), cold())
 
-    assert iron.focus is CoachingFocus.NONE
+    assert iron.severity_of(CoachingFocus.LOW_POINT) == 0.0
+    assert iron.kind is AdviceKind.REINFORCEMENT
     assert driver.focus is CoachingFocus.LOW_POINT
-    assert driver.display == "HITTING DOWN"
+    assert driver.kind is AdviceKind.CORRECTION
+    assert driver.display == "CATCH IT RISING"
 
 
 def test_a_putter_is_not_told_about_its_angle_of_attack() -> None:
@@ -287,7 +320,10 @@ def test_two_identical_shots_do_not_make_the_third_infinitely_unusual() -> None:
 
     diagnosis = diagnose(a_shot(club_speed=110.5), baseline.for_club(ClubKind.DRIVER))
 
-    assert diagnosis.focus is CoachingFocus.NONE
+    # Unranked rather than ranked at infinity: club speed has no fixed band, so
+    # with nothing known about the spread there is no way to score it at all.
+    assert diagnosis.severity_of(CoachingFocus.SPEED) is None
+    assert diagnosis.kind is AdviceKind.REINFORCEMENT
 
 
 def test_a_baseline_only_remembers_the_recent_past() -> None:

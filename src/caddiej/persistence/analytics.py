@@ -22,7 +22,6 @@ from caddiej.domain.statistics import (
     Metric,
     MetricSummary,
     club_of,
-    summarise_metric,
     summarise_metrics,
 )
 from caddiej.persistence.records import SessionRecord, StoredShot
@@ -39,7 +38,6 @@ __all__ = [
     "aggregate_by_club",
     "club_of",
     "dispersion_samples",
-    "summarise_metric",
     "summarise_metrics",
     "summarise_session",
 ]
@@ -126,7 +124,11 @@ def dispersion_samples(shots: Sequence[StoredShot]) -> tuple[DispersionSample, .
             spin_axis_degrees=stored.shot.ball.spin_axis_degrees,
         )
         for stored in shots
+        # A start line is what a dispersion sample is. A shot without one is
+        # not a sample with a hole in it, so it is left out rather than carried
+        # as a null nothing plotting it could do anything with.
         if stored.shot.ball is not None
+        and stored.shot.ball.launch_direction_degrees is not None
     )
 
 

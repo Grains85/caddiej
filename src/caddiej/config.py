@@ -5,10 +5,11 @@ import warnings
 from pathlib import Path
 from typing import Annotated, Literal, Self
 
-from pydantic import BeforeValidator, Field, SecretStr, model_validator
+from pydantic import AliasChoices, BeforeValidator, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from caddiej.domain.coaching import SEVERITY_FINE
+from caddiej.domain.cues import CapturePanel, PanelKind, PanelView, VisualClaim
 
 
 def _expand(value: object) -> object:
@@ -183,6 +184,119 @@ class Settings(BaseSettings):
         ge=0.0,
         validation_alias="FLOOR_TEE_DRIVER_Y_M",
     )
+    # Hitting strip: a physical rectangle on the same metre floor as the
+    # tees, mapped through FloorCalibration. X and Y are the physical centre of
+    # the rectangle in metres, not a corner and not a fraction of the bay.
+    #
+    # Set either of them and it is used exactly as given; the tee is inherited
+    # only for the one that was left out. That is what makes the strip
+    # calibratable independently of where the ball is placed on it. Defaults are
+    # a generic turf pad, not a measured room.
+    floor_hitting_strip_x_m: float = Field(
+        default=0.5,
+        ge=0.0,
+        validation_alias="FLOOR_HITTING_STRIP_X_M",
+    )
+    floor_hitting_strip_y_m: float = Field(
+        default=0.72,
+        ge=0.0,
+        validation_alias="FLOOR_HITTING_STRIP_Y_M",
+    )
+    floor_hitting_strip_width_m: float = Field(
+        default=0.30,
+        gt=0.0,
+        validation_alias="FLOOR_HITTING_STRIP_WIDTH_M",
+    )
+    floor_hitting_strip_depth_m: float = Field(
+        default=0.45,
+        gt=0.0,
+        validation_alias="FLOOR_HITTING_STRIP_DEPTH_M",
+    )
+    # Fill the calibrated strip rather than outlining it, so the projector lights
+    # the physical turf a player is standing on. Off by default: an overlay that
+    # is mostly outline is the safer thing to put on an unknown projector.
+    floor_hitting_strip_fill: bool = Field(
+        default=False,
+        validation_alias="FLOOR_HITTING_STRIP_FILL",
+    )
+    # The Compact chamfer, multiplied. 1 is the drawing in millimetres. A
+    # projector makes that drawing too small to read from where the player
+    # stands, and this is the one factor applied to every size of it. It does
+    # not move the strip and it does not change the bay.
+    ball_status_chamfer_scale: float = Field(
+        default=6.0,
+        gt=0.0,
+        validation_alias="BALL_STATUS_CHAMFER_SCALE",
+    )
+    # Everything golf-related on the floor is placed *from* the strip centre
+    # above, as an offset in metres on the same physical plane. +X is across the
+    # bay towards the player's right and +Y is towards the player, so down-range
+    # is negative. Recalibrating a bay is then FLOOR_HITTING_STRIP_X_M and
+    # FLOOR_HITTING_STRIP_Y_M; these say how the content sits on the mat, which
+    # does not change when the mat moves. Negative values are expected.
+    #
+    # Three ball positions, because a driver and a putter are not played from
+    # where a 7 iron is. Zero is the centre of the strip.
+    floor_ball_iron_dx_m: float = Field(
+        default=0.0,
+        validation_alias="FLOOR_BALL_IRON_DX_M",
+    )
+    floor_ball_iron_dy_m: float = Field(
+        default=0.0,
+        validation_alias="FLOOR_BALL_IRON_DY_M",
+    )
+    # Unset driver offsets inherit the iron offsets, so a bay that has not
+    # thought about a driver yet does not put the ball somewhere surprising.
+    floor_ball_driver_dx_m: float = Field(
+        default=0.0,
+        validation_alias="FLOOR_BALL_DRIVER_DX_M",
+    )
+    floor_ball_driver_dy_m: float = Field(
+        default=0.0,
+        validation_alias="FLOOR_BALL_DRIVER_DY_M",
+    )
+    # The putter is allowed off the mat, and by default is: −0.30 m is 30 cm
+    # down-range of the strip centre, which on a typical 45 cm strip is past its
+    # front edge. That is the point of having a third position.
+    floor_ball_putter_dx_m: float = Field(
+        default=0.0,
+        validation_alias="FLOOR_BALL_PUTTER_DX_M",
+    )
+    floor_ball_putter_dy_m: float = Field(
+        default=-0.30,
+        validation_alias="FLOOR_BALL_PUTTER_DY_M",
+    )
+    # Where the numbers a player reads while standing at the strip are drawn:
+    # target distance, club recommendation, shot distance, remaining distance,
+    # and the coaching line under them. The default puts them where they have
+    # always been on the default 1 m × 1 m bay. The startup banner, the
+    # celebration layer and the link light are deliberately not anchored: they
+    # are drawn across the whole projection and have nothing to do with a mat.
+    floor_information_dx_m: float = Field(
+        default=0.0,
+        validation_alias="FLOOR_INFORMATION_DX_M",
+    )
+    floor_information_dy_m: float = Field(
+        default=-0.66,
+        validation_alias="FLOOR_INFORMATION_DY_M",
+    )
+    # Putting mode: a plain lane running down-range from the putter ball while
+    # a putter is in play, and nothing else. On by default because it is the
+    # only thing that tells a player the floor has noticed the club changed.
+    floor_putting_lane: bool = Field(
+        default=True,
+        validation_alias="FLOOR_PUTTING_LANE",
+    )
+    floor_putting_lane_length_m: float = Field(
+        default=0.30,
+        gt=0.0,
+        validation_alias="FLOOR_PUTTING_LANE_LENGTH_M",
+    )
+    floor_putting_lane_width_m: float = Field(
+        default=0.24,
+        gt=0.0,
+        validation_alias="FLOOR_PUTTING_LANE_WIDTH_M",
+    )
     # Deprecated aliases: a 0–1 fraction of the bay, converted to metres
     # only when the corresponding _M variable is unset. Not a second source
     # of truth after validation.
@@ -212,11 +326,94 @@ class Settings(BaseSettings):
         gt=0,
         validation_alias="FLOOR_SHOT_DISPLAY_SECONDS",
     )
-    # Observer round-result panel: stay until READY / a new ball, or this cap.
+    # Observer round-result panel. It cannot appear until GSPro has finished
+    # flying the ball, so its lifetime is measured from later than the strike and
+    # both ends are configurable: readable for at least the minimum however
+    # quickly the next ball is teed up, and off by the maximum regardless.
+    floor_shot_result_min_duration: float = Field(
+        default=8.0,
+        gt=0,
+        validation_alias="FLOOR_SHOT_RESULT_MIN_DURATION",
+    )
     floor_shot_result_max_duration: float = Field(
-        default=15.0,
+        default=30.0,
         gt=0,
         validation_alias="FLOOR_SHOT_RESULT_MAX_DURATION",
+    )
+
+    # The player's bag, in metres of carry. Used for one thing: choosing the
+    # club nearest the distance GSPro says is left to the target, which the
+    # floor shows while the next shot is being addressed.
+    #
+    # Zero means the club is not in the bag, and a bag with nothing in it
+    # produces no recommendation at all rather than a wrong one. That is why
+    # every default is zero: CaddieJ has not measured anybody, and a set of
+    # plausible-looking numbers would be a guess wearing the clothes of a
+    # measurement. Metres to match GSPro's DistanceToTarget, which is the only
+    # distance this is ever compared against.
+    #
+    # These are intended to be temporary. Carry per club is exactly the sort of
+    # thing shot history can learn, and when it does, only the provider changes:
+    # nothing in the recommendation or on the floor reads these names.
+    player_club_carry_driver_m: float = Field(
+        default=0.0,
+        ge=0.0,
+        validation_alias="PLAYER_CLUB_CARRY_DRIVER_M",
+    )
+    player_club_carry_3w_m: float = Field(
+        default=0.0,
+        ge=0.0,
+        validation_alias="PLAYER_CLUB_CARRY_3W_M",
+    )
+    player_club_carry_5w_m: float = Field(
+        default=0.0,
+        ge=0.0,
+        validation_alias="PLAYER_CLUB_CARRY_5W_M",
+    )
+    player_club_carry_4i_m: float = Field(
+        default=0.0,
+        ge=0.0,
+        validation_alias="PLAYER_CLUB_CARRY_4I_M",
+    )
+    player_club_carry_5i_m: float = Field(
+        default=0.0,
+        ge=0.0,
+        validation_alias="PLAYER_CLUB_CARRY_5I_M",
+    )
+    player_club_carry_6i_m: float = Field(
+        default=0.0,
+        ge=0.0,
+        validation_alias="PLAYER_CLUB_CARRY_6I_M",
+    )
+    player_club_carry_7i_m: float = Field(
+        default=0.0,
+        ge=0.0,
+        validation_alias="PLAYER_CLUB_CARRY_7I_M",
+    )
+    player_club_carry_8i_m: float = Field(
+        default=0.0,
+        ge=0.0,
+        validation_alias="PLAYER_CLUB_CARRY_8I_M",
+    )
+    player_club_carry_9i_m: float = Field(
+        default=0.0,
+        ge=0.0,
+        validation_alias="PLAYER_CLUB_CARRY_9I_M",
+    )
+    player_club_carry_pw_m: float = Field(
+        default=0.0,
+        ge=0.0,
+        validation_alias="PLAYER_CLUB_CARRY_PW_M",
+    )
+    player_club_carry_gw_m: float = Field(
+        default=0.0,
+        ge=0.0,
+        validation_alias="PLAYER_CLUB_CARRY_GW_M",
+    )
+    player_club_carry_sw_m: float = Field(
+        default=0.0,
+        ge=0.0,
+        validation_alias="PLAYER_CLUB_CARRY_SW_M",
     )
 
     # GSPro Open Connect. CaddieJ can sit between the launch monitor connector
@@ -415,6 +612,14 @@ class Settings(BaseSettings):
         min_length=1,
         validation_alias="VIDEO_CAMERA_ID",
     )
+    # Where the camera is standing. Nothing can work this out from the footage,
+    # and it decides what a still can honestly be read for, so it is left
+    # unknown until somebody says — at which point coaching is told, and keeps
+    # to what any angle would show until then.
+    video_camera_view: Literal["unknown", "face_on", "down_the_line"] = Field(
+        default="unknown",
+        validation_alias="VIDEO_CAMERA_VIEW",
+    )
     video_camera_fps: float = Field(
         default=30.0,
         gt=0,
@@ -487,6 +692,16 @@ class Settings(BaseSettings):
         gt=0,
         validation_alias="VIDEO_BUFFER_MAX_BYTES",
     )
+    # How long finished clips are kept. The buffer is bounded and the stills are
+    # swept, but clips are the one thing video writes that is meant to last, so
+    # without this a bay that plays every week fills its disk and the failure
+    # surfaces as a clip that would not extract. Whole days, matching how they
+    # are filed. Zero keeps them all, for anyone archiving them elsewhere.
+    video_clip_retention_days: int = Field(
+        default=30,
+        ge=0,
+        validation_alias="VIDEO_CLIP_RETENTION_DAYS",
+    )
     # A clip is a whole number of segments, so this is also how precisely the
     # requested window can be honoured.
     video_segment_seconds: float = Field(
@@ -536,6 +751,12 @@ class Settings(BaseSettings):
     # the fault line on the floor. Nothing here reaches a network until
     # COACHING_PROVIDER is set to something.
     coaching_enabled: bool = Field(default=True, validation_alias="COACHING_ENABLED")
+    # Diagnostic, off in production. ProTee coaching does everything up to the
+    # request -- capture, All Values, frame selection, the evidence sheet --
+    # and then makes no call, so a capture-calibration session costs nothing.
+    coaching_diagnostic_dry_run: bool = Field(
+        default=False, validation_alias="COACHING_DIAGNOSTIC_DRY_RUN"
+    )
     # "none" asks no model at all and is the default, so a fresh checkout coaches
     # from templates and costs nothing. "scripted" answers from a fixed script
     # inside the process, which is how the whole path — prompt, validation,
@@ -570,13 +791,6 @@ class Settings(BaseSettings):
         default=512,
         gt=0,
         validation_alias="COACHING_FRAME_WIDTH",
-    )
-    # How long a coaching line stays on the floor. Longer than the shot display,
-    # because a sentence takes longer to read than a number.
-    coaching_display_seconds: float = Field(
-        default=9.0,
-        gt=0,
-        validation_alias="COACHING_DISPLAY_SECONDS",
     )
     # What the player is working on. Held to unless something else is markedly
     # worse, so a session reads as a lesson rather than as a list of whatever
@@ -645,9 +859,81 @@ class Settings(BaseSettings):
     # Enough for two short strings and a number. The ceiling is what makes the
     # cost of a shot predictable, so it is deliberately tight.
     coaching_max_output_tokens: int = Field(
-        default=60,
+        default=120,
         gt=0,
         validation_alias="COACHING_MAX_OUTPUT_TOKENS",
+    )
+    # Raised from 6 after the first hardware session, where six was the
+    # binding constraint on whether a swing could be diagnosed at all: the
+    # capture wrote a takeaway and a face-on top to disk and this cap dropped
+    # both before the request. Sixteen matches SWING_CAPTURE_SELECTED_FRAMES:
+    # below it the capture's aimed stills are thinned evenly on the way to the
+    # model, which is how aiming gets undone. The ceiling still exists because
+    # the cost of a shot has to stay predictable.
+    coaching_max_images: int = Field(
+        default=16,
+        ge=0,
+        le=16,
+        validation_alias="COACHING_MAX_IMAGES",
+    )
+    coaching_visual_cues: bool = Field(
+        default=True,
+        validation_alias="COACHING_VISUAL_CUES",
+    )
+    # What starts a coaching job. `protee` coaches every ProTee strike from its
+    # swing capture and the All Values still, with no GSPro involved; `gspro`
+    # waits for a measured GSPro shot as before. `auto` is `protee` whenever
+    # swing capture is on, because that is what the ProTee path is built from.
+    coaching_trigger: Literal["auto", "protee", "gspro"] = Field(
+        default="auto",
+        validation_alias="COACHING_TRIGGER",
+    )
+    # The ProTee reply carries every All Values reading as well as the line, so
+    # it needs far more room than the two strings the GSPro path returns. On a
+    # reasoning model this ceiling covers the reasoning as well as the JSON. A
+    # full reply with every metric read is about 500-750 tokens, and every
+    # checkpoint scored adds about 2000 more; the rest is room for low-effort
+    # reasoning over seven images. 2000 ran out on the bay.
+    coaching_protee_max_output_tokens: int = Field(
+        default=10000,
+        gt=0,
+        le=16000,
+        validation_alias="COACHING_PROTEE_MAX_OUTPUT_TOKENS",
+    )
+    # The ProTee request is one multimodal call carrying the swing stills, the
+    # All Values grid and a long structured reply, so it is slower than the GSPro
+    # path's two short strings. These replace COACHING_TIMEOUT and
+    # COACHING_BUDGET_SECONDS on that path only. The timeout is per attempt,
+    # passed to the OpenAI SDK; the budget bounds every attempt and the wait
+    # between them, measured from when the capture is queued for coaching.
+    coach_openai_timeout: float = Field(
+        default=30.0,
+        gt=0,
+        le=120,
+        validation_alias="COACH_OPENAI_TIMEOUT_SECONDS",
+    )
+    coach_openai_budget: float = Field(
+        default=45.0,
+        gt=0,
+        le=300,
+        validation_alias="COACH_OPENAI_BUDGET_SECONDS",
+    )
+    # Sent on the ProTee request only, and only for reasoning models: one that
+    # does not reason refuses the parameter, so set it empty for those. `low`
+    # because the default model, gpt-5-mini, reasons at medium when nothing is
+    # sent. Copying a grid and choosing from a fixed list does not need that,
+    # and its reasoning shares the output ceiling with the reply.
+    #
+    # Which values a model accepts is the API's business and not ours: gpt-5-mini
+    # takes `minimal` and refuses `none`, gpt-5.4-mini the other way round. Empty
+    # means send nothing, which leaves the model's own default in charge and is
+    # therefore the one setting whose behaviour can change without us.
+    coaching_reasoning_effort: Literal[
+        "", "none", "minimal", "low", "medium", "high"
+    ] = Field(default="low", validation_alias="COACHING_REASONING_EFFORT")
+    floor_coach_cue_image: bool = Field(
+        default=False,
+        validation_alias="FLOOR_COACH_CUE_IMAGE",
     )
 
     # Local text to speech. Off by default, and deliberately so: it makes noise
@@ -685,6 +971,18 @@ class Settings(BaseSettings):
     # what almost everybody wants and the only thing that survives replugging a
     # pair of speakers.
     speech_device: str = Field(default="", validation_alias="SPEECH_DEVICE")
+    # One constant multiplier on every utterance, applied at the speaker.
+    # Kokoro peaks around a third of full scale, so the headroom is real and
+    # unused, and a bay with the Windows mixer already at maximum still gets a
+    # voice nobody can hear. 1.0 is the engine's own level and the only default
+    # that is right on hardware nobody has measured; the bay's own value lives
+    # in .env, chosen from the measured peak of its actual voice.
+    speech_gain: float = Field(
+        default=1.0,
+        gt=0.0,
+        le=4.0,
+        validation_alias="SPEECH_GAIN",
+    )
     # Short, like coaching's. A line about three swings ago is worse than
     # silence, and a newer coaching line replaces an older waiting one anyway,
     # so this only ever holds a backlog of genuinely different things to say.
@@ -952,17 +1250,376 @@ class Settings(BaseSettings):
         default=False,
         validation_alias="OBS_PROVISION_FLOOR_SOURCE",
     )
+    # Temporarily reveal an existing OBS Window Capture of ProTee's Shot Video
+    # panel after each newly observed round shot. Off by default: the source
+    # must already exist in OBS_FLOOR_SCENE, stacked above the floor overlay.
+    # CaddieJ only toggles visibility; it does not create, crop, or reorder it.
+    floor_shot_video_enabled: bool = Field(
+        default=False,
+        validation_alias="FLOOR_SHOT_VIDEO_ENABLED",
+    )
+    obs_shot_video_source: str = Field(
+        default="Shot Video",
+        min_length=1,
+        validation_alias="OBS_SHOT_VIDEO_SOURCE",
+    )
+    floor_shot_video_delay_seconds: float = Field(
+        default=0.75,
+        ge=0.0,
+        validation_alias="FLOOR_SHOT_VIDEO_DELAY_SECONDS",
+    )
+    floor_shot_video_duration_seconds: float = Field(
+        default=4.0,
+        gt=0.0,
+        validation_alias="FLOOR_SHOT_VIDEO_DURATION_SECONDS",
+    )
+    # The same again for ProTee's Top Impact view, and deliberately separate
+    # settings rather than a list: a bay commonly has one of the two captured
+    # and not the other, and each wants its own timing. The default delay is
+    # longer than Shot Video's because the impact image is drawn after the
+    # swing; correct it from a real shot.
+    floor_top_impact_enabled: bool = Field(
+        default=False,
+        validation_alias="FLOOR_TOP_IMPACT_ENABLED",
+    )
+    obs_top_impact_source: str = Field(
+        default="Top Impact",
+        min_length=1,
+        validation_alias="OBS_TOP_IMPACT_SOURCE",
+    )
+    floor_top_impact_delay_seconds: float = Field(
+        default=1.5,
+        ge=0.0,
+        validation_alias="FLOOR_TOP_IMPACT_DELAY_SECONDS",
+    )
+    floor_top_impact_duration_seconds: float = Field(
+        default=4.0,
+        gt=0.0,
+        validation_alias="FLOOR_TOP_IMPACT_DURATION_SECONDS",
+    )
+
+    # Swing capture. Stills of the two Swing Video panels ProTee already draws
+    # after every shot, read back through OBS. Off by default: it depends on two
+    # OBS sources that CaddieJ does not create, and it writes pictures of
+    # somebody in their own home to disk. Both should be decisions a person
+    # made. Nothing here opens a camera, reads ProTee's recordings, or touches
+    # ProTee in any way.
+    swing_capture_enabled: bool = Field(
+        default=False,
+        validation_alias="SWING_CAPTURE_ENABLED",
+    )
+    swing_capture_panels: str = Field(
+        default="swing_behind,swing_side,impact,delivery",
+        validation_alias="SWING_CAPTURE_PANELS",
+    )
+    # The private OBS scene that keeps the coach sources showing, and so
+    # refreshed, while their floor items stay hidden. Never put on Program.
+    swing_capture_scene: str = Field(
+        default="CaddieJ Capture",
+        min_length=1,
+        validation_alias="SWING_CAPTURE_SCENE",
+    )
+    # Deprecated alias for the behind view. Used only when
+    # SWING_CAPTURE_PANEL_SWING_BEHIND_SOURCE is empty. If both name a source,
+    # the explicit behind setting wins and this one is not captured again.
+    swing_capture_panel_swing_source: str = Field(
+        default="",
+        validation_alias="SWING_CAPTURE_PANEL_SWING_SOURCE",
+    )
+    swing_capture_panel_swing_kind: str = Field(
+        default="dynamic",
+        validation_alias="SWING_CAPTURE_PANEL_SWING_KIND",
+    )
+    swing_capture_panel_swing_supports: str = Field(
+        default=(
+            "body_through_impact,body_in_backswing,whole_body,finish_position,sequence"
+        ),
+        validation_alias="SWING_CAPTURE_PANEL_SWING_SUPPORTS",
+    )
+    swing_capture_panel_swing_behind_source: str = Field(
+        default="",
+        validation_alias="SWING_CAPTURE_PANEL_SWING_BEHIND_SOURCE",
+    )
+    swing_capture_panel_swing_behind_kind: str = Field(
+        default="dynamic",
+        validation_alias="SWING_CAPTURE_PANEL_SWING_BEHIND_KIND",
+    )
+    swing_capture_panel_swing_behind_supports: str = Field(
+        default=(
+            "body_through_impact,body_in_backswing,whole_body,finish_position,sequence"
+        ),
+        validation_alias="SWING_CAPTURE_PANEL_SWING_BEHIND_SUPPORTS",
+    )
+    swing_capture_panel_swing_side_source: str = Field(
+        default="",
+        validation_alias="SWING_CAPTURE_PANEL_SWING_SIDE_SOURCE",
+    )
+    swing_capture_panel_swing_side_kind: str = Field(
+        default="dynamic",
+        validation_alias="SWING_CAPTURE_PANEL_SWING_SIDE_KIND",
+    )
+    swing_capture_panel_swing_side_supports: str = Field(
+        default=(
+            "body_through_impact,body_in_backswing,whole_body,finish_position,sequence"
+        ),
+        validation_alias="SWING_CAPTURE_PANEL_SWING_SIDE_SUPPORTS",
+    )
+    swing_capture_panel_impact_source: str = Field(
+        default="",
+        validation_alias="SWING_CAPTURE_PANEL_IMPACT_SOURCE",
+    )
+    swing_capture_panel_impact_kind: str = Field(
+        default="static",
+        validation_alias="SWING_CAPTURE_PANEL_IMPACT_KIND",
+    )
+    swing_capture_panel_impact_supports: str = Field(
+        default="",
+        validation_alias="SWING_CAPTURE_PANEL_IMPACT_SUPPORTS",
+    )
+    swing_capture_panel_delivery_source: str = Field(
+        default="",
+        validation_alias="SWING_CAPTURE_PANEL_DELIVERY_SOURCE",
+    )
+    swing_capture_panel_delivery_kind: str = Field(
+        default="static",
+        validation_alias="SWING_CAPTURE_PANEL_DELIVERY_KIND",
+    )
+    swing_capture_panel_delivery_supports: str = Field(
+        default="",
+        validation_alias="SWING_CAPTURE_PANEL_DELIVERY_SUPPORTS",
+    )
+    swing_capture_initial_delay_seconds: float = Field(
+        default=0.5,
+        ge=0.0,
+        validation_alias=AliasChoices(
+            "SWING_CAPTURE_DYNAMIC_DELAY_SECONDS",
+            "SWING_CAPTURE_INITIAL_DELAY_SECONDS",
+        ),
+    )
+    # Long enough to reach the release in both replays with a second to spare:
+    # on the bay the replays replace their loading screens about 1.4 s into
+    # the burst and the down-the-line release is 2.1 s after that. Ending at
+    # 5.0 s, it ends with the static pass, so it adds nothing to a capture.
+    swing_capture_duration_seconds: float = Field(
+        default=4.5,
+        gt=0.0,
+        validation_alias=AliasChoices(
+            "SWING_CAPTURE_DYNAMIC_DURATION_SECONDS",
+            "SWING_CAPTURE_DURATION_SECONDS",
+        ),
+    )
+    swing_capture_static_delay_seconds: float = Field(
+        default=3.5,
+        ge=0.0,
+        validation_alias="SWING_CAPTURE_STATIC_DELAY_SECONDS",
+    )
+    swing_capture_static_duration_seconds: float = Field(
+        default=1.5,
+        gt=0.0,
+        validation_alias="SWING_CAPTURE_STATIC_DURATION_SECONDS",
+    )
+    swing_capture_static_fps: float = Field(
+        default=2.0,
+        gt=0.0,
+        le=30.0,
+        validation_alias="SWING_CAPTURE_STATIC_FPS",
+    )
+    swing_capture_debug_keep_shots: int = Field(
+        default=0,
+        ge=0,
+        le=40,
+        validation_alias="SWING_CAPTURE_DEBUG_KEEP_SHOTS",
+    )
+    # How many shot directories to keep under media/swing_shots. Three is the
+    # production default: the newest shot and two behind it. Diagnostic
+    # timelines are files inside those directories, so raising the timeline
+    # setting below also retains at least that many shots. The hard cap is 40.
+    swing_capture_evidence_keep: int = Field(
+        default=3,
+        ge=3,
+        le=40,
+        validation_alias="SWING_CAPTURE_EVIDENCE_KEEP",
+    )
+    # Timing diagnostic, off in production. For the next N published shots of
+    # this run, every screenshot the burst already took of the down-the-line
+    # and face-on replays is also written under the shot's own `diagnostic/`
+    # directory, with its timing. Nothing extra is asked of OBS, and nothing
+    # extra reaches the model or the sheet. N cannot exceed the retention cap.
+    # The shot directories are then kept at least until N of them fit.
+    swing_capture_diagnostic_timeline_shots: int = Field(
+        default=0,
+        ge=0,
+        le=40,
+        validation_alias="SWING_CAPTURE_DIAGNOSTIC_TIMELINE_SHOTS",
+    )
+    # How often. This is a screenshot rate, not a camera frame rate: ProTee
+    # films at 120 fps and nothing here can recover that. Ten a second is dense
+    # enough that the selected frames land near where they were aimed.
+    swing_capture_fps: float = Field(
+        default=10.0,
+        gt=0.0,
+        le=60.0,
+        validation_alias="SWING_CAPTURE_FPS",
+    )
+    # A faster stretch of the body burst, from the top to the release. P5 to
+    # P8 take about 0.2 s and P6 to P7 a few hundredths, so at ten a second
+    # two stills span the whole of it. Twenty puts a still within about 30 ms
+    # of each position; faster buys less than OBS's own jitter. The window is
+    # seconds from the strike, like the burst: on six real captures the
+    # replay started 1.83-2.06 s in, the top was 1.5 s after that and the
+    # release 2.15 s at the latest, so 3.3-4.4 s holds all of them with a
+    # margin for tempo. Zero, or anything not faster than SWING_CAPTURE_FPS,
+    # turns it off.
+    swing_capture_downswing_fps: float = Field(
+        default=20.0,
+        ge=0.0,
+        le=60.0,
+        validation_alias="SWING_CAPTURE_DOWNSWING_FPS",
+    )
+    swing_capture_downswing_delay_seconds: float = Field(
+        default=3.3,
+        ge=0.0,
+        validation_alias="SWING_CAPTURE_DOWNSWING_DELAY_SECONDS",
+    )
+    swing_capture_downswing_duration_seconds: float = Field(
+        default=1.1,
+        gt=0.0,
+        validation_alias="SWING_CAPTURE_DOWNSWING_DURATION_SECONDS",
+    )
+    # Where the one swing on disk lives. Under the media root by default, so
+    # deleting that directory is still enough to remove everything CaddieJ has
+    # written. Replaced whole on every shot; there is no archive.
+    swing_capture_output_dir: LocalPath = Field(
+        default=Path("media/latest_swing"),
+        validation_alias="SWING_CAPTURE_OUTPUT_DIR",
+    )
+    # How many stills are kept for one shot, across every panel. Each static
+    # panel is offered one still when that leaves every live body panel at
+    # least one; the rest is split across the body panels.
+    #
+    # Sixteen: the impact panel, eight aimed moments down the line (setup
+    # through release) and seven face-on (no takeaway). Thirteen bought six
+    # per camera and never the release, so no chicken wing could be seen, and
+    # dropped the backswing that the shaft's pitch is read from. A calibrated
+    # camera takes at most one still per aimed moment, so a larger number is
+    # not spent on near-duplicates; a smaller one drops moments by priority.
+    swing_capture_selected_frames: int = Field(
+        default=16,
+        ge=1,
+        le=60,
+        validation_alias="SWING_CAPTURE_SELECTED_FRAMES",
+    )
+    # What to scale each still down to, in pixels of width. Zero asks OBS for
+    # the source's own resolution. OBS keeps the aspect ratio and refuses
+    # anything outside 8..4096.
+    swing_capture_image_width: int = Field(
+        default=0,
+        ge=0,
+        le=4096,
+        validation_alias="SWING_CAPTURE_IMAGE_WIDTH",
+    )
+    # One post-shot still of ProTee's All Values grid, for the coach to read
+    # the numbers from. Taken inside the swing capture's own source hold, at a
+    # fixed delay from the strike, at the source's own resolution, and never
+    # counted against SWING_CAPTURE_SELECTED_FRAMES.
+    coach_metrics_capture_enabled: bool = Field(
+        default=False,
+        validation_alias="COACH_METRICS_CAPTURE_ENABLED",
+    )
+    coach_metrics_source: str = Field(
+        default="All Values",
+        validation_alias="COACH_METRICS_SOURCE",
+    )
+    coach_metrics_capture_delay_seconds: float = Field(
+        default=3.0,
+        ge=0.0,
+        le=15.0,
+        validation_alias="COACH_METRICS_CAPTURE_DELAY_SECONDS",
+    )
+
+    @model_validator(mode="after")
+    def _check_coach_metrics(self) -> Self:
+        if self.coach_metrics_capture_enabled and not self.coach_metrics_source.strip():
+            raise ValueError(
+                "COACH_METRICS_CAPTURE_ENABLED=true needs COACH_METRICS_SOURCE, "
+                "the OBS source that shows ProTee's All Values panel"
+            )
+        if self.coach_openai_budget < self.coach_openai_timeout:
+            raise ValueError(
+                "COACH_OPENAI_BUDGET_SECONDS must be at least "
+                "COACH_OPENAI_TIMEOUT_SECONDS, or no attempt gets its full time"
+            )
+        return self
+
+    def coach_metrics_source_name(self) -> str:
+        """The All Values source to capture, or empty when capture is off."""
+
+        if not self.coach_metrics_capture_enabled:
+            return ""
+        return self.coach_metrics_source.strip()
+
+    def resolved_coaching_trigger(self) -> Literal["protee", "gspro"]:
+        """`auto` is ProTee whenever swing capture is on."""
+
+        if self.coaching_trigger == "auto":
+            return "protee" if self.swing_capture_enabled else "gspro"
+        return self.coaching_trigger
+
+    @model_validator(mode="after")
+    def _check_swing_capture(self) -> Self:
+        """Refuse a width OBS would refuse, rather than failing every still.
+
+        OBS accepts 8..4096 for a screenshot width and rejects the request
+        otherwise. Zero is CaddieJ's own "do not scale", and a value between
+        the two would silently cost every frame of every swing.
+        """
+
+        width = self.swing_capture_image_width
+        if 0 < width < 8:
+            raise ValueError(
+                "SWING_CAPTURE_IMAGE_WIDTH must be 0 (the source's own "
+                f"resolution) or at least 8 pixels, got {width}"
+            )
+        wall = max(
+            self.swing_capture_initial_delay_seconds
+            + self.swing_capture_duration_seconds,
+            self.swing_capture_static_delay_seconds
+            + self.swing_capture_static_duration_seconds,
+        )
+        if self.swing_capture_enabled and wall >= self.coaching_clip_wait:
+            raise ValueError(
+                "swing capture wall time "
+                f"({wall:.1f}s) must be less than COACHING_CLIP_WAIT "
+                f"({self.coaching_clip_wait:.1f}s)"
+            )
+        reveals = self.floor_top_impact_enabled or self.floor_shot_video_enabled
+        if (
+            reveals
+            and self.swing_capture_enabled
+            and self.obs_floor_scene.strip() == self.swing_capture_scene.strip()
+        ):
+            # A reveal toggles items in the floor scene; capture needs its
+            # items left enabled in a scene nobody watches. One scene cannot
+            # be both, and the failure would be a coach going blind mid-session.
+            raise ValueError(
+                f"OBS_FLOOR_SCENE ({self.obs_floor_scene!r}) must not be the "
+                f"swing capture scene ({self.swing_capture_scene!r}) while a "
+                "floor reveal is enabled"
+            )
+        return self
 
     @model_validator(mode="after")
     def _resolve_physical_tee(self) -> Self:
         """One physical tee. Legacy 0–1 values convert, they do not compete."""
 
+        # Snapshotted before anything below assigns, because writing a field on
+        # a validated model adds it to `model_fields_set` — so by the time the
+        # offsets are resolved, every value this validator has already settled
+        # would look as though somebody had configured it.
+        explicit = frozenset(self.model_fields_set)
         x_m = self.floor_tee_x_m
         y_m = self.floor_tee_y_m
-        if (
-            "floor_tee_x_m" not in self.model_fields_set
-            and self.floor_tee_x is not None
-        ):
+        if "floor_tee_x_m" not in explicit and self.floor_tee_x is not None:
             warnings.warn(
                 "FLOOR_TEE_X is deprecated; use FLOOR_TEE_X_M (metres on the "
                 "physical floor). The 0–1 value was converted using FLOOR_WIDTH_M.",
@@ -970,16 +1627,13 @@ class Settings(BaseSettings):
                 stacklevel=2,
             )
             x_m = self.floor_tee_x * self.floor_width_m
-        elif "floor_tee_x_m" in self.model_fields_set and self.floor_tee_x is not None:
+        elif "floor_tee_x_m" in explicit and self.floor_tee_x is not None:
             warnings.warn(
                 "FLOOR_TEE_X is ignored because FLOOR_TEE_X_M is set.",
                 DeprecationWarning,
                 stacklevel=2,
             )
-        if (
-            "floor_tee_y_m" not in self.model_fields_set
-            and self.floor_tee_y is not None
-        ):
+        if "floor_tee_y_m" not in explicit and self.floor_tee_y is not None:
             warnings.warn(
                 "FLOOR_TEE_Y is deprecated; use FLOOR_TEE_Y_M (metres on the "
                 "physical floor). The 0–1 value was converted using FLOOR_DEPTH_M.",
@@ -987,7 +1641,7 @@ class Settings(BaseSettings):
                 stacklevel=2,
             )
             y_m = self.floor_tee_y * self.floor_depth_m
-        elif "floor_tee_y_m" in self.model_fields_set and self.floor_tee_y is not None:
+        elif "floor_tee_y_m" in explicit and self.floor_tee_y is not None:
             warnings.warn(
                 "FLOOR_TEE_Y is ignored because FLOOR_TEE_Y_M is set.",
                 DeprecationWarning,
@@ -1006,14 +1660,10 @@ class Settings(BaseSettings):
         self.floor_tee_x_m = x_m
         self.floor_tee_y_m = y_m
         driver_x = (
-            self.floor_tee_driver_x_m
-            if "floor_tee_driver_x_m" in self.model_fields_set
-            else x_m
+            self.floor_tee_driver_x_m if "floor_tee_driver_x_m" in explicit else x_m
         )
         driver_y = (
-            self.floor_tee_driver_y_m
-            if "floor_tee_driver_y_m" in self.model_fields_set
-            else y_m
+            self.floor_tee_driver_y_m if "floor_tee_driver_y_m" in explicit else y_m
         )
         if not 0.0 <= driver_x <= self.floor_width_m:
             raise ValueError(
@@ -1027,8 +1677,250 @@ class Settings(BaseSettings):
             )
         self.floor_tee_driver_x_m = driver_x
         self.floor_tee_driver_y_m = driver_y
+        strip_x = (
+            self.floor_hitting_strip_x_m
+            if "floor_hitting_strip_x_m" in explicit
+            else x_m
+        )
+        strip_y = (
+            self.floor_hitting_strip_y_m
+            if "floor_hitting_strip_y_m" in explicit
+            else y_m
+        )
+        if not 0.0 <= strip_x <= self.floor_width_m:
+            raise ValueError(
+                "FLOOR_HITTING_STRIP_X_M must lie on the configured floor "
+                f"(0..{self.floor_width_m} m), got {strip_x}"
+            )
+        if not 0.0 <= strip_y <= self.floor_depth_m:
+            raise ValueError(
+                "FLOOR_HITTING_STRIP_Y_M must lie on the configured floor "
+                f"(0..{self.floor_depth_m} m), got {strip_y}"
+            )
+        self.floor_hitting_strip_x_m = strip_x
+        self.floor_hitting_strip_y_m = strip_y
+        self._resolve_ball_offsets(explicit, strip_x, strip_y)
+        if self.floor_shot_result_min_duration > self.floor_shot_result_max_duration:
+            raise ValueError(
+                "FLOOR_SHOT_RESULT_MIN_DURATION must not exceed "
+                "FLOOR_SHOT_RESULT_MAX_DURATION, got "
+                f"{self.floor_shot_result_min_duration} > "
+                f"{self.floor_shot_result_max_duration}"
+            )
         if self.gspro_round_file_path is None:
             self.gspro_round_file_path = default_gspro_round_file()
         if self.protee_root_path is None:
             self.protee_root_path = default_protee_root()
         return self
+
+    def _resolve_ball_offsets(
+        self, explicit: frozenset[str], strip_x: float, strip_y: float
+    ) -> None:
+        """One ball position per placement mode, as an offset from the strip.
+
+        Two ways of saying the same thing have to be reconciled: the offsets,
+        which are what an operator configures now, and the absolute
+        `FLOOR_TEE_*_M` points, which is what an existing `.env` has. The
+        offsets win where they were given, because they are the ones somebody
+        set deliberately; an absolute tee is converted by subtracting the
+        anchor, which is exactly the offset it stood for.
+
+        A tee left at its *default* is not converted. It would otherwise turn a
+        moved strip into a ball a metre and a half behind it: the defaults
+        describe where the mat was, not where the ball sits on the mat, and the
+        whole point of anchoring is that the second of those survives moving the
+        first.
+        """
+
+        tee_set = bool({"floor_tee_x_m", "floor_tee_y_m"} & explicit) or (
+            self.floor_tee_x is not None or self.floor_tee_y is not None
+        )
+        if tee_set:
+            if "floor_ball_iron_dx_m" not in explicit:
+                self.floor_ball_iron_dx_m = self.floor_tee_x_m - strip_x
+            if "floor_ball_iron_dy_m" not in explicit:
+                self.floor_ball_iron_dy_m = self.floor_tee_y_m - strip_y
+
+        driver_set = bool({"floor_tee_driver_x_m", "floor_tee_driver_y_m"} & explicit)
+        if "floor_ball_driver_dx_m" not in explicit:
+            self.floor_ball_driver_dx_m = (
+                self.floor_tee_driver_x_m - strip_x
+                if driver_set
+                else self.floor_ball_iron_dx_m
+            )
+        if "floor_ball_driver_dy_m" not in explicit:
+            self.floor_ball_driver_dy_m = (
+                self.floor_tee_driver_y_m - strip_y
+                if driver_set
+                else self.floor_ball_iron_dy_m
+            )
+
+    def club_carries(self) -> dict[str, float]:
+        """The configured bag as labelled metres, in the order clubs are hit.
+
+        The label is what the floor shows, so it lives next to the variable it
+        came from rather than being reconstructed from a field name somewhere
+        downstream. Clubs left at zero are still listed here; dropping them is
+        `ClubDistanceProfile.from_carries`' job, because "not in the bag" is a
+        fact about a bag rather than about a settings file.
+        """
+
+        return {
+            "DR": self.player_club_carry_driver_m,
+            "3W": self.player_club_carry_3w_m,
+            "5W": self.player_club_carry_5w_m,
+            "4I": self.player_club_carry_4i_m,
+            "5I": self.player_club_carry_5i_m,
+            "6I": self.player_club_carry_6i_m,
+            "7I": self.player_club_carry_7i_m,
+            "8I": self.player_club_carry_8i_m,
+            "9I": self.player_club_carry_9i_m,
+            "PW": self.player_club_carry_pw_m,
+            "GW": self.player_club_carry_gw_m,
+            "SW": self.player_club_carry_sw_m,
+        }
+
+    def capture_panels(self) -> tuple[CapturePanel, ...]:
+        """The configured OBS panels, in capture order. Empty source means skip.
+
+        `SWING_CAPTURE_PANEL_SWING_SOURCE` is a deprecated alias for the behind
+        view. It is used only when the behind source is unset. When both are
+        set, the explicit behind source wins and the alias is not captured a
+        second time. The same OBS source is never captured twice.
+        """
+
+        behind_source = self.swing_capture_panel_swing_behind_source.strip()
+        legacy = self.swing_capture_panel_swing_source.strip()
+        legacy_used = False
+        if not behind_source and legacy:
+            behind_source = legacy
+            legacy_used = True
+        elif behind_source and legacy and legacy != behind_source:
+            warnings.warn(
+                "SWING_CAPTURE_PANEL_SWING_SOURCE is ignored because "
+                "SWING_CAPTURE_PANEL_SWING_BEHIND_SOURCE is set. The old "
+                "name is a deprecated alias for the behind view and is not "
+                "captured as a second panel.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        side_source = self.swing_capture_panel_swing_side_source.strip()
+        if side_source and side_source == behind_source:
+            warnings.warn(
+                "SWING_CAPTURE_PANEL_SWING_SIDE_SOURCE names the same OBS "
+                "source as the behind view, so the side panel is not captured "
+                "a second time.",
+                UserWarning,
+                stacklevel=2,
+            )
+            side_source = ""
+
+        if legacy_used:
+            behind_kind = self.swing_capture_panel_swing_kind
+            behind_supports = self.swing_capture_panel_swing_supports
+            behind_setting = "SWING_CAPTURE_PANEL_SWING_SOURCE"
+        else:
+            behind_kind = self.swing_capture_panel_swing_behind_kind
+            behind_supports = self.swing_capture_panel_swing_behind_supports
+            behind_setting = "SWING_CAPTURE_PANEL_SWING_BEHIND_SOURCE"
+
+        catalog = {
+            "swing_behind": (
+                behind_source,
+                behind_kind,
+                behind_supports,
+                PanelView.BEHIND,
+                behind_setting,
+            ),
+            "swing_side": (
+                side_source,
+                self.swing_capture_panel_swing_side_kind,
+                self.swing_capture_panel_swing_side_supports,
+                PanelView.SIDE,
+                "SWING_CAPTURE_PANEL_SWING_SIDE_SOURCE",
+            ),
+            "impact": (
+                self.swing_capture_panel_impact_source,
+                self.swing_capture_panel_impact_kind,
+                self.swing_capture_panel_impact_supports,
+                PanelView.NONE,
+                "SWING_CAPTURE_PANEL_IMPACT_SOURCE",
+            ),
+            "delivery": (
+                self.swing_capture_panel_delivery_source,
+                self.swing_capture_panel_delivery_kind,
+                self.swing_capture_panel_delivery_supports,
+                PanelView.NONE,
+                "SWING_CAPTURE_PANEL_DELIVERY_SOURCE",
+            ),
+        }
+        panels: list[CapturePanel] = []
+        seen: set[str] = set()
+        for panel_id in self.requested_capture_panel_ids():
+            source, kind_name, supports_text, view, setting = catalog[panel_id]
+            source = source.strip()
+            if not source or source in seen:
+                continue
+            seen.add(source)
+            try:
+                kind = PanelKind(kind_name.strip().lower())
+            except ValueError:
+                kind = PanelKind.DYNAMIC
+            supports = frozenset(
+                VisualClaim(part.strip())
+                for part in supports_text.split(",")
+                if part.strip()
+                and part.strip() in {claim.value for claim in VisualClaim}
+            )
+            panels.append(
+                CapturePanel(
+                    panel_id=panel_id,
+                    source=source,
+                    kind=kind,
+                    supports=supports,
+                    view=view,
+                    setting=setting,
+                )
+            )
+        return tuple(panels)
+
+    def requested_capture_panel_ids(self) -> tuple[str, ...]:
+        """Panel ids named in `SWING_CAPTURE_PANELS`, in that order.
+
+        The list is the whole of what may be captured. A role that is not in
+        it is not missing; it was left out. `swing` is the old name for
+        `swing_behind`.
+        """
+
+        order: list[str] = []
+        known = {"swing_behind", "swing_side", "impact", "delivery"}
+        for name in self.swing_capture_panels.split(","):
+            panel_id = name.strip().lower()
+            if panel_id == "swing":
+                panel_id = "swing_behind"
+            if panel_id in known and panel_id not in order:
+                order.append(panel_id)
+        return tuple(order)
+
+    def absent_capture_roles(self) -> tuple[tuple[str, str], ...]:
+        """Requested panels that have no source, as (title, environment variable).
+
+        A panel left out of `SWING_CAPTURE_PANELS` is not reported. Delivery
+        is one optional panel among the others, not a required role.
+        """
+
+        present = {panel.panel_id for panel in self.capture_panels()}
+        roles = {
+            "swing_behind": (
+                "Swing Behind",
+                "SWING_CAPTURE_PANEL_SWING_BEHIND_SOURCE",
+            ),
+            "swing_side": ("Swing Side", "SWING_CAPTURE_PANEL_SWING_SIDE_SOURCE"),
+            "impact": ("Impact", "SWING_CAPTURE_PANEL_IMPACT_SOURCE"),
+            "delivery": ("Delivery", "SWING_CAPTURE_PANEL_DELIVERY_SOURCE"),
+        }
+        return tuple(
+            roles[panel_id]
+            for panel_id in self.requested_capture_panel_ids()
+            if panel_id not in present
+        )

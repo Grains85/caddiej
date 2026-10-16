@@ -12,6 +12,8 @@ from collections.abc import Sequence
 from datetime import datetime
 from uuid import UUID
 
+from caddiej.domain.shot import ClubKind
+from caddiej.domain.swing_score import SWING_SCORE_RUBRIC_VERSION
 from caddiej.persistence.database import transaction
 from caddiej.persistence.records import (
     AnalysisReference,
@@ -19,6 +21,7 @@ from caddiej.persistence.records import (
     SessionRecord,
     StoredAdvice,
     StoredShot,
+    StoredSwingScore,
     advice_row,
     analysis_reference,
     analysis_row,
@@ -29,6 +32,7 @@ from caddiej.persistence.records import (
     shot_row,
     stored_advice,
     stored_shot,
+    stored_swing_score,
 )
 
 _SHOT_COLUMNS = (
@@ -79,8 +83,10 @@ _INSERT_PAYLOAD = """
         (:shot_id, :captured_at, :source_kind, :content_type, :payload)
 """
 
+# OR IGNORE: the first shot and the first ProTee-only coaching result can each
+# be the write that brings the session row into existence.
 _INSERT_SESSION = """
-    INSERT INTO sessions
+    INSERT OR IGNORE INTO sessions
         (session_id, started_at, ended_at, label, app_version, shot_count)
     VALUES
         (:session_id, :started_at, :ended_at, :label, :app_version, :shot_count)
@@ -117,6 +123,13 @@ _ADVICE_COLUMNS = (
     "failure_reason",
     "detail",
     "clip_path",
+    "cue_id",
+    "confidence",
+    "confidence_source",
+    "evidence_grades",
+    "capture_id",
+    "panels_used",
+    "kind",
 )
 
 _INSERT_ADVICE = (
@@ -321,6 +334,69 @@ class HistoryRepository:
             (str(session_id),),
         ).fetchall()
         return {row[0]: int(row[1]) for row in rows}
+
+    # --- ProTee-only coaching ---------------------------------------------
+
+    def coach_results(self, session_id: UUID) -> list[dict[str, object]]:
+        """Every ProTee-only coaching outcome of a session, oldest first."""
+
+        rows = self._connection.execute(
+            "SELECT * FROM coach_results WHERE session_id = ? ORDER BY created_at",
+            (str(session_id),),
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+    def swing_scores(
+        self,
+        session_id: UUID,
+        club: ClubKind | None = None,
+        limit: int = 50,
+        rubric_version: str = SWING_SCORE_RUBRIC_VERSION,
+    ) -> list[StoredSwingScore]:
+        """The last `limit` scored strikes of a session, oldest of them first.
+
+        Only strikes that earned a number: a trend drawn through "too little
+        evidence" would draw it as a value. Only one rubric, the current one by
+        default, because a line between two yardsticks is a line about the
+        yardsticks. `club` narrows it to one club, which is the trend worth
+        drawing; None means every club, unknown included.
+        """
+
+        clauses = [
+            "session_id = ?",
+            "swing_score IS NOT NULL",
+            "swing_score_rubric = ?",
+        ]
+        parameters: list[object] = [str(session_id), rubric_version]
+        if club is not None:
+            clauses.append("swing_score_club = ?")
+            parameters.append(club.value)
+        parameters.append(limit)
+        rows = self._connection.execute(
+            "SELECT strike_id, created_at, swing_score_json FROM coach_results "
+            f"WHERE {' AND '.join(clauses)} "
+            "ORDER BY created_at DESC, rowid DESC LIMIT ?",
+            parameters,
+        ).fetchall()
+        return [stored_swing_score(row) for row in reversed(rows)]
+
+
+def insert_coach_result(
+    connection: sqlite3.Connection,
+    row: dict[str, object],
+    session: SessionRecord | None = None,
+) -> None:
+    """One coaching outcome, and the session row with it if none exists yet."""
+
+    columns = tuple(row)
+    statement = (
+        f"INSERT INTO coach_results ({', '.join(columns)}) "
+        f"VALUES ({', '.join(':' + column for column in columns)})"
+    )
+    with transaction(connection):
+        if session is not None:
+            connection.execute(_INSERT_SESSION, session_row(session))
+        connection.execute(statement, row)
 
 
 def insert_shots(

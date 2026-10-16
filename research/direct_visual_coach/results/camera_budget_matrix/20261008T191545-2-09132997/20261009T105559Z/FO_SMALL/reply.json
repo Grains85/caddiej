@@ -1,0 +1,69 @@
+{
+  "model": "gpt-5-mini-2025-08-07",
+  "reasoning_effort": "minimal",
+  "latency_seconds": 5.860000000335276,
+  "usage": {
+    "input_tokens": 27496,
+    "output_tokens": 358,
+    "reasoning_tokens": 0
+  },
+  "payload": {
+    "status": "no_proven_fault",
+    "handedness": {
+      "side": "right",
+      "confidence": 0.9,
+      "visual_basis": "Lead (left) shoulder is closer to target in backswing frames; typical right-handed setup visible in tick 15 address frame."
+    },
+    "temporal_orientation": [
+      {
+        "capture_tick": 15,
+        "state": "setup",
+        "confidence": 0.9,
+        "visual_basis": "Golfer at address with club grounded and no motion visible"
+      },
+      {
+        "capture_tick": 19,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Club and hands clearly moving away from the ball; early takeaway visible"
+      },
+      {
+        "capture_tick": 23,
+        "state": "moving_away",
+        "confidence": 0.95,
+        "visual_basis": "Hands and club further away from the ball, continuation of takeaway"
+      },
+      {
+        "capture_tick": 27,
+        "state": "moving_away",
+        "confidence": 0.95,
+        "visual_basis": "Hands and club high in backswing; motion still away from the ball"
+      },
+      {
+        "capture_tick": 35,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands near or at the top of the backswing; club still moving away in frame"
+      },
+      {
+        "capture_tick": 41,
+        "state": "direction_change_region",
+        "confidence": 0.9,
+        "visual_basis": "Hands near top and beginning to move toward ball; transition visible"
+      },
+      {
+        "capture_tick": 42,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club clearly moving down toward the ball/impact area"
+      },
+      {
+        "capture_tick": 51,
+        "state": "after_strike",
+        "confidence": 0.95,
+        "visual_basis": "Follow-through and finish pose after impact; club and body past strike position"
+      }
+    ],
+    "fault_candidates": []
+  }
+}

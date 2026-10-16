@@ -23,13 +23,20 @@ from caddiej.coaching.provider import (
     ProviderTimeoutError,
 )
 
-# A reply that passes every rule: two words upper case, an affirmation and one
-# instruction, no numbers, no directions.
+# A reply that passes every rule: one instruction for the cue's own focus and a
+# sentence that only repeats it, no numbers, no directions.
 GOOD_REPLY: Mapping[str, Any] = {
-    "focus": "face_control",
-    "display": "FACE OPEN",
-    "speech": "Good path. Square the face a little earlier.",
-    "severity": 0.42,
+    "cue": "FACE_OPEN",
+    "speech": "Square the face a little earlier. Keep that same feeling.",
+}
+
+# The other legal shape of an answer, for a shot with nothing wrong with it. The
+# display is the one CaddieJ permits for a reinforcement on this focus, and the
+# sentence names what worked rather than praising the shot, which is what makes
+# it reinforcement rather than applause.
+REINFORCING_REPLY: Mapping[str, Any] = {
+    "cue": "FACE_CONTROL_GOOD",
+    "speech": "Good face control. Keep that release.",
 }
 
 

@@ -1,0 +1,836 @@
+{
+ "compact": {
+  "shot": "20261008T142053-21-7f8f4191",
+  "status": "ok",
+  "error": null,
+  "wire_failures": [],
+  "decode_notes": [],
+  "validator_notes": [],
+  "groups": {
+   "dtl_P1": [
+    "DTL_01",
+    15,
+    true
+   ],
+   "dtl_P2": [
+    "DTL_03",
+    20,
+    true
+   ],
+   "dtl_P3": [
+    "DTL_06",
+    26,
+    true
+   ],
+   "dtl_P4": [
+    "DTL_07",
+    28,
+    true
+   ],
+   "dtl_P5": [
+    "DTL_08",
+    31,
+    true
+   ],
+   "dtl_P6": [
+    "DTL_11",
+    38,
+    true
+   ],
+   "dtl_P7": [
+    "DTL_13",
+    40,
+    true
+   ],
+   "dtl_P8": [
+    "DTL_15",
+    42,
+    true
+   ],
+   "dtl_P9": [
+    "DTL_18",
+    51,
+    true
+   ],
+   "fo_P1": [
+    "FO_01",
+    15,
+    true
+   ],
+   "fo_P2": [
+    "FO_03",
+    20,
+    true
+   ],
+   "fo_P3": [
+    "FO_06",
+    26,
+    true
+   ],
+   "fo_P4": [
+    "FO_07",
+    28,
+    true
+   ],
+   "fo_P5": [
+    "FO_08",
+    31,
+    true
+   ],
+   "fo_P6": [
+    "FO_11",
+    38,
+    true
+   ],
+   "fo_P7": [
+    "FO_13",
+    40,
+    true
+   ],
+   "fo_P8": [
+    "FO_15",
+    42,
+    true
+   ],
+   "fo_P9": [
+    "FO_18",
+    51,
+    true
+   ]
+  },
+  "returned_checkpoints": 53,
+  "accepted": 53,
+  "rejected": 0,
+  "rejection_reasons": {},
+  "coverage": 1.0,
+  "phase_scores": {
+   "setup": [
+    86,
+    1.0,
+    "7/7"
+   ],
+   "takeaway": [
+    79,
+    0.8,
+    "5/6"
+   ],
+   "backswing": [
+    82,
+    0.88,
+    "7/8"
+   ],
+   "top": [
+    82,
+    0.94,
+    "7/8"
+   ],
+   "transition": [
+    75,
+    0.88,
+    "6/7"
+   ],
+   "downswing": [
+    78,
+    0.88,
+    "6/7"
+   ],
+   "impact": [
+    78,
+    1.0,
+    "7/7"
+   ],
+   "release": [
+    81,
+    0.91,
+    "5/6"
+   ],
+   "finish": [
+    82,
+    1.0,
+    "3/3"
+   ]
+  },
+  "swing_score": 80,
+  "faults": [],
+  "root": "RootCause(fault=None, cue=None, reason='none', ranking=(), explains=(), sticky=False, frame_id=None, confidence=None, severity=None)",
+  "lesson_cue": null,
+  "authority": {
+   "cue": "STRIKE_TOE",
+   "from_visual": false
+  },
+  "outcome": "reconciled -> CaddieJ's lesson STRIKE_TOE",
+  "model_coach": {
+   "kind": "correction",
+   "cue": "TOO_STEEP",
+   "observation": "Your attack was steep into the ball.",
+   "instruction": "Shallow the shaft earlier in transition to approach from slightly below.",
+   "reinforcement": null,
+   "evidence_frame_id": "ALL_VALUES"
+  },
+  "usage": {
+   "input_tokens": 13318,
+   "output_tokens": 891,
+   "reasoning_tokens": 0,
+   "cached_tokens": 3712,
+   "status": "completed"
+  },
+  "cost_usd": 0.0051115,
+  "timings_s": {
+   "capture": 4.524698,
+   "render": 0.581,
+   "openai": 10.934,
+   "validate": 0.001,
+   "strike_to_verdict": 16.04
+  },
+  "reply_sha256": "1c3713f5732fabe068e51405602bb428b347824f9410ccb28c5dd6b98268f65f"
+ },
+ "groups": [
+  {
+   "position": "P1",
+   "phase": "setup",
+   "camera": "dtl",
+   "raw_number": 1,
+   "cell": "DTL_01",
+   "kept": true,
+   "capture_index": 15,
+   "t": 0.0,
+   "original": "diagnostic/swing_behind/frame_015.jpg",
+   "accepted_checkpoints": 6
+  },
+  {
+   "position": "P2",
+   "phase": "takeaway",
+   "camera": "dtl",
+   "raw_number": 3,
+   "cell": "DTL_03",
+   "kept": true,
+   "capture_index": 20,
+   "t": 0.4917,
+   "original": "diagnostic/swing_behind/frame_020.jpg",
+   "accepted_checkpoints": 4
+  },
+  {
+   "position": "P3",
+   "phase": "backswing",
+   "camera": "dtl",
+   "raw_number": 6,
+   "cell": "DTL_06",
+   "kept": true,
+   "capture_index": 26,
+   "t": 1.1068,
+   "original": "diagnostic/swing_behind/frame_026.jpg",
+   "accepted_checkpoints": 6
+  },
+  {
+   "position": "P4",
+   "phase": "top",
+   "camera": "dtl",
+   "raw_number": 7,
+   "cell": "DTL_07",
+   "kept": true,
+   "capture_index": 28,
+   "t": 1.2983,
+   "original": "diagnostic/swing_behind/frame_028.jpg",
+   "accepted_checkpoints": 6
+  },
+  {
+   "position": "P5",
+   "phase": "transition",
+   "camera": "dtl",
+   "raw_number": 8,
+   "cell": "DTL_08",
+   "kept": true,
+   "capture_index": 31,
+   "t": 1.5061,
+   "original": "diagnostic/swing_behind/frame_031.jpg",
+   "accepted_checkpoints": 5
+  },
+  {
+   "position": "P6",
+   "phase": "downswing",
+   "camera": "dtl",
+   "raw_number": 11,
+   "cell": "DTL_11",
+   "kept": true,
+   "capture_index": 38,
+   "t": 1.8531,
+   "original": "diagnostic/swing_behind/frame_038.jpg",
+   "accepted_checkpoints": 6
+  },
+  {
+   "position": "P7",
+   "phase": "impact",
+   "camera": "dtl",
+   "raw_number": 13,
+   "cell": "DTL_13",
+   "kept": true,
+   "capture_index": 40,
+   "t": 1.9482,
+   "original": "diagnostic/swing_behind/frame_040.jpg",
+   "accepted_checkpoints": 2
+  },
+  {
+   "position": "P8",
+   "phase": "release",
+   "camera": "dtl",
+   "raw_number": 15,
+   "cell": "DTL_15",
+   "kept": true,
+   "capture_index": 42,
+   "t": 2.0579,
+   "original": "diagnostic/swing_behind/frame_042.jpg",
+   "accepted_checkpoints": 1
+  },
+  {
+   "position": "P9",
+   "phase": "finish",
+   "camera": "dtl",
+   "raw_number": 18,
+   "cell": "DTL_18",
+   "kept": true,
+   "capture_index": 51,
+   "t": 2.5021,
+   "original": "diagnostic/swing_behind/frame_051.jpg",
+   "accepted_checkpoints": 0
+  },
+  {
+   "position": "P1",
+   "phase": "setup",
+   "camera": "fo",
+   "raw_number": 1,
+   "cell": "FO_01",
+   "kept": true,
+   "capture_index": 15,
+   "t": 0.0,
+   "original": "diagnostic/swing_side/frame_015.jpg",
+   "accepted_checkpoints": 1
+  },
+  {
+   "position": "P2",
+   "phase": "takeaway",
+   "camera": "fo",
+   "raw_number": 3,
+   "cell": "FO_03",
+   "kept": true,
+   "capture_index": 20,
+   "t": 0.4917,
+   "original": "diagnostic/swing_side/frame_020.jpg",
+   "accepted_checkpoints": 1
+  },
+  {
+   "position": "P3",
+   "phase": "backswing",
+   "camera": "fo",
+   "raw_number": 6,
+   "cell": "FO_06",
+   "kept": true,
+   "capture_index": 26,
+   "t": 1.1068,
+   "original": "diagnostic/swing_side/frame_026.jpg",
+   "accepted_checkpoints": 1
+  },
+  {
+   "position": "P4",
+   "phase": "top",
+   "camera": "fo",
+   "raw_number": 7,
+   "cell": "FO_07",
+   "kept": true,
+   "capture_index": 28,
+   "t": 1.2983,
+   "original": "diagnostic/swing_side/frame_028.jpg",
+   "accepted_checkpoints": 1
+  },
+  {
+   "position": "P5",
+   "phase": "transition",
+   "camera": "fo",
+   "raw_number": 8,
+   "cell": "FO_08",
+   "kept": true,
+   "capture_index": 31,
+   "t": 1.5061,
+   "original": "diagnostic/swing_side/frame_031.jpg",
+   "accepted_checkpoints": 1
+  },
+  {
+   "position": "P6",
+   "phase": "downswing",
+   "camera": "fo",
+   "raw_number": 11,
+   "cell": "FO_11",
+   "kept": true,
+   "capture_index": 38,
+   "t": 1.8531,
+   "original": "diagnostic/swing_side/frame_038.jpg",
+   "accepted_checkpoints": 0
+  },
+  {
+   "position": "P7",
+   "phase": "impact",
+   "camera": "fo",
+   "raw_number": 13,
+   "cell": "FO_13",
+   "kept": true,
+   "capture_index": 40,
+   "t": 1.9482,
+   "original": "diagnostic/swing_side/frame_040.jpg",
+   "accepted_checkpoints": 5
+  },
+  {
+   "position": "P8",
+   "phase": "release",
+   "camera": "fo",
+   "raw_number": 15,
+   "cell": "FO_15",
+   "kept": true,
+   "capture_index": 42,
+   "t": 2.0579,
+   "original": "diagnostic/swing_side/frame_042.jpg",
+   "accepted_checkpoints": 4
+  },
+  {
+   "position": "P9",
+   "phase": "finish",
+   "camera": "fo",
+   "raw_number": 18,
+   "cell": "FO_18",
+   "kept": true,
+   "capture_index": 51,
+   "t": 2.5021,
+   "original": "diagnostic/swing_side/frame_051.jpg",
+   "accepted_checkpoints": 3
+  }
+ ],
+ "accepted": [
+  {
+   "checkpoint": "setup_hip_hinge",
+   "phase": "setup",
+   "camera": "dtl",
+   "cell": "DTL_01",
+   "frame_id": "swing_behind_c15",
+   "score": 95
+  },
+  {
+   "checkpoint": "setup_knee_flex",
+   "phase": "setup",
+   "camera": "dtl",
+   "cell": "DTL_01",
+   "frame_id": "swing_behind_c15",
+   "score": 85
+  },
+  {
+   "checkpoint": "setup_spine_posture",
+   "phase": "setup",
+   "camera": "dtl",
+   "cell": "DTL_01",
+   "frame_id": "swing_behind_c15",
+   "score": 90
+  },
+  {
+   "checkpoint": "setup_arm_hang",
+   "phase": "setup",
+   "camera": "dtl",
+   "cell": "DTL_01",
+   "frame_id": "swing_behind_c15",
+   "score": 90
+  },
+  {
+   "checkpoint": "setup_hand_spacing",
+   "phase": "setup",
+   "camera": "dtl",
+   "cell": "DTL_01",
+   "frame_id": "swing_behind_c15",
+   "score": 85
+  },
+  {
+   "checkpoint": "setup_shaft_position",
+   "phase": "setup",
+   "camera": "fo",
+   "cell": "FO_01",
+   "frame_id": "swing_side_c15",
+   "score": 90
+  },
+  {
+   "checkpoint": "setup_balance",
+   "phase": "setup",
+   "camera": "dtl",
+   "cell": "DTL_01",
+   "frame_id": "swing_behind_c15",
+   "score": 80
+  },
+  {
+   "checkpoint": "takeaway_hand_path",
+   "phase": "takeaway",
+   "camera": "dtl",
+   "cell": "DTL_03",
+   "frame_id": "swing_behind_c20",
+   "score": 80
+  },
+  {
+   "checkpoint": "takeaway_posture",
+   "phase": "takeaway",
+   "camera": "dtl",
+   "cell": "DTL_03",
+   "frame_id": "swing_behind_c20",
+   "score": 85
+  },
+  {
+   "checkpoint": "takeaway_hip_movement",
+   "phase": "takeaway",
+   "camera": "fo",
+   "cell": "FO_03",
+   "frame_id": "swing_side_c20",
+   "score": 75
+  },
+  {
+   "checkpoint": "takeaway_body_led",
+   "phase": "takeaway",
+   "camera": "dtl",
+   "cell": "DTL_03",
+   "frame_id": "swing_behind_c20",
+   "score": 80
+  },
+  {
+   "checkpoint": "takeaway_arm_connection",
+   "phase": "takeaway",
+   "camera": "dtl",
+   "cell": "DTL_03",
+   "frame_id": "swing_behind_c20",
+   "score": 85
+  },
+  {
+   "checkpoint": "backswing_hand_depth",
+   "phase": "backswing",
+   "camera": "dtl",
+   "cell": "DTL_06",
+   "frame_id": "swing_behind_c26",
+   "score": 80
+  },
+  {
+   "checkpoint": "backswing_hand_height",
+   "phase": "backswing",
+   "camera": "dtl",
+   "cell": "DTL_06",
+   "frame_id": "swing_behind_c26",
+   "score": 80
+  },
+  {
+   "checkpoint": "backswing_hip_depth",
+   "phase": "backswing",
+   "camera": "dtl",
+   "cell": "DTL_06",
+   "frame_id": "swing_behind_c26",
+   "score": 85
+  },
+  {
+   "checkpoint": "backswing_posture",
+   "phase": "backswing",
+   "camera": "dtl",
+   "cell": "DTL_06",
+   "frame_id": "swing_behind_c26",
+   "score": 80
+  },
+  {
+   "checkpoint": "backswing_centre",
+   "phase": "backswing",
+   "camera": "fo",
+   "cell": "FO_06",
+   "frame_id": "swing_side_c26",
+   "score": 85
+  },
+  {
+   "checkpoint": "backswing_arm_structure",
+   "phase": "backswing",
+   "camera": "dtl",
+   "cell": "DTL_06",
+   "frame_id": "swing_behind_c26",
+   "score": 85
+  },
+  {
+   "checkpoint": "backswing_body_turn",
+   "phase": "backswing",
+   "camera": "dtl",
+   "cell": "DTL_06",
+   "frame_id": "swing_behind_c26",
+   "score": 85
+  },
+  {
+   "checkpoint": "top_hand_depth",
+   "phase": "top",
+   "camera": "dtl",
+   "cell": "DTL_07",
+   "frame_id": "swing_behind_c28",
+   "score": 85
+  },
+  {
+   "checkpoint": "top_posture",
+   "phase": "top",
+   "camera": "dtl",
+   "cell": "DTL_07",
+   "frame_id": "swing_behind_c28",
+   "score": 80
+  },
+  {
+   "checkpoint": "top_centre",
+   "phase": "top",
+   "camera": "fo",
+   "cell": "FO_07",
+   "frame_id": "swing_side_c28",
+   "score": 85
+  },
+  {
+   "checkpoint": "top_hand_height",
+   "phase": "top",
+   "camera": "dtl",
+   "cell": "DTL_07",
+   "frame_id": "swing_behind_c28",
+   "score": 80
+  },
+  {
+   "checkpoint": "top_arm_structure",
+   "phase": "top",
+   "camera": "dtl",
+   "cell": "DTL_07",
+   "frame_id": "swing_behind_c28",
+   "score": 85
+  },
+  {
+   "checkpoint": "top_shoulder_turn",
+   "phase": "top",
+   "camera": "dtl",
+   "cell": "DTL_07",
+   "frame_id": "swing_behind_c28",
+   "score": 85
+  },
+  {
+   "checkpoint": "top_hip_turn",
+   "phase": "top",
+   "camera": "dtl",
+   "cell": "DTL_07",
+   "frame_id": "swing_behind_c28",
+   "score": 80
+  },
+  {
+   "checkpoint": "transition_arms_lowering",
+   "phase": "transition",
+   "camera": "dtl",
+   "cell": "DTL_08",
+   "frame_id": "swing_behind_c31",
+   "score": 75
+  },
+  {
+   "checkpoint": "transition_hand_direction",
+   "phase": "transition",
+   "camera": "dtl",
+   "cell": "DTL_08",
+   "frame_id": "swing_behind_c31",
+   "score": 80
+  },
+  {
+   "checkpoint": "transition_trail_shoulder",
+   "phase": "transition",
+   "camera": "dtl",
+   "cell": "DTL_08",
+   "frame_id": "swing_behind_c31",
+   "score": 85
+  },
+  {
+   "checkpoint": "transition_posture_space",
+   "phase": "transition",
+   "camera": "dtl",
+   "cell": "DTL_08",
+   "frame_id": "swing_behind_c31",
+   "score": 80
+  },
+  {
+   "checkpoint": "transition_pressure_shift",
+   "phase": "transition",
+   "camera": "fo",
+   "cell": "FO_08",
+   "frame_id": "swing_side_c31",
+   "score": 70
+  },
+  {
+   "checkpoint": "transition_pelvis_initiation",
+   "phase": "transition",
+   "camera": "dtl",
+   "cell": "DTL_08",
+   "frame_id": "swing_behind_c31",
+   "score": 75
+  },
+  {
+   "checkpoint": "delivery_hand_path",
+   "phase": "downswing",
+   "camera": "dtl",
+   "cell": "DTL_11",
+   "frame_id": "swing_behind_c38",
+   "score": 80
+  },
+  {
+   "checkpoint": "delivery_hip_depth",
+   "phase": "downswing",
+   "camera": "dtl",
+   "cell": "DTL_11",
+   "frame_id": "swing_behind_c38",
+   "score": 80
+  },
+  {
+   "checkpoint": "delivery_posture",
+   "phase": "downswing",
+   "camera": "dtl",
+   "cell": "DTL_11",
+   "frame_id": "swing_behind_c38",
+   "score": 80
+  },
+  {
+   "checkpoint": "delivery_trail_arm",
+   "phase": "downswing",
+   "camera": "dtl",
+   "cell": "DTL_11",
+   "frame_id": "swing_behind_c38",
+   "score": 80
+  },
+  {
+   "checkpoint": "delivery_pelvis_rotation",
+   "phase": "downswing",
+   "camera": "dtl",
+   "cell": "DTL_11",
+   "frame_id": "swing_behind_c38",
+   "score": 75
+  },
+  {
+   "checkpoint": "delivery_body_arm_sync",
+   "phase": "downswing",
+   "camera": "dtl",
+   "cell": "DTL_11",
+   "frame_id": "swing_behind_c38",
+   "score": 80
+  },
+  {
+   "checkpoint": "impact_hip_depth",
+   "phase": "impact",
+   "camera": "dtl",
+   "cell": "DTL_13",
+   "frame_id": "swing_behind_c40",
+   "score": 80
+  },
+  {
+   "checkpoint": "impact_posture",
+   "phase": "impact",
+   "camera": "dtl",
+   "cell": "DTL_13",
+   "frame_id": "swing_behind_c40",
+   "score": 80
+  },
+  {
+   "checkpoint": "impact_chest_rotation",
+   "phase": "impact",
+   "camera": "fo",
+   "cell": "FO_13",
+   "frame_id": "swing_side_c40",
+   "score": 75
+  },
+  {
+   "checkpoint": "impact_hand_position",
+   "phase": "impact",
+   "camera": "fo",
+   "cell": "FO_13",
+   "frame_id": "swing_side_c40",
+   "score": 80
+  },
+  {
+   "checkpoint": "impact_head_centre",
+   "phase": "impact",
+   "camera": "fo",
+   "cell": "FO_13",
+   "frame_id": "swing_side_c40",
+   "score": 85
+  },
+  {
+   "checkpoint": "impact_pelvis_rotation",
+   "phase": "impact",
+   "camera": "fo",
+   "cell": "FO_13",
+   "frame_id": "swing_side_c40",
+   "score": 80
+  },
+  {
+   "checkpoint": "impact_arm_structure",
+   "phase": "impact",
+   "camera": "fo",
+   "cell": "FO_13",
+   "frame_id": "swing_side_c40",
+   "score": 85
+  },
+  {
+   "checkpoint": "release_posture",
+   "phase": "release",
+   "camera": "dtl",
+   "cell": "DTL_15",
+   "frame_id": "swing_behind_c42",
+   "score": 80
+  },
+  {
+   "checkpoint": "release_arm_connection",
+   "phase": "release",
+   "camera": "fo",
+   "cell": "FO_15",
+   "frame_id": "swing_side_c42",
+   "score": 85
+  },
+  {
+   "checkpoint": "release_lead_arm_structure",
+   "phase": "release",
+   "camera": "fo",
+   "cell": "FO_15",
+   "frame_id": "swing_side_c42",
+   "score": 80
+  },
+  {
+   "checkpoint": "release_arm_extension",
+   "phase": "release",
+   "camera": "fo",
+   "cell": "FO_15",
+   "frame_id": "swing_side_c42",
+   "score": 80
+  },
+  {
+   "checkpoint": "release_body_rotation",
+   "phase": "release",
+   "camera": "fo",
+   "cell": "FO_15",
+   "frame_id": "swing_side_c42",
+   "score": 80
+  },
+  {
+   "checkpoint": "finish_balance",
+   "phase": "finish",
+   "camera": "fo",
+   "cell": "FO_18",
+   "frame_id": "swing_side_c51",
+   "score": 85
+  },
+  {
+   "checkpoint": "finish_rotation",
+   "phase": "finish",
+   "camera": "fo",
+   "cell": "FO_18",
+   "frame_id": "swing_side_c51",
+   "score": 80
+  },
+  {
+   "checkpoint": "finish_structure",
+   "phase": "finish",
+   "camera": "fo",
+   "cell": "FO_18",
+   "frame_id": "swing_side_c51",
+   "score": 85
+  }
+ ],
+ "rejected": [],
+ "impact_prior": [
+  1.7277,
+  2.2277
+ ]
+}

@@ -26,11 +26,17 @@ from uuid import uuid4
 
 import pytest
 
-from caddiej.coaching.fakes import GOOD_REPLY, BrokenProvider, ScriptedProvider
+from caddiej.coaching.fakes import (
+    GOOD_REPLY,
+    REINFORCING_REPLY,
+    BrokenProvider,
+    ScriptedProvider,
+)
 from caddiej.coaching.provider import ProviderRefusedError
 from caddiej.coaching.service import AnalysisService
 from caddiej.core.event_bus import AsyncEventBus
 from caddiej.core.events import Event
+from caddiej.domain.coaching import AdviceKind
 from caddiej.domain.events import (
     AnalysisCompleted,
     ShotCompleted,
@@ -57,7 +63,13 @@ pytestmark = pytest.mark.asyncio
 NOW = datetime(2026, 4, 1, 18, 30, tzinfo=UTC)
 
 
-def a_shot(face: float = 6.5) -> Shot:
+def a_shot(
+    face: float = 6.5,
+    *,
+    path: float = -1.0,
+    attack: float = -1.0,
+    club: ClubKind = ClubKind.DRIVER,
+) -> Shot:
     """A shot with an open face, so there is always something to coach."""
 
     return Shot(
@@ -77,9 +89,31 @@ def a_shot(face: float = 6.5) -> Shot:
         ),
         club_delivery=ClubDelivery(
             speed_mph=112.0,
-            path_degrees=-1.0,
+            path_degrees=path,
             face_to_target_degrees=face,
-            angle_of_attack_degrees=-1.0,
+            angle_of_attack_degrees=attack,
+        ),
+        handedness=Handedness.RIGHT,
+        club=Club(kind=club, vendor_code="D"),
+    )
+
+
+def a_shot_with_no_evidence() -> Shot:
+    """A shot nothing rankable was measured about: no club data at all, and
+    only the ball numbers that need a baseline no first shot has yet."""
+
+    return Shot(
+        shot_id=uuid4(),
+        source=ShotSource(
+            kind="synthetic",
+            device_session_id=uuid4(),
+            observed_at=NOW,
+            observed_monotonic=0.0,
+        ),
+        ball=BallLaunch(
+            speed_mph=148.0,
+            launch_angle_degrees=12.6,
+            launch_direction_degrees=None,
         ),
         handedness=Handedness.RIGHT,
         club=Club(kind=ClubKind.DRIVER, vendor_code="D"),
@@ -203,14 +237,29 @@ class TestASwingBecomesAVoice:
         assert kinds.index("ShotDiagnosed") < kinds.index("SpeechStarted")
 
 
-class TestNothingWorthSaying:
-    async def test_a_good_shot_is_not_spoken_about(self) -> None:
-        """Speech follows the coached line, and a shot with nothing wrong with
-        it never produces one. A machine that talked after every swing would be
-        turned off within an evening."""
+class TestAGoodShotIsStillCoached:
+    async def test_a_good_shot_is_spoken_about(self) -> None:
+        """A shot with nothing wrong with it is the one most worth confirming,
+        so it goes down the same path and the room hears one sentence about
+        what to repeat."""
+
+        provider = ScriptedProvider(replies=[REINFORCING_REPLY])
+        async with Table(provider=provider) as table:
+            await table.hit(a_shot(face=0.2, path=0.1, attack=-4.0, club=ClubKind.IRON))
+            await table.settled()
+
+        completed = table.of(AnalysisCompleted)
+        assert len(completed) == 1
+        assert completed[0].advice.kind is AdviceKind.REINFORCEMENT
+        assert table.engine.calls
+        assert len(table.of(SpeechStarted)) == 1
+
+    async def test_a_shot_nothing_was_measured_about_is_not(self) -> None:
+        """The only silence left. Nothing was measured, so there is nothing to
+        confirm and nothing to correct, and a sentence would be invented."""
 
         async with Table() as table:
-            await table.hit(a_shot(face=0.2))
+            await table.hit(a_shot_with_no_evidence())
             await table.settled()
 
         assert table.of(AnalysisCompleted) == []

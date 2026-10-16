@@ -1,0 +1,714 @@
+{
+ "R7": [
+  1.724,
+  2.224
+ ],
+ "TAU": {
+  "P2": 0.3,
+  "P3": 0.3,
+  "P5": 0.15,
+  "P6": 0.15,
+  "P7": 0.15,
+  "P8": 0.15
+ },
+ "poc1": {
+  "locate_notes": [],
+  "locate_grade": [
+   [
+    "dtl",
+    "P1",
+    "DTL_01",
+    "correct"
+   ],
+   [
+    "dtl",
+    "P2",
+    "DTL_03",
+    "correct"
+   ],
+   [
+    "dtl",
+    "P3",
+    "DTL_06",
+    "wrong"
+   ],
+   [
+    "dtl",
+    "P4",
+    "DTL_07",
+    "correct"
+   ],
+   [
+    "dtl",
+    "P5",
+    "DTL_09",
+    "acceptable"
+   ],
+   [
+    "dtl",
+    "P6",
+    "DTL_11",
+    "correct"
+   ],
+   [
+    "dtl",
+    "P7",
+    "DTL_14",
+    "acceptable"
+   ],
+   [
+    "dtl",
+    "P8",
+    "DTL_16",
+    "acceptable"
+   ],
+   [
+    "dtl",
+    "P9",
+    "DTL_18",
+    "correct"
+   ],
+   [
+    "fo",
+    "P1",
+    "FO_01",
+    "correct"
+   ],
+   [
+    "fo",
+    "P2",
+    "FO_03",
+    "correct"
+   ],
+   [
+    "fo",
+    "P3",
+    "FO_06",
+    "acceptable"
+   ],
+   [
+    "fo",
+    "P4",
+    "FO_07",
+    "acceptable"
+   ],
+   [
+    "fo",
+    "P5",
+    "FO_09",
+    "correct"
+   ],
+   [
+    "fo",
+    "P6",
+    "FO_11",
+    "correct"
+   ],
+   [
+    "fo",
+    "P7",
+    "FO_14",
+    "acceptable"
+   ],
+   [
+    "fo",
+    "P8",
+    "FO_16",
+    "acceptable"
+   ],
+   [
+    "fo",
+    "P9",
+    "FO_18",
+    "correct"
+   ]
+  ],
+  "original": {
+   "label": "POC1 as validated then",
+   "accepted": 22,
+   "rejected": 31,
+   "rejection_reasons": {
+    "phase_unknown": 27,
+    "phase": 4
+   },
+   "accepted_by_position_truth": {
+    "correct": 15,
+    "wrong": 2,
+    "acceptable": 5
+   },
+   "accepted_wrong_position": [
+    "backswing_arm_structure@DTL_06",
+    "backswing_body_turn@DTL_06"
+   ],
+   "coverage": 0.37,
+   "coverage_level": "insufficient",
+   "mechanics": null,
+   "phases": {
+    "setup": [
+     84,
+     1.0,
+     "7/7"
+    ],
+    "takeaway": [
+     null,
+     0.0,
+     "0/6"
+    ],
+    "backswing": [
+     null,
+     0.29,
+     "2/8"
+    ],
+    "top": [
+     78,
+     0.77,
+     "6/8"
+    ],
+    "transition": [
+     64,
+     0.77,
+     "5/7"
+    ],
+    "downswing": [
+     null,
+     0.25,
+     "2/7"
+    ],
+    "impact": [
+     null,
+     0.0,
+     "0/7"
+    ],
+    "release": [
+     null,
+     0.0,
+     "0/6"
+    ],
+    "finish": [
+     null,
+     0.0,
+     "0/3"
+    ]
+   },
+   "swing_score": null,
+   "faults": [],
+   "root": "RootCause(fault=None, cue=None, reason='none', ranking=(), explains=(), sticky=False, frame_id=None, confidence=None, severity=None)",
+   "lesson_cue": null,
+   "authority": {
+    "cue": "FACE_CONTROL_GOOD",
+    "from_visual": false
+   },
+   "outcome": "reconciled -> CaddieJ's lesson FACE_CONTROL_GOOD"
+  },
+  "hybrid": {
+   "label": "POC1 under hybrid",
+   "accepted": 44,
+   "rejected": 9,
+   "rejection_reasons": {
+    "outside_region": 9
+   },
+   "accepted_by_position_truth": {
+    "correct": 16,
+    "acceptable": 26,
+    "wrong": 2
+   },
+   "accepted_wrong_position": [
+    "backswing_arm_structure@DTL_06",
+    "backswing_body_turn@DTL_06"
+   ],
+   "coverage": 0.91,
+   "coverage_level": "full",
+   "mechanics": 69,
+   "phases": {
+    "setup": [
+     84,
+     1.0,
+     "7/7"
+    ],
+    "takeaway": [
+     78,
+     0.8,
+     "5/6"
+    ],
+    "backswing": [
+     76,
+     0.88,
+     "7/8"
+    ],
+    "top": [
+     78,
+     0.77,
+     "6/8"
+    ],
+    "transition": [
+     64,
+     0.88,
+     "6/7"
+    ],
+    "downswing": [
+     60,
+     0.88,
+     "6/7"
+    ],
+    "impact": [
+     58,
+     0.61,
+     "4/7"
+    ],
+    "release": [
+     null,
+     0.0,
+     "0/6"
+    ],
+    "finish": [
+     77,
+     1.0,
+     "3/3"
+    ]
+   },
+   "swing_score": 69,
+   "faults": [
+    {
+     "fault": "EARLY_EXTENSION",
+     "severity": 0.47,
+     "confidence": 0.55
+    },
+    {
+     "fault": "BODY_STALL",
+     "severity": 0.37,
+     "confidence": 0.55
+    }
+   ],
+   "root": "RootCause(fault=<SwingFaultId.EARLY_EXTENSION: 'EARLY_EXTENSION'>, cue=<CueId.EARLY_EXTENSION: 'EARLY_EXTENSION'>, reason='root', ranking=(RankedFault(fault=<SwingFaultId.EARLY_EXTENSION: 'EARLY_EXTENSION'>, priority=0.2825, effective=0.3835, explained_by=None, explains=(<SwingFaultId.BODY_STALL: 'BODY_STALL'>,), coachable=True), RankedFault(fault=<SwingFaultId.BODY_STALL: 'BODY_STALL'>, priority=0.2019, effective=0.0, explained_by=<SwingFaultId.EARLY_EXTENSION: 'EARLY_EXTENSION'>, explains=(), coachable=False)), explains=(<SwingFaultId.BODY_STALL: 'BODY_STALL'>,), sticky=False, frame_id='swin",
+   "lesson_cue": "EARLY_EXTENSION",
+   "authority": {
+    "cue": "EARLY_EXTENSION",
+    "from_visual": true
+   },
+   "outcome": "reconciled -> CaddieJ's lesson EARLY_EXTENSION",
+   "unanchored_accepts": 0,
+   "rejected_list": [
+    [
+     "top_centre",
+     "outside_region"
+    ],
+    [
+     "impact_chest_rotation",
+     "outside_region"
+    ],
+    [
+     "impact_hand_position",
+     "outside_region"
+    ],
+    [
+     "impact_head_centre",
+     "outside_region"
+    ],
+    [
+     "release_posture",
+     "outside_region"
+    ],
+    [
+     "release_arm_connection",
+     "outside_region"
+    ],
+    [
+     "release_lead_arm_structure",
+     "outside_region"
+    ],
+    [
+     "release_arm_extension",
+     "outside_region"
+    ],
+    [
+     "release_body_rotation",
+     "outside_region"
+    ]
+   ]
+  }
+ },
+ "poc2": {
+  "locate_notes": [
+   "dtl P7 DTL_17 @2.29: outside impact prior",
+   "dtl P8 DTL_18: order",
+   "dtl P9 DTL_15: order",
+   "P2 cameras disagree (DTL_03 0.58 / FO_02 0.19): both kept",
+   "P3 cameras disagree (DTL_06 1.29 / FO_04 0.68): dropped dtl",
+   "P5 cameras disagree (DTL_11 1.89 / FO_07 1.38): dropped dtl,fo"
+  ],
+  "locate_grade": [
+   [
+    "dtl",
+    "P1",
+    "DTL_01",
+    "correct"
+   ],
+   [
+    "dtl",
+    "P2",
+    "DTL_03",
+    "correct"
+   ],
+   [
+    "dtl",
+    "P3",
+    null,
+    "missed"
+   ],
+   [
+    "dtl",
+    "P4",
+    "DTL_07",
+    "correct"
+   ],
+   [
+    "dtl",
+    "P5",
+    null,
+    "missed"
+   ],
+   [
+    "dtl",
+    "P6",
+    "DTL_12",
+    "correct"
+   ],
+   [
+    "dtl",
+    "P7",
+    null,
+    "missed"
+   ],
+   [
+    "dtl",
+    "P8",
+    null,
+    "missed"
+   ],
+   [
+    "dtl",
+    "P9",
+    null,
+    "missed"
+   ],
+   [
+    "fo",
+    "P1",
+    null,
+    "missed"
+   ],
+   [
+    "fo",
+    "P2",
+    "FO_02",
+    "acceptable"
+   ],
+   [
+    "fo",
+    "P3",
+    "FO_04",
+    "correct"
+   ],
+   [
+    "fo",
+    "P4",
+    "FO_06",
+    "wrong"
+   ],
+   [
+    "fo",
+    "P5",
+    null,
+    "missed"
+   ],
+   [
+    "fo",
+    "P6",
+    "FO_10",
+    "acceptable"
+   ],
+   [
+    "fo",
+    "P7",
+    "FO_11",
+    "wrong"
+   ],
+   [
+    "fo",
+    "P8",
+    "FO_14",
+    "correct"
+   ],
+   [
+    "fo",
+    "P9",
+    "FO_16",
+    "wrong"
+   ]
+  ],
+  "original": {
+   "label": "POC2 as validated then",
+   "accepted": 27,
+   "rejected": 26,
+   "rejection_reasons": {
+    "not_located": 26
+   },
+   "accepted_by_position_truth": {
+    "acceptable": 5,
+    "correct": 7,
+    "wrong": 15
+   },
+   "accepted_wrong_position": [
+    "top_hand_height@FO_06",
+    "top_arm_structure@FO_06",
+    "top_shoulder_turn@FO_06",
+    "top_hip_turn@FO_06",
+    "top_centre@FO_06",
+    "transition_pressure_shift@FO_07",
+    "transition_pelvis_initiation@FO_07",
+    "impact_pelvis_rotation@FO_11",
+    "impact_chest_rotation@FO_11",
+    "impact_hand_position@FO_11",
+    "impact_arm_structure@FO_11",
+    "impact_head_centre@FO_11",
+    "finish_balance@FO_16",
+    "finish_rotation@FO_16",
+    "finish_structure@FO_16"
+   ],
+   "coverage": 0.57,
+   "coverage_level": "limited",
+   "mechanics": 76,
+   "phases": {
+    "setup": [
+     null,
+     0.0,
+     "0/7"
+    ],
+    "takeaway": [
+     76,
+     0.5,
+     "3/6"
+    ],
+    "backswing": [
+     73,
+     0.41,
+     "3/8"
+    ],
+    "top": [
+     79,
+     0.65,
+     "5/8"
+    ],
+    "transition": [
+     null,
+     0.29,
+     "2/7"
+    ],
+    "downswing": [
+     null,
+     0.25,
+     "2/7"
+    ],
+    "impact": [
+     77,
+     0.61,
+     "5/7"
+    ],
+    "release": [
+     73,
+     0.82,
+     "4/6"
+    ],
+    "finish": [
+     77,
+     1.0,
+     "3/3"
+    ]
+   },
+   "swing_score": 76,
+   "faults": [],
+   "root": "RootCause(fault=None, cue=None, reason='none', ranking=(), explains=(), sticky=False, frame_id=None, confidence=None, severity=None)",
+   "lesson_cue": null,
+   "authority": {
+    "cue": "FACE_CONTROL_GOOD",
+    "from_visual": false
+   },
+   "outcome": "reconciled -> CaddieJ's lesson FACE_CONTROL_GOOD"
+  },
+  "hybrid": {
+   "label": "POC2 under hybrid",
+   "accepted": 39,
+   "rejected": 14,
+   "rejection_reasons": {
+    "not_located": 14
+   },
+   "accepted_by_position_truth": {
+    "correct": 29,
+    "acceptable": 1,
+    "wrong": 9
+   },
+   "accepted_wrong_position": [
+    "top_centre@FO_06",
+    "impact_chest_rotation@FO_11",
+    "impact_hand_position@FO_11",
+    "impact_head_centre@FO_11",
+    "impact_pelvis_rotation@FO_11",
+    "impact_arm_structure@FO_11",
+    "finish_balance@FO_16",
+    "finish_rotation@FO_16",
+    "finish_structure@FO_16"
+   ],
+   "coverage": 0.82,
+   "coverage_level": "full",
+   "mechanics": 75,
+   "phases": {
+    "setup": [
+     80,
+     0.92,
+     "6/7"
+    ],
+    "takeaway": [
+     73,
+     0.8,
+     "5/6"
+    ],
+    "backswing": [
+     73,
+     0.41,
+     "3/8"
+    ],
+    "top": [
+     75,
+     0.94,
+     "7/8"
+    ],
+    "transition": [
+     null,
+     0.0,
+     "0/7"
+    ],
+    "downswing": [
+     72,
+     0.88,
+     "6/7"
+    ],
+    "impact": [
+     77,
+     0.61,
+     "5/7"
+    ],
+    "release": [
+     73,
+     0.82,
+     "4/6"
+    ],
+    "finish": [
+     77,
+     1.0,
+     "3/3"
+    ]
+   },
+   "swing_score": 75,
+   "faults": [],
+   "root": "RootCause(fault=None, cue=None, reason='none', ranking=(), explains=(), sticky=False, frame_id=None, confidence=None, severity=None)",
+   "lesson_cue": null,
+   "authority": {
+    "cue": "FACE_CONTROL_GOOD",
+    "from_visual": false
+   },
+   "outcome": "reconciled -> CaddieJ's lesson FACE_CONTROL_GOOD",
+   "rejected_list": [
+    [
+     "setup_shaft_position",
+     "not_located"
+    ],
+    [
+     "backswing_hand_depth",
+     "not_located"
+    ],
+    [
+     "backswing_hand_height",
+     "not_located"
+    ],
+    [
+     "backswing_hip_depth",
+     "not_located"
+    ],
+    [
+     "backswing_posture",
+     "not_located"
+    ],
+    [
+     "transition_arms_lowering",
+     "not_located"
+    ],
+    [
+     "transition_hand_direction",
+     "not_located"
+    ],
+    [
+     "transition_trail_shoulder",
+     "not_located"
+    ],
+    [
+     "transition_posture_space",
+     "not_located"
+    ],
+    [
+     "transition_pressure_shift",
+     "not_located"
+    ],
+    [
+     "transition_pelvis_initiation",
+     "not_located"
+    ],
+    [
+     "impact_hip_depth",
+     "not_located"
+    ],
+    [
+     "impact_posture",
+     "not_located"
+    ],
+    [
+     "release_posture",
+     "not_located"
+    ]
+   ]
+  }
+ },
+ "output_size": {
+  "tokens_per_proxy_unit": 0.744,
+  "calibration": {
+   "poc1": [
+    1183,
+    1174
+   ],
+   "poc2": [
+    950,
+    957
+   ]
+  },
+  "hybrid_from_poc1_reply": 947,
+  "hybrid_from_poc2_reply": 951,
+  "parts_hybrid_poc1": {
+   "locate": 41,
+   "evidence": 41,
+   "metrics": 213,
+   "checkpoints": 581,
+   "coach": 51
+  },
+  "parts_poc1_actual": {
+   "locate": 90,
+   "metrics": 213,
+   "checkpoints": 804,
+   "coach": 51
+  },
+  "parts_poc2_actual": {
+   "locate": 105,
+   "metrics": 213,
+   "checkpoints": 564,
+   "coach": 59
+  }
+ }
+}

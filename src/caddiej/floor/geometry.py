@@ -81,6 +81,47 @@ class PhysicalPoint:
 
 
 @dataclass(frozen=True, slots=True)
+class PhysicalRect:
+    """An axis-aligned rectangle on the hitting bay, in metres.
+
+    `x_m` / `y_m` are the centre. Width is left-to-right (+X); depth is
+    back-to-player (+Y). This is the hitting strip, not the ball marker:
+    the marker is a point that may sit inside this area.
+    """
+
+    x_m: float
+    y_m: float
+    width_m: float
+    depth_m: float
+
+    def __post_init__(self) -> None:
+        _require_finite(
+            "PhysicalRect",
+            x_m=self.x_m,
+            y_m=self.y_m,
+            width_m=self.width_m,
+            depth_m=self.depth_m,
+        )
+        if self.width_m <= 0.0 or self.depth_m <= 0.0:
+            raise ValueError("PhysicalRect width and depth must be positive")
+
+    @property
+    def corners(
+        self,
+    ) -> tuple[PhysicalPoint, PhysicalPoint, PhysicalPoint, PhysicalPoint]:
+        """Back-left, back-right, front-right, front-left."""
+
+        half_w = self.width_m / 2.0
+        half_d = self.depth_m / 2.0
+        return (
+            PhysicalPoint(x_m=self.x_m - half_w, y_m=self.y_m - half_d),
+            PhysicalPoint(x_m=self.x_m + half_w, y_m=self.y_m - half_d),
+            PhysicalPoint(x_m=self.x_m + half_w, y_m=self.y_m + half_d),
+            PhysicalPoint(x_m=self.x_m - half_w, y_m=self.y_m + half_d),
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class FloorPoint:
     """A point in calibrated surface coordinates.
 
@@ -343,6 +384,25 @@ def rectangular_calibration(width_m: float, depth_m: float) -> RectangularCalibr
     """The default, uncalibrated map: a physical rectangle onto the unit square."""
 
     return RectangularCalibration(PhysicalFloor(width_m=width_m, depth_m=depth_m))
+
+
+def project_rect(
+    rect: PhysicalRect, calibration: FloorCalibration | None = None
+) -> tuple[FloorPoint, FloorPoint, FloorPoint, FloorPoint]:
+    """Physical rectangle corners mapped onto the calibrated surface.
+
+    Homography can turn a metre-aligned rectangle into a quadrilateral. The
+    browser draws the four surface points it is given and never sees metres.
+    """
+
+    mapping = DEFAULT_CALIBRATION if calibration is None else calibration
+    back_left, back_right, front_right, front_left = rect.corners
+    return (
+        mapping.to_surface(back_left),
+        mapping.to_surface(back_right),
+        mapping.to_surface(front_right),
+        mapping.to_surface(front_left),
+    )
 
 
 def _reject_degenerate_quad(points: Sequence[tuple[float, float]], label: str) -> None:

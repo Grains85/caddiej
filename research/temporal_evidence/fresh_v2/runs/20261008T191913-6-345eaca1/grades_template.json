@@ -1,0 +1,140 @@
+{
+ "shot": "20261008T191913-6-345eaca1",
+ "instructions": "Copy to grades.json and fill in, from the canonical full-resolution originals only. grade: correct | acceptable | wrong | unavailable. 'unavailable' only when cell is null; then shown_on_sheet says whether any cell of that camera on this sheet showed the position. contact_tick: the capture index of club-ball contact on each camera.",
+ "contact_tick": {
+  "dtl": null,
+  "fo": null
+ },
+ "groups": {
+  "dtl": {
+   "P1": {
+    "cell": "DTL_01",
+    "capture_index": 15,
+    "original": "diagnostic/swing_behind/frame_015.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P2": {
+    "cell": "DTL_02",
+    "capture_index": 17,
+    "original": "diagnostic/swing_behind/frame_017.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P3": {
+    "cell": "DTL_06",
+    "capture_index": 26,
+    "original": "diagnostic/swing_behind/frame_026.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P4": {
+    "cell": "DTL_07",
+    "capture_index": 28,
+    "original": "diagnostic/swing_behind/frame_028.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P5": {
+    "cell": "DTL_08",
+    "capture_index": 31,
+    "original": "diagnostic/swing_behind/frame_031.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P6": {
+    "cell": "DTL_10",
+    "capture_index": 37,
+    "original": "diagnostic/swing_behind/frame_037.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P7": {
+    "cell": "DTL_12",
+    "capture_index": 39,
+    "original": "diagnostic/swing_behind/frame_039.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P8": {
+    "cell": "DTL_14",
+    "capture_index": 41,
+    "original": "diagnostic/swing_behind/frame_041.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P9": {
+    "cell": "DTL_18",
+    "capture_index": 51,
+    "original": "diagnostic/swing_behind/frame_051.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   }
+  },
+  "fo": {
+   "P1": {
+    "cell": "FO_01",
+    "capture_index": 15,
+    "original": "diagnostic/swing_side/frame_015.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P2": {
+    "cell": "FO_02",
+    "capture_index": 17,
+    "original": "diagnostic/swing_side/frame_017.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P3": {
+    "cell": "FO_06",
+    "capture_index": 26,
+    "original": "diagnostic/swing_side/frame_026.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P4": {
+    "cell": "FO_07",
+    "capture_index": 28,
+    "original": "diagnostic/swing_side/frame_028.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P5": {
+    "cell": "FO_08",
+    "capture_index": 31,
+    "original": "diagnostic/swing_side/frame_031.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P6": {
+    "cell": "FO_10",
+    "capture_index": 37,
+    "original": "diagnostic/swing_side/frame_037.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P7": {
+    "cell": "FO_12",
+    "capture_index": 39,
+    "original": "diagnostic/swing_side/frame_039.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P8": {
+    "cell": "FO_14",
+    "capture_index": 41,
+    "original": "diagnostic/swing_side/frame_041.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   },
+   "P9": {
+    "cell": "FO_18",
+    "capture_index": 51,
+    "original": "diagnostic/swing_side/frame_051.jpg",
+    "grade": null,
+    "shown_on_sheet": null
+   }
+  }
+ }
+}

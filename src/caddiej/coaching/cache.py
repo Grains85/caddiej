@@ -52,7 +52,9 @@ class AdviceCache:
 
         Restamped rather than returned as it was stored: an advice names the shot
         it is about, and handing back one that names a shot from twenty minutes
-        ago would make every consumer downstream check for it.
+        ago would make every consumer downstream check for it. The cited frame
+        is dropped for the same reason and more: it names a still of the swing
+        that was asked about, which is not this one and may no longer exist.
         """
 
         cached = self._entries.get(key)
@@ -61,7 +63,9 @@ class AdviceCache:
             return None
         self._entries.move_to_end(key)
         self.hits += 1
-        return replace(cached, shot_id=shot_id, created_at=created_at)
+        return replace(
+            cached, shot_id=shot_id, created_at=created_at, evidence_frame_id=None
+        )
 
     def put(self, key: str, advice: Advice) -> None:
         self._entries[key] = advice

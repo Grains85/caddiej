@@ -25,6 +25,27 @@ dist/
 # machine, and neither is something a commit can carry away by accident.
 media/
 
+# Isolated diagnostic output — extracted stills of a person in their garage.
+.caddiej/
+
+# Pose landmarker weights downloaded by the stage-3 research prototype.
+research/direct_visual_coach/models/*.task
+
+# Fresh-swing validation: preserved shot directories and the sheets built from them.
+research/temporal_evidence/fresh/baseline/
+research/temporal_evidence/fresh/shots/
+research/temporal_evidence/fresh/runs/*/*.jpg
+
+# Session logs. Redirected stdout lands in the working directory, and a session
+# log names holes, clubs and shot dispersion. Same reasoning as the database.
+*.log
+
+# Local scratch. Nothing here is the project's.
+scratch/
+tmp
+tmp*.txt
+*.m4v
+
 # Virtual environments
 .venv/
 venv/

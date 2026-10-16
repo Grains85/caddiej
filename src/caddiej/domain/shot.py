@@ -15,7 +15,7 @@ import math
 from dataclasses import dataclass
 from datetime import datetime
 from enum import StrEnum
-from typing import Literal
+from typing import Literal, get_args
 from uuid import UUID
 
 
@@ -75,11 +75,21 @@ class Club:
 
 @dataclass(frozen=True, slots=True)
 class BallLaunch:
-    """What the ball did. The part of a shot every launch monitor measures."""
+    """What the ball did, as far as whatever reported it knew.
+
+    Speed is required because nothing that reports a ball reports no speed. The
+    two launch angles are not, and that is a statement about CaddieJ's
+    production path rather than about launch monitors: a device wired straight
+    into the simulator tells CaddieJ nothing directly, and the round file left
+    behind afterwards carries a ball speed and a distance and no angles at all.
+    Making them required would leave only two ways to read such a shot, and
+    both are worse than `None` — refuse it, and lose the shot, or fill them in,
+    and coach somebody on a launch angle nothing measured.
+    """
 
     speed_mph: float
-    launch_angle_degrees: float
-    launch_direction_degrees: float
+    launch_angle_degrees: float | None = None
+    launch_direction_degrees: float | None = None
     total_spin_rpm: float | None = None
     spin_axis_degrees: float | None = None
     back_spin_rpm: float | None = None
@@ -165,6 +175,13 @@ class ClubDelivery:
         )
 
 
+ShotSourceKind = Literal["gspro_connect", "gspro_round", "synthetic"]
+"""Every provenance a shot may have. Named once, so a reader that has to check
+a value against it cannot list a different set than the writer does."""
+
+SHOT_SOURCE_KINDS: frozenset[str] = frozenset(get_args(ShotSourceKind))
+
+
 @dataclass(frozen=True, slots=True)
 class ShotSource:
     """Where a shot came from and when CaddieJ first saw it.
@@ -174,7 +191,16 @@ class ShotSource:
     timestamped when it enters the system, not when a subscriber reaches it.
     """
 
-    kind: Literal["gspro_connect", "replay", "synthetic"]
+    kind: ShotSourceKind
+    """Where the numbers came from, and so what may be expected of them.
+
+    `gspro_round` is the passive path: read from the file the simulator leaves
+    behind rather than from a launch monitor, so it carries a ball speed and
+    nothing else. Anything deciding what it can say about a shot reads this,
+    because "the face was square" and "nobody measured the face" are different
+    facts and only this field tells them apart.
+    """
+
     device_session_id: UUID
     observed_at: datetime
     observed_monotonic: float

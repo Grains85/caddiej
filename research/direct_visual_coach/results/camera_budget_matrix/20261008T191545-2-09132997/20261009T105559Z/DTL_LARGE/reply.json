@@ -1,0 +1,165 @@
+{
+  "model": "gpt-5-mini-2025-08-07",
+  "reasoning_effort": "minimal",
+  "latency_seconds": 11.54700000025332,
+  "usage": {
+    "input_tokens": 53430,
+    "output_tokens": 1260,
+    "reasoning_tokens": 0
+  },
+  "payload": {
+    "status": "no_proven_fault",
+    "handedness": {
+      "side": "right",
+      "confidence": 0.9,
+      "visual_basis": "Down-the-line images show the golfer's left side closer to the target (lead side) at address and throughout the swing, indicating a right-handed stance."
+    },
+    "temporal_orientation": [
+      {
+        "capture_tick": 15,
+        "state": "setup",
+        "confidence": 0.9,
+        "visual_basis": "Address posture with club near the ball and no visible movement yet."
+      },
+      {
+        "capture_tick": 16,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Club and hands have started moving away from the ball relative to the address frame."
+      },
+      {
+        "capture_tick": 17,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club continue away; shaft rising."
+      },
+      {
+        "capture_tick": 18,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Further continuation of the takeaway with hands moving upward and away."
+      },
+      {
+        "capture_tick": 20,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club clearly away from the ball; backswing progressing."
+      },
+      {
+        "capture_tick": 21,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands continuing up and back; still moving away from the ball."
+      },
+      {
+        "capture_tick": 22,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Backswing position with hands rising; still away from the ball."
+      },
+      {
+        "capture_tick": 23,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands near top region, still moving away."
+      },
+      {
+        "capture_tick": 24,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands higher in backswing; movement away continues."
+      },
+      {
+        "capture_tick": 25,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Approaching or at top of backswing; hands high and away."
+      },
+      {
+        "capture_tick": 26,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Near top-of-backswing; hands still moving away or near stop."
+      },
+      {
+        "capture_tick": 27,
+        "state": "direction_change_region",
+        "confidence": 0.9,
+        "visual_basis": "Hands at or near top and beginning to change direction toward the ball."
+      },
+      {
+        "capture_tick": 28,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Hands clearly moving back down toward the ball from the top."
+      },
+      {
+        "capture_tick": 29,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Downswing with hands traveling toward the ball."
+      },
+      {
+        "capture_tick": 31,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Hands continuing down toward impact zone."
+      },
+      {
+        "capture_tick": 33,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Downswing sequence; hands approaching ball."
+      },
+      {
+        "capture_tick": 35,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club near impact area moving toward the ball."
+      },
+      {
+        "capture_tick": 37,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Hands still moving toward the ball; club approaching impact."
+      },
+      {
+        "capture_tick": 40,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Frame shows body and club past typical impact location; follow-through starting."
+      },
+      {
+        "capture_tick": 42,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Follow-through continuation; club and hands past impact."
+      },
+      {
+        "capture_tick": 44,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Follow-through with rotation and continuation after impact."
+      },
+      {
+        "capture_tick": 47,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Later follow-through frames showing continuation after strike."
+      },
+      {
+        "capture_tick": 49,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Late follow-through; body rotated and finishing."
+      },
+      {
+        "capture_tick": 51,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Final follow-through frame; swing completed past the ball."
+      }
+    ],
+    "fault_candidates": []
+  }
+}

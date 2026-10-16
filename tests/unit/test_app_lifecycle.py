@@ -1,6 +1,8 @@
 """Boundaries in the application wiring that must hold even when things fail."""
 
 import asyncio
+import inspect
+import logging
 from dataclasses import dataclass
 
 import pytest
@@ -184,6 +186,121 @@ async def test_observe_mode_starts_passive_observers_and_does_not_bind() -> None
     await supervisor.shutdown()
 
 
+class TestNothingOptionalStartsBeforeObservation:
+    """Passive observation used to be the last thing `run` did.
+
+    It came after a Kokoro model load, an HTTP call to a Hue bridge, binding
+    the overlay's port and an awaited OBS round trip — and both of the last
+    two are ways for it never to happen at all: `wait_until_serving` raises on
+    a port another instance already holds. A session spent unobserved because
+    the overlay could not bind is a session of shots that no longer exist,
+    since both observers discard whatever is already in their file when they
+    first read it.
+
+    Checked against the source of `run` rather than by running it, because
+    what is being pinned is an ordering and the failure is a line moving. A
+    test that drove the whole lifecycle would need a real port, a real OBS and
+    a real model to be able to tell the difference.
+    """
+
+    @staticmethod
+    def position_of(call: str) -> int:
+        source = inspect.getsource(app_module.run)
+        index = source.find(call)
+        assert index >= 0, f"{call} is no longer in run(); this test needs updating"
+        return index
+
+    def test_observers_start_before_the_overlay_is_waited_on(self) -> None:
+        assert self.position_of("_start_gspro(") < self.position_of(
+            "wait_until_serving("
+        )
+
+    def test_observers_start_before_obs_is_spoken_to(self) -> None:
+        assert self.position_of("_start_gspro(") < self.position_of(
+            "_provision_floor_source("
+        )
+
+    def test_observers_start_before_the_assistant_api(self) -> None:
+        assert self.position_of("_start_gspro(") < self.position_of(
+            "_start_assistant_api("
+        )
+
+
+class TestOneObserverCannotTakeTheOtherWithIt:
+    """Passive observation outlives every other subsystem, or it is not passive.
+
+    Both observers ran under one bare `asyncio.gather`. `serve()` catches what
+    a poll can raise, but not everything above it — a root path that stops
+    resolving, a clock that throws — and anything that escaped failed the
+    supervised task, which is a shutdown of the whole process. Worse, `gather`
+    does not cancel its siblings, so the surviving observer carried on as an
+    untracked orphan while CaddieJ shut down around it, still publishing onto
+    a bus that was closing.
+    """
+
+    class Exploding:
+        def __init__(self) -> None:
+            self.served = False
+
+        async def serve(self) -> None:
+            self.served = True
+            raise RuntimeError("the root path stopped resolving")
+
+    class Patient:
+        def __init__(self) -> None:
+            self.cancelled = False
+
+        async def serve(self) -> None:
+            try:
+                await asyncio.Event().wait()
+            except asyncio.CancelledError:
+                self.cancelled = True
+                raise
+
+    async def test_the_survivor_keeps_running(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        broken = self.Exploding()
+        working = self.Patient()
+
+        with caplog.at_level(logging.ERROR):
+            task = asyncio.create_task(
+                app_module._run_observers([broken, working])  # type: ignore[list-item]
+            )
+            await asyncio.sleep(0)
+            await asyncio.sleep(0)
+
+            assert broken.served
+            assert not task.done(), "one observer failing ended both"
+
+            task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await task
+
+        assert working.cancelled, "the survivor was left behind rather than stopped"
+        assert [r.getMessage() for r in caplog.records].count("observer_stopped") == 1
+
+    async def test_the_supervised_task_does_not_fail(self) -> None:
+        """A failing supervised task is a reason to stop CaddieJ. An observer
+        that dies is a reason to write it down."""
+
+        failures: list[None] = []
+        supervisor = TaskSupervisor(
+            shutdown_timeout=1.0, on_failure=lambda: failures.append(None)
+        )
+        broken = self.Exploding()
+
+        supervisor.start(
+            app_module._run_observers([broken]),  # type: ignore[list-item]
+            name="gspro-observe",
+        )
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
+        await supervisor.shutdown()
+
+        assert failures == []
+
+
 @pytest.mark.parametrize(
     ("history", "capture", "expected"),
     [
@@ -261,6 +378,101 @@ def test_video_that_is_switched_off_touches_no_disk(tmp_path) -> None:
 
     assert video.health().enabled is False
     assert not (tmp_path / "media").exists()
+
+
+class TestCoachingIsWiredToTheCameraItWasConfiguredWith:
+    """The clip-to-model path was unreachable in every configuration.
+
+    `_build_coaching` chose its frame extractor with `video if
+    video.is_available else None`, and it runs in the construction pass —
+    ninety lines before `await video.open()`, which is what sets
+    `is_available`. So it was always false, coaching always got `None`, and
+    no camera frame could reach a model however the bay was set up. Every
+    test that exercised clip frames handed the extractor to the constructor
+    itself, so the wiring was the one part never covered.
+
+    `enabled` is the right question here because it is settled by
+    configuration. Whether a camera is filming *now* is a question for the
+    moment a clip is wanted, and video answers that one by producing the clip
+    or refusing it.
+    """
+
+    @staticmethod
+    def built(tmp_path, **overrides: object):
+        settings = Settings(
+            _env_file=None,  # type: ignore[call-arg]
+            VIDEO_MEDIA_ROOT=str(tmp_path / "media"),
+            SWING_CAPTURE_OUTPUT_DIR=str(tmp_path / "capture"),
+            HISTORY_DATABASE_PATH=str(tmp_path / "history.db"),
+            COACHING_ENABLED=True,
+            COACHING_SEND_FRAMES=True,
+            **overrides,  # type: ignore[arg-type]
+        )
+
+        async def publish(event) -> None:
+            return None
+
+        video = app_module._build_video(settings, publish)
+        capture = app_module._build_swing_capture(settings, publish)
+        history = app_module._build_history(settings)
+        coaching = app_module._build_coaching(
+            settings, publish, history, video, capture
+        )
+        return video, coaching, history
+
+    def test_a_bay_with_a_camera_can_reach_the_model_with_clip_frames(
+        self, tmp_path
+    ) -> None:
+        video, coaching, _history = self.built(tmp_path, VIDEO_ENABLED=True)
+
+        assert video.is_available is False, "nothing has been opened yet"
+        assert coaching._frames is video
+
+    def test_a_bay_with_no_camera_is_not_told_to_wait_for_one(self, tmp_path) -> None:
+        _video, coaching, _history = self.built(tmp_path, VIDEO_ENABLED=False)
+
+        assert coaching._frames is None
+
+    def test_the_replay_screenshots_are_wired_too(self, tmp_path) -> None:
+        _video, coaching, _history = self.built(
+            tmp_path,
+            SWING_CAPTURE_ENABLED=True,
+            SWING_CAPTURE_PANEL_SWING_SOURCE="CaddieJ Swing",
+        )
+
+        assert coaching._capture_stills is not None
+
+    def test_the_protee_request_gets_its_own_timeout(self, tmp_path) -> None:
+        _video, coaching, _history = self.built(
+            tmp_path,
+            COACH_OPENAI_TIMEOUT_SECONDS=25,
+            COACH_OPENAI_BUDGET_SECONDS=40,
+        )
+
+        assert coaching._protee_timeout == 25.0
+        assert coaching._protee_budget == 40.0
+        assert coaching._timeout == 8.0, "COACHING_TIMEOUT stays the GSPro path's"
+
+    def test_advice_is_wired_to_history_too(self, tmp_path) -> None:
+        """The same bug, one line below, and it cost the whole coaching record.
+
+        `record=history.record_advice if history.is_available else None` runs
+        in the same construction pass, and `history.open()` is eighty lines
+        further down. So every coaching line was published, spoken and
+        projected, and none of it was written to the database — leaving a
+        session whose shots were all recorded and whose advice was all
+        missing, with nothing saying why.
+        """
+
+        _video, coaching, history = self.built(tmp_path, HISTORY_ENABLED=True)
+
+        assert history.is_available is False, "nothing has been opened yet"
+        assert coaching._record is not None
+
+    def test_history_switched_off_records_nothing(self, tmp_path) -> None:
+        _video, coaching, _history = self.built(tmp_path, HISTORY_ENABLED=False)
+
+        assert coaching._record is None
 
 
 def test_speech_that_is_switched_off_builds_no_engine_at_all(tmp_path) -> None:
@@ -434,6 +646,9 @@ class Subsystems:
     def __init__(self) -> None:
         self.order: list[str] = []
         self.play = Closing("play", self.order)
+        self.shot_video = Closing("shot_video", self.order)
+        self.top_impact = Closing("top_impact", self.order)
+        self.swing_capture = Closing("swing_capture", self.order)
         self.effects = Closing("effects", self.order)
         self.speech = Closing("speech", self.order)
         self.lighting = Closing("lighting", self.order)
@@ -448,6 +663,9 @@ class Subsystems:
             assistant_api=None,
             assistant_task=None,
             play=self.play,  # type: ignore[arg-type]
+            shot_video=self.shot_video,  # type: ignore[arg-type]
+            top_impact=self.top_impact,  # type: ignore[arg-type]
+            swing_capture=self.swing_capture,  # type: ignore[arg-type]
             effects=self.effects,  # type: ignore[arg-type]
             speech=self.speech,  # type: ignore[arg-type]
             lighting=self.lighting,  # type: ignore[arg-type]
@@ -491,6 +709,9 @@ class TestShutdownOrder:
         assert stopped.is_set(), "ingestion must be stopped, not merely asked"
         assert subsystems.order == [
             "play",
+            "shot_video",
+            "top_impact",
+            "swing_capture",
             "effects",
             "speech",
             "lighting",
@@ -593,7 +814,13 @@ class TestShutdownOrder:
         finally:
             await asyncio.wait_for(bus.stop(timeout=1.0), timeout=2.0)
 
-        assert subsystems.order == ["play", "effects"]
+        assert subsystems.order == [
+            "play",
+            "shot_video",
+            "top_impact",
+            "swing_capture",
+            "effects",
+        ]
         assert subsystems.lighting.closed is False
 
     async def test_there_is_nothing_to_stop_when_no_source_was_started(self) -> None:

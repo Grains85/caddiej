@@ -1,0 +1,140 @@
+{
+ "shot": "20261008T142053-21-7f8f4191",
+ "shot_directory": "C:\\Users\\johan\\git\\caddiej\\research\\temporal_evidence\\fresh\\shots\\20261008T142053-21-7f8f4191",
+ "built_at": "2026-10-08T14:26:31.627143+00:00",
+ "model": "gpt-5-mini",
+ "reasoning_effort": "minimal",
+ "max_output_tokens": 10000,
+ "timeout_seconds": 30.0,
+ "sheet": {
+  "file": "sheet_T36S.jpg",
+  "sha256": "87db73d3d54862600e8afa47d7984b517b61fc93917e7081fd65e3d6bcbb53d7",
+  "bytes": 1175323,
+  "width": 2048,
+  "height": 2048,
+  "variant": "T36S",
+  "tolerance_s": 0.023249999999999993,
+  "unavailable": [],
+  "moments": [
+   {
+    "number": 1,
+    "tick": 15,
+    "t": 0.0
+   },
+   {
+    "number": 2,
+    "tick": 17,
+    "t": 0.2208
+   },
+   {
+    "number": 3,
+    "tick": 20,
+    "t": 0.4917
+   },
+   {
+    "number": 4,
+    "tick": 22,
+    "t": 0.7125
+   },
+   {
+    "number": 5,
+    "tick": 24,
+    "t": 0.9037
+   },
+   {
+    "number": 6,
+    "tick": 26,
+    "t": 1.1068
+   },
+   {
+    "number": 7,
+    "tick": 28,
+    "t": 1.2983
+   },
+   {
+    "number": 8,
+    "tick": 31,
+    "t": 1.5061
+   },
+   {
+    "number": 9,
+    "tick": 36,
+    "t": 1.759
+   },
+   {
+    "number": 10,
+    "tick": 37,
+    "t": 1.8065
+   },
+   {
+    "number": 11,
+    "tick": 38,
+    "t": 1.8531
+   },
+   {
+    "number": 12,
+    "tick": 39,
+    "t": 1.9007
+   },
+   {
+    "number": 13,
+    "tick": 40,
+    "t": 1.9482
+   },
+   {
+    "number": 14,
+    "tick": 41,
+    "t": 2.0113
+   },
+   {
+    "number": 15,
+    "tick": 42,
+    "t": 2.0579
+   },
+   {
+    "number": 16,
+    "tick": 43,
+    "t": 2.1044
+   },
+   {
+    "number": 17,
+    "tick": 47,
+    "t": 2.3117
+   },
+   {
+    "number": 18,
+    "tick": 51,
+    "t": 2.5021
+   }
+  ]
+ },
+ "request_sha256": {
+  "system": "765ec50e566f81f064d0700e1709a2369d8bc084d58afd302fa0c6b5523f40e8",
+  "evidence": "7236648bf92bba1d776fabf630d92d28b62dbec87ecac341b58af7511bfd3a04",
+  "schema": "46d51164db04f9ca466f71dbf1825202a9056fcd2f78b15fa168552d318dc057"
+ },
+ "estimated_tokens": {
+  "image": 4916,
+  "text": 8374,
+  "total": 13290
+ },
+ "render_seconds": 0.581,
+ "fingerprints": {
+  "research/temporal_evidence/fresh_run.py": "983e75ad2d9b3904e24b11e3a384e9d71b8f4323b66a843742c0dbedde2cb534",
+  "research/temporal_evidence/t36.py": "f01c2ff6b59fbcd40de0572674cb60eb8e15446de5b5500e2d3d90bebff4534f",
+  "research/temporal_evidence/t36_request.py": "830e11398836cb219b65ac57675eae27e4b00aa49d03da87d082b141a5fb0df4",
+  "research/temporal_evidence/temporal_sheets.py": "69c8b122d0eefa8580576a5e551ec5e99b375c5b9b2fb09a3b1938f4373e7385",
+  "research/temporal_evidence/poc4_vx14c.py": "261236597422d20dd190b03aaab6bfd24ba8deb52d308cfdc898295054a3296c",
+  "research/temporal_evidence/poc3_hybrid.py": "893262cb3624008ce1c828aa01c48c3238b2157a3c0d3163b2ef2cd8d511a83e",
+  "research/temporal_evidence/poc2_vx14b.py": "774ead53426f459c9cfdc50f5e8d43d359de48a4c56f756ddb5e8c2d42c81843",
+  "research/temporal_evidence/poc_vx14.py": "a8f5843328625add0fa995a16084614ed889f4f2ceb1b310cb94007e5bb43e18",
+  "research/temporal_evidence/hybrid_replay.py": "306a33f269364aea3d3adf88450361eaf74af04cf4c08352afa6490e99381fe7",
+  "research/temporal_evidence/vx14c_replay.py": "046c8f741ea9fd6c1572df96ffe1901af65c9a665063e77aec9b5fffcb85d9dd",
+  "src/caddiej/coaching/vx.py": "9b5ded28b31c2b2a8df90f83e41f606856fd0d90594767e7303421a4014a6bbd",
+  "src/caddiej/coaching/checkpoints.py": "18209eff8e29fbc0d38e9e27358f4d364535c963cbd2af5ce3a0de1006ec46b8",
+  "src/caddiej/coaching/score.py": "f2a971316c91c8ba2e80211eede9e78656cc8eb9884adc01349a1c749c3e2c8e",
+  "src/caddiej/coaching/swing_faults.py": "5143fa9280b6d50dbb3f95378c29f866d81786cd7a6160ef59364b1464527003",
+  "src/caddiej/domain/swing_checkpoints.py": "42be0081dab6a99ed37595074533b78bdfdf85ac553195eebb2f72d77255fb3f",
+  "src/caddiej/swing_capture/sheet.py": "f2c80b445250855697d8222708224fc2a111f34155f42e260175a09ad6d5de07"
+ }
+}

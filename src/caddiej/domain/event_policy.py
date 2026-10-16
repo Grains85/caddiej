@@ -23,6 +23,7 @@ from caddiej.domain.events import (
     BallDetected,
     CameraStateChanged,
     ClubSelected,
+    CoachingProgress,
     DuplicateShotIgnored,
     HandednessChanged,
     IncompleteShotDiscarded,
@@ -30,6 +31,7 @@ from caddiej.domain.events import (
     LaunchMonitorReadinessChanged,
     RoundShotObserved,
     ShotCompleted,
+    ShotDetected,
     ShotDiagnosed,
     ShotDispatched,
     ShotIngested,
@@ -40,6 +42,8 @@ from caddiej.domain.events import (
     SpeechStarted,
     SwingClipFailed,
     SwingClipReady,
+    SwingFramesReady,
+    TargetDistanceObserved,
 )
 from caddiej.domain.scoring import HoleCompleted
 
@@ -59,16 +63,27 @@ EVENT_DELIVERY: dict[type[Event], Delivery] = {
     HandednessChanged: COALESCE,
     LaunchMonitorLinkChanged: CRITICAL,
     LaunchMonitorReadinessChanged: COALESCE,
+    # One per strike, and not interchangeable with the one before it: coalescing
+    # two detections would lose a shot rather than collapse a repeated status.
+    ShotDetected: CRITICAL,
     ShotDispatched: COALESCE,
     BallDetected: COALESCE,
     BallCleared: COALESCE,
+    TargetDistanceObserved: COALESCE,
     CameraStateChanged: COALESCE,
     ShotDiagnosed: COALESCE,
     AnalysisStarted: DROP,
     AnalysisCompleted: COALESCE,
     AnalysisFailed: DROP,
+    # Animation. Published from the capture task and the coaching worker, and
+    # neither may ever wait on a floor to draw a bar.
+    CoachingProgress: DROP,
     SwingClipReady: DROP,
     SwingClipFailed: DROP,
+    # Enrichment, and superseded by its own successor: only the newest swing
+    # exists on disk, so a queued announcement of an older one is already
+    # describing a directory that has been replaced.
+    SwingFramesReady: COALESCE,
     SpeechStarted: COALESCE,
     SpeechCompleted: COALESCE,
     SimulatorAcknowledgedShot: DROP,
@@ -79,13 +94,45 @@ SUBSCRIBER_DELIVERY: dict[tuple[str, type[Event]], Delivery] = {
     ("coaching", ShotCompleted): DROP,
     ("coaching", SwingClipReady): DROP,
     ("coaching", SwingClipFailed): DROP,
+    # Pictures for a shot that may already have been superseded. Droppable for
+    # the same reason as the clip: losing them costs a coaching line its
+    # imagery, never the shot.
+    ("coaching", SwingFramesReady): DROP,
     ("video", ShotCompleted): DROP,
+    # The clip's anchor. Droppable for the same reason as the shot itself: the
+    # publisher is the ProTee log observer that also feeds the floor, and it
+    # may never wait on a camera. A lost anchor costs one badly centred clip,
+    # which is what every clip used to be.
+    ("video", ShotDetected): DROP,
     ("speech", AnalysisCompleted): COALESCE,
+    # The ProTee log observer publishes the strike and must never wait on a
+    # coaching queue or a voice: losing one costs a stale line being retired
+    # by the next event instead of this one, never a shot.
+    ("coaching", ShotDetected): DROP,
+    ("speech", ShotDetected): DROP,
     ("lighting", SpeechStarted): COALESCE,
     ("lighting", SpeechCompleted): COALESCE,
     ("effects", HoleCompleted): DROP,
+    # Decoration, and the only subscriber allowed to lose a shot. Critical
+    # delivery lets a publisher wait for a full queue, and the publisher here is
+    # the ProTee log observer that also feeds the address HUD and the floor's
+    # readiness: a replay must never be able to hold up what the room reports.
+    ("shot_video", ShotDetected): DROP,
+    # The other ProTee view, and decoration for the same reason.
+    ("top_impact", ShotDetected): DROP,
+    # Same reasoning, and the same publisher: the observer that feeds the floor
+    # must never wait on a subsystem that takes screenshots for several seconds.
+    ("swing_capture", ShotDetected): DROP,
     ("play", ShotDiagnosed): COALESCE,
     ("play", AnalysisCompleted): COALESCE,
+    # Still never waits, but on the play queue a drop would be the wrong kind
+    # of loss. DROP makes room by discarding the oldest item of any type, and
+    # the oldest item here may be a strike or a result. Coalescing replaces a
+    # waiting progress with the newer one, or drops the incoming one when the
+    # queue is full of other facts, and so can only ever lose animation.
+    # Subscribed under `play` rather than a name of its own so it is ordered
+    # with the strike and the completion that make it stale.
+    ("play", CoachingProgress): COALESCE,
 }
 
 QUEUE_SIZES: dict[str, int] = {
@@ -96,6 +143,9 @@ QUEUE_SIZES: dict[str, int] = {
     "speech": 8,
     "lighting": 8,
     "effects": 4,
+    "shot_video": 8,
+    "top_impact": 8,
+    "swing_capture": 8,
 }
 
 

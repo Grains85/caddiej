@@ -5,15 +5,23 @@ from collections.abc import Callable
 from dataclasses import replace
 
 from caddiej.floor.state import (
+    AddressView,
     BallMarker,
+    BallStatus,
     ClubPath,
     FlightDrawPoint,
     FloorAdvice,
+    FloorAnchors,
     FloorFlourish,
     FloorMode,
     FloorPoint,
+    FloorProgress,
     FloorState,
+    HittingStrip,
+    LockAcknowledgement,
     MarkerVariant,
+    PuttingLane,
+    PuttPath,
     RoundResultView,
     ShotMetrics,
 )
@@ -99,6 +107,12 @@ class FloorService:
     def clear_advice(self) -> FloorState:
         return self._apply(advice=None)
 
+    def set_progress(self, progress: FloorProgress) -> FloorState:
+        return self._apply(progress=progress)
+
+    def clear_progress(self) -> FloorState:
+        return self._apply(progress=None)
+
     def show_flourish(self, flourish: FloorFlourish) -> FloorState:
         """Draw a celebration over whatever the round has put on the floor."""
 
@@ -112,6 +126,11 @@ class FloorService:
     def set_play_status(self, status: str, club_label: str = "") -> FloorState:
         return self._apply(play_status=status, club_label=club_label)
 
+    def set_ball_status(self, status: BallStatus) -> FloorState:
+        """The rear-edge chamfer. A repeat of the same status is not a new frame."""
+
+        return self._apply(ball_status=status)
+
     def set_round_result(
         self,
         result: RoundResultView,
@@ -121,6 +140,59 @@ class FloorService:
 
     def clear_round_result(self) -> FloorState:
         return self._apply(round_result=None, ball_flight=None)
+
+    def set_hitting_strip(self, strip: HittingStrip) -> FloorState:
+        return self._apply(hitting_strip=strip)
+
+    def hide_hitting_strip(self) -> FloorState:
+        """Hide the strip, keeping the physical geometry it was last given."""
+
+        if self._state.hitting_strip is None:
+            return self._state
+        return self._apply(
+            hitting_strip=replace(self._state.hitting_strip, visible=False)
+        )
+
+    def set_lock_acknowledgement(
+        self, acknowledgement: LockAcknowledgement
+    ) -> FloorState:
+        """Pulse the already-lit strip; do not change its geometry or fill."""
+
+        return self._apply(lock_acknowledgement=acknowledgement)
+
+    def clear_lock_acknowledgement(self) -> FloorState:
+        """Take the pulse away, leaving the turf light exactly as it was."""
+
+        return self._apply(lock_acknowledgement=None)
+
+    def set_address(self, address: AddressView) -> FloorState:
+        return self._apply(address=address)
+
+    def clear_address(self) -> FloorState:
+        return self._apply(address=None)
+
+    def set_anchors(self, anchors: FloorAnchors) -> FloorState:
+        """Say where the anchored panels go. Set once, when the floor comes up."""
+
+        return self._apply(anchors=anchors)
+
+    def set_putting_lane(self, lane: PuttingLane) -> FloorState:
+        return self._apply(putting_lane=lane)
+
+    def hide_putting_lane(self) -> FloorState:
+        """Hide the lane, keeping the geometry it was last given."""
+
+        if self._state.putting_lane is None:
+            return self._state
+        return self._apply(
+            putting_lane=replace(self._state.putting_lane, visible=False)
+        )
+
+    def set_putt_path(self, path: PuttPath) -> FloorState:
+        return self._apply(putt_path=path)
+
+    def clear_putt_path(self) -> FloorState:
+        return self._apply(putt_path=None)
 
     def _apply(self, **changes: object) -> FloorState:
         candidate = self._state.evolve(**changes)

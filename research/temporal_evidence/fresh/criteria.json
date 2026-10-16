@@ -1,0 +1,32 @@
+{
+ "written_at": "2026-10-08T13:55:44.160925+00:00",
+ "test_set": "The first 5 shots captured after config.json's frozen_at whose capture is complete (fresh_run.eligibility: diagnostic timeline on both swing cameras with replay start detected, impact graphic, All Values still, 18 replay moments), in capture order. A shot is excluded only for those mechanical capture reasons, decided by `preserve` before any request. Shots after the fifth are surplus and never sent.",
+ "protocol": "Exactly one OpenAI request per test shot (fresh_run.py run <shot> --send). No retries: a failed, timed-out or unparseable call is recorded and counts. No change between shots to prompt, model, reasoning effort, T36S, impact prior, validator or schema: --send refuses if any fingerprinted file, setting, system-prompt hash or schema hash differs from config.json.",
+ "grading": {
+  "when": "Only after all five raw replies are saved (reply.json read-only, SHA-256 in ledger.jsonl).",
+  "what": "Each returned group cell (raw model choice, before the validator), per shot x camera x P1-P9, judged on that cell's canonical full-resolution original (fresh_run.py review <shot>).",
+  "correct": "The original shows the named position as defined in the vx14c prompt.",
+  "acceptable": "Within the position's own window but not its best still (e.g. P4 a tick before the true top, P8 at the late edge of shaft-parallel).",
+  "wrong": "Shows a different position, including a neighbouring one (P6 for P7, P5 for P6, ...).",
+  "unavailable": "The model returned 0 (or a number naming no picture). shown_on_sheet then records whether any cell of that camera on this sheet showed the position.",
+  "contact_tick": "Per camera: the capture index at which club meets ball, read on the full-resolution diagnostic originals around the impact window."
+ },
+ "metrics": {
+  "M1": "P3-P8 phase/view evidence. Slots: 5 shots x 2 cameras x P3..P8 = 60. good = correct|acceptable; bad = wrong, or unavailable with shown_on_sheet=true; excluded = unavailable with shown_on_sheet=false. M1 = good / (good + bad). PASS if >= 0.90.",
+  "M2": "P6-P9 no meaningful regression (POC4 shot 4 was 8/8 correct-or-acceptable). Same rule over 5 x 2 x P6..P9 = 40 slots. PASS if >= 0.95.",
+  "M3": "P7 contact. Per shot x camera (10): pass when the returned P7 cell's capture index is within +/-1 of that camera's graded contact_tick; a null P7 fails. PASS if >= 9 of 10.",
+  "M4": "Accepted checkpoints on wrong biomechanical positions: accepted checkpoints (after the validator and assess) whose owning group (camera, phase) is graded wrong, divided by all accepted checkpoints over the five shots. PASS if <= 0.05.",
+  "M5": "Wire/schema failures: per shot, no saved payload (transport error, timeout, refusal), a payload without a phases object, and every checkpoint refused as 'shape' or 'length' by the vx14c decoder. Summed over five shots. PASS if == 0.",
+  "M6": "OpenAI latency: reply.json wall_seconds of each call (request sent to reply decoded). PASS if every one of the five <= 15.0 s. The median is reported against the preferred ~10 s; informational, not a gate.",
+  "overall": "PASS only if M1-M6 all pass. Computed by fresh_run.py evaluate exactly as above."
+ },
+ "thresholds": {
+  "M1_min": 0.9,
+  "M2_min": 0.95,
+  "M3_min_of_10": 9,
+  "M4_max": 0.05,
+  "M5_max": 0,
+  "M6_max_s": 15.0,
+  "M6_preferred_median_s": 10.0
+ }
+}

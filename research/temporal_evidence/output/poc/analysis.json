@@ -1,0 +1,851 @@
+{
+ "rule": "correct: the cell's original is in the accepted set; acceptable: the cell is the sheet neighbour of a correct cell (the position fell between two kept stills); wrong: anything else; null when a correct cell existed on the sheet: missed",
+ "raw_locate": {
+  "dtl": [
+   "DTL_01",
+   "DTL_03",
+   "DTL_06",
+   "DTL_07",
+   "DTL_09",
+   "DTL_11",
+   "DTL_14",
+   "DTL_16",
+   "DTL_18"
+  ],
+  "fo": [
+   "FO_01",
+   "FO_03",
+   "FO_06",
+   "FO_07",
+   "FO_09",
+   "FO_11",
+   "FO_14",
+   "FO_16",
+   "FO_18"
+  ]
+ },
+ "locate_notes": [],
+ "localisation": [
+  {
+   "camera": "dtl",
+   "position": "P1",
+   "cell": "DTL_01",
+   "capture_index": 15,
+   "original": "diagnostic/swing_behind/frame_015.jpg",
+   "t": 0.0,
+   "accepted": [
+    15,
+    16,
+    17
+   ],
+   "accepted_cells": [
+    "DTL_01"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "camera": "dtl",
+   "position": "P2",
+   "cell": "DTL_03",
+   "capture_index": 21,
+   "original": "diagnostic/swing_behind/frame_021.jpg",
+   "t": 0.5813,
+   "accepted": [
+    19,
+    20,
+    21
+   ],
+   "accepted_cells": [
+    "DTL_03"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "camera": "dtl",
+   "position": "P3",
+   "cell": "DTL_06",
+   "capture_index": 28,
+   "original": "diagnostic/swing_behind/frame_028.jpg",
+   "t": 1.2883,
+   "accepted": [
+    22,
+    23,
+    24
+   ],
+   "accepted_cells": [
+    "DTL_04"
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "camera": "dtl",
+   "position": "P4",
+   "cell": "DTL_07",
+   "capture_index": 30,
+   "original": "diagnostic/swing_behind/frame_030.jpg",
+   "t": 1.4324,
+   "accepted": [
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36
+   ],
+   "accepted_cells": [
+    "DTL_06",
+    "DTL_07",
+    "DTL_08"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "camera": "dtl",
+   "position": "P5",
+   "cell": "DTL_09",
+   "capture_index": 37,
+   "original": "diagnostic/swing_behind/frame_037.jpg",
+   "t": 1.7953,
+   "accepted": [
+    38,
+    39
+   ],
+   "accepted_cells": [
+    "DTL_10",
+    "DTL_11"
+   ],
+   "verdict": "acceptable"
+  },
+  {
+   "camera": "dtl",
+   "position": "P6",
+   "cell": "DTL_11",
+   "capture_index": 39,
+   "original": "diagnostic/swing_behind/frame_039.jpg",
+   "t": 1.8909,
+   "accepted": [
+    39,
+    40
+   ],
+   "accepted_cells": [
+    "DTL_11",
+    "DTL_12"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "camera": "dtl",
+   "position": "P7",
+   "cell": "DTL_14",
+   "capture_index": 42,
+   "original": "diagnostic/swing_behind/frame_042.jpg",
+   "t": 2.032,
+   "accepted": [
+    41
+   ],
+   "accepted_cells": [
+    "DTL_13"
+   ],
+   "verdict": "acceptable"
+  },
+  {
+   "camera": "dtl",
+   "position": "P8",
+   "cell": "DTL_16",
+   "capture_index": 44,
+   "original": "diagnostic/swing_behind/frame_044.jpg",
+   "t": 2.1442,
+   "accepted": [
+    42,
+    43
+   ],
+   "accepted_cells": [
+    "DTL_14",
+    "DTL_15"
+   ],
+   "verdict": "acceptable"
+  },
+  {
+   "camera": "dtl",
+   "position": "P9",
+   "cell": "DTL_18",
+   "capture_index": 51,
+   "original": "diagnostic/swing_behind/frame_051.jpg",
+   "t": 2.4662,
+   "accepted": [
+    48,
+    49,
+    50,
+    51
+   ],
+   "accepted_cells": [
+    "DTL_18"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "camera": "fo",
+   "position": "P1",
+   "cell": "FO_01",
+   "capture_index": 15,
+   "original": "diagnostic/swing_side/frame_015.jpg",
+   "t": 0.0,
+   "accepted": [
+    15,
+    16,
+    17
+   ],
+   "accepted_cells": [
+    "FO_01",
+    "FO_02"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "camera": "fo",
+   "position": "P2",
+   "cell": "FO_03",
+   "capture_index": 19,
+   "original": "diagnostic/swing_side/frame_019.jpg",
+   "t": 0.4093,
+   "accepted": [
+    19,
+    20,
+    21
+   ],
+   "accepted_cells": [
+    "FO_03"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "camera": "fo",
+   "position": "P3",
+   "cell": "FO_06",
+   "capture_index": 27,
+   "original": "diagnostic/swing_side/frame_027.jpg",
+   "t": 1.1785,
+   "accepted": [
+    22,
+    23,
+    24
+   ],
+   "accepted_cells": [
+    "FO_04",
+    "FO_05"
+   ],
+   "verdict": "acceptable"
+  },
+  {
+   "camera": "fo",
+   "position": "P4",
+   "cell": "FO_07",
+   "capture_index": 29,
+   "original": "diagnostic/swing_side/frame_029.jpg",
+   "t": 1.3844,
+   "accepted": [
+    30,
+    31,
+    32,
+    33,
+    34,
+    35
+   ],
+   "accepted_cells": [
+    "FO_08"
+   ],
+   "verdict": "acceptable"
+  },
+  {
+   "camera": "fo",
+   "position": "P5",
+   "cell": "FO_09",
+   "capture_index": 37,
+   "original": "diagnostic/swing_side/frame_037.jpg",
+   "t": 1.7953,
+   "accepted": [
+    37,
+    38,
+    39
+   ],
+   "accepted_cells": [
+    "FO_09",
+    "FO_10",
+    "FO_11"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "camera": "fo",
+   "position": "P6",
+   "cell": "FO_11",
+   "capture_index": 39,
+   "original": "diagnostic/swing_side/frame_039.jpg",
+   "t": 1.8909,
+   "accepted": [
+    39,
+    40
+   ],
+   "accepted_cells": [
+    "FO_11",
+    "FO_12"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "camera": "fo",
+   "position": "P7",
+   "cell": "FO_14",
+   "capture_index": 42,
+   "original": "diagnostic/swing_side/frame_042.jpg",
+   "t": 2.032,
+   "accepted": [
+    41
+   ],
+   "accepted_cells": [
+    "FO_13"
+   ],
+   "verdict": "acceptable"
+  },
+  {
+   "camera": "fo",
+   "position": "P8",
+   "cell": "FO_16",
+   "capture_index": 44,
+   "original": "diagnostic/swing_side/frame_044.jpg",
+   "t": 2.1442,
+   "accepted": [
+    42,
+    43
+   ],
+   "accepted_cells": [
+    "FO_14",
+    "FO_15"
+   ],
+   "verdict": "acceptable"
+  },
+  {
+   "camera": "fo",
+   "position": "P9",
+   "cell": "FO_18",
+   "capture_index": 51,
+   "original": "diagnostic/swing_side/frame_051.jpg",
+   "t": 2.4662,
+   "accepted": [
+    48,
+    49,
+    50,
+    51
+   ],
+   "accepted_cells": [
+    "FO_18"
+   ],
+   "verdict": "correct"
+  }
+ ],
+ "accepted_checkpoints": [
+  {
+   "checkpoint": "setup_hip_hinge",
+   "score": 90,
+   "confidence": 0.85,
+   "frame": "swing_behind_c15",
+   "phase": "setup",
+   "view": "behind",
+   "deviation": null
+  },
+  {
+   "checkpoint": "setup_knee_flex",
+   "score": 85,
+   "confidence": 0.8,
+   "frame": "swing_behind_c15",
+   "phase": "setup",
+   "view": "behind",
+   "deviation": null
+  },
+  {
+   "checkpoint": "setup_spine_posture",
+   "score": 88,
+   "confidence": 0.85,
+   "frame": "swing_behind_c15",
+   "phase": "setup",
+   "view": "behind",
+   "deviation": null
+  },
+  {
+   "checkpoint": "setup_arm_hang",
+   "score": 80,
+   "confidence": 0.7,
+   "frame": "swing_behind_c15",
+   "phase": "setup",
+   "view": "behind",
+   "deviation": "too_much"
+  },
+  {
+   "checkpoint": "setup_hand_spacing",
+   "score": 85,
+   "confidence": 0.8,
+   "frame": "swing_behind_c15",
+   "phase": "setup",
+   "view": "behind",
+   "deviation": null
+  },
+  {
+   "checkpoint": "setup_balance",
+   "score": 88,
+   "confidence": 0.85,
+   "frame": "swing_behind_c15",
+   "phase": "setup",
+   "view": "behind",
+   "deviation": null
+  },
+  {
+   "checkpoint": "setup_shaft_position",
+   "score": 82,
+   "confidence": 0.75,
+   "frame": "swing_side_c15",
+   "phase": "setup",
+   "view": "side",
+   "deviation": null
+  },
+  {
+   "checkpoint": "backswing_arm_structure",
+   "score": 85,
+   "confidence": 0.8,
+   "frame": "swing_behind_c28",
+   "phase": "backswing",
+   "view": "behind",
+   "deviation": null
+  },
+  {
+   "checkpoint": "backswing_body_turn",
+   "score": 88,
+   "confidence": 0.8,
+   "frame": "swing_behind_c28",
+   "phase": "backswing",
+   "view": "behind",
+   "deviation": "too_little"
+  },
+  {
+   "checkpoint": "top_hand_depth",
+   "score": 72,
+   "confidence": 0.7,
+   "frame": "swing_behind_c30",
+   "phase": "top",
+   "view": "behind",
+   "deviation": "shallow"
+  },
+  {
+   "checkpoint": "top_hand_height",
+   "score": 82,
+   "confidence": 0.75,
+   "frame": "swing_behind_c30",
+   "phase": "top",
+   "view": "behind",
+   "deviation": "too_little"
+  },
+  {
+   "checkpoint": "top_arm_structure",
+   "score": 88,
+   "confidence": 0.8,
+   "frame": "swing_behind_c30",
+   "phase": "top",
+   "view": "behind",
+   "deviation": null
+  },
+  {
+   "checkpoint": "top_shoulder_turn",
+   "score": 85,
+   "confidence": 0.75,
+   "frame": "swing_behind_c30",
+   "phase": "top",
+   "view": "behind",
+   "deviation": "too_little"
+  },
+  {
+   "checkpoint": "top_hip_turn",
+   "score": 80,
+   "confidence": 0.75,
+   "frame": "swing_behind_c30",
+   "phase": "top",
+   "view": "behind",
+   "deviation": "too_little"
+  },
+  {
+   "checkpoint": "top_posture",
+   "score": 80,
+   "confidence": 0.75,
+   "frame": "swing_behind_c30",
+   "phase": "top",
+   "view": "behind",
+   "deviation": "standing_up"
+  },
+  {
+   "checkpoint": "transition_arms_lowering",
+   "score": 65,
+   "confidence": 0.6,
+   "frame": "swing_behind_c37",
+   "phase": "transition",
+   "view": "behind",
+   "deviation": "too_little"
+  },
+  {
+   "checkpoint": "transition_hand_direction",
+   "score": 70,
+   "confidence": 0.6,
+   "frame": "swing_behind_c37",
+   "phase": "transition",
+   "view": "behind",
+   "deviation": "out"
+  },
+  {
+   "checkpoint": "transition_trail_shoulder",
+   "score": 62,
+   "confidence": 0.6,
+   "frame": "swing_behind_c37",
+   "phase": "transition",
+   "view": "behind",
+   "deviation": "out"
+  },
+  {
+   "checkpoint": "transition_pelvis_initiation",
+   "score": 70,
+   "confidence": 0.65,
+   "frame": "swing_behind_c37",
+   "phase": "transition",
+   "view": "behind",
+   "deviation": "arms_first"
+  },
+  {
+   "checkpoint": "transition_posture_space",
+   "score": 60,
+   "confidence": 0.55,
+   "frame": "swing_behind_c37",
+   "phase": "transition",
+   "view": "behind",
+   "deviation": "toward_ball"
+  },
+  {
+   "checkpoint": "delivery_pelvis_rotation",
+   "score": 60,
+   "confidence": 0.55,
+   "frame": "swing_behind_c39",
+   "phase": "downswing",
+   "view": "behind",
+   "deviation": "too_little"
+  },
+  {
+   "checkpoint": "delivery_body_arm_sync",
+   "score": 62,
+   "confidence": 0.6,
+   "frame": "swing_behind_c39",
+   "phase": "downswing",
+   "view": "behind",
+   "deviation": "arms_first"
+  }
+ ],
+ "rejected_checkpoints": [
+  [
+   "takeaway_hand_path",
+   "phase_unknown"
+  ],
+  [
+   "takeaway_posture",
+   "phase_unknown"
+  ],
+  [
+   "takeaway_hip_movement",
+   "phase_unknown"
+  ],
+  [
+   "takeaway_body_led",
+   "phase_unknown"
+  ],
+  [
+   "takeaway_arm_connection",
+   "phase_unknown"
+  ],
+  [
+   "backswing_hand_depth",
+   "phase_unknown"
+  ],
+  [
+   "backswing_hand_height",
+   "phase_unknown"
+  ],
+  [
+   "backswing_hip_depth",
+   "phase_unknown"
+  ],
+  [
+   "backswing_posture",
+   "phase_unknown"
+  ],
+  [
+   "backswing_centre",
+   "phase_unknown"
+  ],
+  [
+   "top_centre",
+   "phase"
+  ],
+  [
+   "transition_pressure_shift",
+   "phase_unknown"
+  ],
+  [
+   "delivery_hand_path",
+   "phase_unknown"
+  ],
+  [
+   "delivery_hip_depth",
+   "phase_unknown"
+  ],
+  [
+   "delivery_posture",
+   "phase_unknown"
+  ],
+  [
+   "delivery_trail_arm",
+   "phase_unknown"
+  ],
+  [
+   "impact_hip_depth",
+   "phase_unknown"
+  ],
+  [
+   "impact_posture",
+   "phase_unknown"
+  ],
+  [
+   "impact_chest_rotation",
+   "phase"
+  ],
+  [
+   "impact_hand_position",
+   "phase"
+  ],
+  [
+   "impact_head_centre",
+   "phase"
+  ],
+  [
+   "impact_pelvis_rotation",
+   "phase_unknown"
+  ],
+  [
+   "impact_arm_structure",
+   "phase_unknown"
+  ],
+  [
+   "release_posture",
+   "phase_unknown"
+  ],
+  [
+   "release_arm_connection",
+   "phase_unknown"
+  ],
+  [
+   "release_lead_arm_structure",
+   "phase_unknown"
+  ],
+  [
+   "release_arm_extension",
+   "phase_unknown"
+  ],
+  [
+   "release_body_rotation",
+   "phase_unknown"
+  ],
+  [
+   "finish_balance",
+   "phase_unknown"
+  ],
+  [
+   "finish_rotation",
+   "phase_unknown"
+  ],
+  [
+   "finish_structure",
+   "phase_unknown"
+  ]
+ ],
+ "scoreable_positions": 59,
+ "non_null_entries": 53,
+ "concluded": {
+  "metrics_read": 22,
+  "metrics_rejected": [
+   "spin_axis",
+   "impact_width",
+   "side_spin",
+   "apex",
+   "off_line",
+   "total_distance",
+   "curve"
+  ],
+  "metrics": {
+   "ball_speed": [
+    161.9,
+    "km/h",
+    null
+   ],
+   "club_speed": [
+    124.5,
+    "km/h",
+    null
+   ],
+   "smash_factor": [
+    1.3,
+    "ratio",
+    null
+   ],
+   "face_angle": [
+    0.2,
+    "deg",
+    "closed"
+   ],
+   "swing_path": [
+    2.4,
+    "deg",
+    "in_to_out"
+   ],
+   "face_to_path": [
+    2.6,
+    "deg",
+    "open"
+   ],
+   "attack_angle": [
+    -6.4,
+    "deg",
+    null
+   ],
+   "launch_angle": [
+    9.7,
+    "deg",
+    null
+   ],
+   "launch_direction": [
+    0.1,
+    "deg",
+    "right"
+   ],
+   "total_spin": [
+    5591.0,
+    "rpm",
+    null
+   ],
+   "spin_axis": null,
+   "carry": [
+    114.8,
+    "m",
+    null
+   ],
+   "dynamic_loft": [
+    14.0,
+    "deg",
+    null
+   ],
+   "impact_width": null,
+   "impact_height": [
+    -3.8,
+    "in",
+    null
+   ],
+   "back_spin": [
+    5551.0,
+    "rpm",
+    null
+   ],
+   "side_spin": null,
+   "apex": null,
+   "off_line": null,
+   "apex_time": [
+    2.1,
+    "s",
+    null
+   ],
+   "air_time": [
+    3.9,
+    "s",
+    null
+   ],
+   "total_distance": null,
+   "bounce_roll": [
+    17.7,
+    "yd",
+    null
+   ],
+   "descent_angle": [
+    25.6,
+    "deg",
+    null
+   ],
+   "lie": [
+    0.7,
+    "deg",
+    "upright"
+   ],
+   "spin_loft": [
+    20.5,
+    "deg",
+    null
+   ],
+   "rifle_spin": [
+    125.0,
+    "rpm",
+    null
+   ],
+   "closure_rate": [
+    1793.0,
+    "deg/s",
+    null
+   ],
+   "curve": null
+  },
+  "diagnosis": {
+   "kind": "reinforcement",
+   "focus": "face_control",
+   "cue": "FACE_CONTROL_GOOD",
+   "severity": 0.0
+  },
+  "admissible": [
+   "FACE_CONTROL_GOOD"
+  ],
+  "swing_score": null,
+  "delivery_value": 91,
+  "mechanics": {
+   "value": null,
+   "phases": "(PhaseScore(phase=<SwingPhase.SETUP: 'setup'>, weight=8, value=84, coverage=1.0, confidence=0.804, assessed=7, scoreable=7, mean=85.92, worst=<CheckpointId.SETUP_ARM_HANG: 'setup_arm_hang'>, level=<CoverageLevel.FULL: 'full'>), PhaseScore(phase=<SwingPhase.TAKEAWAY: 'takeaway'>, weight=9, value=None, coverage=0.0, confidence=0.0, assessed=0, scoreable=6, mean=None, worst=None, level=<CoverageLevel"
+  },
+  "faults": [],
+  "root": "RootCause(fault=None, cue=None, reason='none', ranking=(), explains=(), sticky=False, frame_id=None, confidence=None, severity=None)",
+  "lesson_cue": null,
+  "authority": {
+   "cue": "FACE_CONTROL_GOOD",
+   "from_visual": false
+  },
+  "model_coach": {
+   "kind": "correction",
+   "cue": "TOO_STEEP",
+   "observation": "Your attack angle was steep at impact.",
+   "instruction": "Shallow the club slightly in the downswing.",
+   "reinforcement": null,
+   "evidence_frame_id": "all_values",
+   "speech": "Your attack angle was steep at impact. Shallow the club slightly in the downswing."
+  },
+  "outcome": "reconciled -> CaddieJ's lesson FACE_CONTROL_GOOD",
+  "spoken": null
+ },
+ "usage": {
+  "input_tokens": 13093,
+  "output_tokens": 1183,
+  "reasoning_tokens": 0,
+  "cached_tokens": 0,
+  "status": "completed"
+ },
+ "cost_usd": 0.00563925,
+ "wall_seconds": 13.881,
+ "conclude_seconds": 0.001
+}

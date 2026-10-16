@@ -1,0 +1,140 @@
+{
+  "shot": "20261008T142000-20-c70f8efc",
+  "instructions": "Copy to grades.json and fill in, from the canonical full-resolution originals only. grade: correct | acceptable | wrong | unavailable. 'unavailable' only when cell is null; then shown_on_sheet says whether any cell of that camera on this sheet showed the position. contact_tick: the capture index of club-ball contact on each camera.",
+  "contact_tick": {
+    "dtl": 41,
+    "fo": 41
+  },
+  "groups": {
+    "dtl": {
+      "P1": {
+        "cell": "DTL_01",
+        "capture_index": 15,
+        "original": "diagnostic/swing_behind/frame_015.jpg",
+        "grade": "correct",
+        "shown_on_sheet": null
+      },
+      "P2": {
+        "cell": "DTL_03",
+        "capture_index": 20,
+        "original": "diagnostic/swing_behind/frame_020.jpg",
+        "grade": "correct",
+        "shown_on_sheet": null
+      },
+      "P3": {
+        "cell": "DTL_06",
+        "capture_index": 26,
+        "original": "diagnostic/swing_behind/frame_026.jpg",
+        "grade": "correct",
+        "shown_on_sheet": null
+      },
+      "P4": {
+        "cell": "DTL_07",
+        "capture_index": 28,
+        "original": "diagnostic/swing_behind/frame_028.jpg",
+        "grade": "acceptable",
+        "shown_on_sheet": null
+      },
+      "P5": {
+        "cell": "DTL_08",
+        "capture_index": 32,
+        "original": "diagnostic/swing_behind/frame_032.jpg",
+        "grade": "wrong",
+        "shown_on_sheet": null
+      },
+      "P6": {
+        "cell": "DTL_11",
+        "capture_index": 39,
+        "original": "diagnostic/swing_behind/frame_039.jpg",
+        "grade": "wrong",
+        "shown_on_sheet": null
+      },
+      "P7": {
+        "cell": "DTL_13",
+        "capture_index": 41,
+        "original": "diagnostic/swing_behind/frame_041.jpg",
+        "grade": "acceptable",
+        "shown_on_sheet": null
+      },
+      "P8": {
+        "cell": "DTL_15",
+        "capture_index": 43,
+        "original": "diagnostic/swing_behind/frame_043.jpg",
+        "grade": "acceptable",
+        "shown_on_sheet": null
+      },
+      "P9": {
+        "cell": "DTL_18",
+        "capture_index": 51,
+        "original": "diagnostic/swing_behind/frame_051.jpg",
+        "grade": "correct",
+        "shown_on_sheet": null
+      }
+    },
+    "fo": {
+      "P1": {
+        "cell": "FO_01",
+        "capture_index": 15,
+        "original": "diagnostic/swing_side/frame_015.jpg",
+        "grade": "correct",
+        "shown_on_sheet": null
+      },
+      "P2": {
+        "cell": "FO_03",
+        "capture_index": 20,
+        "original": "diagnostic/swing_side/frame_020.jpg",
+        "grade": "correct",
+        "shown_on_sheet": null
+      },
+      "P3": {
+        "cell": "FO_06",
+        "capture_index": 26,
+        "original": "diagnostic/swing_side/frame_026.jpg",
+        "grade": "correct",
+        "shown_on_sheet": null
+      },
+      "P4": {
+        "cell": "FO_07",
+        "capture_index": 28,
+        "original": "diagnostic/swing_side/frame_028.jpg",
+        "grade": "acceptable",
+        "shown_on_sheet": null
+      },
+      "P5": {
+        "cell": "FO_08",
+        "capture_index": 32,
+        "original": "diagnostic/swing_side/frame_032.jpg",
+        "grade": "wrong",
+        "shown_on_sheet": null
+      },
+      "P6": {
+        "cell": "FO_11",
+        "capture_index": 39,
+        "original": "diagnostic/swing_side/frame_039.jpg",
+        "grade": "wrong",
+        "shown_on_sheet": null
+      },
+      "P7": {
+        "cell": "FO_13",
+        "capture_index": 41,
+        "original": "diagnostic/swing_side/frame_041.jpg",
+        "grade": "acceptable",
+        "shown_on_sheet": null
+      },
+      "P8": {
+        "cell": "FO_15",
+        "capture_index": 43,
+        "original": "diagnostic/swing_side/frame_043.jpg",
+        "grade": "acceptable",
+        "shown_on_sheet": null
+      },
+      "P9": {
+        "cell": "FO_18",
+        "capture_index": 51,
+        "original": "diagnostic/swing_side/frame_051.jpg",
+        "grade": "correct",
+        "shown_on_sheet": null
+      }
+    }
+  }
+}

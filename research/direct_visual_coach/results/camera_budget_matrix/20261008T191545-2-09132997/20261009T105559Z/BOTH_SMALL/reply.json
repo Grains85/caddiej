@@ -1,0 +1,45 @@
+{
+  "model": "gpt-5-mini-2025-08-07",
+  "reasoning_effort": "minimal",
+  "latency_seconds": 3.625,
+  "usage": {
+    "input_tokens": 25571,
+    "output_tokens": 237,
+    "reasoning_tokens": 0
+  },
+  "payload": {
+    "status": "no_proven_fault",
+    "handedness": {
+      "side": "right",
+      "confidence": 0.9,
+      "visual_basis": "From face-on and down-the-line at address the golfer\u2019s left side is closer to the target (lead side left) indicating a right-handed setup."
+    },
+    "temporal_orientation": [
+      {
+        "capture_tick": 15,
+        "state": "setup",
+        "confidence": 0.9,
+        "visual_basis": "Hands at address and club behind ball, no visible motion yet."
+      },
+      {
+        "capture_tick": 24,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Club and hands clearly lifted away from the ball (backswing starting) compared with address."
+      },
+      {
+        "capture_tick": 37,
+        "state": "direction_change_region",
+        "confidence": 0.9,
+        "visual_basis": "Club near top and motion visible changing from away to toward the ball; beginning of downswing visible."
+      },
+      {
+        "capture_tick": 51,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Frames show follow-through and club well past the impact area after the ball."
+      }
+    ],
+    "fault_candidates": []
+  }
+}

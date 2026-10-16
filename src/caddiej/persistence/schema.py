@@ -188,9 +188,88 @@ _ADVICE = (
 )
 
 
+_ADVICE_V3 = (
+    "ALTER TABLE shot_advice ADD COLUMN cue_id TEXT",
+    "ALTER TABLE shot_advice ADD COLUMN confidence REAL",
+    "ALTER TABLE shot_advice ADD COLUMN confidence_source TEXT",
+    "ALTER TABLE shot_advice ADD COLUMN evidence_grades TEXT",
+    "ALTER TABLE shot_advice ADD COLUMN capture_id TEXT",
+    "ALTER TABLE shot_advice ADD COLUMN panels_used TEXT",
+    "ALTER TABLE shot_advice ADD COLUMN kind TEXT",
+)
+
+
+# ProTee-only coaching, keyed on the strike. No foreign key to `shots`: without
+# GSPro there is no shot row, and a coaching outcome is still worth keeping.
+# `metrics_json` holds every VX reading as it was read — value, unit and
+# direction — nulls included, and `metrics_provenance` says they were read off
+# ProTee's All Values panel by a model, not reported by a device API.
+_COACH_RESULTS_V4 = (
+    """
+    CREATE TABLE coach_results (
+        result_id           TEXT    PRIMARY KEY,
+        session_id          TEXT    NOT NULL,
+        strike_id           TEXT    NOT NULL,
+        trigger_id          TEXT,
+        capture_id          TEXT,
+        created_at          TEXT    NOT NULL,
+        status              TEXT    NOT NULL,
+        kind                TEXT    NOT NULL,
+        focus               TEXT    NOT NULL,
+        cue_id              TEXT,
+        display             TEXT,
+        speech              TEXT,
+        severity            REAL,
+        confidence          REAL,
+        confidence_source   TEXT,
+        provider            TEXT,
+        model               TEXT,
+        prompt_version      TEXT,
+        latency_ms          INTEGER,
+        input_images        INTEGER NOT NULL DEFAULT 0,
+        swing_images        INTEGER NOT NULL DEFAULT 0,
+        input_tokens        INTEGER,
+        output_tokens       INTEGER,
+        metrics_source      TEXT,
+        metrics_status      TEXT    NOT NULL,
+        metrics_provenance  TEXT,
+        metrics_read        INTEGER NOT NULL DEFAULT 0,
+        metrics_json        TEXT,
+        metrics_image       TEXT,
+        metrics_captured_at TEXT,
+        panels_used         TEXT,
+        evidence_grades     TEXT,
+        failure_reason      TEXT,
+        detail              TEXT
+    )
+    """,
+    "CREATE INDEX coach_results_by_session ON coach_results (session_id, created_at)",
+    "CREATE INDEX coach_results_by_strike ON coach_results (strike_id)",
+)
+
+
+# The Swing Score, on the row of the strike it rates. `swing_score` is null both
+# when nothing was read and when too little was; `swing_score_rubric` tells the
+# two apart, because it is only written when a score was attempted. The
+# components go whole into `swing_score_json`, so a stored score can be taken
+# apart again. The club is a column of its own because a trend is drawn per
+# club and the index has to be able to reach it.
+_SWING_SCORE_V5 = (
+    "ALTER TABLE coach_results ADD COLUMN swing_score INTEGER",
+    "ALTER TABLE coach_results ADD COLUMN swing_score_rubric TEXT",
+    "ALTER TABLE coach_results ADD COLUMN swing_score_club TEXT",
+    "ALTER TABLE coach_results ADD COLUMN swing_score_json TEXT",
+    "CREATE INDEX coach_results_by_score "
+    "ON coach_results (session_id, swing_score_club, created_at)",
+)
+
+
 MIGRATIONS: tuple[Migration, ...] = (
     Migration(version=1, statements=_INITIAL),
     Migration(version=2, statements=_ADVICE),
+    Migration(version=3, statements=_ADVICE_V3),
+    Migration(version=4, statements=_COACH_RESULTS_V4),
+    Migration(version=5, statements=_SWING_SCORE_V5),
 )
 
 SCHEMA_VERSION = MIGRATIONS[-1].version

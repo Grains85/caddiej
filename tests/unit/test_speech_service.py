@@ -12,6 +12,7 @@ saying what became of the sentence, and nothing raises.
 """
 
 import asyncio
+import logging
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID, uuid4
@@ -20,9 +21,15 @@ import pytest
 
 from caddiej.core.events import Event
 from caddiej.domain.coaching import Advice, AdviceSource, CoachingFocus
-from caddiej.domain.events import AnalysisCompleted, SpeechCompleted, SpeechStarted
+from caddiej.domain.events import (
+    AnalysisCompleted,
+    ShotCompleted,
+    SpeechCompleted,
+    SpeechStarted,
+)
+from caddiej.domain.shot import BallLaunch, Shot, ShotSource
 from caddiej.domain.speech import SpeechOutcome, SpeechPriority, Utterance
-from caddiej.speech.audio import silence
+from caddiej.speech.audio import Audio, silence
 from caddiej.speech.cache import AudioCache
 from caddiej.speech.fakes import (
     BrokenSink,
@@ -56,6 +63,28 @@ class Bus:
     @property
     def outcomes(self) -> list[SpeechOutcome]:
         return [event.outcome for event in self.of(SpeechCompleted)]
+
+    @property
+    def envelopes(self) -> list[tuple[float, ...]]:
+        return [event.envelope.values for event in self.of(SpeechStarted)]
+
+
+def a_quiet_tone(frames: int = 240) -> Audio:
+    """Audio well under the rail, so doubling it cannot be mistaken for
+    clipping."""
+
+    samples = (round(4000 * ((index % 20) - 10) / 10) for index in range(frames))
+    return Audio(
+        data=b"".join(value.to_bytes(2, "little", signed=True) for value in samples)
+    )
+
+
+def peak_of(audio: Audio) -> int:
+    values = [
+        int.from_bytes(audio.data[index : index + 2], "little", signed=True)
+        for index in range(0, len(audio.data), 2)
+    ]
+    return max(max(values), -min(values))
 
 
 class Table:
@@ -110,6 +139,21 @@ class Table:
             turns += 1
             await asyncio.sleep(0 if turns < 100 else 0.001)
         raise AssertionError("the speech service never went idle")
+
+
+def a_shot(shot_id: UUID) -> Shot:
+    """The barest shot there is. Nothing here reads anything off it but the id."""
+
+    return Shot(
+        shot_id=shot_id,
+        source=ShotSource(
+            kind="protee_log",
+            device_session_id=uuid4(),
+            observed_at=NOW,
+            observed_monotonic=1.0,
+        ),
+        ball=BallLaunch(speed_mph=112.0),
+    )
 
 
 def an_advice(text: str = LINE, shot_id: UUID | None = None) -> AnalysisCompleted:
@@ -290,6 +334,113 @@ class TestSupersedingAndDropping:
 
         assert table.sink.interrupted == 0
         assert table.bus.outcomes == [SpeechOutcome.SPOKEN, SpeechOutcome.SPOKEN]
+
+    async def test_another_swing_forgets_a_line_nobody_has_heard_yet(self) -> None:
+        """The case supersession cannot reach.
+
+        A newer coaching line replaces an older one, but there is not always a
+        newer one: the next shot may be worth no words at all, or the model may
+        fail on it, or nothing about it may have been measured. Without this the
+        old sentence is still queued, and it would be spoken to somebody who has
+        already hit again — who would hear it as advice about the swing they
+        just made.
+        """
+
+        gate = asyncio.Event()
+        first, second = uuid4(), uuid4()
+        async with Table(sink=RecordingSink(gate=gate)) as table:
+            await table.say("Playing now.", perishable=False)
+            for _ in range(20):
+                await asyncio.sleep(0)
+
+            await table.say("About the shot before last.", shot_id=first)
+            await table.service.on_shot_completed(ShotCompleted(shot=a_shot(second)))
+            gate.set()
+            await table.settled()
+
+        spoken = [text for text, _ in table.engine.calls]
+        assert "About the shot before last." not in spoken
+        assert SpeechOutcome.SUPERSEDED in table.bus.outcomes
+
+    async def test_the_shot_that_was_just_hit_keeps_its_own_line(self) -> None:
+        """The obvious other half, and the reason the shot is compared rather
+        than the queue simply being emptied: coaching about a shot arrives
+        after that shot was completed, so a blanket clear would silence
+        every line CaddieJ ever had."""
+
+        shot_id = uuid4()
+        async with Table() as table:
+            await table.service.on_shot_completed(ShotCompleted(shot=a_shot(shot_id)))
+            await table.service.on_analysis_completed(an_advice(shot_id=shot_id))
+            await table.settled()
+
+        assert table.engine.calls == [(LINE, "bm_george")]
+
+    async def test_the_current_shot_does_not_cancel_its_own_waiting_line(
+        self,
+    ) -> None:
+        """ShotCompleted for this swing must not eat the line still waiting.
+
+        The line is queued after the shot, but a late copy of the same
+        completion — or the completion being handled while the line is only
+        queued — has to leave it alone. Cancelling here is how the current
+        shot goes silent before the speaker starts.
+        """
+
+        shot_id = uuid4()
+        gate = asyncio.Event()
+        async with Table(sink=RecordingSink(gate=gate)) as table:
+            await table.say("About this shot.", shot_id=shot_id)
+            await table.service.on_shot_completed(ShotCompleted(shot=a_shot(shot_id)))
+            gate.set()
+            await table.settled()
+
+        assert table.engine.calls
+        assert SpeechOutcome.SPOKEN in table.bus.outcomes
+        assert SpeechOutcome.SUPERSEDED not in table.bus.outcomes
+
+    async def test_a_spoken_line_logs_speech_completed(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        with caplog.at_level(logging.INFO):
+            async with Table() as table:
+                await table.say(LINE)
+                await table.settled()
+
+        events = [record.getMessage() for record in caplog.records]
+        assert "speech_started" in events
+        assert "speech_completed" in events
+
+    async def test_unavailable_speech_says_why(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        with caplog.at_level(logging.INFO):
+            async with Table(enabled=False) as table:
+                assert await table.say(LINE) is False
+
+        assert any(
+            record.getMessage() == "speech_suppressed"
+            and getattr(record, "speech_detail", "") == "speech is not available"
+            for record in caplog.records
+        )
+
+    async def test_another_swing_leaves_a_warning_alone(self) -> None:
+        """A line with no shot attached is not about a swing, so a swing cannot
+        make it stale."""
+
+        gate = asyncio.Event()
+        async with Table(sink=RecordingSink(gate=gate)) as table:
+            await table.say("Playing now.", perishable=False)
+            for _ in range(20):
+                await asyncio.sleep(0)
+
+            await table.say("Mind the club behind you.", priority=SpeechPriority.ALERT)
+            await table.service.on_shot_completed(ShotCompleted(shot=a_shot(uuid4())))
+            gate.set()
+            await table.settled()
+
+        spoken = [text for text, _ in table.engine.calls]
+        assert "Mind the club behind you." in spoken
 
     async def test_a_line_that_does_not_go_stale_is_not_replaced(self) -> None:
         """Two warnings are two things worth hearing, unlike two coaching
@@ -754,3 +905,59 @@ class TestScriptedVoice:
             pytest.approx(0.5),
             pytest.approx(1.25),
         ]
+
+
+class TestVolume:
+    """Gain is a property of the speaker, not of the sentence.
+
+    It is applied after the cache and after the envelope, which is what lets
+    the bay be turned up without retiring a single rendered file and without
+    the lamps reacting to anything but the shape of the words.
+    """
+
+    async def test_the_speaker_is_handed_the_amplified_samples(self) -> None:
+        engine = ScriptedSynthesizer(replies=(a_quiet_tone(),))
+        table = Table(engine=engine, gain=2.0)  # type: ignore[arg-type]
+        async with table:
+            await table.say("Turn it up.", perishable=False)
+            await table.settled()
+
+        assert peak_of(table.sink.played[0]) == 2 * peak_of(a_quiet_tone())
+
+    async def test_the_cache_keeps_the_engine_s_own_level(self) -> None:
+        """A cached WAV that already had the gain baked in would play at the
+        wrong volume the moment the setting changed, and nothing would say so."""
+
+        cache = AudioCache()
+        engine = ScriptedSynthesizer(replies=(a_quiet_tone(), a_quiet_tone()))
+        table = Table(engine=engine, cache=cache, gain=2.0)  # type: ignore[arg-type]
+        async with table:
+            await table.say("Said twice.", perishable=False)
+            await table.settled()
+            await table.say("Said twice.", perishable=False)
+            await table.settled()
+
+        assert cache.hits == 1
+        played = [peak_of(audio) for audio in table.sink.played]
+        assert played == [2 * peak_of(a_quiet_tone())] * 2
+
+    async def test_the_lights_still_see_the_unamplified_shape(self) -> None:
+        engine = ScriptedSynthesizer(replies=(a_quiet_tone(),))
+        loud = Table(engine=engine, gain=4.0)  # type: ignore[arg-type]
+        async with loud:
+            await loud.say("Loud.", perishable=False)
+            await loud.settled()
+
+        engine = ScriptedSynthesizer(replies=(a_quiet_tone(),))
+        quiet = Table(engine=engine, gain=1.0)  # type: ignore[arg-type]
+        async with quiet:
+            await quiet.say("Quiet.", perishable=False)
+            await quiet.settled()
+
+        assert loud.bus.envelopes == quiet.bus.envelopes
+
+    async def test_a_gain_that_could_only_distort_is_refused_at_construction(
+        self,
+    ) -> None:
+        with pytest.raises(ValueError, match="gain must be"):
+            Table(gain=9.0)

@@ -1,0 +1,534 @@
+{
+ "status": "ok",
+ "error": null,
+ "model": "gpt-5-mini",
+ "reasoning_effort": "minimal",
+ "max_output_tokens": 10000,
+ "timeout_seconds": 30.0,
+ "wall_seconds": 9.789,
+ "finished_at": "2026-10-08T14:26:54.880920+00:00",
+ "usage": {
+  "input_tokens": 13318,
+  "output_tokens": 893,
+  "reasoning_tokens": 0,
+  "cached_tokens": 3712,
+  "status": "completed"
+ },
+ "payload": {
+  "phases": {
+   "setup": {
+    "d": 1,
+    "f": 1,
+    "a": "d",
+    "s": [
+     [
+      95,
+      80
+     ],
+     [
+      90,
+      80
+     ],
+     [
+      90,
+      80
+     ],
+     [
+      80,
+      70
+     ],
+     [
+      85,
+      80
+     ],
+     [
+      90,
+      60
+     ],
+     [
+      90,
+      70
+     ]
+    ],
+    "x": [
+     "none",
+     "none",
+     "none",
+     "too_much",
+     "none",
+     "none",
+     "none"
+    ]
+   },
+   "takeaway": {
+    "d": 3,
+    "f": 3,
+    "a": "d",
+    "s": [
+     [
+      80,
+      70
+     ],
+     null,
+     [
+      85,
+      70
+     ],
+     [
+      80,
+      60
+     ],
+     [
+      75,
+      60
+     ],
+     [
+      80,
+      60
+     ]
+    ],
+    "x": [
+     "inside",
+     "none",
+     "standing_up",
+     "sway",
+     "arms_first",
+     "none"
+    ]
+   },
+   "backswing": {
+    "d": 6,
+    "f": 6,
+    "a": "d",
+    "s": [
+     [
+      80,
+      70
+     ],
+     [
+      80,
+      70
+     ],
+     null,
+     [
+      80,
+      60
+     ],
+     [
+      80,
+      60
+     ],
+     [
+      85,
+      70
+     ],
+     [
+      85,
+      70
+     ],
+     [
+      80,
+      60
+     ]
+    ],
+    "x": [
+     "shallow",
+     "too_little",
+     "none",
+     "toward_ball",
+     "standing_up",
+     "none",
+     "none",
+     "too_little"
+    ]
+   },
+   "top": {
+    "d": 6,
+    "f": 6,
+    "a": "d",
+    "s": [
+     [
+      80,
+      70
+     ],
+     [
+      80,
+      70
+     ],
+     null,
+     [
+      85,
+      70
+     ],
+     [
+      80,
+      60
+     ],
+     [
+      85,
+      70
+     ],
+     [
+      85,
+      70
+     ],
+     [
+      80,
+      60
+     ]
+    ],
+    "x": [
+     "shallow",
+     "standing_up",
+     "none",
+     "none",
+     "too_little",
+     "none",
+     "too_little",
+     "too_little"
+    ]
+   },
+   "transition": {
+    "d": 13,
+    "f": 13,
+    "a": "d",
+    "s": [
+     [
+      75,
+      60
+     ],
+     [
+      70,
+      60
+     ],
+     [
+      85,
+      70
+     ],
+     null,
+     [
+      80,
+      60
+     ],
+     [
+      70,
+      60
+     ],
+     [
+      75,
+      60
+     ]
+    ],
+    "x": [
+     "too_little",
+     "out",
+     "out",
+     "none",
+     "toward_ball",
+     "too_little",
+     "arms_first"
+    ]
+   },
+   "downswing": {
+    "d": 14,
+    "f": 14,
+    "a": "d",
+    "s": [
+     [
+      80,
+      70
+     ],
+     null,
+     [
+      80,
+      60
+     ],
+     [
+      80,
+      70
+     ],
+     [
+      75,
+      60
+     ],
+     [
+      75,
+      60
+     ],
+     [
+      80,
+      70
+     ]
+    ],
+    "x": [
+     "inside",
+     "none",
+     "toward_ball",
+     "standing_up",
+     "stuck",
+     "too_little",
+     "arms_first"
+    ]
+   },
+   "impact": {
+    "d": 15,
+    "f": 15,
+    "a": "f",
+    "s": [
+     [
+      80,
+      70
+     ],
+     [
+      80,
+      70
+     ],
+     [
+      75,
+      60
+     ],
+     [
+      80,
+      70
+     ],
+     [
+      85,
+      80
+     ],
+     [
+      75,
+      60
+     ],
+     [
+      85,
+      70
+     ]
+    ],
+    "x": [
+     "toward_ball",
+     "standing_up",
+     "too_little",
+     "behind",
+     "none",
+     "too_little",
+     "bent"
+    ]
+   },
+   "release": {
+    "d": 16,
+    "f": 16,
+    "a": "f",
+    "s": [
+     null,
+     [
+      80,
+      70
+     ],
+     [
+      85,
+      70
+     ],
+     [
+      80,
+      60
+     ],
+     [
+      75,
+      60
+     ],
+     [
+      80,
+      70
+     ]
+    ],
+    "x": [
+     "none",
+     "standing_up",
+     "none",
+     "bent",
+     "too_little",
+     "too_little"
+    ]
+   },
+   "finish": {
+    "d": 18,
+    "f": 18,
+    "a": "f",
+    "s": [
+     [
+      85,
+      80
+     ],
+     [
+      85,
+      80
+     ],
+     [
+      85,
+      70
+     ]
+    ],
+    "x": [
+     "none",
+     "too_little",
+     "none"
+    ]
+   }
+  },
+  "metrics": [
+   [
+    154.1,
+    1,
+    0
+   ],
+   [
+    131.9,
+    1,
+    0
+   ],
+   [
+    1.17,
+    1,
+    0
+   ],
+   [
+    2.4,
+    1,
+    2
+   ],
+   [
+    1,
+    1,
+    2
+   ],
+   [
+    1.4,
+    1,
+    2
+   ],
+   [
+    -7.7,
+    1,
+    0
+   ],
+   [
+    2.1,
+    1,
+    0
+   ],
+   [
+    2.1,
+    1,
+    2
+   ],
+   [
+    3298,
+    1,
+    0
+   ],
+   [
+    32.9,
+    1,
+    2
+   ],
+   [
+    34.8,
+    1,
+    2
+   ],
+   [
+    15.6,
+    1,
+    0
+   ],
+   [
+    24.2,
+    1,
+    1
+   ],
+   [
+    -12.4,
+    2,
+    0
+   ],
+   [
+    2765,
+    1,
+    0
+   ],
+   [
+    1788,
+    1,
+    2
+   ],
+   [
+    0.4,
+    3,
+    0
+   ],
+   [
+    0.6,
+    1,
+    2
+   ],
+   [
+    2.9,
+    1,
+    0
+   ],
+   [
+    0.5,
+    1,
+    0
+   ],
+   [
+    103.7,
+    1,
+    0
+   ],
+   [
+    69,
+    1,
+    0
+   ],
+   [
+    2.7,
+    1,
+    0
+   ],
+   [
+    0.6,
+    1,
+    1
+   ],
+   [
+    23.4,
+    1,
+    0
+   ],
+   [
+    180,
+    1,
+    0
+   ],
+   [
+    1671,
+    1,
+    0
+   ],
+   [
+    1.6,
+    1,
+    2
+   ]
+  ],
+  "coach": {
+   "kind": "correction",
+   "cue": "PATH_OUT_TO_IN",
+   "observation": "Your path moved out-to-in through impact.",
+   "instruction": "Swing more from inside toward the target.",
+   "reinforcement": null,
+   "evidence_frame_id": "ALL_VALUES"
+  }
+ }
+}

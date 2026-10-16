@@ -17,11 +17,21 @@ can double-click. The `wave` module in the standard library does the whole job.
 """
 
 import io
+import sys
 import wave
+from array import array
 from dataclasses import dataclass
 
 # What Kokoro produces, and a sensible default for anything else.
 DEFAULT_SAMPLE_RATE = 24_000
+
+_PEAK = 32767
+_FLOOR = -32768
+
+# A gain beyond this is not a volume control, it is a distortion effect. The
+# ceiling is here rather than in configuration so that no deployment can reach
+# a setting where every sentence is a square wave.
+MAX_GAIN = 4.0
 
 
 @dataclass(frozen=True, slots=True)
@@ -100,6 +110,61 @@ def from_wav(raw: bytes) -> Audio:
             )
     except wave.Error as error:
         raise ValueError(f"not a readable WAV: {error}") from error
+
+
+def amplify(audio: Audio, gain: float) -> tuple[Audio, int]:
+    """The same sentence, louder, and how many samples hit the rail doing it.
+
+    A synthesizer is quiet because speech is quiet: Kokoro's own output peaks
+    around a third of full scale and sits two dozen decibels below it on
+    average, so a room with the Windows mixer already at maximum still gets a
+    voice nobody can hear over a ball striker. The missing volume is headroom
+    that was never used, and this is where it gets used.
+
+    One constant gain for every utterance, never a per-sentence normalisation.
+    Normalising would make a whisper and a shout arrive at the same level,
+    which is the thing that makes an automated voice sound wrong, and it would
+    make the same line play back at a different volume depending on what else
+    was in it. A fixed multiplier changes nothing about the shape of the words.
+
+    Clipped rather than limited, and the count of clipped samples is returned
+    rather than swallowed. A soft limiter would hide a gain that is too high by
+    quietly reshaping every peak; a number the caller can log says so out loud,
+    which is what lets the setting be chosen from evidence instead of taste.
+    """
+
+    if not 0.0 < gain <= MAX_GAIN:
+        raise ValueError(f"gain must be above zero and at most {MAX_GAIN}")
+    if gain == 1.0 or audio.is_empty:
+        return audio, 0
+
+    samples = array("h")
+    samples.frombytes(audio.data)
+    # The data is little-endian and `array` reads it as the machine's own, so
+    # both ends are spelled out for the machine nobody tests on.
+    if sys.byteorder != "little":
+        samples.byteswap()
+    clipped = 0
+    for index, sample in enumerate(samples):
+        scaled = round(sample * gain)
+        if scaled > _PEAK:
+            scaled = _PEAK
+            clipped += 1
+        elif scaled < _FLOOR:
+            scaled = _FLOOR
+            clipped += 1
+        samples[index] = scaled
+    if sys.byteorder != "little":
+        samples.byteswap()
+    return (
+        Audio(
+            data=samples.tobytes(),
+            sample_rate=audio.sample_rate,
+            channels=audio.channels,
+            sample_width=audio.sample_width,
+        ),
+        clipped,
+    )
 
 
 def chunks(audio: Audio, seconds: float) -> tuple[bytes, ...]:

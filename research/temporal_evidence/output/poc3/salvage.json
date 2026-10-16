@@ -1,0 +1,87 @@
+{
+ "label": "POC3 salvage (diagnostic)",
+ "accepted": 38,
+ "rejected": 14,
+ "rejection_reasons": {
+  "length": 14
+ },
+ "accepted_by_position_truth": {
+  "correct": 23,
+  "wrong": 12,
+  "acceptable": 3
+ },
+ "accepted_wrong_position": [
+  "backswing_hand_depth@DTL_06",
+  "backswing_hip_depth@DTL_06",
+  "backswing_posture@DTL_06",
+  "backswing_arm_structure@DTL_06",
+  "backswing_body_turn@DTL_06",
+  "top_centre@FO_05",
+  "transition_arms_lowering@DTL_07",
+  "transition_hand_direction@DTL_07",
+  "transition_trail_shoulder@DTL_07",
+  "transition_posture_space@DTL_07",
+  "transition_pressure_shift@FO_07",
+  "transition_pelvis_initiation@FO_07"
+ ],
+ "coverage": 0.86,
+ "coverage_level": "full",
+ "mechanics": 69,
+ "phases": {
+  "setup": [
+   79,
+   1.0,
+   "7/7"
+  ],
+  "takeaway": [
+   75,
+   0.8,
+   "5/6"
+  ],
+  "backswing": [
+   78,
+   0.82,
+   "6/8"
+  ],
+  "top": [
+   72,
+   0.47,
+   "3/8"
+  ],
+  "transition": [
+   63,
+   0.88,
+   "6/7"
+  ],
+  "downswing": [
+   64,
+   0.62,
+   "4/7"
+  ],
+  "impact": [
+   67,
+   0.77,
+   "5/7"
+  ],
+  "release": [
+   null,
+   0.27,
+   "2/6"
+  ],
+  "finish": [
+   null,
+   0.0,
+   "0/3"
+  ]
+ },
+ "swing_score": 69,
+ "faults": [],
+ "root": "RootCause(fault=None, cue=None, reason='none', ranking=(), explains=(), sticky=False, frame_id=None, confidence=None, severity=None)",
+ "lesson_cue": null,
+ "authority": {
+  "cue": "FACE_CONTROL_GOOD",
+  "from_visual": false
+ },
+ "outcome": "reconciled -> CaddieJ's lesson FACE_CONTROL_GOOD",
+ "unanchored_accepts": 9
+}

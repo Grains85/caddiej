@@ -23,7 +23,7 @@ _CONTEXT_FIELDS = _JsonFormatter._CONTEXT_FIELDS
 
 
 def settings(**overrides: Any) -> Settings:
-    return Settings(**overrides)
+    return Settings(_env_file=None, **overrides)
 
 
 # --- the default is offline -----------------------------------------------
@@ -205,7 +205,6 @@ def test_frames_are_not_sent_unless_asked_for() -> None:
         ("COACHING_TIMEOUT", "0"),
         ("COACHING_CALL_LIMIT", "-1"),
         ("COACHING_SEVERITY_FINE", "2.0"),
-        ("COACHING_DISPLAY_SECONDS", "0"),
     ],
 )
 def test_a_setting_that_would_break_coaching_is_refused_at_startup(

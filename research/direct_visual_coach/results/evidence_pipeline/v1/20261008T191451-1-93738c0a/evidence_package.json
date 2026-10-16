@@ -1,0 +1,1724 @@
+{
+  "schema_version": "1",
+  "shot_id": "20261008T191451-1-93738c0a",
+  "status": "ok",
+  "provenance": {
+    "stage": "evidence_package",
+    "producer": "evidence_package",
+    "producer_version": "1",
+    "created_at": "2026-10-12T10:06:42.119484+00:00"
+  },
+  "cameras": [
+    "swing_behind",
+    "swing_side"
+  ],
+  "image_budget": 24,
+  "selected_frames": [
+    {
+      "reference": {
+        "camera_id": "swing_behind",
+        "relative_file": "diagnostic/swing_behind/frame_015.jpg",
+        "capture_tick": 15,
+        "timestamp_seconds": 1.8972,
+        "sha256": "ab8e4a4ab35a02d7",
+        "width": 1002,
+        "height": 1480
+      },
+      "order": 0,
+      "selection_reason": "sequence_start",
+      "stage": null
+    },
+    {
+      "reference": {
+        "camera_id": "swing_side",
+        "relative_file": "diagnostic/swing_side/frame_015.jpg",
+        "capture_tick": 15,
+        "timestamp_seconds": 1.8972,
+        "sha256": "14c825c6ab9a4d02",
+        "width": 1272,
+        "height": 1490
+      },
+      "order": 1,
+      "selection_reason": "sequence_start",
+      "stage": null
+    },
+    {
+      "reference": {
+        "camera_id": "swing_behind",
+        "relative_file": "diagnostic/swing_behind/frame_020.jpg",
+        "capture_tick": 20,
+        "timestamp_seconds": 2.402,
+        "sha256": "d2f105cc11306ad4",
+        "width": 1002,
+        "height": 1480
+      },
+      "order": 2,
+      "selection_reason": "baseline",
+      "stage": "BACKSWING"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_side",
+        "relative_file": "diagnostic/swing_side/frame_020.jpg",
+        "capture_tick": 20,
+        "timestamp_seconds": 2.402,
+        "sha256": "830edc336887679a",
+        "width": 1272,
+        "height": 1490
+      },
+      "order": 3,
+      "selection_reason": "baseline",
+      "stage": "BACKSWING"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_behind",
+        "relative_file": "diagnostic/swing_behind/frame_025.jpg",
+        "capture_tick": 25,
+        "timestamp_seconds": 2.9066,
+        "sha256": "bd4f1286720d30e2",
+        "width": 1002,
+        "height": 1480
+      },
+      "order": 4,
+      "selection_reason": "baseline",
+      "stage": "TRANSITION"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_side",
+        "relative_file": "diagnostic/swing_side/frame_025.jpg",
+        "capture_tick": 25,
+        "timestamp_seconds": 2.9066,
+        "sha256": "7ed448b6dcf68097",
+        "width": 1272,
+        "height": 1490
+      },
+      "order": 5,
+      "selection_reason": "baseline",
+      "stage": "TRANSITION"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_behind",
+        "relative_file": "diagnostic/swing_behind/frame_031.jpg",
+        "capture_tick": 31,
+        "timestamp_seconds": 3.4132,
+        "sha256": "34dd7a17b7c9a2a4",
+        "width": 1002,
+        "height": 1480
+      },
+      "order": 6,
+      "selection_reason": "baseline",
+      "stage": "DOWNSWING"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_side",
+        "relative_file": "diagnostic/swing_side/frame_031.jpg",
+        "capture_tick": 31,
+        "timestamp_seconds": 3.4132,
+        "sha256": "45c1e921c3f01b7b",
+        "width": 1272,
+        "height": 1490
+      },
+      "order": 7,
+      "selection_reason": "baseline",
+      "stage": "DOWNSWING"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_behind",
+        "relative_file": "diagnostic/swing_behind/frame_037.jpg",
+        "capture_tick": 37,
+        "timestamp_seconds": 3.7116,
+        "sha256": "8d3f420ff7f75bdb",
+        "width": 1002,
+        "height": 1480
+      },
+      "order": 8,
+      "selection_reason": "motion",
+      "stage": "DOWNSWING"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_side",
+        "relative_file": "diagnostic/swing_side/frame_037.jpg",
+        "capture_tick": 37,
+        "timestamp_seconds": 3.7116,
+        "sha256": "b67f1c0bcd8bb001",
+        "width": 1272,
+        "height": 1490
+      },
+      "order": 9,
+      "selection_reason": "motion",
+      "stage": "DOWNSWING"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_behind",
+        "relative_file": "diagnostic/swing_behind/frame_038.jpg",
+        "capture_tick": 38,
+        "timestamp_seconds": 3.7597,
+        "sha256": "ba7958e4ab936c76",
+        "width": 1002,
+        "height": 1480
+      },
+      "order": 10,
+      "selection_reason": "motion",
+      "stage": "DOWNSWING"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_side",
+        "relative_file": "diagnostic/swing_side/frame_038.jpg",
+        "capture_tick": 38,
+        "timestamp_seconds": 3.7597,
+        "sha256": "d65ade1c7e41362f",
+        "width": 1272,
+        "height": 1490
+      },
+      "order": 11,
+      "selection_reason": "motion",
+      "stage": "DOWNSWING"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_behind",
+        "relative_file": "diagnostic/swing_behind/frame_039.jpg",
+        "capture_tick": 39,
+        "timestamp_seconds": 3.8078,
+        "sha256": "12742d153dd6efea",
+        "width": 1002,
+        "height": 1480
+      },
+      "order": 12,
+      "selection_reason": "motion",
+      "stage": "DOWNSWING"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_side",
+        "relative_file": "diagnostic/swing_side/frame_039.jpg",
+        "capture_tick": 39,
+        "timestamp_seconds": 3.8078,
+        "sha256": "e4bb1db88b8e6130",
+        "width": 1272,
+        "height": 1490
+      },
+      "order": 13,
+      "selection_reason": "motion",
+      "stage": "DOWNSWING"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_behind",
+        "relative_file": "diagnostic/swing_behind/frame_040.jpg",
+        "capture_tick": 40,
+        "timestamp_seconds": 3.8559,
+        "sha256": "bde281b8e0cb8da1",
+        "width": 1002,
+        "height": 1480
+      },
+      "order": 14,
+      "selection_reason": "motion",
+      "stage": "DOWNSWING"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_behind",
+        "relative_file": "diagnostic/swing_behind/frame_042.jpg",
+        "capture_tick": 42,
+        "timestamp_seconds": 3.9521,
+        "sha256": "2ee55d069a078c86",
+        "width": 1002,
+        "height": 1480
+      },
+      "order": 15,
+      "selection_reason": "impact_interval",
+      "stage": "DOWNSWING"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_side",
+        "relative_file": "diagnostic/swing_side/frame_042.jpg",
+        "capture_tick": 42,
+        "timestamp_seconds": 3.9521,
+        "sha256": "a800d939fb6211cd",
+        "width": 1272,
+        "height": 1490
+      },
+      "order": 16,
+      "selection_reason": "impact_interval",
+      "stage": "FOLLOW_THROUGH"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_side",
+        "relative_file": "diagnostic/swing_side/frame_044.jpg",
+        "capture_tick": 44,
+        "timestamp_seconds": 4.0628,
+        "sha256": "e6f73cf6ac3f7914",
+        "width": 1272,
+        "height": 1490
+      },
+      "order": 17,
+      "selection_reason": "motion",
+      "stage": "FOLLOW_THROUGH"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_behind",
+        "relative_file": "diagnostic/swing_behind/frame_045.jpg",
+        "capture_tick": 45,
+        "timestamp_seconds": 4.1093,
+        "sha256": "7b2a50cdae32976b",
+        "width": 1002,
+        "height": 1480
+      },
+      "order": 18,
+      "selection_reason": "motion",
+      "stage": "FOLLOW_THROUGH"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_side",
+        "relative_file": "diagnostic/swing_side/frame_045.jpg",
+        "capture_tick": 45,
+        "timestamp_seconds": 4.1093,
+        "sha256": "7ea45f41083c55f7",
+        "width": 1272,
+        "height": 1490
+      },
+      "order": 19,
+      "selection_reason": "motion",
+      "stage": "FOLLOW_THROUGH"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_behind",
+        "relative_file": "diagnostic/swing_behind/frame_046.jpg",
+        "capture_tick": 46,
+        "timestamp_seconds": 4.1559,
+        "sha256": "4f4a132227d8e477",
+        "width": 1002,
+        "height": 1480
+      },
+      "order": 20,
+      "selection_reason": "motion",
+      "stage": "FOLLOW_THROUGH"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_side",
+        "relative_file": "diagnostic/swing_side/frame_046.jpg",
+        "capture_tick": 46,
+        "timestamp_seconds": 4.1559,
+        "sha256": "3ee5f8b5dd8225a6",
+        "width": 1272,
+        "height": 1490
+      },
+      "order": 21,
+      "selection_reason": "motion",
+      "stage": "FOLLOW_THROUGH"
+    },
+    {
+      "reference": {
+        "camera_id": "swing_behind",
+        "relative_file": "diagnostic/swing_behind/frame_051.jpg",
+        "capture_tick": 51,
+        "timestamp_seconds": 4.4107,
+        "sha256": "e0eb4932511f4ee7",
+        "width": 1002,
+        "height": 1480
+      },
+      "order": 22,
+      "selection_reason": "endpoint",
+      "stage": null
+    },
+    {
+      "reference": {
+        "camera_id": "swing_side",
+        "relative_file": "diagnostic/swing_side/frame_051.jpg",
+        "capture_tick": 51,
+        "timestamp_seconds": 4.4107,
+        "sha256": "4fc71d3a3a5e418d",
+        "width": 1272,
+        "height": 1490
+      },
+      "order": 23,
+      "selection_reason": "endpoint",
+      "stage": "FOLLOW_THROUGH"
+    }
+  ],
+  "stage_estimates": [
+    {
+      "schema_version": "1",
+      "shot_id": "20261008T191451-1-93738c0a",
+      "status": "partial",
+      "provenance": {
+        "stage": "swing_stage_detection",
+        "producer": "swing_stage_detector",
+        "producer_version": "1",
+        "created_at": null
+      },
+      "camera_id": "swing_behind",
+      "clock": "diagnostic_timeline.offset_seconds",
+      "handedness": "unknown",
+      "orientation": "estimated",
+      "confidence_scale": "uncalibrated_heuristic",
+      "parameters": {
+        "visibility_min": 0.5,
+        "smooth_radius_seconds": 0.12,
+        "max_gap_seconds": 0.25,
+        "max_elevation_jump_torso": 3.0,
+        "min_torso_fraction": 0.04,
+        "min_rise_torso": 0.75,
+        "min_fall_torso": 0.5,
+        "peak_band_fraction": 0.12,
+        "min_follow_rise_torso": 0.35,
+        "accept_confidence": 0.6,
+        "min_run_samples": 5,
+        "setup_min_seconds": 0.2,
+        "setup_max_range_torso": 0.3,
+        "finish_min_seconds": 0.25,
+        "finish_max_range_torso": 0.25,
+        "finish_max_speed_torso_per_second": 0.5
+      },
+      "boundaries": [
+        {
+          "stage": "BACKSWING",
+          "time_interval_seconds": [
+            2.402,
+            2.7002
+          ],
+          "confidence": 0.838435,
+          "confidence_scale": "uncalibrated_heuristic",
+          "evidence_ticks": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "method": "wrist_elevation_rise",
+          "components": []
+        },
+        {
+          "stage": "TRANSITION",
+          "time_interval_seconds": [
+            2.8114,
+            3.0975
+          ],
+          "confidence": 0.838435,
+          "confidence_scale": "uncalibrated_heuristic",
+          "evidence_ticks": [
+            24,
+            25,
+            26,
+            27
+          ],
+          "method": "wrist_elevation_direction_change",
+          "components": [
+            {
+              "name": "visibility",
+              "value": 0.953742
+            },
+            {
+              "name": "both_wrists",
+              "value": 0.0
+            },
+            {
+              "name": "excursion",
+              "value": 1.0
+            },
+            {
+              "name": "reversal",
+              "value": 1.0
+            },
+            {
+              "name": "edge_support",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "stage": "DOWNSWING",
+          "time_interval_seconds": [
+            3.192,
+            3.9521
+          ],
+          "confidence": 0.838435,
+          "confidence_scale": "uncalibrated_heuristic",
+          "evidence_ticks": [
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42
+          ],
+          "method": "wrist_elevation_descent",
+          "components": []
+        },
+        {
+          "stage": "FOLLOW_THROUGH",
+          "time_interval_seconds": [
+            3.9998,
+            4.3621
+          ],
+          "confidence": 0.838435,
+          "confidence_scale": "uncalibrated_heuristic",
+          "evidence_ticks": [
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50
+          ],
+          "method": "wrist_elevation_recovery",
+          "components": []
+        }
+      ],
+      "candidates": [],
+      "unresolved_stages": [
+        "SETUP",
+        "IMPACT_REGION",
+        "FINISH"
+      ],
+      "tracking": {
+        "frame_count": 51,
+        "pose_detected_frames": 35,
+        "pose_detection_rate": 0.686275,
+        "usable_hand_frames": 35,
+        "both_wrists_frames": 14,
+        "continuity": [
+          {
+            "landmark": "left_shoulder",
+            "usable_frames": 35,
+            "longest_run": 35,
+            "continuity": 1.0,
+            "gaps": 0
+          },
+          {
+            "landmark": "right_shoulder",
+            "usable_frames": 35,
+            "longest_run": 35,
+            "continuity": 1.0,
+            "gaps": 0
+          },
+          {
+            "landmark": "left_elbow",
+            "usable_frames": 19,
+            "longest_run": 13,
+            "continuity": 0.684211,
+            "gaps": 1
+          },
+          {
+            "landmark": "right_elbow",
+            "usable_frames": 35,
+            "longest_run": 35,
+            "continuity": 1.0,
+            "gaps": 0
+          },
+          {
+            "landmark": "left_wrist",
+            "usable_frames": 14,
+            "longest_run": 14,
+            "continuity": 1.0,
+            "gaps": 0
+          },
+          {
+            "landmark": "right_wrist",
+            "usable_frames": 35,
+            "longest_run": 35,
+            "continuity": 1.0,
+            "gaps": 0
+          },
+          {
+            "landmark": "left_hip",
+            "usable_frames": 35,
+            "longest_run": 35,
+            "continuity": 1.0,
+            "gaps": 0
+          },
+          {
+            "landmark": "right_hip",
+            "usable_frames": 35,
+            "longest_run": 35,
+            "continuity": 1.0,
+            "gaps": 0
+          }
+        ],
+        "missing_landmark_intervals": [
+          {
+            "landmark": "left_shoulder",
+            "time_interval_seconds": [
+              0.489,
+              2.0068
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16
+            ],
+            "frame_count": 16
+          },
+          {
+            "landmark": "right_shoulder",
+            "time_interval_seconds": [
+              0.489,
+              2.0068
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16
+            ],
+            "frame_count": 16
+          },
+          {
+            "landmark": "left_elbow",
+            "time_interval_seconds": [
+              0.489,
+              3.192
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28
+            ],
+            "frame_count": 28
+          },
+          {
+            "landmark": "left_elbow",
+            "time_interval_seconds": [
+              3.9521,
+              4.1093
+            ],
+            "ticks": [
+              42,
+              43,
+              44,
+              45
+            ],
+            "frame_count": 4
+          },
+          {
+            "landmark": "right_elbow",
+            "time_interval_seconds": [
+              0.489,
+              2.0068
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16
+            ],
+            "frame_count": 16
+          },
+          {
+            "landmark": "left_wrist",
+            "time_interval_seconds": [
+              0.489,
+              3.0975
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27
+            ],
+            "frame_count": 27
+          },
+          {
+            "landmark": "left_wrist",
+            "time_interval_seconds": [
+              3.9521,
+              4.4107
+            ],
+            "ticks": [
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51
+            ],
+            "frame_count": 10
+          },
+          {
+            "landmark": "right_wrist",
+            "time_interval_seconds": [
+              0.489,
+              2.0068
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16
+            ],
+            "frame_count": 16
+          },
+          {
+            "landmark": "left_hip",
+            "time_interval_seconds": [
+              0.489,
+              2.0068
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16
+            ],
+            "frame_count": 16
+          },
+          {
+            "landmark": "right_hip",
+            "time_interval_seconds": [
+              0.489,
+              2.0068
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16
+            ],
+            "frame_count": 16
+          }
+        ]
+      },
+      "hand_excursion": {
+        "observed": true,
+        "rise_torso_lengths": 1.866656,
+        "fall_torso_lengths": 1.734548,
+        "peak_time_seconds": 3.0027,
+        "peak_tick": 26,
+        "wrists_at_peak": 1,
+        "gates_passed": true,
+        "reversal": true
+      },
+      "impact": {
+        "supported": false,
+        "reason": "No observation of ball-club contact. Hand elevation does not establish an impact region."
+      },
+      "warnings": [
+        "Confidence values are uncalibrated heuristics, not probabilities.",
+        "Handedness is unknown. Left and right are the person's sides from the pose model, not lead and trail.",
+        "IMPACT_REGION is unresolved. Ball contact is not observable from hand elevation. A hand-height peak, a direction change, and a fast descent are not impact."
+      ],
+      "errors": []
+    },
+    {
+      "schema_version": "1",
+      "shot_id": "20261008T191451-1-93738c0a",
+      "status": "partial",
+      "provenance": {
+        "stage": "swing_stage_detection",
+        "producer": "swing_stage_detector",
+        "producer_version": "1",
+        "created_at": null
+      },
+      "camera_id": "swing_side",
+      "clock": "diagnostic_timeline.offset_seconds",
+      "handedness": "unknown",
+      "orientation": "estimated",
+      "confidence_scale": "uncalibrated_heuristic",
+      "parameters": {
+        "visibility_min": 0.5,
+        "smooth_radius_seconds": 0.12,
+        "max_gap_seconds": 0.25,
+        "max_elevation_jump_torso": 3.0,
+        "min_torso_fraction": 0.04,
+        "min_rise_torso": 0.75,
+        "min_fall_torso": 0.5,
+        "peak_band_fraction": 0.12,
+        "min_follow_rise_torso": 0.35,
+        "accept_confidence": 0.6,
+        "min_run_samples": 5,
+        "setup_min_seconds": 0.2,
+        "setup_max_range_torso": 0.3,
+        "finish_min_seconds": 0.25,
+        "finish_max_range_torso": 0.25,
+        "finish_max_speed_torso_per_second": 0.5
+      },
+      "boundaries": [
+        {
+          "stage": "BACKSWING",
+          "time_interval_seconds": [
+            2.402,
+            2.7002
+          ],
+          "confidence": 0.961567,
+          "confidence_scale": "uncalibrated_heuristic",
+          "evidence_ticks": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "method": "wrist_elevation_rise",
+          "components": []
+        },
+        {
+          "stage": "TRANSITION",
+          "time_interval_seconds": [
+            2.8114,
+            3.3651
+          ],
+          "confidence": 0.961567,
+          "confidence_scale": "uncalibrated_heuristic",
+          "evidence_ticks": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
+          ],
+          "method": "wrist_elevation_direction_change",
+          "components": [
+            {
+              "name": "visibility",
+              "value": 0.84627
+            },
+            {
+              "name": "both_wrists",
+              "value": 1.0
+            },
+            {
+              "name": "excursion",
+              "value": 1.0
+            },
+            {
+              "name": "reversal",
+              "value": 1.0
+            },
+            {
+              "name": "edge_support",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "stage": "DOWNSWING",
+          "time_interval_seconds": [
+            3.4132,
+            3.9034
+          ],
+          "confidence": 0.961567,
+          "confidence_scale": "uncalibrated_heuristic",
+          "evidence_ticks": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            41
+          ],
+          "method": "wrist_elevation_descent",
+          "components": []
+        },
+        {
+          "stage": "FOLLOW_THROUGH",
+          "time_interval_seconds": [
+            3.9521,
+            4.4107
+          ],
+          "confidence": 0.961567,
+          "confidence_scale": "uncalibrated_heuristic",
+          "evidence_ticks": [
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51
+          ],
+          "method": "wrist_elevation_recovery",
+          "components": []
+        }
+      ],
+      "candidates": [],
+      "unresolved_stages": [
+        "SETUP",
+        "IMPACT_REGION",
+        "FINISH"
+      ],
+      "tracking": {
+        "frame_count": 51,
+        "pose_detected_frames": 35,
+        "pose_detection_rate": 0.686275,
+        "usable_hand_frames": 35,
+        "both_wrists_frames": 33,
+        "continuity": [
+          {
+            "landmark": "left_shoulder",
+            "usable_frames": 35,
+            "longest_run": 24,
+            "continuity": 0.685714,
+            "gaps": 1
+          },
+          {
+            "landmark": "right_shoulder",
+            "usable_frames": 35,
+            "longest_run": 24,
+            "continuity": 0.685714,
+            "gaps": 1
+          },
+          {
+            "landmark": "left_elbow",
+            "usable_frames": 34,
+            "longest_run": 24,
+            "continuity": 0.705882,
+            "gaps": 1
+          },
+          {
+            "landmark": "right_elbow",
+            "usable_frames": 35,
+            "longest_run": 24,
+            "continuity": 0.685714,
+            "gaps": 1
+          },
+          {
+            "landmark": "left_wrist",
+            "usable_frames": 33,
+            "longest_run": 24,
+            "continuity": 0.727273,
+            "gaps": 1
+          },
+          {
+            "landmark": "right_wrist",
+            "usable_frames": 35,
+            "longest_run": 24,
+            "continuity": 0.685714,
+            "gaps": 1
+          },
+          {
+            "landmark": "left_hip",
+            "usable_frames": 35,
+            "longest_run": 24,
+            "continuity": 0.685714,
+            "gaps": 1
+          },
+          {
+            "landmark": "right_hip",
+            "usable_frames": 35,
+            "longest_run": 24,
+            "continuity": 0.685714,
+            "gaps": 1
+          }
+        ],
+        "missing_landmark_intervals": [
+          {
+            "landmark": "left_shoulder",
+            "time_interval_seconds": [
+              0.489,
+              1.7868
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ],
+            "frame_count": 14
+          },
+          {
+            "landmark": "left_shoulder",
+            "time_interval_seconds": [
+              3.8078,
+              3.8559
+            ],
+            "ticks": [
+              39,
+              40
+            ],
+            "frame_count": 2
+          },
+          {
+            "landmark": "right_shoulder",
+            "time_interval_seconds": [
+              0.489,
+              1.7868
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ],
+            "frame_count": 14
+          },
+          {
+            "landmark": "right_shoulder",
+            "time_interval_seconds": [
+              3.8078,
+              3.8559
+            ],
+            "ticks": [
+              39,
+              40
+            ],
+            "frame_count": 2
+          },
+          {
+            "landmark": "left_elbow",
+            "time_interval_seconds": [
+              0.489,
+              1.7868
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ],
+            "frame_count": 14
+          },
+          {
+            "landmark": "left_elbow",
+            "time_interval_seconds": [
+              3.8078,
+              3.8559
+            ],
+            "ticks": [
+              39,
+              40
+            ],
+            "frame_count": 2
+          },
+          {
+            "landmark": "left_elbow",
+            "time_interval_seconds": [
+              4.4107,
+              4.4107
+            ],
+            "ticks": [
+              51
+            ],
+            "frame_count": 1
+          },
+          {
+            "landmark": "right_elbow",
+            "time_interval_seconds": [
+              0.489,
+              1.7868
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ],
+            "frame_count": 14
+          },
+          {
+            "landmark": "right_elbow",
+            "time_interval_seconds": [
+              3.8078,
+              3.8559
+            ],
+            "ticks": [
+              39,
+              40
+            ],
+            "frame_count": 2
+          },
+          {
+            "landmark": "left_wrist",
+            "time_interval_seconds": [
+              0.489,
+              1.7868
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ],
+            "frame_count": 14
+          },
+          {
+            "landmark": "left_wrist",
+            "time_interval_seconds": [
+              3.8078,
+              3.8559
+            ],
+            "ticks": [
+              39,
+              40
+            ],
+            "frame_count": 2
+          },
+          {
+            "landmark": "left_wrist",
+            "time_interval_seconds": [
+              4.3621,
+              4.4107
+            ],
+            "ticks": [
+              50,
+              51
+            ],
+            "frame_count": 2
+          },
+          {
+            "landmark": "right_wrist",
+            "time_interval_seconds": [
+              0.489,
+              1.7868
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ],
+            "frame_count": 14
+          },
+          {
+            "landmark": "right_wrist",
+            "time_interval_seconds": [
+              3.8078,
+              3.8559
+            ],
+            "ticks": [
+              39,
+              40
+            ],
+            "frame_count": 2
+          },
+          {
+            "landmark": "left_hip",
+            "time_interval_seconds": [
+              0.489,
+              1.7868
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ],
+            "frame_count": 14
+          },
+          {
+            "landmark": "left_hip",
+            "time_interval_seconds": [
+              3.8078,
+              3.8559
+            ],
+            "ticks": [
+              39,
+              40
+            ],
+            "frame_count": 2
+          },
+          {
+            "landmark": "right_hip",
+            "time_interval_seconds": [
+              0.489,
+              1.7868
+            ],
+            "ticks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ],
+            "frame_count": 14
+          },
+          {
+            "landmark": "right_hip",
+            "time_interval_seconds": [
+              3.8078,
+              3.8559
+            ],
+            "ticks": [
+              39,
+              40
+            ],
+            "frame_count": 2
+          }
+        ]
+      },
+      "hand_excursion": {
+        "observed": true,
+        "rise_torso_lengths": 1.574078,
+        "fall_torso_lengths": 1.105123,
+        "peak_time_seconds": 3.192,
+        "peak_tick": 28,
+        "wrists_at_peak": 2,
+        "gates_passed": true,
+        "reversal": true
+      },
+      "impact": {
+        "supported": false,
+        "reason": "No observation of ball-club contact. Hand elevation does not establish an impact region."
+      },
+      "warnings": [
+        "Confidence values are uncalibrated heuristics, not probabilities.",
+        "Handedness is unknown. Left and right are the person's sides from the pose model, not lead and trail.",
+        "IMPACT_REGION is unresolved. Ball contact is not observable from hand elevation. A hand-height peak, a direction change, and a fast descent are not impact."
+      ],
+      "errors": []
+    }
+  ],
+  "impact_estimate": {
+    "schema_version": "1",
+    "shot_id": "20261008T191451-1-93738c0a",
+    "status": "estimated",
+    "provenance": {
+      "stage": "impact_estimation_fused",
+      "producer": "impact_estimator",
+      "producer_version": "1",
+      "created_at": null
+    },
+    "classification": "observed_ball_motion_onset",
+    "reason": "stationary_spot_changed_and_stayed_changed",
+    "confidence": 0.65,
+    "confidence_scale": "uncalibrated_heuristic",
+    "method": "local_ball_appearance_change",
+    "camera_id": "swing_behind",
+    "contact_interval_ticks": [
+      41,
+      42
+    ],
+    "contact_interval_seconds": [
+      3.9034,
+      3.9521
+    ],
+    "supporting_ticks": [
+      41,
+      42,
+      43
+    ],
+    "normalized_ball": [
+      0.770833,
+      0.651622
+    ],
+    "rejected_candidates": [
+      {
+        "normalized_x": 0.014583,
+        "normalized_y": 0.96756,
+        "reason": "no_motion_onset",
+        "onset_tick": null
+      }
+    ],
+    "camera_estimates": [
+      {
+        "schema_version": "1",
+        "shot_id": "20261008T191451-1-93738c0a",
+        "status": "estimated",
+        "provenance": {
+          "stage": "impact_estimation",
+          "producer": "impact_estimator",
+          "producer_version": "1",
+          "created_at": null
+        },
+        "classification": "observed_ball_motion_onset",
+        "reason": "stationary_spot_changed_and_stayed_changed",
+        "confidence": 0.65,
+        "confidence_scale": "uncalibrated_heuristic",
+        "method": "local_ball_appearance_change",
+        "camera_id": "swing_behind",
+        "contact_interval_ticks": [
+          41,
+          42
+        ],
+        "contact_interval_seconds": [
+          3.9034,
+          3.9521
+        ],
+        "supporting_ticks": [
+          41,
+          42,
+          43
+        ],
+        "normalized_ball": [
+          0.770833,
+          0.651622
+        ],
+        "rejected_candidates": [
+          {
+            "normalized_x": 0.014583,
+            "normalized_y": 0.96756,
+            "reason": "no_motion_onset",
+            "onset_tick": null
+          }
+        ],
+        "camera_estimates": [],
+        "parameters": [
+          [
+            "analysis_width",
+            480
+          ],
+          [
+            "ground_top",
+            0.4
+          ],
+          [
+            "ground_bottom",
+            0.97
+          ],
+          [
+            "reference_frames",
+            4
+          ],
+          [
+            "min_stable_seconds",
+            0.2
+          ],
+          [
+            "persist_frames",
+            2
+          ],
+          [
+            "persist_fraction",
+            0.7
+          ],
+          [
+            "min_area",
+            4
+          ],
+          [
+            "max_area",
+            200
+          ],
+          [
+            "min_aspect",
+            0.55
+          ],
+          [
+            "min_fill",
+            0.4
+          ],
+          [
+            "onset_gray",
+            20.0
+          ],
+          [
+            "stable_gray",
+            12.0
+          ],
+          [
+            "ring_ratio",
+            0.7
+          ],
+          [
+            "min_contrast",
+            12.0
+          ],
+          [
+            "disagreement_periods",
+            2.0
+          ]
+        ],
+        "warnings": [
+          "The interval is when a stationary spot left. The club meeting the ball was not observed, so this is not an inferred contact claim."
+        ]
+      },
+      {
+        "schema_version": "1",
+        "shot_id": "20261008T191451-1-93738c0a",
+        "status": "unresolved",
+        "provenance": {
+          "stage": "impact_estimation",
+          "producer": "impact_estimator",
+          "producer_version": "1",
+          "created_at": null
+        },
+        "classification": "unsupported",
+        "reason": "ball_not_visible",
+        "confidence": null,
+        "confidence_scale": "uncalibrated_heuristic",
+        "method": "local_ball_appearance_change",
+        "camera_id": "swing_side",
+        "contact_interval_ticks": null,
+        "contact_interval_seconds": null,
+        "supporting_ticks": [],
+        "normalized_ball": null,
+        "rejected_candidates": [],
+        "camera_estimates": [],
+        "parameters": [
+          [
+            "analysis_width",
+            480
+          ],
+          [
+            "ground_top",
+            0.4
+          ],
+          [
+            "ground_bottom",
+            0.97
+          ],
+          [
+            "reference_frames",
+            4
+          ],
+          [
+            "min_stable_seconds",
+            0.2
+          ],
+          [
+            "persist_frames",
+            2
+          ],
+          [
+            "persist_fraction",
+            0.7
+          ],
+          [
+            "min_area",
+            4
+          ],
+          [
+            "max_area",
+            200
+          ],
+          [
+            "min_aspect",
+            0.55
+          ],
+          [
+            "min_fill",
+            0.4
+          ],
+          [
+            "onset_gray",
+            20.0
+          ],
+          [
+            "stable_gray",
+            12.0
+          ],
+          [
+            "ring_ratio",
+            0.7
+          ],
+          [
+            "min_contrast",
+            12.0
+          ],
+          [
+            "disagreement_periods",
+            2.0
+          ]
+        ],
+        "warnings": []
+      }
+    ],
+    "parameters": [
+      [
+        "analysis_width",
+        480
+      ],
+      [
+        "ground_top",
+        0.4
+      ],
+      [
+        "ground_bottom",
+        0.97
+      ],
+      [
+        "reference_frames",
+        4
+      ],
+      [
+        "min_stable_seconds",
+        0.2
+      ],
+      [
+        "persist_frames",
+        2
+      ],
+      [
+        "persist_fraction",
+        0.7
+      ],
+      [
+        "min_area",
+        4
+      ],
+      [
+        "max_area",
+        200
+      ],
+      [
+        "min_aspect",
+        0.55
+      ],
+      [
+        "min_fill",
+        0.4
+      ],
+      [
+        "onset_gray",
+        20.0
+      ],
+      [
+        "stable_gray",
+        12.0
+      ],
+      [
+        "ring_ratio",
+        0.7
+      ],
+      [
+        "min_contrast",
+        12.0
+      ],
+      [
+        "disagreement_periods",
+        2.0
+      ]
+    ],
+    "warnings": [
+      "The interval is when a stationary spot left. The club meeting the ball was not observed, so this is not an inferred contact claim.",
+      "swing_side unresolved: ball_not_visible"
+    ]
+  },
+  "synchronization": {
+    "matched_ticks": 51,
+    "median_abs_delta_seconds": 0.0,
+    "max_abs_delta_seconds": 0.0,
+    "sufficient": true,
+    "note": "Cameras are compared by capture tick on offset_seconds. A shared tick is not treated as proof of synchronization."
+  },
+  "fallback": "stage_and_impact",
+  "raw_capture_preserved": true,
+  "warnings": [],
+  "errors": []
+}

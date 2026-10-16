@@ -1,0 +1,670 @@
+{
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "locate",
+  "metrics",
+  "checkpoints",
+  "coach"
+ ],
+ "$defs": {
+  "dtl": {
+   "anyOf": [
+    {
+     "type": "null"
+    },
+    {
+     "type": "array",
+     "items": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+       },
+       {
+        "type": "string",
+        "enum": [
+         "DTL_01",
+         "DTL_02",
+         "DTL_03",
+         "DTL_04",
+         "DTL_05",
+         "DTL_06",
+         "DTL_07",
+         "DTL_08",
+         "DTL_09",
+         "DTL_10",
+         "DTL_11",
+         "DTL_12",
+         "DTL_13",
+         "DTL_14",
+         "DTL_15",
+         "DTL_16",
+         "DTL_17",
+         "DTL_18"
+        ]
+       },
+       {
+        "$ref": "#/$defs/dir"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "minItems": 4,
+     "maxItems": 4
+    }
+   ]
+  },
+  "fo": {
+   "anyOf": [
+    {
+     "type": "null"
+    },
+    {
+     "type": "array",
+     "items": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+       },
+       {
+        "type": "string",
+        "enum": [
+         "FO_01",
+         "FO_02",
+         "FO_03",
+         "FO_04",
+         "FO_05",
+         "FO_06",
+         "FO_07",
+         "FO_08",
+         "FO_09",
+         "FO_10",
+         "FO_11",
+         "FO_12",
+         "FO_13",
+         "FO_14",
+         "FO_15",
+         "FO_16",
+         "FO_17",
+         "FO_18"
+        ]
+       },
+       {
+        "$ref": "#/$defs/dir"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "minItems": 4,
+     "maxItems": 4
+    }
+   ]
+  },
+  "any": {
+   "anyOf": [
+    {
+     "type": "null"
+    },
+    {
+     "type": "array",
+     "items": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+       },
+       {
+        "type": "string",
+        "enum": [
+         "DTL_01",
+         "DTL_02",
+         "DTL_03",
+         "DTL_04",
+         "DTL_05",
+         "DTL_06",
+         "DTL_07",
+         "DTL_08",
+         "DTL_09",
+         "DTL_10",
+         "DTL_11",
+         "DTL_12",
+         "DTL_13",
+         "DTL_14",
+         "DTL_15",
+         "DTL_16",
+         "DTL_17",
+         "DTL_18",
+         "FO_01",
+         "FO_02",
+         "FO_03",
+         "FO_04",
+         "FO_05",
+         "FO_06",
+         "FO_07",
+         "FO_08",
+         "FO_09",
+         "FO_10",
+         "FO_11",
+         "FO_12",
+         "FO_13",
+         "FO_14",
+         "FO_15",
+         "FO_16",
+         "FO_17",
+         "FO_18"
+        ]
+       },
+       {
+        "$ref": "#/$defs/dir"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "minItems": 4,
+     "maxItems": 4
+    }
+   ]
+  },
+  "dir": {
+   "type": "string",
+   "enum": [
+    "too_much",
+    "too_little",
+    "arms_first",
+    "inside",
+    "outside",
+    "standing_up",
+    "sway",
+    "shallow",
+    "deep",
+    "flat",
+    "steep",
+    "toward_ball",
+    "reverse",
+    "out",
+    "stuck",
+    "flying",
+    "behind",
+    "bent"
+   ]
+  }
+ },
+ "properties": {
+  "locate": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "dtl",
+    "fo"
+   ],
+   "properties": {
+    "dtl": {
+     "type": "array",
+     "minItems": 9,
+     "maxItems": 9,
+     "items": {
+      "anyOf": [
+       {
+        "type": "null"
+       },
+       {
+        "type": "string",
+        "enum": [
+         "DTL_01",
+         "DTL_02",
+         "DTL_03",
+         "DTL_04",
+         "DTL_05",
+         "DTL_06",
+         "DTL_07",
+         "DTL_08",
+         "DTL_09",
+         "DTL_10",
+         "DTL_11",
+         "DTL_12",
+         "DTL_13",
+         "DTL_14",
+         "DTL_15",
+         "DTL_16",
+         "DTL_17",
+         "DTL_18"
+        ]
+       }
+      ]
+     }
+    },
+    "fo": {
+     "type": "array",
+     "minItems": 9,
+     "maxItems": 9,
+     "items": {
+      "anyOf": [
+       {
+        "type": "null"
+       },
+       {
+        "type": "string",
+        "enum": [
+         "FO_01",
+         "FO_02",
+         "FO_03",
+         "FO_04",
+         "FO_05",
+         "FO_06",
+         "FO_07",
+         "FO_08",
+         "FO_09",
+         "FO_10",
+         "FO_11",
+         "FO_12",
+         "FO_13",
+         "FO_14",
+         "FO_15",
+         "FO_16",
+         "FO_17",
+         "FO_18"
+        ]
+       }
+      ]
+     }
+    }
+   }
+  },
+  "metrics": {
+   "type": "array",
+   "items": {
+    "anyOf": [
+     {
+      "type": "null"
+     },
+     {
+      "type": "array",
+      "items": {
+       "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+     }
+    ]
+   },
+   "minItems": 29,
+   "maxItems": 29
+  },
+  "checkpoints": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "setup_dtl",
+    "setup_fo",
+    "setup_any",
+    "takeaway_dtl",
+    "takeaway_fo",
+    "takeaway_any",
+    "backswing_dtl",
+    "backswing_fo",
+    "backswing_any",
+    "top_dtl",
+    "top_fo",
+    "top_any",
+    "transition_dtl",
+    "transition_fo",
+    "transition_any",
+    "downswing_dtl",
+    "downswing_any",
+    "impact_dtl",
+    "impact_fo",
+    "impact_any",
+    "release_dtl",
+    "release_fo",
+    "release_any",
+    "finish_any"
+   ],
+   "properties": {
+    "setup_dtl": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/dtl"
+     },
+     "minItems": 5,
+     "maxItems": 5
+    },
+    "setup_fo": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/fo"
+     },
+     "minItems": 1,
+     "maxItems": 1
+    },
+    "setup_any": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/any"
+     },
+     "minItems": 1,
+     "maxItems": 1
+    },
+    "takeaway_dtl": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/dtl"
+     },
+     "minItems": 3,
+     "maxItems": 3
+    },
+    "takeaway_fo": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/fo"
+     },
+     "minItems": 1,
+     "maxItems": 1
+    },
+    "takeaway_any": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/any"
+     },
+     "minItems": 2,
+     "maxItems": 2
+    },
+    "backswing_dtl": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/dtl"
+     },
+     "minItems": 5,
+     "maxItems": 5
+    },
+    "backswing_fo": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/fo"
+     },
+     "minItems": 1,
+     "maxItems": 1
+    },
+    "backswing_any": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/any"
+     },
+     "minItems": 2,
+     "maxItems": 2
+    },
+    "top_dtl": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/dtl"
+     },
+     "minItems": 3,
+     "maxItems": 3
+    },
+    "top_fo": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/fo"
+     },
+     "minItems": 1,
+     "maxItems": 1
+    },
+    "top_any": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/any"
+     },
+     "minItems": 4,
+     "maxItems": 4
+    },
+    "transition_dtl": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/dtl"
+     },
+     "minItems": 5,
+     "maxItems": 5
+    },
+    "transition_fo": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/fo"
+     },
+     "minItems": 1,
+     "maxItems": 1
+    },
+    "transition_any": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/any"
+     },
+     "minItems": 1,
+     "maxItems": 1
+    },
+    "downswing_dtl": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/dtl"
+     },
+     "minItems": 5,
+     "maxItems": 5
+    },
+    "downswing_any": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/any"
+     },
+     "minItems": 2,
+     "maxItems": 2
+    },
+    "impact_dtl": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/dtl"
+     },
+     "minItems": 2,
+     "maxItems": 2
+    },
+    "impact_fo": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/fo"
+     },
+     "minItems": 3,
+     "maxItems": 3
+    },
+    "impact_any": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/any"
+     },
+     "minItems": 2,
+     "maxItems": 2
+    },
+    "release_dtl": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/dtl"
+     },
+     "minItems": 2,
+     "maxItems": 2
+    },
+    "release_fo": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/fo"
+     },
+     "minItems": 1,
+     "maxItems": 1
+    },
+    "release_any": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/any"
+     },
+     "minItems": 3,
+     "maxItems": 3
+    },
+    "finish_any": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/any"
+     },
+     "minItems": 3,
+     "maxItems": 3
+    }
+   }
+  },
+  "coach": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "kind",
+    "cue",
+    "observation",
+    "instruction",
+    "reinforcement",
+    "evidence_frame_id"
+   ],
+   "properties": {
+    "kind": {
+     "type": "string",
+     "enum": [
+      "correction",
+      "reinforcement",
+      "none"
+     ]
+    },
+    "cue": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "FACE_OPEN",
+        "FACE_CLOSED",
+        "PATH_OUT_TO_IN",
+        "PATH_IN_TO_OUT",
+        "STRIKE_TOE",
+        "STRIKE_HEEL",
+        "TOO_STEEP",
+        "TOO_SHALLOW",
+        "START_PUSHED",
+        "START_PULLED",
+        "CURVE_SLICE",
+        "CURVE_HOOK",
+        "SPEED_RUSHED",
+        "SCATTER",
+        "FACE_CONTROL_GOOD",
+        "PATH_GOOD",
+        "STRIKE_GOOD",
+        "LOW_POINT_GOOD",
+        "SPEED_GOOD",
+        "START_LINE_GOOD",
+        "CURVE_GOOD",
+        "LAUNCH_GOOD",
+        "SPIN_GOOD",
+        "CONSISTENCY_GOOD"
+       ]
+      }
+     ]
+    },
+    "observation": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string",
+       "maxLength": 120
+      }
+     ]
+    },
+    "instruction": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string",
+       "maxLength": 120
+      }
+     ]
+    },
+    "reinforcement": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string",
+       "maxLength": 120
+      }
+     ]
+    },
+    "evidence_frame_id": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "DTL_01",
+        "DTL_02",
+        "DTL_03",
+        "DTL_04",
+        "DTL_05",
+        "DTL_06",
+        "DTL_07",
+        "DTL_08",
+        "DTL_09",
+        "DTL_10",
+        "DTL_11",
+        "DTL_12",
+        "DTL_13",
+        "DTL_14",
+        "DTL_15",
+        "DTL_16",
+        "DTL_17",
+        "DTL_18",
+        "FO_01",
+        "FO_02",
+        "FO_03",
+        "FO_04",
+        "FO_05",
+        "FO_06",
+        "FO_07",
+        "FO_08",
+        "FO_09",
+        "FO_10",
+        "FO_11",
+        "FO_12",
+        "FO_13",
+        "FO_14",
+        "FO_15",
+        "FO_16",
+        "FO_17",
+        "FO_18",
+        "IMPACT",
+        "ALL_VALUES"
+       ]
+      }
+     ]
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,69 @@
+{
+  "model": "gpt-5-mini-2025-08-07",
+  "reasoning_effort": "minimal",
+  "latency_seconds": 7.686999999918044,
+  "usage": {
+    "input_tokens": 42055,
+    "output_tokens": 507,
+    "reasoning_tokens": 0
+  },
+  "payload": {
+    "status": "no_proven_fault",
+    "handedness": {
+      "side": "right",
+      "confidence": 0.9,
+      "visual_basis": "Face-on address (tick 15) shows left side closer to target (lead side left) \u2014 typical right-handed setup."
+    },
+    "temporal_orientation": [
+      {
+        "capture_tick": 15,
+        "state": "setup",
+        "confidence": 0.9,
+        "visual_basis": "Club and hands at address over the ball, no observable motion yet."
+      },
+      {
+        "capture_tick": 19,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club moving up and away from the ball compared with address frames."
+      },
+      {
+        "capture_tick": 24,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Further continuation of the takeaway; club higher and away from ball."
+      },
+      {
+        "capture_tick": 27,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Club near top of backswing, still moving away in these frames."
+      },
+      {
+        "capture_tick": 35,
+        "state": "direction_change_region",
+        "confidence": 0.9,
+        "visual_basis": "Hands near top and beginning to move back toward the ball in subsequent frames."
+      },
+      {
+        "capture_tick": 41,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club clearly moving down and toward the ball compared with earlier frames."
+      },
+      {
+        "capture_tick": 42,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Delivery toward the ball; hands approaching impact area."
+      },
+      {
+        "capture_tick": 51,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Follow-through positions with club past the impact area and body turned toward target."
+      }
+    ],
+    "fault_candidates": []
+  }
+}

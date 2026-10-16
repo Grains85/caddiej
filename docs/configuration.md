@@ -57,17 +57,96 @@ local, and nothing here is safe to expose on a network.
 | `FLOOR_STATUS_TEXT` | `CADDIEJ FLOOR ONLINE` | What the idle floor says. |
 | `FLOOR_WIDTH_M` | `1.0` | Physical width of the hitting bay, metres, left to right. Path angles are computed here. The default 1 m makes surface coordinates numerically identical to metres, so a fresh checkout looks as it always has. Not a pixel count. |
 | `FLOOR_DEPTH_M` | `1.0` | Physical depth of the hitting bay, metres, back of the surface towards the player. Same default as the width, for the same reason. |
-| `FLOOR_TEE_X_M` | `0.5` | Default (non-driver) ball marker across the physical floor, metres from the far-left back corner. Must lie on `FLOOR_WIDTH_M`. Unknown club uses this too. |
-| `FLOOR_TEE_Y_M` | `0.72` | Default (non-driver) ball marker towards the player, metres. Must lie on `FLOOR_DEPTH_M`. |
-| `FLOOR_TEE_DRIVER_X_M` | *(inherits default tee)* | DRIVER marker X, metres. Unset inherits `FLOOR_TEE_X_M`. Must lie on `FLOOR_WIDTH_M`. |
-| `FLOOR_TEE_DRIVER_Y_M` | *(inherits default tee)* | DRIVER marker Y, metres. Unset inherits `FLOOR_TEE_Y_M`. Must lie on `FLOOR_DEPTH_M`. |
+| `FLOOR_HITTING_STRIP_X_M` | `0.5` | Hitting-strip **centre** X, metres — not a corner. The anchor: everything golf-related on the floor is placed from it. Must lie on `FLOOR_WIDTH_M`. |
+| `FLOOR_HITTING_STRIP_Y_M` | `0.72` | Hitting-strip **centre** Y, metres, towards the player. Must lie on `FLOOR_DEPTH_M`. |
+| `FLOOR_HITTING_STRIP_WIDTH_M` | `0.30` | Hitting-strip width, metres, left to right. A generic turf pad, not a measured room. |
+| `FLOOR_HITTING_STRIP_DEPTH_M` | `0.45` | Hitting-strip depth, metres, back towards the player. |
+| `FLOOR_HITTING_STRIP_FILL` | `false` | Fill the whole calibrated rectangle instead of outlining it, so the projector lights the physical turf. The ball marker inverts to stay readable on top. |
+| `BALL_STATUS_CHAMFER_SCALE` | `6.0` | Uniform scale of the Compact chamfer on the strip's rear edge. 1 is the drawing (17.8 mm rise, 13.9 mm run, 79.8 mm span, 0.8 mm stroke, 9.5 mm type, 1.8 mm lamp). Every one of those, and the gaps between them, is multiplied by this. The feet stay on the rear edge. It does not move the strip and it does not change `FLOOR_WIDTH_M` or `FLOOR_DEPTH_M`. |
+| `FLOOR_BALL_IRON_DX_M` | `0.0` | Iron ball position, metres across the bay from the strip centre. Every club that is not a driver or a putter uses this, and so does a club nothing has named. |
+| `FLOOR_BALL_IRON_DY_M` | `0.0` | Iron ball position, metres towards the player from the strip centre. Negative is down-range. |
+| `FLOOR_BALL_DRIVER_DX_M` | *(inherits iron)* | Driver ball position across the bay. |
+| `FLOOR_BALL_DRIVER_DY_M` | *(inherits iron)* | Driver ball position towards the player. Usually negative: a driver is played further forward. |
+| `FLOOR_BALL_PUTTER_DX_M` | `0.0` | Putter ball position across the bay. |
+| `FLOOR_BALL_PUTTER_DY_M` | `-0.30` | Putter ball position towards the player. Allowed off the strip, and by default is: 0.30 m down-range clears the front edge of a 0.45 m mat. |
+| `FLOOR_INFORMATION_DX_M` | `0.0` | Where the anchored panels are drawn from, across the bay: distance to the pin, recommended club, shot distance, remaining distance, and the coaching line under them. |
+| `FLOOR_INFORMATION_DY_M` | `-0.66` | The same, towards the player. The default reproduces the placement the overlay has always had on the default 1 m × 1 m bay. |
+| `FLOOR_PUTTING_LANE` | `true` | Draw a lane down-range from the putter ball while a putter is in play. |
+| `FLOOR_PUTTING_LANE_LENGTH_M` | `0.30` | How far down-range the lane runs, metres. |
+| `FLOOR_PUTTING_LANE_WIDTH_M` | `0.24` | How wide the lane is, metres. |
+| `FLOOR_TEE_X_M` | *(unset)* | Deprecated. An absolute ball position on the bay, from before the strip was the anchor. Converted to `FLOOR_BALL_IRON_DX_M` by subtracting `FLOOR_HITTING_STRIP_X_M`. Ignored if the offset is set. |
+| `FLOOR_TEE_Y_M` | *(unset)* | Deprecated. The same, for `FLOOR_BALL_IRON_DY_M`. |
+| `FLOOR_TEE_DRIVER_X_M` | *(unset)* | Deprecated. Converted to `FLOOR_BALL_DRIVER_DX_M` the same way. |
+| `FLOOR_TEE_DRIVER_Y_M` | *(unset)* | Deprecated. Converted to `FLOOR_BALL_DRIVER_DY_M` the same way. |
 | `FLOOR_TEE_X` | *(unset)* | Deprecated. A 0–1 fraction of `FLOOR_WIDTH_M`, converted to `FLOOR_TEE_X_M` only when that variable is unset. Ignored, with a warning, if both are set. |
 | `FLOOR_TEE_Y` | *(unset)* | Deprecated. A 0–1 fraction of `FLOOR_DEPTH_M`, converted to `FLOOR_TEE_Y_M` only when that variable is unset. |
 | `FLOOR_CLUB_PATH_LENGTH` | `1.2` | How far the club-path line is drawn, in metres of the physical floor. About a pace on a real bay — not a 0–1 fraction of the overlay. |
 | `FLOOR_SHOT_DISPLAY_SECONDS` | `6.0` | How long an interpose/simulated shot's path and numbers stay up. |
-| `FLOOR_SHOT_RESULT_MAX_DURATION` | `15` | Observer round-result panel: stay until READY / a new ball, or this many seconds, whichever happens first. |
+| `FLOOR_SHOT_RESULT_MIN_DURATION` | `8` | Observer round-result panel: guaranteed readable for this long. A READY / new ball inside it is deferred and applied the moment it ends; the address marker is not held back. Must not exceed the maximum. |
+| `FLOOR_SHOT_RESULT_MAX_DURATION` | `30` | The longest that panel may stay when no new address cycle arrives. A new shot outranks both timers. |
 | `FLOOR_DEMO` | `false` | Cycle the floor through every state it can render. Development only. |
 | `FLOOR_DEMO_STEP_SECONDS` | `2.5` | How long each demo step lasts. |
+
+`FLOOR_HITTING_STRIP_FILL` lights the bay for as long as the floor is up. It is
+not affected by READY, FINDING BALL, a ball on the mat, the ball marker, the
+address numbers, a round result, or a Shot Video replay; only shutting CaddieJ
+down puts it out.
+
+### Recalibrating after the mat or the projector moves
+
+Measure the new centre of the strip, set `FLOOR_HITTING_STRIP_X_M` and
+`FLOOR_HITTING_STRIP_Y_M`, and restart. The three ball positions, both panels,
+the putting lane, and the ball-status chamfer on the rear edge are all placed
+from that rectangle, so they move with it and keep their spacing.
+`BALL_STATUS_CHAMFER_SCALE` is the one exception: it changes how large the
+chamfer is, not where the strip is. Nothing else needs touching.
+
+The offsets themselves answer a different question — where the ball sits *on*
+the mat, and how far in front of it the numbers are drawn — and that does not
+change when the mat does.
+
+Two things are deliberately not anchored, because they belong to the whole
+projection rather than to the hitting area: the startup banner and the
+celebration layer. Moving the strip does not move them.
+
+`caddiej --check-config` prints the anchor and the three resolved ball
+positions in metres, which is what to compare against a tape measure.
+
+## Your bag
+
+How far you carry each club, in metres. CaddieJ recommends the club whose carry
+is nearest the distance GSPro says is left to the target, and shows it beside
+that distance while the next shot is being addressed.
+
+Carry, not total: roll belongs to the hole, and flight belongs to the club.
+Metres, because GSPro's `DistanceToTarget` is metres and nothing converts
+anything.
+
+`0` means the club is not in the bag. Every club is `0` by default, and a bag
+with nothing in it produces **no recommendation at all** rather than a wrong
+one — the floor shows the distance on its own until these are filled in.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `PLAYER_CLUB_CARRY_DRIVER_M` | `0` | Driver carry, metres. |
+| `PLAYER_CLUB_CARRY_3W_M` | `0` | 3 wood carry, metres. |
+| `PLAYER_CLUB_CARRY_5W_M` | `0` | 5 wood carry, metres. |
+| `PLAYER_CLUB_CARRY_4I_M` | `0` | 4 iron carry, metres. |
+| `PLAYER_CLUB_CARRY_5I_M` | `0` | 5 iron carry, metres. |
+| `PLAYER_CLUB_CARRY_6I_M` | `0` | 6 iron carry, metres. |
+| `PLAYER_CLUB_CARRY_7I_M` | `0` | 7 iron carry, metres. |
+| `PLAYER_CLUB_CARRY_8I_M` | `0` | 8 iron carry, metres. |
+| `PLAYER_CLUB_CARRY_9I_M` | `0` | 9 iron carry, metres. |
+| `PLAYER_CLUB_CARRY_PW_M` | `0` | Pitching wedge carry, metres. |
+| `PLAYER_CLUB_CARRY_GW_M` | `0` | Gap wedge carry, metres. |
+| `PLAYER_CLUB_CARRY_SW_M` | `0` | Sand wedge carry, metres. |
+
+The label in the variable name is what appears on the floor. Two clubs the same
+distance from the target resolve to the longer one.
+
+These are expected to be replaced by carries learned from your own shot history.
+When that happens only where the numbers come from changes: the recommendation
+and the floor do not read these names.
 
 ## Shutdown
 
@@ -131,6 +210,7 @@ Off by default. Needs FFmpeg on `PATH`. See [Swing video](video.md).
 | `VIDEO_CAMERA_KIND` | `synthetic` | `synthetic` (FFmpeg's own picture, no hardware), `avfoundation` (macOS), `v4l2` (Linux), `dshow` (Windows). |
 | `VIDEO_CAMERA_DEVICE` | `0` | An index, a device node, or a DirectShow friendly name. |
 | `VIDEO_CAMERA_ID` | `tee` | Names the camera in filenames, events and health. |
+| `VIDEO_CAMERA_VIEW` | `unknown` | `unknown`, `face_on` or `down_the_line`. Told to the coach with the frames, because it decides what a still can prove. |
 | `VIDEO_CAMERA_FPS` | `30` | Frames per second to ask the camera for. |
 | `VIDEO_CAMERA_WIDTH` | `1280` | Capture width. |
 | `VIDEO_CAMERA_HEIGHT` | `720` | Capture height. |
@@ -147,6 +227,7 @@ Off by default. Needs FFmpeg on `PATH`. See [Swing video](video.md).
 | `VIDEO_KEYFRAME_SECONDS` | `0.5` | Keyframe interval. |
 | `VIDEO_SHOT_REPORT_LAG_SECONDS` | `0.0` | How long before the shot message the ball was actually struck. |
 | `VIDEO_CLIP_QUEUE_SIZE` | `8` | Clip requests that may be waiting before further ones are refused. |
+| `VIDEO_CLIP_RETENTION_DAYS` | `30` | How long finished clips are kept. Older days are deleted at start-up; `0` keeps everything. |
 | `VIDEO_EXTRACT_TIMEOUT` | `30.0` | How long one extraction may take. |
 | `VIDEO_RESTART_LIMIT` | `5` | Consecutive failures before the camera is left alone. |
 | `VIDEO_DRAIN_TIMEOUT` | `5.0` | How long shutdown waits for a clip in progress. |
@@ -158,13 +239,13 @@ On by default, and offline by default. See [Coaching](coaching.md).
 | Variable | Default | What it does |
 | --- | --- | --- |
 | `COACHING_ENABLED` | `true` | Whether a fault is named at all. |
+| `COACHING_DIAGNOSTIC_DRY_RUN` | `false` | Diagnostic. ProTee coaching captures, selects, reads the All Values still and draws the evidence sheet, then makes no model request (`coaching_request_skipped` with `diagnostic_dry_run`). `false` is production. |
 | `COACHING_PROVIDER` | `none` | `none` (measured faults only), `scripted` (answers from inside the process), or `openai`. |
 | `COACHING_MODEL` | `gpt-5-mini` | Which model to ask. |
 | `COACHING_API_KEY` | *(blank)* | **Credential.** Never logged, never committed. |
 | `COACHING_API_BASE` | *(blank)* | Any endpoint implementing OpenAI's Responses API, including a local one. |
 | `COACHING_SEND_FRAMES` | `false` | Whether frames of your swing go to the provider. A privacy decision. |
 | `COACHING_FRAME_WIDTH` | `512` | How large those frames are, if sent. |
-| `COACHING_DISPLAY_SECONDS` | `9.0` | How long a coaching line stays on the floor. |
 | `COACHING_FOCUS` | *(blank)* | What you are working on: `face_control`, `path`, `strike`, `low_point`, `speed`, `launch`, `spin`, `consistency`, `tempo`, `posture`, `early_extension`, `sway`. |
 | `COACHING_SEVERITY_FINE` | `0.25` | Below this severity, nothing is said. |
 | `COACHING_BASELINE_WINDOW` | `40` | How many of your own recent shots per club define what is normal. |
@@ -175,7 +256,15 @@ On by default, and offline by default. See [Coaching](coaching.md).
 | `COACHING_RETRY_LIMIT` | `1` | Retries after a failed call. |
 | `COACHING_MIN_INTERVAL` | `8.0` | A floor on how often a call can be made. |
 | `COACHING_CALL_LIMIT` | `60` | A ceiling on calls for one run. |
-| `COACHING_MAX_OUTPUT_TOKENS` | `60` | A tight cap, so the cost of a shot is predictable. |
+| `COACHING_MAX_OUTPUT_TOKENS` | `120` | Enough for a cue id, a short sentence and a confidence. |
+| `COACHING_MAX_IMAGES` | `16` | Hard ceiling on swing images sent with one request (the All Values still is not counted). Keep it at `SWING_CAPTURE_SELECTED_FRAMES`: below it the aimed stills are thinned evenly. |
+| `COACHING_VISUAL_CUES` | `true` | Whether visual cues may be offered when frames were sent. |
+| `COACHING_TRIGGER` | `auto` | What starts coaching. `protee` coaches every ProTee strike from its swing capture plus the All Values still, with no GSPro needed; `gspro` waits for a measured GSPro shot. `auto` is `protee` whenever `SWING_CAPTURE_ENABLED=true`. |
+| `COACHING_PROTEE_MAX_OUTPUT_TOKENS` | `10000` | Output ceiling for the ProTee request, which returns every All Values reading, every swing checkpoint score and the line. On a reasoning model it covers the reasoning too. A full reply is about 2500–3000 tokens; the rest is room for reasoning. A reply that hits the ceiling is refused whole. |
+| `COACH_OPENAI_TIMEOUT_SECONDS` | `30` | Seconds one attempt at the ProTee request may take, passed to the OpenAI SDK. Up to 120. Replaces `COACHING_TIMEOUT` on the ProTee path only. |
+| `COACH_OPENAI_BUDGET_SECONDS` | `45` | Seconds for every attempt and the wait between them, from when the capture is queued. At least the timeout, up to 300. A timed-out attempt is retried only when a full attempt still fits; a quick failure such as a 503 is retried within `COACHING_RETRY_LIMIT`. Replaces `COACHING_BUDGET_SECONDS` on the ProTee path only. |
+| `COACHING_REASONING_EFFORT` | `low` | `minimal`, `low`, `medium` or `high`, sent on the ProTee request for reasoning models such as the default `gpt-5-mini`. Empty sends nothing, which non-reasoning models require. With nothing sent, `gpt-5-mini` reasons at medium, and that shares the output ceiling. |
+| `FLOOR_COACH_CUE_IMAGE` | `false` | Draw the cue graphic on the floor. Off until real artwork exists. |
 
 ## Speech
 
@@ -189,6 +278,7 @@ Off by default. Needs `pip install -e '.[tts]'`. See [Speech](speech.md).
 | `SPEECH_VOICE` | `bm_george` | Any Kokoro voice. The first letter picks the language. |
 | `SPEECH_SPEED` | `1.0` | How fast it talks. |
 | `SPEECH_DEVICE` | *(blank)* | A PortAudio device index or name. Blank uses the system default. |
+| `SPEECH_GAIN` | `1.0` | One constant multiplier on every line, applied at the speaker. Kokoro peaks around a third of full scale, so the headroom is real; `--check-speech` reports what the gain clipped. Maximum 4.0. |
 | `SPEECH_QUEUE_SIZE` | `4` | Lines that may be waiting. |
 | `SPEECH_MAX_CHARACTERS` | `300` | A ceiling on one sentence. |
 | `SPEECH_RENDER_TIMEOUT` | `20.0` | How long rendering one line may take. |
@@ -264,5 +354,62 @@ Only needed if OBS composites the overlay. See
 | `OBS_FLOOR_SOURCE` | `CaddieJ Floor` | What that browser source is called. |
 | `OBS_FLOOR_WIDTH` | `1920` | Browser source width. |
 | `OBS_FLOOR_HEIGHT` | `1080` | Browser source height. |
+| `FLOOR_SHOT_VIDEO_ENABLED` | `false` | Temporarily reveal the existing ProTee Shot Video Window Capture after a round shot. Off so a missing source cannot surprise a first run. |
+| `OBS_SHOT_VIDEO_SOURCE` | `Shot Video` | Name of that existing source in `OBS_FLOOR_SCENE`. CaddieJ does not create it. |
+| `FLOOR_SHOT_VIDEO_DELAY_SECONDS` | `0.75` | Wait after the launch monitor's own detection so ProTee can refresh the panel. Tune on hardware; this default is a first guess. |
+| `FLOOR_SHOT_VIDEO_DURATION_SECONDS` | `4` | How long the source stays visible before CaddieJ hides it again. |
+| `FLOOR_TOP_IMPACT_ENABLED` | `false` | The same for ProTee's Top Impact view. Independent of Shot Video in every respect: own connection, own timers, own failures. |
+| `OBS_TOP_IMPACT_SOURCE` | `Top Impact` | Name of that existing source in `OBS_FLOOR_SCENE`. CaddieJ does not create it. |
+| `FLOOR_TOP_IMPACT_DELAY_SECONDS` | `1.5` | Wait after the detection. Longer than Shot Video's by default because the impact image is drawn after the swing. |
+| `FLOOR_TOP_IMPACT_DURATION_SECONDS` | `4` | How long that source stays visible. |
 | `OBS_TEST_SCENE` | `CaddieJ Test` | Scene used by the opt-in OBS integration tests. |
 | `OBS_TEST_STATUS_SOURCE` | `CaddieJ Status` | Text source used by those tests. |
+
+## Swing capture
+
+Stills of named OBS panels of ProTee's post-shot presentation, read back
+through OBS screenshots. Off unless switched on, and it needs OBS sources
+CaddieJ does not create. See [Swing capture](swing-capture.md) and
+[Coach V1](coach-v1.md). Prove the sources work with
+`caddiej --check-swing-capture` before hitting a shot.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `SWING_CAPTURE_ENABLED` | `false` | Whether a detected strike takes stills of the presentation at all. |
+| `SWING_CAPTURE_PANELS` | `swing_behind,swing_side,impact,delivery` | Which panels to capture, in order. This list is authoritative: a panel left out is not captured and is not treated as missing. `swing` is an alias for `swing_behind`. `delivery` is optional. |
+| `SWING_CAPTURE_SCENE` | `CaddieJ Capture` | Private OBS scene that keeps the coach sources and All Values showing, so OBS refreshes them, while nothing is drawn on the floor. Nested transparently in the floor scene and never put on Program. CaddieJ only reads it; it never shows or hides a source. See [swing capture](swing-capture.md). |
+| `SWING_CAPTURE_PANEL_SWING_BEHIND_SOURCE` | *(blank)* | OBS source for the down-the-line body replay. Empty skips it. |
+| `SWING_CAPTURE_PANEL_SWING_BEHIND_KIND` | `dynamic` | `dynamic` or `static`. |
+| `SWING_CAPTURE_PANEL_SWING_BEHIND_SUPPORTS` | `body_through_impact,...` | Visual claims the behind view may support. |
+| `SWING_CAPTURE_PANEL_SWING_SIDE_SOURCE` | *(blank)* | OBS source for the face-on body replay. Empty skips it. |
+| `SWING_CAPTURE_PANEL_SWING_SIDE_KIND` | `dynamic` | `dynamic` or `static`. |
+| `SWING_CAPTURE_PANEL_SWING_SIDE_SUPPORTS` | `body_through_impact,...` | Visual claims the side view may support. |
+| `SWING_CAPTURE_PANEL_SWING_SOURCE` | *(blank)* | Deprecated alias for the behind source. Used only when the behind source is empty. |
+| `SWING_CAPTURE_PANEL_SWING_KIND` | `dynamic` | Kind used when the deprecated alias supplies the behind source. |
+| `SWING_CAPTURE_PANEL_SWING_SUPPORTS` | `body_through_impact,...` | Claims used when the deprecated alias supplies the behind source. |
+| `SWING_CAPTURE_PANEL_IMPACT_SOURCE` | *(blank)* | OBS source or scene for the impact graphic. |
+| `SWING_CAPTURE_PANEL_IMPACT_KIND` | `static` | `dynamic` or `static`. |
+| `SWING_CAPTURE_PANEL_IMPACT_SUPPORTS` | *(blank)* | Visual claims this panel may support. |
+| `SWING_CAPTURE_PANEL_DELIVERY_SOURCE` | *(blank)* | OBS source or scene for the delivery graphic. |
+| `SWING_CAPTURE_PANEL_DELIVERY_KIND` | `static` | `dynamic` or `static`. |
+| `SWING_CAPTURE_PANEL_DELIVERY_SUPPORTS` | *(blank)* | Visual claims this panel may support. |
+| `SWING_CAPTURE_DYNAMIC_DELAY_SECONDS` | `0.5` | How long after impact a dynamic burst starts. Also accepts `SWING_CAPTURE_INITIAL_DELAY_SECONDS`. |
+| `SWING_CAPTURE_DYNAMIC_DURATION_SECONDS` | `4.5` | How long a dynamic burst runs. Long enough to reach the release in both replays; with the default delay it ends with the static pass. Also accepts `SWING_CAPTURE_DURATION_SECONDS`. |
+| `SWING_CAPTURE_INITIAL_DELAY_SECONDS` | `0.5` | Alias for `SWING_CAPTURE_DYNAMIC_DELAY_SECONDS`. |
+| `SWING_CAPTURE_DURATION_SECONDS` | `4.5` | Alias for `SWING_CAPTURE_DYNAMIC_DURATION_SECONDS`. |
+| `SWING_CAPTURE_STATIC_DELAY_SECONDS` | `3.5` | How long after impact a static pass starts. |
+| `SWING_CAPTURE_STATIC_DURATION_SECONDS` | `1.5` | How long a static pass runs. |
+| `SWING_CAPTURE_STATIC_FPS` | `2.0` | How often a static panel is sampled. |
+| `SWING_CAPTURE_FPS` | `10` | How often a dynamic screenshot is requested outside the downswing stretch. Each still is due at a fixed time from the burst's start, so this is the achieved rate on average; each still may be up to one Windows timer tick (15.6 ms) late. |
+| `SWING_CAPTURE_DOWNSWING_FPS` | `20` | The body replays' rate inside the downswing stretch, from the top to the release. Extra stills are candidates only: the number kept, the sheet and the request are unchanged. `0`, or anything not faster than `SWING_CAPTURE_FPS`, turns it off. A slow OBS skips stills rather than queueing them; `swing_capture_cadence` logs what each shot achieved. |
+| `SWING_CAPTURE_DOWNSWING_DELAY_SECONDS` | `3.3` | When the downswing stretch starts, in seconds from the strike, like the burst. |
+| `SWING_CAPTURE_DOWNSWING_DURATION_SECONDS` | `1.1` | How long it lasts. 3.3-4.4 s held the top to the release on every real capture measured, with a margin for tempo. Clipped to the dynamic burst. |
+| `SWING_CAPTURE_OUTPUT_DIR` | `media/latest_swing` | The one production swing on disk. Replaced whole on the next shot. |
+| `SWING_CAPTURE_SELECTED_FRAMES` | `16` | Total stills kept for one shot, across every panel. Body panels share what remains after one still is reserved for each static panel. A calibrated body camera takes at most one still per aimed moment: eight down the line, seven face-on. |
+| `SWING_CAPTURE_DEBUG_KEEP_SHOTS` | `0` | Extra copies under `media/swing_debug`. `0` is production. |
+| `SWING_CAPTURE_EVIDENCE_KEEP` | `3` | Shot directories kept under `media/swing_shots`, from 3 to 40. `3` is production. A diagnostic timeline request larger than this raises the keep to match, still capped at 40. |
+| `SWING_CAPTURE_DIAGNOSTIC_TIMELINE_SHOTS` | `0` | Timing diagnostic. For the next N published shots of this run (`0`–`40`), every Swing Behind and Swing Side screenshot the burst already took is also written under the shot's `diagnostic/` directory, with its timing in `metadata.json` under `diagnostic_timeline`. No extra OBS request, never sent to a model or drawn on the sheet. `0` is production. `20` keeps 20 shot directories (about 261 MB when each one has a full timeline). |
+| `SWING_CAPTURE_IMAGE_WIDTH` | `0` | Scale each still to this width, aspect ratio kept. `0` means the source's own resolution; otherwise 8–4096. |
+| `COACH_METRICS_CAPTURE_ENABLED` | `false` | Take one still of ProTee's All Values grid after each strike, for the coach to read the numbers from. Separate from `SWING_CAPTURE_SELECTED_FRAMES`. Needs swing capture on. |
+| `COACH_METRICS_SOURCE` | `All Values` | OBS source showing the All Values panel. Captured at its own resolution, so the digits stay legible. |
+| `COACH_METRICS_CAPTURE_DELAY_SECONDS` | `3.0` | Seconds after the strike to take the still, 0–15. One retry a second later if the still is unusable or identical to the previous shot's. |

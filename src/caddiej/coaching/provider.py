@@ -56,10 +56,26 @@ class ProviderReplyError(ProviderError):
 
 @dataclass(frozen=True, slots=True)
 class ImageInput:
-    """One picture, already encoded and already scaled down."""
+    """One picture, already encoded and already scaled down.
+
+    `label` is the view the picture is, written beside it in the request so
+    the model does not have to infer the camera from the pixels.
+
+    `frame_id` is the name the model may use to point back at this picture,
+    such as `swing_side_02`. It is CaddieJ's, derived from where the still sits
+    in the capture, and the reply schema enumerates exactly the ids that were
+    sent — so "the frame that shows it" is a choice from a list and never a
+    filename a model made up. Empty for a picture nothing can point back to.
+    """
 
     data: bytes
     media_type: str = "image/jpeg"
+    label: str = ""
+    detail: str | None = None
+    """How closely the provider should look. None is the provider's default,
+    which is coarse; a still the model has to read digits from needs more."""
+
+    frame_id: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -79,6 +95,9 @@ class AdviceRequest:
     images: tuple[ImageInput, ...] = ()
     max_output_tokens: int = 60
     timeout_seconds: float = 8.0
+    schema_name: str = "swing_advice"
+    reasoning_effort: str | None = None
+    """For reasoning models only. None leaves the provider's default."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -94,6 +113,9 @@ class ProviderReply:
     latency_seconds: float
     input_tokens: int | None = None
     output_tokens: int | None = None
+    reasoning_tokens: int | None = None
+    """The part of `output_tokens` a reasoning model spent thinking. It counts
+    against `max_output_tokens` like the visible reply does."""
 
 
 class AdviceProvider(Protocol):

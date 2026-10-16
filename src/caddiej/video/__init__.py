@@ -20,10 +20,18 @@ from caddiej.video.cameras import (
     synthetic_camera,
     v4l2_camera,
 )
-from caddiej.video.clips import ClipExtractor, ClipRequest
+from caddiej.video.clips import (
+    ClipCatalog,
+    ClipExtractor,
+    ClipRequest,
+    DiscoveredClip,
+    RejectedClip,
+    clip_from_sidecar,
+    discover_clips,
+)
 from caddiej.video.errors import ClipExtractionError, VideoError
 from caddiej.video.ffmpeg import CaptureProfile
-from caddiej.video.frames import FrameExtractor
+from caddiej.video.frames import FrameExtractor, build_frame_extractor
 from caddiej.video.layout import MediaLayout
 from caddiej.video.recorder import CameraHealth, CameraRecorder
 from caddiej.video.segments import Gap, Segment, SegmentIndex, SegmentWindow
@@ -35,10 +43,13 @@ __all__ = [
     "CameraRecorder",
     "CameraSpec",
     "CaptureProfile",
+    "ClipCatalog",
     "ClipExtractionError",
     "ClipExtractor",
     "ClipRequest",
+    "DiscoveredClip",
     "FrameExtractor",
+    "RejectedClip",
     "Gap",
     "MediaLayout",
     "Segment",
@@ -49,7 +60,10 @@ __all__ = [
     "VideoService",
     "avfoundation_camera",
     "build_camera",
+    "build_frame_extractor",
     "build_video_service",
+    "clip_from_sidecar",
+    "discover_clips",
     "dshow_camera",
     "synthetic_camera",
     "v4l2_camera",

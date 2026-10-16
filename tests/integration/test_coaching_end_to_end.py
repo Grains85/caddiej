@@ -28,6 +28,7 @@ import pytest
 from caddiej.adapters.hud.protocol import snapshot_message
 from caddiej.coaching.fakes import (
     GOOD_REPLY,
+    REINFORCING_REPLY,
     BrokenProvider,
     ScriptedProvider,
     StillFrames,
@@ -35,7 +36,7 @@ from caddiej.coaching.fakes import (
 from caddiej.coaching.provider import ProviderRefusedError
 from caddiej.coaching.service import AnalysisService
 from caddiej.core.event_bus import AsyncEventBus
-from caddiej.domain.coaching import AdviceStatus
+from caddiej.domain.coaching import AdviceKind, AdviceStatus, CoachingFocus
 from caddiej.domain.events import (
     AnalysisCompleted,
     AnalysisFailed,
@@ -43,11 +44,13 @@ from caddiej.domain.events import (
     BallCleared,
     BallDetected,
     ClubSelected,
+    RoundShotObserved,
     ShotDiagnosed,
     ShotIngested,
     SwingClipReady,
 )
 from caddiej.domain.media import ClipRef
+from caddiej.domain.observation import ObservedRoundShot
 from caddiej.domain.play import PlayFlow
 from caddiej.domain.shot import (
     BallLaunch,
@@ -59,6 +62,7 @@ from caddiej.domain.shot import (
     ShotSource,
 )
 from caddiej.floor import FloorService, PhysicalPoint
+from caddiej.floor.layout import layout_from_tees
 from caddiej.floor.presenter import FloorPresenter
 from caddiej.persistence.service import build_history_service
 
@@ -74,7 +78,7 @@ class Table:
     def __init__(self) -> None:
         self.bus = AsyncEventBus()
         self.floor = FloorService()
-        self.presenter = FloorPresenter(self.floor, tee=TEE)
+        self.presenter = FloorPresenter(self.floor, layout_from_tees(tee=TEE))
         self.events: list[object] = []
 
     async def open(
@@ -89,7 +93,6 @@ class Table:
             floor=self.presenter,
             publish=self.bus.publish,
             shot_display_seconds=30.0,
-            advice_display_seconds=30.0,
         )
         defaults: dict[str, object] = {
             "min_interval_seconds": 0.0,
@@ -152,7 +155,13 @@ async def table() -> AsyncIterator[Table]:
     await subject.aclose()
 
 
-def a_shot(face: float = 6.5) -> Shot:
+def a_shot(
+    face: float = 6.5,
+    *,
+    path: float = -1.0,
+    attack: float = -1.0,
+    club: ClubKind | None = None,
+) -> Shot:
     return Shot(
         shot_id=uuid4(),
         source=ShotSource(
@@ -170,11 +179,54 @@ def a_shot(face: float = 6.5) -> Shot:
         ),
         club_delivery=ClubDelivery(
             speed_mph=112.4,
-            path_degrees=-1.0,
+            path_degrees=path,
             face_to_target_degrees=face,
-            angle_of_attack_degrees=-1.0,
+            angle_of_attack_degrees=attack,
         ),
         handedness=Handedness.RIGHT,
+        club=None if club is None else Club(kind=club, vendor_code="7I"),
+    )
+
+
+def a_shot_with_no_evidence() -> Shot:
+    """A shot nothing rankable was measured about: no club data, and only the
+    ball numbers that need a baseline no first shot has yet."""
+
+    return Shot(
+        shot_id=uuid4(),
+        source=ShotSource(
+            kind="gspro_connect",
+            device_session_id=uuid4(),
+            observed_at=NOW,
+            observed_monotonic=1.0,
+        ),
+        ball=BallLaunch(
+            speed_mph=148.2,
+            launch_angle_degrees=12.6,
+            launch_direction_degrees=None,
+        ),
+        handedness=Handedness.RIGHT,
+    )
+
+
+def a_round_entry(shot_id: str) -> ObservedRoundShot:
+    return ObservedRoundShot(
+        shot_id=shot_id, ball_speed_raw=32.84, total_distance_raw=135.2
+    )
+
+
+def an_observed_shot(speed_mph: float = 73.4) -> Shot:
+    """A round-play shot as the adapter normalizes one: one measurement."""
+
+    return Shot(
+        shot_id=uuid4(),
+        source=ShotSource(
+            kind="gspro_round",
+            device_session_id=uuid4(),
+            observed_at=NOW,
+            observed_monotonic=1.0,
+        ),
+        ball=BallLaunch(speed_mph=speed_mph),
     )
 
 
@@ -199,7 +251,7 @@ async def a_swing(table: Table, shot: Shot | None = None) -> Shot:
 
     shot = shot or a_shot()
     await table.bus.publish(
-        ClubSelected(club=Club(kind=ClubKind.DRIVER, vendor_code="DR"))
+        ClubSelected(club=shot.club or Club(kind=ClubKind.DRIVER, vendor_code="DR"))
     )
     await table.bus.publish(BallDetected())
     await table.bus.publish(ShotIngested(shot=shot))
@@ -225,7 +277,7 @@ async def test_a_swing_becomes_a_coached_line_on_the_floor(table: Table) -> None
 
     advice = table.floor.state.advice
     assert advice is not None
-    assert advice.text == "FACE OPEN"
+    assert advice.text == "PASS THE TOE EARLY"
 
 
 async def test_the_floor_names_the_fault_before_the_model_has_answered(
@@ -242,7 +294,7 @@ async def test_the_floor_names_the_fault_before_the_model_has_answered(
     assert provider.calls <= 1
     advice = table.floor.state.advice
     assert advice is not None
-    assert advice.text == "FACE OPEN"
+    assert advice.text == "PASS THE TOE EARLY"
 
 
 async def test_the_coached_line_reaches_the_browser_payload(table: Table) -> None:
@@ -255,7 +307,7 @@ async def test_the_coached_line_reaches_the_browser_payload(table: Table) -> Non
 
     payload = snapshot_message(table.floor.state).model_dump(mode="json")
 
-    assert payload["state"]["advice"]["text"] == "FACE OPEN"
+    assert payload["state"]["advice"]["text"] == "PASS THE TOE EARLY"
     assert payload["state"]["advice"]["band"] in {"fine", "watch", "fault"}
 
 
@@ -276,17 +328,145 @@ async def test_frames_from_the_swing_go_with_the_question(table: Table) -> None:
     assert provider.requests[0].images
 
 
-async def test_a_good_shot_is_left_alone_all_the_way_through(table: Table) -> None:
+async def test_a_good_shot_is_coached_all_the_way_through(table: Table) -> None:
+    # A good shot is the best chance there is of the player repeating it, so it
+    # goes the whole way: asked about, phrased, and on the floor as something
+    # that went right rather than as the least bad thing about the swing.
+    shot = a_shot(face=0.5, path=0.1, attack=3.0, club=ClubKind.DRIVER)
+    from caddiej.coaching.baseline import ClubBaseline
+    from caddiej.coaching.cues import display_for_cue
+    from caddiej.coaching.diagnose import diagnose
+
+    expected = diagnose(shot, ClubBaseline(club=ClubKind.DRIVER, shots=0))
+    assert expected.kind is AdviceKind.REINFORCEMENT
+    assert expected.cue is not None
+    provider = ScriptedProvider(
+        replies=[
+            {
+                "cue": expected.cue.value,
+                "speech": "Good face control. Keep that release.",
+            }
+        ]
+    )
+    await table.open(provider)
+
+    await a_swing(table, shot)
+    await table.quiet()
+
+    assert provider.calls == 1
+    advice = table.seen(AnalysisCompleted)[0].advice
+    assert advice.kind is AdviceKind.REINFORCEMENT
+    assert table.floor.state.advice is not None
+    assert table.floor.state.advice.text == display_for_cue(expected.cue)
+    # And the numbers are still there beside it.
+    assert table.floor.state.metrics is not None
+
+
+async def test_a_passively_observed_shot_reaches_the_coach(table: Table) -> None:
+    """The mode CaddieJ actually runs in. Nothing reaches CaddieJ from the
+    launch monitor directly; the simulator's round file is read afterwards, and
+    until this path announced a shot, coaching never saw a passive session at
+    all — no diagnosis, no history, no baseline, whatever was configured.
+
+    What it is coached *about* is a separate and much smaller question, and the
+    test below is the honest answer to it.
+    """
+
+    await table.open(ScriptedProvider(replies=[REINFORCING_REPLY]))
+    observed = an_observed_shot()
+
+    await table.bus.publish(
+        ClubSelected(club=Club(kind=ClubKind.IRON, vendor_code="7I"))
+    )
+    await table.bus.publish(
+        RoundShotObserved(shot=a_round_entry("D"), measured=observed)
+    )
+    await table.quiet()
+
+    diagnosed = table.seen(ShotDiagnosed)
+    assert [event.diagnosis.shot_id for event in diagnosed] == [observed.shot_id]
+    # With the club the launch monitor's log named attached on the way past,
+    # because the round file does not carry one and a baseline is per club.
+    assert diagnosed[0].diagnosis.club is ClubKind.IRON
+    assert table.floor.state.round_result is not None
+
+
+async def test_one_passively_observed_shot_is_not_yet_enough_to_coach_from(
+    table: Table,
+) -> None:
+    """The limit of this path, stated as a test so it cannot be forgotten.
+
+    A round-file entry measures a ball speed. No fault is scored from a ball
+    speed alone — it is fast or slow only against the player's own, with a
+    club — so the first shot of a session is diagnosed and has nothing said
+    about it. Silence here is honest: there is no evidence yet, and a sentence
+    would be invented. Scatter across a club's shots is what makes this path
+    coachable, and it needs a handful of them first.
+    """
+
     provider = ScriptedProvider()
     await table.open(provider)
 
-    await a_swing(table, a_shot(face=0.5))
+    await table.bus.publish(
+        RoundShotObserved(shot=a_round_entry("D"), measured=an_observed_shot())
+    )
+    await table.quiet()
+
+    diagnosis = table.seen(ShotDiagnosed)[0].diagnosis
+    assert diagnosis.kind is AdviceKind.NONE
+    assert diagnosis.focus is CoachingFocus.NONE
+    assert provider.calls == 0
+    assert table.floor.state.advice is None
+
+
+async def test_a_handful_of_them_is(table: Table) -> None:
+    """And this is what a passively observed session can honestly be coached
+    on: how repeatable it is. Six shots with one club, strike varying, and the
+    scatter of them is a measured fact about the player rather than a guess
+    about the club."""
+
+    await table.open(ScriptedProvider())
+    await table.bus.publish(
+        ClubSelected(club=Club(kind=ClubKind.IRON, vendor_code="7I"))
+    )
+
+    for speed in (73.4, 61.0, 78.2, 64.5, 80.1, 62.8):
+        await table.bus.publish(
+            RoundShotObserved(shot=a_round_entry("D"), measured=an_observed_shot(speed))
+        )
+        await table.quiet()
+
+    diagnosis = table.seen(ShotDiagnosed)[-1].diagnosis
+    assert diagnosis.focus is CoachingFocus.CONSISTENCY
+    assert diagnosis.kind is AdviceKind.CORRECTION
+    assert diagnosis.display == "REPEAT YOUR TEMPO"
+
+
+async def test_a_round_entry_with_no_measurement_is_never_coached(
+    table: Table,
+) -> None:
+    provider = ScriptedProvider()
+    await table.open(provider)
+
+    await table.bus.publish(RoundShotObserved(shot=a_round_entry("D")))
+    await table.quiet()
+
+    assert not table.seen(ShotDiagnosed)
+    assert provider.calls == 0
+    # The result the player asked for is still there.
+    assert table.floor.state.round_result is not None
+
+
+async def test_a_shot_nothing_was_measured_about_stays_silent(table: Table) -> None:
+    # The only silence left, and it is about the evidence rather than the swing.
+    provider = ScriptedProvider()
+    await table.open(provider)
+
+    await a_swing(table, a_shot_with_no_evidence())
     await table.quiet()
 
     assert provider.calls == 0
     assert table.floor.state.advice is None
-    # The numbers are still there. It is the coaching that is silent.
-    assert table.floor.state.metrics is not None
 
 
 # --- when the model is not there ------------------------------------------
@@ -306,7 +486,7 @@ async def test_a_provider_that_fails_leaves_the_deterministic_line_up(
     assert not table.seen(AnalysisCompleted)
     advice = table.floor.state.advice
     assert advice is not None
-    assert advice.text == "FACE OPEN"
+    assert advice.text == "PASS THE TOE EARLY"
 
 
 async def test_a_model_that_answers_badly_leaves_it_up_too(table: Table) -> None:
@@ -318,7 +498,7 @@ async def test_a_model_that_answers_badly_leaves_it_up_too(table: Table) -> None
     assert table.seen(AnalysisFailed)
     advice = table.floor.state.advice
     assert advice is not None
-    assert advice.text == "FACE OPEN"
+    assert advice.text == "PASS THE TOE EARLY"
 
 
 async def test_with_no_provider_the_round_plays_exactly_the_same(
@@ -333,7 +513,7 @@ async def test_with_no_provider_the_round_plays_exactly_the_same(
     assert not table.seen(AnalysisStarted)
     advice = table.floor.state.advice
     assert advice is not None
-    assert advice.text == "FACE OPEN"
+    assert advice.text == "PASS THE TOE EARLY"
 
 
 # --- and it is written down -----------------------------------------------

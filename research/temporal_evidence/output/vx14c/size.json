@@ -1,0 +1,19 @@
+{
+ "all_dirs": {
+  "total": 986,
+  "phases": 706
+ },
+ "deviation_dirs_only": {
+  "total": 947,
+  "phases": 667
+ },
+ "pattern": {
+  "total": 768,
+  "phases": 489
+ },
+ "fixed_parts": {
+  "metrics": 215,
+  "coach": 52
+ },
+ "coarse_locate_extra": 46
+}

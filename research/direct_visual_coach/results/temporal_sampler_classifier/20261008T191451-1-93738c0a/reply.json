@@ -1,0 +1,222 @@
+{
+  "model": "gpt-5-mini-2025-08-07",
+  "reasoning_effort": "minimal",
+  "latency_seconds": 12.531000000000063,
+  "usage": {
+    "input_tokens": 48132,
+    "output_tokens": 1088,
+    "reasoning_tokens": 0
+  },
+  "payload": {
+    "status": "classified",
+    "handedness": {
+      "side": "right",
+      "confidence": 0.9,
+      "visual_basis": "Lead (left) side is closer to target; belt and torso facing left of camera consistent with right-handed player."
+    },
+    "temporal_orientation": [
+      {
+        "capture_tick": 15,
+        "state": "setup",
+        "confidence": 0.9,
+        "visual_basis": "Address posture, club near ball and no movement yet."
+      },
+      {
+        "capture_tick": 17,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club moving away from ball; rising shaft."
+      },
+      {
+        "capture_tick": 19,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Continued backswing motion; hands higher than address."
+      },
+      {
+        "capture_tick": 20,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Backswing continues; club rising."
+      },
+      {
+        "capture_tick": 22,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club well away from ball; near top region."
+      },
+      {
+        "capture_tick": 24,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Near top of backswing; hands high."
+      },
+      {
+        "capture_tick": 26,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Top-of-backswing position continuing."
+      },
+      {
+        "capture_tick": 29,
+        "state": "moving_away",
+        "confidence": 0.8,
+        "visual_basis": "Hands near or at top; still away from ball."
+      },
+      {
+        "capture_tick": 31,
+        "state": "direction_change_region",
+        "confidence": 0.9,
+        "visual_basis": "Motion visibly changing: hands beginning to move back toward ball."
+      },
+      {
+        "capture_tick": 33,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club moving downward toward ball."
+      },
+      {
+        "capture_tick": 36,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Downswing motion; shaft delivering to ball."
+      },
+      {
+        "capture_tick": 37,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Shaft descending toward impact."
+      },
+      {
+        "capture_tick": 38,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Hands close to impact region; shaft ahead of hands visible."
+      },
+      {
+        "capture_tick": 39,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Delivery continuing toward ball; clubhead approaching."
+      },
+      {
+        "capture_tick": 40,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Immediate follow-through visible; club passed impact plane."
+      },
+      {
+        "capture_tick": 41,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Follow-through; club moving away after strike."
+      },
+      {
+        "capture_tick": 42,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Follow-through continues."
+      },
+      {
+        "capture_tick": 43,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Follow-through; torso turned toward target."
+      },
+      {
+        "capture_tick": 44,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Follow-through progressing."
+      },
+      {
+        "capture_tick": 45,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Later follow-through frames."
+      },
+      {
+        "capture_tick": 46,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Follow-through; finish developing."
+      },
+      {
+        "capture_tick": 47,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Finish sequence."
+      },
+      {
+        "capture_tick": 48,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Finish sequence."
+      },
+      {
+        "capture_tick": 51,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Final follow-through / finish frame."
+      }
+    ],
+    "fault_candidates": [
+      {
+        "fault_id": "HAND_PATH_OUT",
+        "confidence": 0.85,
+        "evidence": [
+          {
+            "capture_tick": 33,
+            "visual_basis": "Hands and hands path are traveling outward from the body on the downswing compared with address; hands are further from torso than at address."
+          },
+          {
+            "capture_tick": 36,
+            "visual_basis": "Hands clearly away from the chest and moving out toward the ball line on delivery."
+          }
+        ]
+      },
+      {
+        "fault_id": "STEEP_DELIVERY",
+        "confidence": 0.8,
+        "evidence": [
+          {
+            "capture_tick": 33,
+            "visual_basis": "Shaft is noticeably steeper than the lead forearm during downswing; club sits above the forearm."
+          },
+          {
+            "capture_tick": 36,
+            "visual_basis": "Steep shaft appearance continues through delivery toward impact."
+          }
+        ]
+      },
+      {
+        "fault_id": "OUT_TO_IN_DELIVERY",
+        "confidence": 0.7,
+        "evidence": [
+          {
+            "capture_tick": 38,
+            "visual_basis": "Clubhead is outside the hands and appears to be approaching across the ball toward the torso on downswing."
+          },
+          {
+            "capture_tick": 39,
+            "visual_basis": "Clubhead path is outside-hands and traveling toward the body as it nears impact."
+          }
+        ]
+      },
+      {
+        "fault_id": "EARLY_RELEASE",
+        "confidence": 0.6,
+        "evidence": [
+          {
+            "capture_tick": 40,
+            "visual_basis": "Lead wrist angle is opening during the final descent while hands are still slightly above impact level; some loss of lag visible before strike."
+          },
+          {
+            "capture_tick": 41,
+            "visual_basis": "Club appears to have released earlier than ideal as hands descend."
+          }
+        ]
+      }
+    ]
+  }
+}

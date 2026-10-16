@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CaddieJ Floor</title>
-    <link rel="stylesheet" href="/static/css/floor.css" />
+    <link rel="stylesheet" href="/static/hud/__HUD_ASSETS_VERSION__/floor.css" />
   </head>
   <body>
     <!-- Everything inside #surface arrives as calibrated surface coordinates
@@ -14,11 +14,87 @@
       <!-- The viewBox is set from the surface's pixel size, so a circle stays a
            circle whatever aspect ratio the projector has. -->
       <svg id="floor" preserveAspectRatio="none" aria-hidden="true">
+        <polygon
+          id="hitting-strip"
+          class="hitting-strip"
+          data-visible="false"
+          data-filled="false"
+          data-acknowledge="false"
+          data-chamfer="false"
+          points=""
+        />
+        <!-- The three sides that are not the rear edge. The rear edge is the
+             chamfer below, so the outline does not close under the words. -->
+        <polyline
+          id="strip-sides"
+          class="strip-sides"
+          data-visible="false"
+          points=""
+        />
+        <polyline
+          id="ball-status-edge"
+          class="ball-status__edge"
+          data-visible="false"
+          points=""
+        />
+        <g id="ball-status" class="ball-status" data-visible="false" data-ready="false">
+          <circle id="ball-status-lamp" class="ball-status__lamp" cx="0" cy="0" r="0" />
+          <circle
+            id="ball-status-lamp-core"
+            class="ball-status__lamp-core"
+            cx="0"
+            cy="0"
+            r="0"
+          />
+          <text
+            id="ball-status-label"
+            class="ball-status__label"
+            text-anchor="middle"
+            dominant-baseline="middle"
+          ></text>
+        </g>
+        <!-- Putting mode. A lane running down-range from the putter ball
+             position, and the roll the last putt actually made. Both arrive as
+             calibrated surface points; nothing here knows a metre. -->
+        <polygon
+          id="putting-lane"
+          class="putting-lane"
+          data-visible="false"
+          points=""
+        />
+        <line
+          id="putting-lane-line"
+          class="putting-lane__line"
+          data-visible="false"
+          x1="0"
+          y1="0"
+          x2="0"
+          y2="0"
+        />
+        <polyline
+          id="putt-path"
+          class="putt-path"
+          data-visible="false"
+          data-source=""
+          points=""
+        />
         <line id="club-path" class="club-path" x1="0" y1="0" x2="0" y2="0" />
         <g id="marker" class="marker">
           <circle id="marker-halo" class="marker__halo" cx="0" cy="0" r="0" />
           <circle id="marker-ring" class="marker__ring" cx="0" cy="0" r="0" />
           <circle id="marker-ball" class="marker__ball" cx="0" cy="0" r="0" />
+        </g>
+        <!-- Drawn at the last marker position, which Python keeps when it hides
+             the marker. One pulse, then gone; not a caption. -->
+        <g id="lock-ack" class="lock-ack" data-visible="false">
+          <text
+            id="lock-ack-mark"
+            class="lock-ack__mark"
+            text-anchor="middle"
+            dominant-baseline="middle"
+          >
+            ✓
+          </text>
         </g>
       </svg>
 
@@ -26,70 +102,78 @@
         <span id="status-text" class="status__text"></span>
       </div>
 
-      <div id="play-status" class="play-status" hidden>
-        <span id="play-status-text" class="play-status__state"></span>
-        <span id="play-club-label" class="play-status__club"></span>
-      </div>
+      <!-- Launch-monitor state, kept as attributes and never as text. READY and
+           FINDING BALL still travel and still drive the marker and the
+           information area. What the player reads is the chamfer on the rear
+           edge, and those words are BALL READY and PLACE BALL. -->
+      <div id="play-status" class="play-status" data-state="" data-club="" hidden></div>
 
-      <div id="metrics" class="metrics" hidden>
-        <div class="metric">
-          <span class="metric__label">Ball</span>
-          <span id="metric-speed" class="metric__value"></span>
-          <span class="metric__unit">mph</span>
+      <!-- One information area. Python guarantees address and result are never
+           both set. Figures hide themselves when CaddieJ has no answer, because
+           a dash under a label reads as a measurement that failed. -->
+      <div id="address-hud" class="info-area" data-club="" hidden>
+        <div id="address-distance-figure" class="info-figure" hidden>
+          <span id="address-distance" class="info-figure__value"></span>
         </div>
-        <div class="metric">
-          <span class="metric__label">Launch</span>
-          <span id="metric-launch" class="metric__value"></span>
-          <span class="metric__unit">deg</span>
-        </div>
-        <!-- Hidden unless the launch monitor measured carry; most do not. -->
-        <div id="metric-carry-row" class="metric" hidden>
-          <span class="metric__label">Carry</span>
-          <span id="metric-carry" class="metric__value"></span>
-          <span class="metric__unit">yds</span>
+        <div id="address-club-figure" class="info-figure" hidden>
+          <span id="address-club" class="info-figure__value info-figure__value--club"></span>
         </div>
       </div>
 
-      <div id="round-result" class="round-result" hidden>
-        <div class="round-result__meta">
-          <span id="round-player" class="round-result__player"></span>
-          <span id="round-shot-id" class="round-result__id"></span>
+      <div id="metrics" class="metrics" hidden></div>
+
+      <div id="round-result" class="info-area" hidden>
+        <div id="round-shot-figure" class="info-figure" hidden>
+          <span id="round-shot-distance" class="info-figure__value"></span>
+          <span class="info-figure__label">SLAG</span>
         </div>
-        <div class="round-result__metrics">
-          <div class="metric">
-            <span class="metric__label">Ball Speed</span>
-            <span id="round-ball-speed" class="metric__value"></span>
-          </div>
-          <div class="metric">
-            <span class="metric__label">Distance</span>
-            <span id="round-distance" class="metric__value"></span>
-          </div>
-          <div class="metric">
-            <span class="metric__label">Hole</span>
-            <span id="round-hole" class="metric__value"></span>
-          </div>
-          <div class="metric">
-            <span class="metric__label">Shot</span>
-            <span id="round-hole-shot" class="metric__value"></span>
-          </div>
-          <div class="metric">
-            <span class="metric__label">Surface</span>
-            <span id="round-surface" class="metric__value metric__value--text"></span>
-          </div>
+        <div id="round-remaining-figure" class="info-figure" hidden>
+          <span id="round-remaining" class="info-figure__value"></span>
+          <span class="info-figure__label">KVAR</span>
         </div>
       </div>
 
-      <div id="ball-flight" class="ball-flight" hidden>
-        <span class="ball-flight__label">Ball Flight</span>
-        <svg id="ball-flight-chart" class="ball-flight__chart" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-          <polyline id="ball-flight-path" class="ball-flight__path" points="" fill="none" />
-        </svg>
-      </div>
+      <div id="ball-flight" class="ball-flight" hidden></div>
 
       <!-- One coaching line. Some of this text is written by a language model,
            so the client assigns it with textContent and never as markup. -->
-      <div id="advice" class="advice" data-band="" data-pending="false" hidden>
-        <span id="advice-text" class="advice__text"></span>
+      <!-- Four regions, composed away from the mat: the score and the words
+           down the left, the player's own frame in a panel beside them, the
+           four readings across the bottom. Python says where each one goes,
+           measured off the hitting strip, because this file cannot know where
+           the mat is and used to grow down over it.
+
+           Python also says how tall each box is, and the stylesheet sizes the
+           type from that rather than from the viewport width. Sizing words by
+           width while boxing them by height is how the first hardware test
+           ended up with a clipped score, a clipped instruction and clipped
+           labels on a perfectly correct set of regions. -->
+      <div id="advice" class="advice" data-band="" data-pending="false"
+           data-regions="false" hidden>
+        <span id="advice-score" class="advice__score advice__region" hidden>
+          <span class="advice__score-label">SWING SCORE</span>
+          <span class="advice__score-figure">
+            <span id="advice-score-value" class="advice__score-value"></span>
+            <span class="advice__score-scale">/ 100</span>
+          </span>
+        </span>
+        <!-- The player's own frame, as stored; never annotated, and absent
+             rather than substituted when the file is gone. -->
+        <img id="advice-evidence" class="advice__evidence advice__region" alt="" hidden>
+        <div id="advice-say" class="advice__say advice__region">
+          <span id="advice-observation" class="advice__observation" hidden></span>
+          <img id="advice-cue" class="advice__cue" alt="" hidden>
+          <span id="advice-text" class="advice__text"></span>
+        </div>
+        <!-- Carry, face, path, club speed, as the device wrote them. -->
+        <div id="advice-metrics" class="advice__metrics advice__region" hidden></div>
+      </div>
+
+      <!-- Where the coach is with the shot just struck. A named stage and an
+           indeterminate bar: there is no percentage to show, so none is. -->
+      <div id="progress" class="progress" data-stage="" hidden>
+        <span id="progress-label" class="progress__label"></span>
+        <span class="progress__bar"></span>
       </div>
 
       <!-- The celebration layer, last so it draws over everything else.
@@ -112,6 +196,6 @@
       <span id="link-text">connecting</span>
     </div>
 
-    <script type="module" src="/static/js/client.js"></script>
+    <script type="module" src="/static/hud/__HUD_ASSETS_VERSION__/client.js"></script>
   </body>
 </html>

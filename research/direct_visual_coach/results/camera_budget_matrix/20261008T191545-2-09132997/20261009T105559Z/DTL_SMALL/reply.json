@@ -1,0 +1,69 @@
+{
+  "model": "gpt-5-mini-2025-08-07",
+  "reasoning_effort": "minimal",
+  "latency_seconds": 5.655999999959022,
+  "usage": {
+    "input_tokens": 23894,
+    "output_tokens": 524,
+    "reasoning_tokens": 0
+  },
+  "payload": {
+    "status": "no_proven_fault",
+    "handedness": {
+      "side": "right",
+      "confidence": 0.9,
+      "visual_basis": "From DTL frames the golfer's left shoulder is closer to the target line and the left hip is the lead side at address, consistent with a right-handed stance."
+    },
+    "temporal_orientation": [
+      {
+        "capture_tick": 15,
+        "state": "setup",
+        "confidence": 0.95,
+        "visual_basis": "Golfer at address over the ball with no visible motion away yet."
+      },
+      {
+        "capture_tick": 19,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club have started away from the ball; shaft rising and club moving backward."
+      },
+      {
+        "capture_tick": 24,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Continuation of club moving away; hands higher and behind initial address."
+      },
+      {
+        "capture_tick": 27,
+        "state": "moving_away",
+        "confidence": 0.9,
+        "visual_basis": "Hands and club near or at the top of the backswing; still moving away from the ball."
+      },
+      {
+        "capture_tick": 35,
+        "state": "moving_away",
+        "confidence": 0.8,
+        "visual_basis": "Hands remain high in backswing; still away from the ball."
+      },
+      {
+        "capture_tick": 43,
+        "state": "direction_change_region",
+        "confidence": 0.8,
+        "visual_basis": "Hands visible descending from the top toward the ball, indicating change of direction."
+      },
+      {
+        "capture_tick": 50,
+        "state": "moving_toward_ball",
+        "confidence": 0.9,
+        "visual_basis": "Club and hands clearly moving toward the ball in downswing and through impact region."
+      },
+      {
+        "capture_tick": 51,
+        "state": "after_strike",
+        "confidence": 0.9,
+        "visual_basis": "Follow-through frames show motion after the ball with club past impact area."
+      }
+    ],
+    "fault_candidates": []
+  }
+}

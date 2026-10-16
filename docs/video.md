@@ -32,6 +32,18 @@ That plays a scripted round against CaddieJ's own fake GSPro and writes a clip
 per shot under `media/clips/<date>/`. The generated picture has a running
 timestamp drawn into it, so a clip can be checked against its metadata by eye.
 
+To prove the analysis path can find a clip and pull the same stills coaching
+would send — without starting CaddieJ, without a new shot, and without
+OpenAI:
+
+```shell
+caddiej --check-video-frames
+```
+
+It selects the newest finished clip that has a sidecar, applies the
+production offsets, and writes four JPEGs plus a contact sheet under
+`.caddiej/diagnostics/video-frames/`. That is not ProTee Shot Video.
+
 ## Using a real camera
 
 Find the device, then name it:

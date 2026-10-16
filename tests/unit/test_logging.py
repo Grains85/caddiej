@@ -5,8 +5,10 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 import threading
 import time
+from pathlib import Path
 
 from caddiej.runtime.logging import (
     JsonFormatter,
@@ -181,3 +183,85 @@ def test_ordinary_logs_omit_the_exception_field() -> None:
         assert "exception" not in payload
     finally:
         logging.basicConfig(level=logging.WARNING, force=True)
+
+
+class TestTheAllowlistAndTheCodeCannotDriftApart:
+    """One list, in one module, naming every field the rest of CaddieJ may log.
+
+    It fails closed, which is the right default: a credential passed through
+    `extra` by mistake is dropped rather than written. But failing closed is
+    only as good as the list is current, and nothing enforced any relationship
+    between the list and the code. A field renamed at the call site keeps its
+    old entry here forever and silently stops being logged, so the diagnostic
+    somebody added it for is missing exactly when it is needed, and nothing
+    says so. These tests are that relationship.
+    """
+
+    SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src" / "caddiej"
+
+    @classmethod
+    def _sources(cls) -> list[str]:
+        return [
+            path.read_text(encoding="utf-8") for path in cls.SOURCE_ROOT.rglob("*.py")
+        ]
+
+    @classmethod
+    def _named_anywhere(cls) -> set[str]:
+        """Every snake_case name used as a string literal key in `src/`.
+
+        Deliberately wider than "appears inside an `extra=` literal". Several
+        call sites build their context in a helper and merge it in, and a test
+        that did not know that would report working fields as dead. Wide is
+        the right error for this direction, which only has to notice a name
+        that has left the codebase entirely.
+        """
+
+        found: set[str] = set()
+        for text in cls._sources():
+            found.update(_LOOSE_NAME.findall(text))
+        return found
+
+    def test_every_allowlisted_field_is_still_a_name_the_code_uses(self) -> None:
+        stale = sorted(set(JsonFormatter._CONTEXT_FIELDS) - self._named_anywhere())
+
+        assert stale == [], (
+            "allowlisted but named nowhere in src: renamed at the call site, "
+            "or left behind by a deletion"
+        )
+
+    def test_every_field_logged_through_an_extra_literal_is_allowlisted(self) -> None:
+        """The direction that costs a diagnostic when it is wrong.
+
+        A field the formatter has never heard of is dropped without comment,
+        so the failure is a log line missing the one number it was added for.
+        """
+
+        logged: set[str] = set()
+        for text in self._sources():
+            for match in re.finditer(r"extra=\{", text):
+                logged.update(_DICT_KEY.findall(_braced(text, match.end() - 1)))
+
+        assert sorted(logged - set(JsonFormatter._CONTEXT_FIELDS)) == []
+
+    def test_the_allowlist_has_no_duplicates(self) -> None:
+        fields = JsonFormatter._CONTEXT_FIELDS
+
+        assert len(set(fields)) == len(fields)
+
+
+_DICT_KEY = re.compile(r"""["']([a-z][a-z0-9_]*)["']\s*:""")
+_LOOSE_NAME = re.compile(r"""["']([a-z][a-z0-9_]{2,})["']""")
+
+
+def _braced(text: str, opening: int) -> str:
+    """The text of the brace-delimited run starting at `opening`."""
+
+    depth = 0
+    for index in range(opening, len(text)):
+        if text[index] == "{":
+            depth += 1
+        elif text[index] == "}":
+            depth -= 1
+            if depth == 0:
+                return text[opening : index + 1]
+    return text[opening:]

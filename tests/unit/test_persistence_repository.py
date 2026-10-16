@@ -14,11 +14,20 @@ from collections.abc import Iterator
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import get_args
 from uuid import uuid4
 
 import pytest
 
-from caddiej.domain.shot import BallLaunch, ClubDelivery, ClubKind, Handedness, Shot
+from caddiej.domain.shot import (
+    SHOT_SOURCE_KINDS,
+    BallLaunch,
+    ClubDelivery,
+    ClubKind,
+    Handedness,
+    Shot,
+    ShotSourceKind,
+)
 from caddiej.persistence.records import (
     AnalysisReference,
     RawPayload,
@@ -209,6 +218,49 @@ def test_a_shot_that_was_never_stored_reads_as_nothing(
     repository: HistoryRepository,
 ) -> None:
     assert repository.shot(uuid4()) is None
+
+
+class TestEveryProvenanceTheDomainAllowsSurvivesTheRoundTrip:
+    """The kind column used to be read back through a hand-written list.
+
+    A `cast` to a `Literal` of three kinds, one of which — `gspro_round` — had
+    been added to the domain and never here. A cast does nothing at runtime,
+    so every passively observed shot came back typed as something it was not,
+    and the round-trip tests this file exists for had never once carried a
+    shot of the kind production actually writes.
+    """
+
+    @pytest.mark.parametrize("kind", sorted(SHOT_SOURCE_KINDS))
+    def test_a_shot_of_each_kind_comes_back_as_that_kind(
+        self, repository: HistoryRepository, make_shot: ShotBuilder, kind: str
+    ) -> None:
+        shot = make_shot()
+        shot = replace(shot, source=replace(shot.source, kind=kind))
+
+        repository.insert_shot(stored(shot), None)
+
+        read = repository.shot(shot.shot_id)
+        assert read is not None
+        assert read.shot.source.kind == kind
+
+    def test_the_list_and_the_domain_cannot_drift_apart_again(self) -> None:
+        assert SHOT_SOURCE_KINDS == frozenset(get_args(ShotSourceKind))
+
+    def test_a_row_naming_a_kind_the_domain_never_heard_of_is_loud(
+        self, repository: HistoryRepository, make_shot: ShotBuilder
+    ) -> None:
+        """Silence here is what let the drift last. A row written by a future
+        CaddieJ and read by this one should say so rather than be believed."""
+
+        shot = make_shot()
+        repository.insert_shot(stored(shot), None)
+        repository._connection.execute(  # noqa: SLF001 — forging a row is the test
+            "UPDATE shots SET source_kind = ? WHERE shot_id = ?",
+            ("some_future_monitor", str(shot.shot_id)),
+        )
+
+        with pytest.raises(ValueError, match="unknown shot source kind"):
+            repository.shot(shot.shot_id)
 
 
 # --- time -----------------------------------------------------------------

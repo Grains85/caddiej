@@ -40,6 +40,44 @@ def format_total_distance_m(total_distance_raw: float | None) -> str | None:
     return f"{metres} m"
 
 
+def format_remaining_distance_m(distance_to_pin_raw: float | None) -> str | None:
+    """Integer metres left to the pin after the shot, or None to omit the panel.
+
+    ``currentRound.dat`` ``DistanceToPin`` on a shot record is the distance
+    remaining once **that** shot has come to rest, not the distance the player
+    was playing from. Verified on a real round (2026-09-16, hole 1) two ways:
+
+    * arithmetically along the hole — 158.3 m left, a 5.9 m shot, 153.1 m left;
+      then a 175.3 m shot from 153.1 m out leaving 23.1 m, which is the overshoot;
+    * against the other source — ProTee logged GSPro Code 201
+      ``DistanceToTarget`` 10.9 then 9.0 in the two seconds after a chip, matching
+      the previous shot's ``DistanceToPin`` 10.855 and the new shot's 9.008.
+
+    Same metres as ``TotalDistance``, from the same arithmetic. Non-positive is
+    omitted rather than shown as ``0 m``: it has not been observed on real
+    hardware, so what GSPro writes for a holed shot is not established, and the
+    floor does not put an unverified number in front of a player.
+    """
+
+    if distance_to_pin_raw is None or distance_to_pin_raw <= 0:
+        return None
+    return format_total_distance_m(distance_to_pin_raw)
+
+
+def format_target_distance_m(distance_raw: float | None) -> str | None:
+    """Integer metres for live ``DistanceToTarget``.
+
+    Hardware: after a shot, Code 201 ``DistanceToTarget`` 289.4 matched
+    ``currentRound.dat`` ``DistanceToPin`` 289.443. ``TotalDistance`` from
+    the same file is already shown as metres. Non-positive values are the
+    GSPro handshake empty target and are omitted.
+    """
+
+    if distance_raw is None or distance_raw <= 0:
+        return None
+    return format_total_distance_m(distance_raw)
+
+
 def _scaled_int(value: float | None, factor: float) -> int | None:
     if value is None:
         return None

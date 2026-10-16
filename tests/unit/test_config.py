@@ -125,7 +125,15 @@ def test_the_tee_defaults_to_today_s_visual_placement() -> None:
     assert settings.floor_tee_driver_x_m == 0.5
     assert settings.floor_tee_driver_y_m == 0.72
     assert settings.floor_club_path_length == 1.2
-    assert settings.floor_shot_result_max_duration == 15.0
+    assert settings.floor_shot_result_min_duration == 8.0
+    assert settings.floor_shot_result_max_duration == 30.0
+    assert settings.floor_hitting_strip_x_m == 0.5
+    assert settings.floor_hitting_strip_y_m == 0.72
+    assert settings.floor_hitting_strip_width_m == 0.30
+    assert settings.floor_hitting_strip_depth_m == 0.45
+    # An overlay that is mostly outline is the safer thing to put on an unknown
+    # projector, so lighting the turf is something an operator asks for.
+    assert settings.floor_hitting_strip_fill is False
 
 
 def test_a_physical_tee_off_the_floor_is_rejected() -> None:
@@ -178,6 +186,129 @@ def test_an_unset_driver_tee_inherits_the_default_tee() -> None:
     assert settings.floor_tee_driver_y_m == 0.6
 
 
+def test_an_unset_hitting_strip_inherits_the_default_tee() -> None:
+    settings = Settings(
+        _env_file=None,  # type: ignore[call-arg]
+        FLOOR_TEE_X_M=0.4,
+        FLOOR_TEE_Y_M=0.6,
+    )
+
+    assert settings.floor_hitting_strip_x_m == 0.4
+    assert settings.floor_hitting_strip_y_m == 0.6
+    assert settings.floor_hitting_strip_width_m == 0.30
+    assert settings.floor_hitting_strip_depth_m == 0.45
+
+
+def test_a_set_hitting_strip_is_independent_of_the_tee() -> None:
+    settings = Settings(
+        _env_file=None,  # type: ignore[call-arg]
+        FLOOR_TEE_X_M=0.4,
+        FLOOR_TEE_Y_M=0.6,
+        FLOOR_HITTING_STRIP_X_M=0.42,
+        FLOOR_HITTING_STRIP_Y_M=0.58,
+        FLOOR_HITTING_STRIP_WIDTH_M=0.28,
+        FLOOR_HITTING_STRIP_DEPTH_M=0.50,
+    )
+
+    assert settings.floor_hitting_strip_x_m == 0.42
+    assert settings.floor_hitting_strip_y_m == 0.58
+    assert settings.floor_hitting_strip_width_m == 0.28
+    assert settings.floor_hitting_strip_depth_m == 0.50
+
+
+def test_one_explicit_strip_coordinate_does_not_drag_the_other_from_the_tee() -> None:
+    """Calibrating the pad across the bay must not move it up and down with it."""
+
+    settings = Settings(
+        _env_file=None,  # type: ignore[call-arg]
+        FLOOR_TEE_X_M=0.4,
+        FLOOR_TEE_Y_M=0.6,
+        FLOOR_HITTING_STRIP_X_M=0.48,
+    )
+
+    assert settings.floor_hitting_strip_x_m == 0.48
+    assert settings.floor_hitting_strip_y_m == 0.6
+
+
+class TestTheBag:
+    """Carries per club. Zero is not a short club; it is a club you do not own."""
+
+    def test_nothing_is_configured_by_default(self) -> None:
+        settings = Settings(_env_file=None)  # type: ignore[call-arg]
+
+        assert set(settings.club_carries().values()) == {0.0}
+
+    def test_the_labels_are_the_ones_the_floor_shows(self) -> None:
+        settings = Settings(_env_file=None)  # type: ignore[call-arg]
+
+        assert list(settings.club_carries()) == [
+            "DR",
+            "3W",
+            "5W",
+            "4I",
+            "5I",
+            "6I",
+            "7I",
+            "8I",
+            "9I",
+            "PW",
+            "GW",
+            "SW",
+        ]
+
+    def test_a_configured_club_arrives_under_its_label(self) -> None:
+        settings = Settings(
+            _env_file=None,  # type: ignore[call-arg]
+            PLAYER_CLUB_CARRY_7I_M=135.0,
+            PLAYER_CLUB_CARRY_DRIVER_M=220.0,
+        )
+
+        carries = settings.club_carries()
+
+        assert carries["7I"] == 135.0
+        assert carries["DR"] == 220.0
+        assert carries["PW"] == 0.0
+
+    def test_a_negative_carry_is_refused(self) -> None:
+        with pytest.raises(ValidationError, match="PLAYER_CLUB_CARRY_7I_M"):
+            Settings(
+                _env_file=None,  # type: ignore[call-arg]
+                PLAYER_CLUB_CARRY_7I_M=-1.0,
+            )
+
+
+def test_the_hitting_strip_can_be_asked_to_light_the_turf() -> None:
+    settings = Settings(
+        _env_file=None,  # type: ignore[call-arg]
+        FLOOR_HITTING_STRIP_FILL=True,
+    )
+
+    assert settings.floor_hitting_strip_fill is True
+
+
+def test_a_result_window_longer_than_its_cap_is_rejected() -> None:
+    """The two ends of one lifecycle, so a pair that cannot both hold is refused
+    here rather than producing a panel whose behaviour depends on task order."""
+
+    with pytest.raises(ValidationError, match="FLOOR_SHOT_RESULT_MIN_DURATION"):
+        Settings(
+            _env_file=None,  # type: ignore[call-arg]
+            FLOOR_SHOT_RESULT_MIN_DURATION=40.0,
+            FLOOR_SHOT_RESULT_MAX_DURATION=30.0,
+        )
+
+
+def test_a_hitting_strip_centre_off_the_floor_is_rejected() -> None:
+    with pytest.raises(ValidationError, match="FLOOR_HITTING_STRIP_Y_M"):
+        Settings(
+            _env_file=None,  # type: ignore[call-arg]
+            FLOOR_WIDTH_M=2.0,
+            FLOOR_DEPTH_M=2.0,
+            FLOOR_HITTING_STRIP_X_M=0.5,
+            FLOOR_HITTING_STRIP_Y_M=2.5,
+        )
+
+
 def test_a_set_driver_tee_is_independent_of_the_default() -> None:
     settings = Settings(
         _env_file=None,  # type: ignore[call-arg]
@@ -210,3 +341,47 @@ def test_observe_mode_is_a_valid_shot_source() -> None:
     assert settings.gspro_round_observer_enabled is True
     assert settings.protee_observer_enabled is True
     assert settings.gspro_round_poll_interval == 0.1
+
+
+def test_shot_video_replay_defaults_are_safe() -> None:
+    settings = Settings(_env_file=None)
+
+    assert settings.floor_shot_video_enabled is False
+    assert settings.obs_shot_video_source == "Shot Video"
+    assert settings.floor_shot_video_delay_seconds == 0.75
+    assert settings.floor_shot_video_duration_seconds == 4.0
+    assert settings.obs_floor_scene == "CaddieJ Test"
+
+
+def test_shot_video_replay_reads_environment(monkeypatch) -> None:
+    monkeypatch.setenv("FLOOR_SHOT_VIDEO_ENABLED", "true")
+    monkeypatch.setenv("OBS_SHOT_VIDEO_SOURCE", "ProTee Replay")
+    monkeypatch.setenv("FLOOR_SHOT_VIDEO_DELAY_SECONDS", "0.5")
+    monkeypatch.setenv("FLOOR_SHOT_VIDEO_DURATION_SECONDS", "3")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.floor_shot_video_enabled is True
+    assert settings.obs_shot_video_source == "ProTee Replay"
+    assert settings.floor_shot_video_delay_seconds == 0.5
+    assert settings.floor_shot_video_duration_seconds == 3.0
+
+
+def test_reveal_sources_are_the_impact_and_delivery_panels() -> None:
+    """Shot Video and Top Impact already exist. They are not a body replay."""
+
+    settings = Settings(
+        _env_file=None,  # type: ignore[call-arg]
+        SWING_CAPTURE_PANEL_IMPACT_SOURCE="Top Impact",
+        SWING_CAPTURE_PANEL_DELIVERY_SOURCE="Shot Video",
+        SWING_CAPTURE_CAMERA_1_SOURCE="CaddieJ Swing Camera 1",
+    )
+    panels = {panel.panel_id: panel for panel in settings.capture_panels()}
+
+    assert set(panels) == {"impact", "delivery"}
+    assert panels["impact"].source == "Top Impact"
+    assert panels["impact"].kind.value == "static"
+    assert panels["impact"].supports == frozenset()
+    assert panels["delivery"].source == "Shot Video"
+    assert panels["delivery"].kind.value == "static"
+    assert panels["delivery"].supports == frozenset()

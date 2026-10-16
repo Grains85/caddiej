@@ -589,6 +589,45 @@ class TestPublishDuringShutdown:
         assert bus.health().dropped == 0
         assert bus.health().refused == 0
 
+    async def test_a_fanout_that_partly_landed_is_not_reported_as_a_refusal(
+        self,
+    ) -> None:
+        """Shutdown closes subscriber queues one at a time.
+
+        A publish that reached the first subscriber and found the second's
+        queue already closed used to raise, and the publisher — a passive
+        observer part way through a chunk of log lines — treated that as a
+        reason to abandon the rest of the chunk. So one event delivered to
+        somebody was reported as delivered to nobody, and took the lines
+        behind it with it. The subscribers still to come are shutting down and
+        were never going to read anything.
+        """
+
+        bus = AsyncEventBus()
+        delivered: list[int] = []
+        first_ran = asyncio.Event()
+
+        async def early(event: SampleEvent) -> None:
+            delivered.append(event.value)
+            first_ran.set()
+
+        async def late(event: SampleEvent) -> None:
+            delivered.append(-event.value)
+
+        bus.subscribe(SampleEvent, early, name="early")
+        bus.subscribe(SampleEvent, late, name="late")
+        await bus.start()
+        # Close the second subscriber's queue only, so the fan-out is halfway
+        # through when it finds one shut. This is what stopping looks like
+        # from inside a publish that overlapped it.
+        await bus._subscribers["late"].queue.close()  # noqa: SLF001 — the state
+
+        await bus.publish(SampleEvent(value=1))
+        await asyncio.wait_for(first_ran.wait(), 1.0)
+        await bus.stop(timeout=1.0)
+
+        assert delivered == [1]
+
 
 def test_health_does_not_use_event_ids_as_keys() -> None:
     # Cardinality guard: the snapshot is named counters, not a map keyed by

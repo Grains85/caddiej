@@ -31,6 +31,7 @@ from caddiej.persistence.records import (
     SessionRecord,
     StoredAdvice,
     StoredShot,
+    StoredSwingScore,
 )
 from caddiej.persistence.repository import HistoryRepository
 from caddiej.persistence.schema import SCHEMA_VERSION, SchemaTooNewError
@@ -57,6 +58,7 @@ __all__ = [
     "SessionRecord",
     "StoredAdvice",
     "StoredShot",
+    "StoredSwingScore",
     "build_history_service",
     "summarise_session",
 ]

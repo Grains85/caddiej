@@ -1,0 +1,31 @@
+{
+ "written_at": "2026-10-08T11:54:51.077799+00:00",
+ "sheet": "20261008T092949-4-d05a29c4_T36.jpg",
+ "criteria": {
+  "locate_wrong_max": 1,
+  "locate_wrong_definition": "raw LOCATE (before CaddieJ's validation), 18 slots, verdict 'wrong' under POC 1's RULE; nulls are reported as missed, not counted as wrong",
+  "p7_both_cameras_capture_index_in": [
+   40,
+   41,
+   42
+  ],
+  "p7_definition": "raw LOCATE P7 on DTL and on FO each within one captured still of true impact (#41)",
+  "accepted_min": 40,
+  "wrong_position_accepted_max": 3,
+  "wrong_position_definition": "accepted checkpoint whose evidence still is graded 'wrong' for its phase under POC 1's TRUTH/RULE (neighbour of a correct still = acceptable)",
+  "output_tokens_max": 1000,
+  "output_tokens_note": "approximately: 1001-1100 reported as borderline, >1100 fails",
+  "measured_not_criteria": [
+   "coverage",
+   "swing_score",
+   "faults",
+   "root",
+   "cue",
+   "input_tokens",
+   "reasoning_tokens",
+   "wall_seconds",
+   "strike_to_verdict",
+   "cost"
+  ]
+ }
+}

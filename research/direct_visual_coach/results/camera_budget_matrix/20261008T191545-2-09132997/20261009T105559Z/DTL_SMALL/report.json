@@ -1,0 +1,43 @@
+{
+  "shot": "20261008T191545-2-09132997",
+  "experiment": "camera_budget_matrix",
+  "configuration": "DTL_SMALL",
+  "camera_mode": "DTL",
+  "image_budget": "SMALL",
+  "architecture": "visual_fault_catalog_v1",
+  "model": "gpt-5-mini",
+  "reasoning_effort": "minimal",
+  "sent": true,
+  "requested_temporal_moments": 8,
+  "temporal_moments": 8,
+  "image_count": 8,
+  "selected_ticks": [
+    15,
+    19,
+    24,
+    27,
+    35,
+    43,
+    50,
+    51
+  ],
+  "status": "no_proven_fault",
+  "handedness": "right",
+  "orientation_valid": true,
+  "fault_candidates": [],
+  "primary_fault": null,
+  "primary_confidence": null,
+  "estimated_input_tokens": 24863,
+  "input_tokens": 23894,
+  "output_tokens": 524,
+  "openai_latency_s": 5.656,
+  "estimated_cost_usd": 0.0070215,
+  "cost_basis": "measured_usage",
+  "validation_ok": true,
+  "review_sheet": "review_sheet.png",
+  "caddiej_coaching": null,
+  "validation": {
+    "ok": true,
+    "problems": []
+  }
+}

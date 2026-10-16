@@ -52,12 +52,18 @@ test = [
     "httpx>=0.27",
     "ruff>=0.11",
     "mypy>=1.13",
+    # The evidence sheet is drawn for real in its own tests.
+    "pillow>=10.1,<13",
 ]
 # AI coaching. Optional because CaddieJ coaches from deterministic templates with
 # nothing installed, and because a golf simulator should not require a cloud
 # account to run. Confined to caddiej.adapters.openai.
 ai = [
     "openai>=1.60,<3",
+    # Composes a shot's stills into the one Swing Evidence Sheet the model is
+    # sent. The standard library cannot decode or encode a JPEG. Confined to
+    # caddiej.swing_capture.sheet, imported only when a sheet is drawn.
+    "pillow>=10.1,<13",
 ]
 # Local text to speech. Optional because CaddieJ says nothing by default, and
 # because this is the heaviest thing in the project by an order of magnitude:
@@ -86,6 +92,15 @@ hue = [
 # caddiej.mcp (see ASSISTANT_API.md).
 mcp = [
     "mcp>=2.1,<3",
+]
+# Local computer vision for research stills. Optional because the running
+# simulator never imports it. OpenCV is used by the temporal sampler.
+# MediaPipe is used only by the swing-stage research prototype. Its pose
+# model is downloaded on first run and is not part of this package.
+research = [
+    "opencv-python-headless>=4.10,<5",
+    "pillow>=10.1,<13",
+    "mediapipe>=0.10.35,<0.11",
 ]
 
 [project.scripts]
@@ -152,6 +167,8 @@ module = [
     "kokoro",
     "sounddevice",
     "openai",
+    "PIL",
+    "PIL.*",
     "mcp",
     "mcp.*",
 ]

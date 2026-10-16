@@ -207,6 +207,128 @@ def new_clip_id() -> UUID:
     return uuid4()
 
 
+@dataclass(frozen=True, slots=True)
+class DiscoveredClip:
+    """A finished production clip, reconstructed from the sidecar beside it."""
+
+    clip: ClipRef
+    media_path: Path
+    sidecar_path: Path
+
+
+@dataclass(frozen=True, slots=True)
+class RejectedClip:
+    """A file under the clips tree that is not a usable production clip."""
+
+    path: Path
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ClipCatalog:
+    """Everything under the media root that looks like a swing clip."""
+
+    clips_root: Path
+    accepted: tuple[DiscoveredClip, ...]
+    rejected: tuple[RejectedClip, ...]
+
+    @property
+    def newest(self) -> DiscoveredClip | None:
+        """The most recently recorded valid clip, or None if there is none.
+
+        `recorded_at` from the sidecar, not the file's mtime: a copied library
+        keeps the time the swing was filmed, and mtime would quietly prefer
+        whichever file a backup last touched.
+        """
+
+        return self.accepted[0] if self.accepted else None
+
+
+def clip_from_sidecar(sidecar: Path) -> ClipRef:
+    """The clip the sidecar describes, or raise if it is not one CaddieJ wrote.
+
+    The sidecar exists so a clip stays interpretable after the process that
+    filmed it has gone. Coaching never reads one today — it is handed a
+    `ClipRef` on the bus — but anything that has to find a swing after the fact
+    has to start here, because the MP4 does not know when impact was.
+    """
+
+    try:
+        payload = json.loads(sidecar.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ClipExtractionError(f"sidecar is unreadable: {error}") from error
+    if not isinstance(payload, dict):
+        raise ClipExtractionError("sidecar is not an object")
+
+    try:
+        return ClipRef(
+            clip_id=UUID(str(payload["clip_id"])),
+            shot_id=UUID(str(payload["shot_id"])),
+            camera_id=str(payload["camera_id"]),
+            path=Path(str(payload["path"])),
+            recorded_at=_when(payload["recorded_at"]),
+            impact_at=_when(payload["impact_at"]),
+            impact_offset_seconds=float(payload["impact_offset_seconds"]),
+            duration_seconds=float(payload["duration_seconds"]),
+            fps=float(payload["fps"]),
+            width=int(payload["width"]),
+            height=int(payload["height"]),
+            time_quality=TimeQuality(str(payload.get("time_quality", "estimated"))),
+        )
+    except (KeyError, TypeError, ValueError) as error:
+        raise ClipExtractionError(f"sidecar is incomplete: {error}") from error
+
+
+def discover_clips(layout: MediaLayout) -> ClipCatalog:
+    """Every production clip under the media root, newest first.
+
+    A clip is a pair: an MP4 and the sidecar that explains it. An MP4 alone is
+    not enough — nothing in the container says where impact falls — and a
+    sidecar alone is a description of a file that is not there. Both, or it is
+    rejected rather than guessed at.
+    """
+
+    clips_root = layout.root / "clips"
+    accepted: list[DiscoveredClip] = []
+    rejected: list[RejectedClip] = []
+    if not clips_root.is_dir():
+        return ClipCatalog(clips_root=clips_root, accepted=(), rejected=())
+
+    for media in sorted(clips_root.rglob("*.mp4")):
+        if not media.is_file() or media.name.startswith("."):
+            continue
+        sidecar = layout.sidecar_path(media)
+        if not sidecar.is_file():
+            rejected.append(
+                RejectedClip(media, "no sidecar — not a CaddieJ swing clip")
+            )
+            continue
+        try:
+            clip = clip_from_sidecar(sidecar)
+            _verify(media)
+        except ClipExtractionError as error:
+            rejected.append(RejectedClip(media, str(error)))
+            continue
+        accepted.append(
+            DiscoveredClip(clip=clip, media_path=media, sidecar_path=sidecar)
+        )
+
+    accepted.sort(
+        key=lambda item: (item.clip.recorded_at, item.media_path), reverse=True
+    )
+    return ClipCatalog(
+        clips_root=clips_root,
+        accepted=tuple(accepted),
+        rejected=tuple(rejected),
+    )
+
+
+def _when(value: object) -> datetime:
+    if not isinstance(value, str) or not value:
+        raise ValueError("timestamp is missing")
+    return datetime.fromisoformat(value)
+
+
 def _verify(clip: Path) -> None:
     """Check the file is a finished video, not merely a file. Raises if not.
 

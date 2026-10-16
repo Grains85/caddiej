@@ -14,20 +14,25 @@ from caddiej.domain.shot import (
     Shot,
     ShotSource,
 )
-from caddiej.floor.geometry import PhysicalPoint, rectangular_calibration
+from caddiej.floor.geometry import PhysicalPoint, PhysicalRect, rectangular_calibration
+from caddiej.floor.layout import PlacementMode, layout_from_tees, placement_mode_for
 from caddiej.floor.presenter import FloorPresenter, marker_variant_for
 from caddiej.floor.service import FloorService
-from caddiej.floor.state import FloorPoint, MarkerVariant
-from caddiej.floor.tees import TeePositions
+from caddiej.floor.state import FloorPoint, HittingStrip, MarkerVariant
 
 TEE = PhysicalPoint(x_m=0.5, y_m=0.72)
 DRIVER_TEE = PhysicalPoint(x_m=0.5, y_m=0.55)
 SURFACE_TEE = FloorPoint(x=0.5, y=0.72)
 SURFACE_DRIVER_TEE = FloorPoint(x=0.5, y=0.55)
+# The putter's default offset: 0.30 m down-range of the strip centre, which on
+# the default 0.45 m strip is off the front of the mat. That is deliberate.
+SURFACE_PUTTER = FloorPoint(x=0.5, y=0.42)
 
 
 def presenter(floor: FloorService) -> FloorPresenter:
-    return FloorPresenter(floor, tee=TEE, driver_tee=DRIVER_TEE, club_path_length=0.4)
+    return FloorPresenter(
+        floor, layout_from_tees(tee=TEE, driver_tee=DRIVER_TEE), club_path_length=0.4
+    )
 
 
 def shot(
@@ -108,21 +113,22 @@ def test_an_unknown_club_uses_the_default_physical_tee() -> None:
     assert floor.state.marker.variant is MarkerVariant.NORMAL
 
 
-def test_tee_selection_is_one_mapping_not_string_compares() -> None:
-    tees = TeePositions(default=TEE, by_kind={ClubKind.DRIVER: DRIVER_TEE})
-
-    assert tees.for_club(Club(kind=ClubKind.DRIVER)) == DRIVER_TEE
-    assert tees.for_club(Club(kind=ClubKind.IRON)) == TEE
-    assert tees.for_club(Club(kind=ClubKind.PUTTER)) == TEE
-    assert tees.for_club(None) == TEE
+def test_ball_placement_is_one_mapping_not_string_compares() -> None:
+    assert placement_mode_for(Club(kind=ClubKind.DRIVER)) is PlacementMode.DRIVER
+    assert placement_mode_for(Club(kind=ClubKind.PUTTER)) is PlacementMode.PUTTER
+    assert placement_mode_for(Club(kind=ClubKind.IRON)) is PlacementMode.IRON
+    assert placement_mode_for(Club(kind=ClubKind.HYBRID)) is PlacementMode.IRON
+    assert placement_mode_for(None) is PlacementMode.IRON
 
 
 def test_club_tees_are_mapped_through_floor_calibration() -> None:
     floor = FloorService()
     subject = FloorPresenter(
         floor,
-        tee=PhysicalPoint(x_m=0.5, y_m=0.72),
-        driver_tee=PhysicalPoint(x_m=0.4, y_m=0.30),
+        layout_from_tees(
+            tee=PhysicalPoint(x_m=0.5, y_m=0.72),
+            driver_tee=PhysicalPoint(x_m=0.4, y_m=0.30),
+        ),
         club_path_length=0.4,
         calibration=rectangular_calibration(4.0, 3.0),
     )
@@ -165,7 +171,8 @@ def test_hiding_the_address_keeps_where_the_marker_was() -> None:
     subject.hide_address()
 
     assert floor.state.marker.visible is False
-    assert floor.state.marker.position == SURFACE_TEE
+    # Where the putter's ball goes, which is not where an iron's does.
+    assert floor.state.marker.position == SURFACE_PUTTER
     assert floor.state.marker.variant is MarkerVariant.PUTTER
 
 
@@ -291,6 +298,206 @@ def test_a_round_result_shows_raw_numbers_and_a_flight_trace() -> None:
     assert floor.state.round_result.ball_speed_raw == 32.84
     assert floor.state.round_result.total_distance_raw == 248.5
     assert floor.state.round_result.ball_speed_display == "118 km/h"
-    assert floor.state.round_result.total_distance_display == "249 m"
+    assert floor.state.round_result.shot_distance_display == "249 m"
+    # currentRound.dat carried no DistanceToPin for this shot, so the panel gets
+    # no remaining figure to draw rather than a dash under a "TO PIN" label.
+    assert floor.state.round_result.distance_to_pin_raw is None
+    assert floor.state.round_result.remaining_distance_display is None
     assert floor.state.ball_flight is not None
     assert len(floor.state.ball_flight) == 2
+
+
+def test_the_hitting_strip_is_physical_and_mapped_through_calibration() -> None:
+    floor = FloorService()
+    subject = FloorPresenter(
+        floor,
+        layout_from_tees(
+            PhysicalRect(x_m=2.0, y_m=1.5, width_m=0.40, depth_m=0.60),
+            tee=PhysicalPoint(x_m=2.0, y_m=1.5),
+        ),
+        club_path_length=0.4,
+        calibration=rectangular_calibration(4.0, 3.0),
+    )
+
+    subject.light_hitting_area()
+
+    strip = floor.state.hitting_strip
+    assert strip is not None
+    assert strip.visible is True
+    back_left, back_right, front_right, front_left = strip.corners
+    assert back_left.x == pytest.approx(0.45)
+    assert back_left.y == pytest.approx(0.4)
+    assert back_right.x == pytest.approx(0.55)
+    assert front_right.y == pytest.approx(0.6)
+    assert front_left.x == pytest.approx(0.45)
+
+
+def test_width_and_depth_size_the_strip_independently_of_its_centre() -> None:
+    """Four separate metre dials. A wider pad must not also become a deeper one,
+    and neither may move where it sits."""
+
+    floor = FloorService()
+    subject = FloorPresenter(
+        floor,
+        layout_from_tees(
+            PhysicalRect(x_m=1.0, y_m=2.4, width_m=1.20, depth_m=0.30),
+            tee=PhysicalPoint(x_m=2.0, y_m=1.5),
+        ),
+        calibration=rectangular_calibration(4.0, 3.0),
+    )
+
+    subject.light_hitting_area()
+
+    strip = floor.state.hitting_strip
+    assert strip is not None
+    back_left, back_right, front_right, _front_left = strip.corners
+    # Centre 1.0 m across a 4 m bay, 1.2 m wide: 0.4 m to 1.6 m, so 0.1 to 0.4.
+    assert back_left.x == pytest.approx(0.1)
+    assert back_right.x == pytest.approx(0.4)
+    # Centre 2.4 m up a 3 m bay, 0.3 m deep: 2.25 m to 2.55 m, so 0.75 to 0.85.
+    assert back_left.y == pytest.approx(0.75)
+    assert front_right.y == pytest.approx(0.85)
+
+
+def test_the_strip_centre_does_not_follow_the_tee_when_it_is_given() -> None:
+    """The ball sits where the player wants it on the pad; the pad is where the
+    turf is. Two measurements, and the strip's own wins."""
+
+    floor = FloorService()
+    subject = FloorPresenter(
+        floor,
+        layout_from_tees(
+            PhysicalRect(x_m=0.48, y_m=0.85, width_m=0.30, depth_m=0.45),
+            tee=PhysicalPoint(x_m=0.20, y_m=0.20),
+        ),
+    )
+
+    subject.light_hitting_area()
+    subject.show_address(None)
+
+    strip = floor.state.hitting_strip
+    assert strip is not None
+    back_left, back_right, front_right, _front_left = strip.corners
+    assert back_left.x == pytest.approx(0.33)
+    assert back_right.x == pytest.approx(0.63)
+    assert back_left.y == pytest.approx(0.625)
+    assert front_right.y == pytest.approx(1.075)
+    # The marker stays at the tee. Moving the strip did not move the ball.
+    assert floor.state.marker.position.x == pytest.approx(0.20)
+    assert floor.state.marker.position.y == pytest.approx(0.20)
+
+
+class TestLightingTheTurf:
+    """FLOOR_HITTING_STRIP_FILL, which is the difference between an outline and a
+    work light over the physical mat. The geometry is identical either way."""
+
+    def strip(self, *, filled: bool) -> HittingStrip:
+        floor = FloorService()
+        subject = FloorPresenter(
+            floor,
+            layout_from_tees(
+                PhysicalRect(x_m=0.48, y_m=0.85, width_m=0.30, depth_m=0.45),
+                tee=PhysicalPoint(x_m=0.5, y_m=0.72),
+                strip_filled=filled,
+            ),
+        )
+        subject.light_hitting_area()
+        strip = floor.state.hitting_strip
+        assert strip is not None
+        return strip
+
+    def test_off_by_default_is_an_outline(self) -> None:
+        assert self.strip(filled=False).filled is False
+
+    def test_on_asks_for_the_whole_polygon_to_be_lit(self) -> None:
+        assert self.strip(filled=True).filled is True
+
+    def test_lighting_it_changes_nothing_about_where_it_is(self) -> None:
+        assert self.strip(filled=True).corners == self.strip(filled=False).corners
+
+    def test_a_hidden_strip_still_knows_it_was_a_lit_one(self) -> None:
+        """Visibility is a flag over kept geometry, so the overlay fades the same
+        pad out rather than a differently styled one."""
+
+        floor = FloorService()
+        subject = FloorPresenter(
+            floor,
+            layout_from_tees(tee=PhysicalPoint(x_m=0.5, y_m=0.72), strip_filled=True),
+        )
+        subject.light_hitting_area()
+        subject.darken_hitting_area()
+
+        assert floor.state.hitting_strip is not None
+        assert floor.state.hitting_strip.visible is False
+        assert floor.state.hitting_strip.filled is True
+
+
+class TestTheTurfLightIsNotPartOfTheAddress:
+    """The real-hardware bug, as an invariant.
+
+    The strip used to be lit by `show_address` and put out by `hide_address`,
+    which made the light over a physical mat a property of whether a launch
+    monitor had seen a ball. It went dark under the player's feet every time one
+    was detected. Lighting the bay is now its own call, and nothing on the
+    address path may touch it in either direction.
+    """
+
+    def floor_with_a_lit_strip(self) -> tuple[FloorService, FloorPresenter]:
+        floor = FloorService()
+        subject = FloorPresenter(
+            floor,
+            layout_from_tees(
+                PhysicalRect(x_m=0.48, y_m=0.85, width_m=0.30, depth_m=0.45),
+                tee=PhysicalPoint(x_m=0.5, y_m=0.72),
+                strip_filled=True,
+            ),
+        )
+        subject.light_hitting_area()
+        return floor, subject
+
+    def test_hiding_the_marker_leaves_the_turf_lit(self) -> None:
+        floor, subject = self.floor_with_a_lit_strip()
+
+        subject.hide_address()
+
+        assert floor.state.marker.visible is False
+        assert floor.state.hitting_strip is not None
+        assert floor.state.hitting_strip.visible is True
+        assert floor.state.hitting_strip.filled is True
+
+    def test_showing_the_pre_shot_numbers_leaves_the_turf_lit(self) -> None:
+        floor, subject = self.floor_with_a_lit_strip()
+
+        subject.show_address_hud(None, 147.2)
+
+        assert floor.state.address is not None
+        assert floor.state.hitting_strip is not None
+        assert floor.state.hitting_strip.visible is True
+
+    def test_a_round_result_leaves_the_turf_lit(self) -> None:
+        floor, subject = self.floor_with_a_lit_strip()
+
+        subject.show_round_result(
+            ObservedRoundShot(shot_id="A", total_distance_raw=35.46979)
+        )
+
+        assert floor.state.round_result is not None
+        assert floor.state.hitting_strip is not None
+        assert floor.state.hitting_strip.visible is True
+
+    def test_only_darkening_it_puts_it_out_and_the_geometry_survives(self) -> None:
+        floor, subject = self.floor_with_a_lit_strip()
+        corners = floor.state.hitting_strip.corners if floor.state.hitting_strip else ()
+
+        subject.darken_hitting_area()
+
+        assert floor.state.hitting_strip is not None
+        assert floor.state.hitting_strip.visible is False
+        assert floor.state.hitting_strip.corners == corners
+
+
+def test_hitting_strip_source_geometry_is_metres_not_css_pixels() -> None:
+    rect = PhysicalRect(x_m=0.5, y_m=0.72, width_m=0.30, depth_m=0.45)
+    assert rect.width_m == 0.30
+    assert rect.depth_m == 0.45
+    assert "px" not in str(rect)

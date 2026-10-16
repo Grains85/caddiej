@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chamfer — floor-size refinement</title>
+  <style>
+    :root {
+      --turf: #0c110f;
+      --page: #080a09;
+      --ink: #f4fff8;
+      --ink-dim: rgba(244, 255, 248, 0.58);
+      --line: rgba(244, 255, 248, 0.34);
+      --live: rgba(244, 255, 248, 0.96);
+      --led: #3dff7a;
+      --led-hot: #eafff3;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      padding: 28px 28px 72px;
+    }
+
+    .kicker {
+      margin: 0 0 10px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    .lede {
+      max-width: 66ch;
+      margin: 14px 0 0;
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--ink-dim);
+    }
+
+    article {
+      margin-top: 48px;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 2.4rem 1fr;
+      column-gap: 12px;
+      align-items: baseline;
+      margin-bottom: 10px;
+      max-width: 340mm;
+    }
+
+    .num {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      color: var(--led);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .meta p,
+    .spec {
+      grid-column: 2;
+      margin: 5px 0 0;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--ink-dim);
+    }
+
+    .spec {
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.01em;
+    }
+
+    .bay {
+      background: var(--turf);
+      line-height: 0;
+      width: max-content;
+    }
+
+    svg {
+      display: block;
+      width: 340mm;
+      height: auto;
+    }
+
+    .mat {
+      fill: rgba(244, 255, 248, 0.035);
+    }
+
+    .quiet {
+      fill: none;
+      stroke: var(--line);
+      stroke-width: 0.45;
+      stroke-linecap: butt;
+    }
+
+    .rear {
+      fill: none;
+      stroke: var(--live);
+      stroke-linecap: butt;
+      stroke-linejoin: miter;
+      stroke-miterlimit: 2;
+    }
+
+    .readout {
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      fill: var(--ink);
+    }
+
+    .led { fill: var(--led); }
+    .led-hot { fill: var(--led-hot); }
+  </style>
+</head>
+<body>
+  <p class="kicker">Chamfer · refinement</p>
+  <h1>Ball ready, grown out of the rear edge</h1>
+  <p class="lede">
+    Drawn 1:1 in millimetres on the default 300 mm strip. Only the rear of the
+    mat is in frame. In every study the rear edge is one line: it runs along
+    the mat, steps up across the words, and returns. Compact and Wider are the
+    two layouts. Flow is the only asymmetric one.
+  </p>
+  <div id="studies"></div>
+
+  <script>
+    const STRIP_W = 300;
+    const STRIP_X = 20;
+    const CANVAS_W = 340;
+    const SHOWN_DEPTH = 48;
+    const TURF = 12;
+    const CX = STRIP_X + STRIP_W / 2;
+
+    const BASE = {
+      gap: 6,
+      capGap: 3,
+      angle: 40,
+      side: 8,
+      stroke: 0.8,
+      fontSize: 11,
+      weight: 500,
+      tracking: 0.22,
+      lamp: 2.2,
+    };
+
+    const studies = [
+      ["01", "Baseline", "The rear edge steps up at 40°, crosses above the words, and steps back down.", {}],
+      ["02", "Near", "The words sit closer to the mat.", { gap: 3 }],
+      ["03", "Set back", "More turf between the words and the mat.", { gap: 12 }],
+      ["04", "Shallow", "A longer, gentler leave and return.", { angle: 24 }],
+      ["05", "Steep", "A shorter, sharper step off the edge.", { angle: 64 }],
+      ["06", "Low", "The top of the step sits close to the words.", { capGap: 1.2 }],
+      ["07", "Tall", "The step rises further above the words.", { capGap: 8 }],
+      ["08", "Narrow", "The top of the step is barely wider than the words.", { side: 3 }],
+      ["09", "Wide", "The top of the step runs further past the words.", { side: 18 }],
+      ["10", "Fine line", "A lighter rear edge.", { stroke: 0.4 }],
+      ["11", "Firm line", "A slightly heavier rear edge.", { stroke: 1.2 }],
+      ["12", "Quiet type", "Smaller, lighter words and a smaller lamp.", { fontSize: 8.5, weight: 400, lamp: 1.6 }],
+      ["13", "Clear type", "Larger words, a little more weight, and a larger lamp.", { fontSize: 14, weight: 600, lamp: 3.2 }],
+      ["14", "Compact", "Closer, lower, narrower, and a slightly steeper step.", {
+        gap: 3.5, capGap: 1.6, side: 3.5, angle: 52,
+        fontSize: 9.5, tracking: 0.16, lamp: 1.8,
+      }],
+      ["15", "Wider", "More room beside the words, and a slightly gentler step.", {
+        gap: 7, capGap: 3.5, side: 14, angle: 32,
+        fontSize: 12, tracking: 0.26,
+      }],
+      ["16", "Flow", "The line leaves the edge a little more sharply than it returns.", { angleL: 52, angleR: 30 }],
+    ];
+
+    const ns = "http://www.w3.org/2000/svg";
+
+    function el(name, attrs) {
+      const node = document.createElementNS(ns, name);
+      for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
+      return node;
+    }
+
+    function mm(n) {
+      const rounded = Math.round(n * 10) / 10;
+      return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+    }
+
+    function specLine(spec, geo) {
+      const angle = geo.angleL === geo.angleR
+        ? `${mm(geo.angleL)}°`
+        : `${mm(geo.angleL)}° / ${mm(geo.angleR)}°`;
+      const run = geo.angleL === geo.angleR
+        ? `run ${mm(geo.runL)} mm`
+        : `run ${mm(geo.runL)} / ${mm(geo.runR)} mm`;
+      return [
+        `Gap ${mm(spec.gap)} mm`,
+        `rise ${mm(geo.rise)} mm`,
+        angle,
+        run,
+        `span ${mm(geo.span)} mm`,
+        `stroke ${mm(spec.stroke)} mm`,
+        `type ${mm(spec.fontSize)} mm / ${spec.weight}`,
+        `lamp ${mm(spec.lamp)} mm`,
+      ].join("  ·  ");
+    }
+
+    function readout(svg, spec) {
+      const text = el("text", {
+        class: "readout",
+        x: CX,
+        y: 0,
+        "text-anchor": "middle",
+        "dominant-baseline": "middle",
+      });
+      text.setAttribute("font-size", spec.fontSize);
+      text.setAttribute("font-weight", spec.weight);
+      text.setAttribute("letter-spacing", `${spec.tracking}em`);
+      text.textContent = "BALL READY";
+      svg.append(text);
+
+      const lampR = spec.lamp / 2;
+      const lampGap = 2.2;
+      let box = text.getBBox();
+      const visualLeft = box.x - lampGap - lampR * 2;
+      const shift = CX - (visualLeft + box.x + box.width) / 2;
+      text.setAttribute("x", String(CX + shift));
+      text.setAttribute("y", String(TURF + spec.capGap + box.height / 2));
+      box = text.getBBox();
+
+      const measured = {
+        left: box.x - lampGap - lampR * 2,
+        right: box.x + box.width,
+        top: box.y,
+        bottom: box.y + box.height,
+        cy: box.y + box.height / 2,
+        lampCx: box.x - lampGap - lampR,
+      };
+
+      const lamp = el("g", {});
+      lamp.append(el("circle", { class: "led", cx: measured.lampCx, cy: measured.cy, r: lampR }));
+      lamp.append(el("circle", { class: "led-hot", cx: measured.lampCx, cy: measured.cy, r: lampR * 0.4 }));
+      svg.insertBefore(lamp, text);
+      return measured;
+    }
+
+    function geometry(box, spec) {
+      const cap = box.top - spec.capGap;
+      const edge = box.bottom + spec.gap;
+      const rise = edge - cap;
+      const angleL = spec.angleL ?? spec.angle;
+      const angleR = spec.angleR ?? spec.angle;
+      const runL = rise / Math.tan(angleL * Math.PI / 180);
+      const runR = rise / Math.tan(angleR * Math.PI / 180);
+      const x1 = box.left - spec.side;
+      const x2 = box.right + spec.side;
+      return { cap, edge, rise, angleL, angleR, runL, runR, x1, x2, span: x2 - x1 };
+    }
+
+    function draw(svg, spec) {
+      const box = readout(svg, spec);
+      const geo = geometry(box, spec);
+      const { edge } = geo;
+      const bottom = edge + SHOWN_DEPTH;
+
+      svg.append(el("rect", {
+        class: "mat",
+        x: STRIP_X,
+        y: edge,
+        width: STRIP_W,
+        height: SHOWN_DEPTH,
+      }));
+      svg.append(el("line", { class: "quiet", x1: STRIP_X, y1: edge, x2: STRIP_X, y2: bottom }));
+      svg.append(el("line", { class: "quiet", x1: STRIP_X, y1: bottom, x2: STRIP_X + STRIP_W, y2: bottom }));
+      svg.append(el("line", { class: "quiet", x1: STRIP_X + STRIP_W, y1: edge, x2: STRIP_X + STRIP_W, y2: bottom }));
+
+      const d = [
+        `M ${STRIP_X} ${edge}`,
+        `H ${geo.x1 - geo.runL}`,
+        `L ${geo.x1} ${geo.cap}`,
+        `H ${geo.x2}`,
+        `L ${geo.x2 + geo.runR} ${edge}`,
+        `H ${STRIP_X + STRIP_W}`,
+      ].join(" ");
+      svg.append(el("path", { class: "rear", d, "stroke-width": spec.stroke }));
+
+      svg.setAttribute("viewBox", `0 0 ${CANVAS_W} ${bottom + 8}`);
+      return geo;
+    }
+
+    const root = document.getElementById("studies");
+    for (const [num, name, note, overrides] of studies) {
+      const spec = { ...BASE, ...overrides };
+      const article = document.createElement("article");
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.innerHTML = `
+        <span class="num">${num}</span>
+        <h2></h2>
+        <p></p>
+        <p class="spec"></p>
+      `;
+      meta.querySelector("h2").textContent = name;
+      meta.querySelector("p").textContent = note;
+      const bay = document.createElement("div");
+      bay.className = "bay";
+      const svg = el("svg", {
+        role: "img",
+        "aria-label": `${name}. Ball ready, chamfered out of the rear edge.`,
+      });
+      bay.append(svg);
+      article.append(meta, bay);
+      root.append(article);
+      const geo = draw(svg, spec);
+      meta.querySelector(".spec").textContent = specLine(spec, geo);
+    }
+  </script>
+</body>
+</html>

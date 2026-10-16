@@ -1,0 +1,340 @@
+{
+  "shot": "20261008T191545-2-09132997",
+  "model": "gpt-5-mini",
+  "reasoning_effort": "minimal",
+  "max_output_tokens": 4000,
+  "timeout_seconds": 120.0,
+  "detail": "high",
+  "schema_name": "direct_visual_coach",
+  "image_inputs": 16,
+  "estimated_input_tokens": 34714,
+  "system": "You are a visual golf swing coach.\n\nStudy the chronological Down-the-Line and Face-On images of this one swing.\n\nBefore any coaching, orient every supplied moment through the swing. Orientation answers only which general direction is visible. It is not a catalogue of named positions, and it is not club-path classification.\n\nThen find the earliest clearly visible mechanical cause that best explains this golfer's main downstream swing problem. Make that diagnosis after the orientation, and only from frames whose direction supports it.\n\nA CAUSE is a movement the golfer can change: what the body, shoulder, pelvis, hips, torso, or arms do.\n\nAn EFFECT is the result: club position, club path, shaft plane, face condition, strike, or ball flight. An effect can be what you notice first. It is not a sufficient diagnosis.\n\nThese are examples of depth, not of this swing. Do not copy them. Infer the cause from the images, and only when the orientation shows that the movement happens before the effect:\n- a trail shoulder moving out toward the ball instead of working down, which then pushes the hands and shaft outward\n- the arms separating from the torso as they lower, instead of lowering together, which then sends the hands outward\n- the upper body unwinding before the arms have lowered, which then steepens the shaft\n- the pelvis losing depth and moving toward the ball, which then leaves less room for the hands\n\nA statement such as \"the club is outside-to-in\", \"the shaft is steep\", \"the face is closed\", \"the hands move across the body\", or \"you come over the top\" may describe an effect. It is not the root cause unless you can see the earlier movement that produced it.\n\nA frame oriented moving_away cannot evidence a cause that happens while the club is moving toward the ball.\nA frame oriented after_strike cannot evidence a cause that happened earlier.\nA frame oriented uncertain cannot evidence a cause.\n\nIf you can see a downstream pattern but cannot see why it happened, or you cannot tell the cause frame's direction from the consequence frame's direction, set status to insufficient_evidence. Do not invent a plausible golf lesson.\n\nVisible and plausible are different. A cause you cannot point to in an earlier, correctly oriented image is a guess.\n\nNo launch-monitor numbers are attached. They are not evidence. Do not use a measurement to establish the root cause, and do not invent one.\n\nGive ONE cause only.\n",
+  "instructions": "Fill the JSON object and nothing else.\n\nCapture ticks increase through the swing. A higher capture_tick is later. A lower capture_tick is earlier.\nDTL and FO with the same capture_tick are the same moment. The two cameras were requested together.\nUse both views when that makes the direction clearer.\n\nTEMPORAL ORIENTATION\n\nDo this before the diagnosis.\n\ntemporal_orientation has exactly one object for every capture_tick you were shown, in increasing tick order, and no others.\n\nstate is exactly one of:\n- setup: the golfer is in place and the swing has not started\n- moving_away: the hands or club are moving away from the ball\n- direction_change_region: the motion is changing from away to toward the ball, and that change is visible from these frames\n- moving_toward_ball: the hands or club are moving toward the ball\n- after_strike: the motion has continued past the ball\n- uncertain: these frames do not show the direction\n\nRead the states in that order. A later tick may stay in the same state or move to a later state. It must not go back to an earlier state. uncertain may sit on any tick and does not force the ticks around it.\nInclude direction_change_region only when the change of direction is visible. Leave it out when the frames do not show the change.\nvisual_basis is a short description of what is visible that establishes the direction. confidence is from 0 to 1.\n\nCOACHING\n\nName the root cause only after temporal_orientation is filled.\n\nWhen coachable:\n- primary_issue is the one cause, in one sentence\n- root_cause.mechanic is the body or arm movement to change, not the club's resulting path\n- root_cause.evidence_ticks are ticks you were shown. Their state is the stage where that movement happens, and those ticks are earlier than the effect\n- a moving_away tick cannot support a cause whose effect is on a moving_toward_ball or after_strike tick\n- an after_strike tick cannot support the cause\n- an uncertain tick cannot support the cause\n- causal_chain has 2 to 4 short steps, from that earlier movement to the downstream effect, in tick order and in orientation order\n- evidence has at least one item with role \"cause\", and any role \"consequence\" is on a later tick whose state has not gone backwards\n- instruction tells the golfer a concrete body or arm movement that would change root_cause.mechanic on the next swing\n- do not merely reverse the effect (\"swing more in-to-out\", \"don't come over the top\", \"shallow the club\", \"keep the club inside\")\n- feel is 2 to 6 words, a cue for that same cause\nWhen the images show an effect but not its cause, or the orientation does not separate the cause from the consequence:\n- status is \"insufficient_evidence\"\n- primary_issue, root_cause.mechanic, instruction, and feel are empty strings\n- causal_chain and evidence are empty\n- temporal_orientation is still complete\n- do not guess a cause\n\nEach evidence observation says only what is visible in that exact image.\nCite only a capture_tick you were shown.\nconfidence is your certainty, from 0 to 1, that the cause is visible. It is not a measurement.\n",
+  "evidence": "No launch-monitor image and no launch-monitor numbers are attached. A number cannot establish the root cause.\n\nThe images are separate full-resolution frames. They are listed from earliest to latest. capture_tick increases through the swing: a larger tick is later, a smaller tick is earlier. DTL is Swing Behind (down the line). FO is Swing Side (face on). DTL and FO with the same capture_tick are one moment.\ntemporal_orientation must contain each of these capture ticks once.\n\nMoment 1 of 8: capture_tick 15, 0.000s from replay start.\nMoment 2 of 8: capture_tick 19, 0.396s from replay start.\nMoment 3 of 8: capture_tick 24, 0.887s from replay start.\nMoment 4 of 8: capture_tick 27, 1.187s from replay start.\nMoment 5 of 8: capture_tick 35, 1.693s from replay start.\nMoment 6 of 8: capture_tick 41, 1.988s from replay start.\nMoment 7 of 8: capture_tick 42, 2.036s from replay start.\nMoment 8 of 8: capture_tick 51, 2.492s from replay start.",
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "coachable",
+          "insufficient_evidence"
+        ]
+      },
+      "temporal_orientation": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "capture_tick": {
+              "type": "integer"
+            },
+            "state": {
+              "type": "string",
+              "enum": [
+                "setup",
+                "moving_away",
+                "direction_change_region",
+                "moving_toward_ball",
+                "after_strike",
+                "uncertain"
+              ]
+            },
+            "confidence": {
+              "type": "number"
+            },
+            "visual_basis": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "capture_tick",
+            "state",
+            "confidence",
+            "visual_basis"
+          ]
+        }
+      },
+      "primary_issue": {
+        "type": "string"
+      },
+      "root_cause": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "mechanic": {
+            "type": "string"
+          },
+          "observation": {
+            "type": "string"
+          },
+          "view": {
+            "type": "string",
+            "enum": [
+              "DTL",
+              "FO",
+              "BOTH"
+            ]
+          },
+          "evidence_ticks": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "confidence": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "mechanic",
+          "observation",
+          "view",
+          "evidence_ticks",
+          "confidence"
+        ]
+      },
+      "causal_chain": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "instruction": {
+        "type": "string"
+      },
+      "feel": {
+        "type": "string"
+      },
+      "evidence": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "view": {
+              "type": "string",
+              "enum": [
+                "DTL",
+                "FO"
+              ]
+            },
+            "capture_tick": {
+              "type": "integer"
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "cause",
+                "consequence"
+              ]
+            },
+            "observation": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "view",
+            "capture_tick",
+            "role",
+            "observation"
+          ]
+        }
+      },
+      "confidence": {
+        "type": "number"
+      }
+    },
+    "required": [
+      "status",
+      "temporal_orientation",
+      "primary_issue",
+      "root_cause",
+      "causal_chain",
+      "instruction",
+      "feel",
+      "evidence",
+      "confidence"
+    ]
+  },
+  "images": [
+    {
+      "view": "DTL",
+      "capture_tick": 15,
+      "file": "diagnostic/swing_behind/frame_015.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 64352,
+      "sha256": "06ae6b8b185adfc8b6795af882e78633e673329a39cfd404a947bc0d01ffafbb",
+      "detail": "high",
+      "label": "DTL capture_tick 15, Down-the-Line, moment 1 of 8"
+    },
+    {
+      "view": "FO",
+      "capture_tick": 15,
+      "file": "diagnostic/swing_side/frame_015.jpg",
+      "width": 1272,
+      "height": 1490,
+      "bytes": 176898,
+      "sha256": "2d5fee803461b07729610a471982d69db60a9584de2019f9dbc705eac5d7ab09",
+      "detail": "high",
+      "label": "FO capture_tick 15, Face-On, moment 1 of 8"
+    },
+    {
+      "view": "DTL",
+      "capture_tick": 19,
+      "file": "diagnostic/swing_behind/frame_019.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66413,
+      "sha256": "0408493468cd3e9004c2efc31bd192bdf31d0ad3f69c1afa5e9aa376b584b9c2",
+      "detail": "high",
+      "label": "DTL capture_tick 19, Down-the-Line, moment 2 of 8"
+    },
+    {
+      "view": "FO",
+      "capture_tick": 19,
+      "file": "diagnostic/swing_side/frame_019.jpg",
+      "width": 1272,
+      "height": 1490,
+      "bytes": 176537,
+      "sha256": "545e84307409f00dd063d952dffea49dddda3f71bbccf03e33d1168d4640791b",
+      "detail": "high",
+      "label": "FO capture_tick 19, Face-On, moment 2 of 8"
+    },
+    {
+      "view": "DTL",
+      "capture_tick": 24,
+      "file": "diagnostic/swing_behind/frame_024.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 65346,
+      "sha256": "b3d738dce126d327abb3c01da5e634b7749e25d81cbbee22adb67f9d9a0d6a49",
+      "detail": "high",
+      "label": "DTL capture_tick 24, Down-the-Line, moment 3 of 8"
+    },
+    {
+      "view": "FO",
+      "capture_tick": 24,
+      "file": "diagnostic/swing_side/frame_024.jpg",
+      "width": 1272,
+      "height": 1490,
+      "bytes": 173744,
+      "sha256": "aa0803db31a431ee4621bd9d2d4179e390f9cbb751f16c65f8b269c9635481b1",
+      "detail": "high",
+      "label": "FO capture_tick 24, Face-On, moment 3 of 8"
+    },
+    {
+      "view": "DTL",
+      "capture_tick": 27,
+      "file": "diagnostic/swing_behind/frame_027.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66183,
+      "sha256": "4bcff6a9e3cf1bfd999c9209dc26bb648c43faffc01de8dc888d3ad4e6eed6f8",
+      "detail": "high",
+      "label": "DTL capture_tick 27, Down-the-Line, moment 4 of 8"
+    },
+    {
+      "view": "FO",
+      "capture_tick": 27,
+      "file": "diagnostic/swing_side/frame_027.jpg",
+      "width": 1272,
+      "height": 1490,
+      "bytes": 177954,
+      "sha256": "e23fd41607dd9b8d986f2c397d40195ae398c216fb3219fb7a4f7fe68800e5a5",
+      "detail": "high",
+      "label": "FO capture_tick 27, Face-On, moment 4 of 8"
+    },
+    {
+      "view": "DTL",
+      "capture_tick": 35,
+      "file": "diagnostic/swing_behind/frame_035.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 65924,
+      "sha256": "5ab7261f90928c5fa74548bb03af404d57c21abc0cf941d5a2cb753df4cdd313",
+      "detail": "high",
+      "label": "DTL capture_tick 35, Down-the-Line, moment 5 of 8"
+    },
+    {
+      "view": "FO",
+      "capture_tick": 35,
+      "file": "diagnostic/swing_side/frame_035.jpg",
+      "width": 1272,
+      "height": 1490,
+      "bytes": 176197,
+      "sha256": "4cc7d2496b9bf98d5fd690db90123b82cd2b88be617de1f4da0fb2f61f526989",
+      "detail": "high",
+      "label": "FO capture_tick 35, Face-On, moment 5 of 8"
+    },
+    {
+      "view": "DTL",
+      "capture_tick": 41,
+      "file": "diagnostic/swing_behind/frame_041.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 64193,
+      "sha256": "d4cf325dbba6250d04325cdcc2b063a9dad6bc45642350733d1cbe5fdf5afddc",
+      "detail": "high",
+      "label": "DTL capture_tick 41, Down-the-Line, moment 6 of 8"
+    },
+    {
+      "view": "FO",
+      "capture_tick": 41,
+      "file": "diagnostic/swing_side/frame_041.jpg",
+      "width": 1272,
+      "height": 1490,
+      "bytes": 175790,
+      "sha256": "ef496efdd8602535f42a5cbe9013afba9446a90197dff7671f3b51f69b0b14fe",
+      "detail": "high",
+      "label": "FO capture_tick 41, Face-On, moment 6 of 8"
+    },
+    {
+      "view": "DTL",
+      "capture_tick": 42,
+      "file": "diagnostic/swing_behind/frame_042.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 63933,
+      "sha256": "aa3aef45955934ce83a4912079e8954baa2f742856138292074ed470182a16e3",
+      "detail": "high",
+      "label": "DTL capture_tick 42, Down-the-Line, moment 7 of 8"
+    },
+    {
+      "view": "FO",
+      "capture_tick": 42,
+      "file": "diagnostic/swing_side/frame_042.jpg",
+      "width": 1272,
+      "height": 1490,
+      "bytes": 173666,
+      "sha256": "e40e5aeaa65675286001aa2d61ff83d38897e3c5f5d658ba67b1734167cae559",
+      "detail": "high",
+      "label": "FO capture_tick 42, Face-On, moment 7 of 8"
+    },
+    {
+      "view": "DTL",
+      "capture_tick": 51,
+      "file": "diagnostic/swing_behind/frame_051.jpg",
+      "width": 1002,
+      "height": 1480,
+      "bytes": 66054,
+      "sha256": "f0dc32c79484e8eec6486eefff9731edbe8d5e0352ed676cf34a3dbc09b006f0",
+      "detail": "high",
+      "label": "DTL capture_tick 51, Down-the-Line, moment 8 of 8"
+    },
+    {
+      "view": "FO",
+      "capture_tick": 51,
+      "file": "diagnostic/swing_side/frame_051.jpg",
+      "width": 1272,
+      "height": 1490,
+      "bytes": 175821,
+      "sha256": "38513bbef8b8189a0a93d36072f40f81e6f469b27baad77131db3efe89c015ec",
+      "detail": "high",
+      "label": "FO capture_tick 51, Face-On, moment 8 of 8"
+    }
+  ]
+}
