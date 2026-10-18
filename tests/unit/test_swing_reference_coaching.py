@@ -14,6 +14,7 @@ from tests.unit.reference_support import (
 )
 
 from caddiej.swing_reference.pipeline import analyze_saved_swing
+from caddiej.swing_reference.request import PlayerContext
 from caddiej.swing_reference.session import decide, new_session
 from caddiej.swing_reference.validate import (
     insufficient_assessment,
@@ -158,6 +159,76 @@ def test_unconfirmed_delivery_does_not_claim_the_cue_was_heard() -> None:
     assert note.active_focus == "takeaway.clubhead_position"
 
 
+def _iron_deviation(book):
+    evidence = frame()
+    payload = assessment(
+        book,
+        "shot-context",
+        {
+            "takeaway.clubhead_position": deviation(
+                "takeaway.clubhead_position", "inside", [evidence]
+            )
+        },
+        ranking="unique_primary",
+        primary="takeaway.clubhead_position",
+    )
+    return payload, evidence
+
+
+def _applicability(errors: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(
+        error
+        for error in errors
+        if "applicability" in error or "context mismatch" in error
+    )
+
+
+def test_stock_iron_right_makes_the_iron_context_applicable() -> None:
+    book = reference()
+    payload, evidence = _iron_deviation(book)
+    player = PlayerContext(
+        club_type="iron",
+        shot_type="stock",
+        handedness="right",
+        evidence_context="player_swing",
+    )
+
+    errors = validate_assessment(
+        book, payload, request_for("shot-context", [evidence], context=player)
+    )
+
+    assert _applicability(errors) == ()
+
+
+def test_a_missing_or_wrong_shot_type_rejects_an_iron_deviation() -> None:
+    book = reference()
+    payload, evidence = _iron_deviation(book)
+    missing = PlayerContext(
+        club_type="iron",
+        handedness="right",
+        evidence_context="player_swing",
+    )
+    wrong = PlayerContext(
+        club_type="iron",
+        shot_type="distance_wedge",
+        handedness="right",
+        evidence_context="player_swing",
+    )
+
+    missing_errors = validate_assessment(
+        book, payload, request_for("shot-context", [evidence], context=missing)
+    )
+    wrong_errors = validate_assessment(
+        book, payload, request_for("shot-context", [evidence], context=wrong)
+    )
+
+    assert any("does not establish applicability" in error for error in missing_errors)
+    assert any(
+        "known context mismatch" in error or "does not establish applicability" in error
+        for error in wrong_errors
+    )
+
+
 def test_unknown_or_inapplicable_focus_is_not_success() -> None:
     book = reference()
     evidence = frame()
@@ -189,8 +260,6 @@ def test_unknown_or_inapplicable_focus_is_not_success() -> None:
     assert held.resulting_state.active_focus == "takeaway.clubhead_position"
     assert len(held.resulting_state.progress_marks) == marks
     assert silent.speech_text == ""
-
-    from caddiej.swing_reference.request import PlayerContext
 
     driver = PlayerContext(
         club_type="driver",

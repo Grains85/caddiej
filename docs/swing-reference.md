@@ -60,8 +60,10 @@ that package did not select. A shot requested with
 `SWING_CAPTURE_DIAGNOSTIC_TIMELINE_SHOTS` keeps its full timeline. The
 package is the only frame set the coach sends: selected image bytes, camera
 identity, timestamps, accepted stage labels, stage uncertainty, and the
-impact estimate. Club, shot type and handedness stay unknown until a caller
-supplies them.
+impact estimate. Club and handedness stay unknown until the simulator reports
+them. Shot type stays `unknown` until `COACHING_SHOT_TYPE` is set. For a
+session of normal full iron shots, set `COACHING_SHOT_TYPE=stock`. A club or
+a carry does not select the shot type.
 
 A directory that has neither `evidence_package.json` nor a diagnostic
 timeline is not sent. Stages stay unresolved when the pose model is missing,

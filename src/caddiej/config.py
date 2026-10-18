@@ -824,6 +824,13 @@ class Settings(BaseSettings):
         default="observed",
         validation_alias="COACHING_FEEDBACK",
     )
+    # The iron reference applies only to a stock shot. Unknown is the safe
+    # default: a club selection or a carry does not prove the shot type, and a
+    # scored iron checkpoint is rejected until the operator sets one.
+    coaching_shot_type: Literal["unknown", "stock", "distance_wedge"] = Field(
+        default="unknown",
+        validation_alias="COACHING_SHOT_TYPE",
+    )
     # The vision request is one multimodal call. The timeout is per attempt,
     # passed to the OpenAI SDK; the budget bounds the attempt.
     coach_openai_timeout: float = Field(

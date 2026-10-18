@@ -128,8 +128,14 @@ COACHING_VISION_CALLS=false
 COACHING_EVIDENCE_BUDGET=24
 COACHING_EVIDENCE_ALLOCATION=dtl_primary
 COACHING_FEEDBACK=observed
+COACHING_SHOT_TYPE=unknown
 SPEECH_ENABLED=false
 ```
+
+`unknown` is the safe shot type. It does not make the iron reference
+applicable. For a confirmed session of normal full iron shots, change that
+one line to `COACHING_SHOT_TYPE=stock` before the paid check below. A club
+or a carry does not select it.
 
 ```powershell
 $log = "caddiej-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
@@ -176,8 +182,13 @@ Only after the saved swing and the live hardware check. This spends money.
 COACHING_PROVIDER=openai
 COACHING_VISION_CALLS=true
 COACHING_FEEDBACK=observed
+COACHING_SHOT_TYPE=stock
 COACHING_API_KEY=<the key, in .env, not on the command line>
 ```
+
+`COACHING_SHOT_TYPE=stock` is only for a confirmed session of normal full
+iron shots. Leave it `unknown` for any other session. `--check-config`
+prints the shot type it will use.
 
 `observed` is one vision call. `worded` adds a second text call. Leave
 `COACHING_VISION_CALLS=false` again when the check is done.

@@ -24,6 +24,7 @@ from caddiej.domain.coaching import Advice, AdviceSource, CoachingFocus
 from caddiej.domain.events import (
     AnalysisCompleted,
     ShotCompleted,
+    ShotDetected,
     SpeechCompleted,
     SpeechStarted,
 )
@@ -375,6 +376,107 @@ class TestSupersedingAndDropping:
             await table.settled()
 
         assert table.engine.calls == [(LINE, "bm_george")]
+
+    async def test_a_late_analysis_after_a_new_strike_is_not_spoken(self) -> None:
+        """The reply can arrive before the new strike has any frames, or none."""
+
+        first, second = uuid4(), uuid4()
+        async with Table() as table:
+            await table.service.on_shot_detected(
+                ShotDetected(trigger_id="16", event_id=first)
+            )
+            await table.service.on_shot_detected(
+                ShotDetected(trigger_id="17", event_id=second)
+            )
+            await table.service.on_analysis_completed(an_advice(shot_id=first))
+            await table.settled()
+
+        assert table.engine.calls == []
+        assert table.bus.outcomes == []
+
+    async def test_a_repeated_trigger_keeps_the_current_line(self) -> None:
+        strike = uuid4()
+        async with Table() as table:
+            await table.service.on_shot_detected(
+                ShotDetected(trigger_id="16", event_id=strike)
+            )
+            await table.service.on_shot_detected(
+                ShotDetected(trigger_id="16", event_id=uuid4())
+            )
+            await table.service.on_analysis_completed(an_advice(shot_id=strike))
+            await table.settled()
+
+        assert table.engine.calls == [(LINE, "bm_george")]
+
+    async def test_the_same_ball_result_does_not_make_its_advice_stale(self) -> None:
+        strike, simulator = uuid4(), uuid4()
+        gate = asyncio.Event()
+        async with Table(sink=RecordingSink(gate=gate)) as table:
+            await table.service.on_shot_detected(
+                ShotDetected(trigger_id="16", event_id=strike)
+            )
+            await table.say("About this strike.", shot_id=strike)
+            await table.service.on_shot_completed(
+                ShotCompleted(shot=a_shot(simulator), trigger_id="16")
+            )
+            gate.set()
+            await table.settled()
+
+        assert [text for text, _voice in table.engine.calls] == ["About this strike."]
+        assert SpeechOutcome.SUPERSEDED not in table.bus.outcomes
+
+    async def test_either_id_for_the_same_ball_may_be_spoken(self) -> None:
+        strike, simulator = uuid4(), uuid4()
+        for shot_id in (simulator, strike):
+            async with Table() as table:
+                await table.service.on_shot_detected(
+                    ShotDetected(trigger_id="16", event_id=strike)
+                )
+                await table.service.on_shot_completed(
+                    ShotCompleted(shot=a_shot(simulator), trigger_id="16")
+                )
+                await table.service.on_analysis_completed(an_advice(shot_id=shot_id))
+                await table.settled()
+
+            assert table.engine.calls == [(LINE, "bm_george")]
+
+    async def test_a_different_ball_result_does_not_retire_the_current_strike(
+        self,
+    ) -> None:
+        strike, earlier = uuid4(), uuid4()
+        async with Table() as table:
+            await table.service.on_shot_detected(
+                ShotDetected(trigger_id="17", event_id=strike)
+            )
+            await table.service.on_shot_completed(
+                ShotCompleted(shot=a_shot(earlier), trigger_id="16")
+            )
+            await table.service.on_analysis_completed(an_advice(shot_id=strike))
+            await table.settled()
+
+        assert table.engine.calls == [(LINE, "bm_george")]
+
+    async def test_a_new_strike_lets_an_audible_line_finish(self) -> None:
+        strike = uuid4()
+        gate = asyncio.Event()
+        async with Table(sink=RecordingSink(gate=gate)) as table:
+            await table.service.on_shot_detected(
+                ShotDetected(trigger_id="16", event_id=strike)
+            )
+            await table.say("Playing now.", shot_id=strike)
+            for _ in range(20):
+                await asyncio.sleep(0)
+            await table.say("Waiting about the same ball.", shot_id=strike)
+            await table.service.on_shot_detected(
+                ShotDetected(trigger_id="17", event_id=uuid4())
+            )
+            gate.set()
+            await table.settled()
+
+        spoken = [text for text, _voice in table.engine.calls]
+        assert "Playing now." in spoken
+        assert "Waiting about the same ball." not in spoken
+        assert SpeechOutcome.SUPERSEDED in table.bus.outcomes
 
     async def test_the_current_shot_does_not_cancel_its_own_waiting_line(
         self,

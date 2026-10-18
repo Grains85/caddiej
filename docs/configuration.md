@@ -251,6 +251,7 @@ Ideal Swing 2.9. A shot is assessed only when vision calls are on. See
 | `COACHING_VISION_CALLS` | `false` | When true, a captured shot is assessed against Ideal Swing 2.9. When false, no model is called and no line is spoken in its place. |
 | `COACHING_IMAGE_DETAIL` | `high` | `low`, `high`, or `auto`. `high` is the default so hands, shaft and hips stay readable. It uses more tokens per image than `low`. It does not change the image count. |
 | `COACHING_FEEDBACK` | `observed` | `exact`, `observed`, or `worded`. All three use Ideal Swing 2.9 and the same session. `exact` speaks the stored correction. `observed` may prefix the assessment observation when it checks out. `worded` adds a second text call for that observation. A model does not rewrite the correction. |
+| `COACHING_SHOT_TYPE` | `unknown` | `unknown`, `stock`, or `distance_wedge`. `unknown` leaves shot type unset, so iron checkpoints stay unassessed. Set `stock` for a session of normal full iron shots. A club or a carry does not select it. `distance_wedge` is only the 60–120 yard wedge setup context. |
 | `COACH_OPENAI_TIMEOUT_SECONDS` | `30` | Seconds one vision attempt may take, passed to the OpenAI SDK. Up to 120. |
 | `COACH_OPENAI_BUDGET_SECONDS` | `45` | Seconds that bound the attempt. At least the timeout, up to 300. |
 | `FLOOR_COACH_CUE_IMAGE` | `false` | Draw the cue graphic on the floor. Off until real artwork exists. |

@@ -91,10 +91,13 @@ EVENT_DELIVERY: dict[type[Event], Delivery] = {
 }
 
 SUBSCRIBER_DELIVERY: dict[tuple[str, type[Event]], Delivery] = {
-    # The reference coach retires a line when the next shot completes. Losing
-    # that notice costs a stale line, never the shot. The publisher is the
-    # ProTee observer and must not wait on evidence processing.
+    # The reference coach retires an analysis when the next unique strike
+    # arrives, and again when that ball's result completes. Losing either
+    # notice costs a stale line, never the shot. The publisher is the ProTee
+    # observer and must not wait on evidence processing. A full coach queue
+    # drops its oldest item so the new strike is still delivered.
     ("reference-coach", ShotCompleted): DROP,
+    ("reference-coach", ShotDetected): DROP,
     ("video", ShotCompleted): DROP,
     # The clip's anchor. Droppable for the same reason as the shot itself: the
     # publisher is the ProTee log observer that also feeds the floor, and it

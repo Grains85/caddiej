@@ -67,8 +67,10 @@ def test_decoration_is_what_may_miss_a_strike() -> None:
 
 def test_enrichment_subscribers_may_drop_stale_shot_work() -> None:
     assert SUBSCRIBER_DELIVERY[("reference-coach", ShotCompleted)] is Delivery.DROP
+    assert SUBSCRIBER_DELIVERY[("reference-coach", ShotDetected)] is Delivery.DROP
     assert SUBSCRIBER_DELIVERY[("video", ShotCompleted)] is Delivery.DROP
     assert delivery_for("reference-coach", ShotCompleted) is Delivery.DROP
+    assert delivery_for("reference-coach", ShotDetected) is Delivery.DROP
     assert delivery_for("video", ShotCompleted) is Delivery.DROP
     assert delivery_for("reference-coach", SwingClipReady) is Delivery.DROP
 

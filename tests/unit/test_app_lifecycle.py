@@ -418,6 +418,8 @@ class TestCoachingIsWiredToTheCameraItWasConfiguredWith:
         assert video.is_available is False, "nothing has been opened yet"
         assert coaching._vision_calls is False
         assert coaching._image_detail == "high"
+        assert coaching._context.shot_type == "unknown"
+        assert coaching._context.evidence_context == "player_swing"
 
     def test_a_bay_with_no_camera_is_not_told_to_wait_for_one(self, tmp_path) -> None:
         _video, coaching, _history = self.built(tmp_path, VIDEO_ENABLED=False)
@@ -435,6 +437,13 @@ class TestCoachingIsWiredToTheCameraItWasConfiguredWith:
         assert coaching._vision_calls is True
         assert coaching._evidence_budget == 24
         assert coaching._evidence_allocation == "dtl_primary"
+
+    def test_an_explicit_shot_type_reaches_the_live_coach(self, tmp_path) -> None:
+        _video, coaching, _history = self.built(tmp_path, COACHING_SHOT_TYPE="stock")
+
+        assert coaching._context.shot_type == "stock"
+        assert coaching._context.club_type == "unknown"
+        assert coaching._context.handedness == "unknown"
 
     def test_the_protee_request_gets_its_own_timeout(self, tmp_path) -> None:
         _video, coaching, _history = self.built(

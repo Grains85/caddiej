@@ -179,6 +179,7 @@ def test_a_session_has_a_ceiling_on_what_it_can_spend() -> None:
     assert config.coaching_evidence_allocation == "dtl_primary"
     assert config.coaching_vision_calls is False
     assert config.coaching_feedback == "observed"
+    assert config.coaching_shot_type == "unknown"
 
 
 @pytest.mark.parametrize(
@@ -186,6 +187,8 @@ def test_a_session_has_a_ceiling_on_what_it_can_spend() -> None:
     [
         ("COACHING_CALL_LIMIT", "-1"),
         ("COACHING_EVIDENCE_BUDGET", "0"),
+        ("COACHING_SHOT_TYPE", "full"),
+        ("COACHING_SHOT_TYPE", ""),
     ],
 )
 def test_a_setting_that_would_break_coaching_is_refused_at_startup(

@@ -396,7 +396,8 @@ def _coaching(settings: Settings) -> str:
     return (
         f"Ideal Swing 2.9, {provider}, vision calls {calls} "
         f"(COACHING_VISION_CALLS), image detail {settings.coaching_image_detail}, "
-        f"feedback {settings.coaching_feedback}"
+        f"feedback {settings.coaching_feedback}, "
+        f"shot type {settings.coaching_shot_type}"
     )
 
 

@@ -70,6 +70,7 @@ from caddiej.swing_capture import (
 )
 from caddiej.swing_evidence.ready import start_evidence_warmup
 from caddiej.swing_reference.live import ReferenceLiveCoach
+from caddiej.swing_reference.request import PlayerContext
 from caddiej.video import (
     CaptureProfile,
     VideoService,
@@ -593,6 +594,10 @@ def _build_coaching(
         evidence_allocation=settings.coaching_evidence_allocation,
         timeout_seconds=settings.coach_openai_timeout,
         call_limit=settings.coaching_call_limit,
+        context=PlayerContext(
+            shot_type=settings.coaching_shot_type,
+            evidence_context="player_swing",
+        ),
         diagnostics=diagnostics,
     )
 

@@ -35,6 +35,7 @@ from caddiej.domain.events import (
     ClubSelected,
     HandednessChanged,
     ShotCompleted,
+    ShotDetected,
     SpeechCompleted,
     SpeechStarted,
     SwingFramesReady,
@@ -137,6 +138,10 @@ class ReferenceLiveCoach:
         self._state = new_session("live")
         self._previous: PreviousNote | None = None
         self._latest: UUID | None = None
+        self._current_trigger: str | None = None
+        self._current_strike: UUID | None = None
+        self._strike_bound = False
+        self._previous_shot: UUID | None = None
         self._calls = 0
         self._presented = 0
         self._failures = 0
@@ -204,6 +209,7 @@ class ReferenceLiveCoach:
             await asyncio.gather(*pending, return_exceptions=True)
 
     def subscribe(self, bus: Any) -> None:
+        bus.subscribe(ShotDetected, self.on_shot_detected, name="reference-coach")
         bus.subscribe(SwingFramesReady, self.on_frames, name="reference-coach")
         bus.subscribe(SpeechStarted, self.on_speech_started, name="reference-coach")
         bus.subscribe(SpeechCompleted, self.on_speech, name="reference-coach")
@@ -241,13 +247,40 @@ class ReferenceLiveCoach:
         state = readiness()
         return state.status, state.detail
 
+    async def on_shot_detected(self, event: ShotDetected) -> None:
+        """Retire the analysis in flight as soon as a new ball is struck.
+
+        `SwingFramesReady` can arrive seconds later, or not at all. Waiting for
+        it leaves the previous reply free to move the session and the voice.
+        The device repeats one trigger when a log is re-read; that is the same
+        ball, and its analysis stays valid.
+        """
+
+        trigger = event.trigger_id
+        if trigger and trigger == self._current_trigger:
+            return
+        self._current_trigger = trigger or None
+        self._current_strike = event.event_id
+        self._strike_bound = True
+        if self._latest == event.event_id:
+            return
+        self._latest = event.event_id
+        job = self._job
+        if job is not None and not job.done():
+            job.cancel()
+
     async def on_frames(self, event: SwingFramesReady) -> None:
         if not self._enabled or not self._vision_calls or self._reference is None:
             return
         capture = event.capture
         shot_id = capture.coaching_id
+        if self._strike_bound and shot_id != self._current_strike:
+            return
         if shot_id in self._running or str(shot_id) in self._state.assessment_shot_ids:
             return
+        trigger = str(getattr(capture, "trigger_id", "") or "")
+        if trigger and self._current_trigger is None:
+            self._current_trigger = trigger
         self._latest = shot_id
         self._note_frames(shot_id, capture)
         self._diag("note_capture", capture)
@@ -392,7 +425,7 @@ class ReferenceLiveCoach:
         approved = result.speech_text
         self._note_decision(shot_id, result)
         if not result.presented:
-            self._commit(result)
+            self._commit(result, shot_id)
             self._failures += 1
             self._last_error = result.errors[0] if result.errors else result.reason
             await self._fail(
@@ -413,7 +446,7 @@ class ReferenceLiveCoach:
         if self._latest != shot_id:
             await self._fail(shot_id, AdviceFailure.SUPERSEDED, "a newer shot arrived")
             return
-        self._commit(result)
+        self._commit(result, shot_id)
         self._diag_assessment(
             shot_id,
             result,
@@ -613,10 +646,11 @@ class ReferenceLiveCoach:
             occurred_at=event.occurred_at,
         )
 
-    def _commit(self, result: AnalysisResult) -> None:
+    def _commit(self, result: AnalysisResult, shot_id: UUID) -> None:
         self._state = result.state
         if result.next_context is not None:
             self._previous = result.next_context
+            self._previous_shot = shot_id
 
     async def _phrase(
         self,
@@ -685,6 +719,8 @@ class ReferenceLiveCoach:
                 detail=event.detail,
             )
         if event.outcome is not SpeechOutcome.SPOKEN or event.shot_id is None:
+            return
+        if event.shot_id != self._previous_shot:
             return
         cue = self._selected.get(event.shot_id)
         focus = self._state.active_focus

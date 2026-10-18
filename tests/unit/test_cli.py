@@ -146,6 +146,10 @@ class TestCheckingTheConfiguration:
 
         assert str(tmp_path / "caddiej.sqlite3") in report
 
+    def test_it_shows_the_shot_type_the_session_will_use(self) -> None:
+        assert "shot type unknown" in describe(a_settings())
+        assert "shot type stock" in describe(a_settings(COACHING_SHOT_TYPE="stock"))
+
     def test_it_says_whether_a_credential_is_set_but_never_what_it_is(self) -> None:
         report = describe(
             a_settings(

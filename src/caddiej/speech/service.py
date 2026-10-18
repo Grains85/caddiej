@@ -169,6 +169,7 @@ class SpeechService:
         self._waiting: list[_Job] = []
         self._strike_id: UUID | None = None
         self._strike_trigger: str | None = None
+        self._paired_shot: UUID | None = None
         self._arrived = asyncio.Event()
         self._worker: asyncio.Task[None] | None = None
         self._active: _Job | None = None
@@ -338,6 +339,7 @@ class SpeechService:
             return
         self._strike_trigger = event.trigger_id or None
         self._strike_id = event.event_id
+        self._paired_shot = None
         for stale in self._perished(event.event_id):
             await self._finish(
                 stale,
@@ -352,8 +354,22 @@ class SpeechService:
         already on the floor and reads in less time than it takes to say, so
         speaking every one of them would turn a quiet aid into a machine that
         talks after every swing.
+
+        A reply that arrives after a newer strike is about the wrong ball,
+        even when that strike never produces frames. A repeated trigger is
+        still this ball. So is the simulator result joined to this strike.
         """
 
+        if not self._analysis_is_current(event.shot_id):
+            logger.info(
+                "speech_suppressed",
+                extra={
+                    "shot_id": str(event.shot_id),
+                    "coaching_reason": "superseded",
+                    "speech_detail": "a newer ball was struck before this line was ready",
+                },
+            )
+            return
         await self.say(
             Utterance(
                 text=event.advice.speech,
@@ -379,7 +395,10 @@ class SpeechService:
         """
 
         # GSPro writing the result of the ball just struck is not a newer
-        # ball: a line keyed on that strike is still about it.
+        # ball: a line keyed on that strike is still about it. The same
+        # trigger joins the simulator shot id to the strike, so a later
+        # reply for either id is still this ball.
+        self._pair_simulator_shot(event)
         keep = (event.shot.shot_id,) + (
             () if self._strike_id is None else (self._strike_id,)
         )
@@ -389,6 +408,28 @@ class SpeechService:
                 SpeechOutcome.SUPERSEDED,
                 detail="another shot was hit before this was said",
             )
+
+    def _analysis_is_current(self, shot_id: UUID) -> bool:
+        """Whether this reply is still about the ball in play.
+
+        No strike has been seen yet on paths that coach from the simulator
+        shot alone. After a strike, the line may be keyed on that strike or
+        on the simulator shot joined to it.
+        """
+
+        if self._strike_id is None:
+            return True
+        return shot_id == self._strike_id or shot_id == self._paired_shot
+
+    def _pair_simulator_shot(self, event: ShotCompleted) -> None:
+        """Remember the simulator id when it is this strike's own result."""
+
+        if self._strike_id is None:
+            return
+        trigger = event.trigger_id or ""
+        if trigger != (self._strike_trigger or ""):
+            return
+        self._paired_shot = event.shot.shot_id
 
     def _perished(self, *current: UUID) -> list[_Job]:
         """Unsaid perishable lines about some earlier shot.

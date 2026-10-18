@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import shutil
 from datetime import UTC, datetime
@@ -20,20 +21,28 @@ from tests.unit.reference_support import (
 )
 
 from caddiej.coaching.provider import ProviderError, ProviderReply
-from caddiej.domain.coaching import AdviceFailure, CoachingFocus
+from caddiej.diagnostics.journal import DiagnosticJournal
+from caddiej.diagnostics.store import shot_dir
+from caddiej.domain.coaching import Advice, AdviceFailure, AdviceSource, CoachingFocus
 from caddiej.domain.events import (
     AnalysisCompleted,
+    AnalysisFailed,
     ClubSelected,
     HandednessChanged,
+    ShotCompleted,
+    ShotDetected,
     SpeechCompleted,
     SwingFramesReady,
 )
 from caddiej.domain.media import SwingCameraCapture, SwingCapture, SwingFrame
-from caddiej.domain.shot import Club, ClubKind, Handedness
+from caddiej.domain.shot import BallLaunch, Club, ClubKind, Handedness, Shot, ShotSource
 from caddiej.domain.speech import SpeechOutcome
+from caddiej.speech.fakes import FakeSynthesizer, RecordingSink
+from caddiej.speech.service import SpeechService
 from caddiej.swing_reference.feedback import FeedbackStrategy
 from caddiej.swing_reference.live import ReferenceLiveCoach
 from caddiej.swing_reference.model import SwingReference
+from caddiej.swing_reference.request import PlayerContext
 
 _CHECKPOINT = "takeaway.clubhead_position"
 _RULE = "takeaway.clubhead_position.keep_head_in_front"
@@ -101,6 +110,20 @@ class _Provider:
         return None
 
 
+class _HoldProvider(_Provider):
+    """A vision reply that stays in flight until the test releases it."""
+
+    def __init__(self, book: SwingReference) -> None:
+        super().__init__(book)
+        self.started = asyncio.Event()
+        self.release = asyncio.Event()
+
+    async def complete(self, request: Any) -> ProviderReply:
+        self.started.set()
+        await self.release.wait()
+        return await super().complete(request)
+
+
 def _stored(book: SwingReference) -> str:
     rule = next(item for item in book.checkpoint(_CHECKPOINT).rules if item["id"] == _RULE)
     return str(rule["correction"])
@@ -165,6 +188,8 @@ async def _coach(
     feedback: FeedbackStrategy = "observed",
     evidence_budget: int = 24,
     evidence_allocation: str = "dtl_primary",
+    context: PlayerContext | None = None,
+    diagnostics: Any = None,
 ) -> tuple[ReferenceLiveCoach, list[Any]]:
     events: list[Any] = []
 
@@ -179,8 +204,9 @@ async def _coach(
         vision_calls=vision,
         image_detail="high",
         reference=book,
-        context=IRON,
+        context=IRON if context is None else context,
         feedback=feedback,
+        diagnostics=diagnostics,
         evidence_budget=evidence_budget,
         evidence_allocation=evidence_allocation,
     )
@@ -383,8 +409,26 @@ async def test_player_context_uses_a_known_club_and_leaves_the_rest_unknown() ->
     assert coach._context.club_type == "unknown"
     await coach.on_club(ClubSelected(club=Club(kind=ClubKind.IRON)))
     await coach.on_handedness(HandednessChanged(handedness=Handedness.RIGHT))
+    await coach.on_shot(
+        ShotCompleted(
+            shot=Shot(
+                shot_id=uuid4(),
+                source=ShotSource(
+                    kind="synthetic",
+                    device_session_id=uuid4(),
+                    observed_at=datetime.now(UTC),
+                    observed_monotonic=0.0,
+                ),
+                ball=BallLaunch(speed_mph=140.0, carry_yards=155.0),
+                club=Club(kind=ClubKind.IRON),
+                handedness=Handedness.RIGHT,
+            ),
+            trigger_id="1",
+        )
+    )
     assert coach._context.club_type == "iron"
     assert coach._context.handedness == "right"
+    assert coach._context.distance_yards == 155.0
     assert coach._context.shot_type == "unknown"
 
 
@@ -399,3 +443,225 @@ def test_the_application_starts_only_the_reference_coach() -> None:
     assert "caddiej.coaching.templates" not in live
     assert "caddiej.coaching.cues" not in live
     assert "rules_synthetic" not in live
+
+
+@pytest.mark.asyncio
+async def test_an_explicit_stock_shot_is_not_replaced_by_club_or_carry() -> None:
+    async def publish(event: object) -> None:
+        return None
+
+    coach = ReferenceLiveCoach(
+        publish,
+        None,
+        vision_calls=False,
+        context=PlayerContext(shot_type="stock", evidence_context="player_swing"),
+    )
+    await coach.on_club(ClubSelected(club=Club(kind=ClubKind.IRON)))
+    await coach.on_handedness(HandednessChanged(handedness=Handedness.RIGHT))
+    await coach.on_shot(
+        ShotCompleted(
+            shot=Shot(
+                shot_id=uuid4(),
+                source=ShotSource(
+                    kind="synthetic",
+                    device_session_id=uuid4(),
+                    observed_at=datetime.now(UTC),
+                    observed_monotonic=0.0,
+                ),
+                ball=BallLaunch(speed_mph=140.0, carry_yards=155.0),
+                club=Club(kind=ClubKind.WEDGE),
+                handedness=Handedness.RIGHT,
+            )
+        )
+    )
+
+    assert coach._context.shot_type == "stock"
+    assert coach._context.club_type == "wedge"
+    assert coach._context.handedness == "right"
+    assert coach._context.distance_yards == 155.0
+
+
+def _measured_shot(shot_id: Any) -> Shot:
+    return Shot(
+        shot_id=shot_id,
+        source=ShotSource(
+            kind="synthetic",
+            device_session_id=uuid4(),
+            observed_at=datetime.now(UTC),
+            observed_monotonic=0.0,
+        ),
+        ball=BallLaunch(speed_mph=140.0),
+    )
+
+
+def _late_advice(shot_id: Any) -> AnalysisCompleted:
+    return AnalysisCompleted(
+        shot_id=shot_id,
+        advice=Advice(
+            shot_id=shot_id,
+            focus=CoachingFocus.NONE,
+            display="Keep the clubhead in front.",
+            speech="Keep the clubhead in front of your hands.",
+            severity=0.6,
+            created_at=datetime.now(UTC),
+            source=AdviceSource.TEMPLATE,
+        ),
+    )
+
+
+@pytest.mark.asyncio
+async def test_a_new_strike_stops_a_reply_still_in_flight(tmp_path: Path) -> None:
+    book = reference()
+    provider = _HoldProvider(book)
+    engine = FakeSynthesizer()
+    speech = SpeechService(
+        publish=_ignore,
+        synthesizer=engine,
+        sink=RecordingSink(),
+    )
+    await speech.open()
+    try:
+        coach, events = await _coach(book, provider)
+
+        async def publish(event: Any) -> None:
+            events.append(event)
+            if isinstance(event, AnalysisCompleted):
+                await speech.on_analysis_completed(event)
+
+        coach._publish = publish
+        capture = _capture(_package_dir(tmp_path, "in-flight"))
+        await coach.on_frames(SwingFramesReady(capture=capture))
+        await provider.started.wait()
+        later = uuid4()
+        detected = ShotDetected(trigger_id="2", event_id=later)
+        await speech.on_shot_detected(detected)
+        await coach.on_shot_detected(detected)
+        await speech.on_analysis_completed(_late_advice(capture.coaching_id))
+        provider.release.set()
+        await coach.settle()
+    finally:
+        await speech.aclose()
+
+    assert not any(isinstance(item, AnalysisCompleted) for item in events)
+    assert events[-1].reason is AdviceFailure.SUPERSEDED
+    assert isinstance(events[-1], AnalysisFailed)
+    assert coach.health().shots == 0
+    assert coach.health().active_focus is None
+    assert engine.calls == []
+
+
+@pytest.mark.asyncio
+async def test_a_repeated_trigger_does_not_cancel_the_shot_in_flight(
+    tmp_path: Path,
+) -> None:
+    book = reference()
+    provider = _HoldProvider(book)
+    coach, events = await _coach(book, provider)
+    capture = _capture(_package_dir(tmp_path, "same-trigger"))
+    await coach.on_frames(SwingFramesReady(capture=capture))
+    await provider.started.wait()
+    await coach.on_shot_detected(
+        ShotDetected(trigger_id=capture.trigger_id, event_id=uuid4())
+    )
+    provider.release.set()
+    await coach.settle()
+
+    assert [type(item) for item in events if isinstance(item, AnalysisCompleted)]
+    assert coach.health().shots == 1
+    assert coach.health().active_focus == _CHECKPOINT
+
+
+@pytest.mark.asyncio
+async def test_a_late_speech_completion_does_not_deliver_a_newer_note(
+    tmp_path: Path,
+) -> None:
+    book = reference()
+    coach, _events = await _coach(book, _Provider(book))
+    first = _capture(_package_dir(tmp_path, "spoken-1"))
+    second = _capture(_package_dir(tmp_path, "spoken-2"))
+    await coach.on_frames(SwingFramesReady(capture=first))
+    await coach.settle()
+    await coach.on_frames(SwingFramesReady(capture=second))
+    await coach.settle()
+
+    assert coach._previous is not None
+    assert coach._previous.delivery_status == "not_delivered"
+    assert coach._previous_shot == second.coaching_id
+    await coach.on_speech(
+        SpeechCompleted(
+            utterance_id=uuid4(),
+            outcome=SpeechOutcome.SPOKEN,
+            shot_id=first.coaching_id,
+        )
+    )
+
+    assert coach._previous.delivery_status == "not_delivered"
+    assert coach._previous.previous_cue is None
+    assert coach._previous_shot == second.coaching_id
+    await coach.on_speech(
+        SpeechCompleted(
+            utterance_id=uuid4(),
+            outcome=SpeechOutcome.SPOKEN,
+            shot_id=second.coaching_id,
+        )
+    )
+    assert coach._previous.delivery_status == "delivered"
+    assert coach._previous_shot == second.coaching_id
+
+
+@pytest.mark.asyncio
+async def test_a_late_reply_does_not_replace_the_newer_shot_zip(tmp_path: Path) -> None:
+    book = reference()
+    provider = _HoldProvider(book)
+    journal = DiagnosticJournal(
+        tmp_path / "diagnostics",
+        session_id="session-1",
+        include_images=False,
+    )
+    coach, _events = await _coach(book, provider, diagnostics=journal)
+    capture = _capture(_package_dir(tmp_path, "older-shot"))
+    journal.note_strike(
+        strike_id=str(capture.coaching_id),
+        trigger_id="1",
+        monotonic_seconds=1.0,
+        occurred_at=datetime.now(UTC),
+    )
+    await coach.on_frames(SwingFramesReady(capture=capture))
+    await provider.started.wait()
+    later = uuid4()
+    journal.note_strike(
+        strike_id=str(later),
+        trigger_id="2",
+        monotonic_seconds=2.0,
+        occurred_at=datetime.now(UTC),
+    )
+    journal.note_failure(str(later), "failed", "capture produced no frames")
+    journal.flush()
+    assert _zip_manifest(tmp_path / "diagnostics")["shot_id"] == str(later)
+
+    await coach.on_shot_detected(ShotDetected(trigger_id="2", event_id=later))
+    provider.release.set()
+    await coach.settle()
+    journal.flush()
+
+    assert _zip_manifest(tmp_path / "diagnostics")["shot_id"] == str(later)
+    report = json.loads(
+        (shot_dir(tmp_path / "diagnostics", "session-1", str(capture.coaching_id)) / "report.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert report["status"] == "superseded"
+    journal.close()
+
+
+async def _ignore(_event: object) -> None:
+    return None
+
+
+def _zip_manifest(root: Path) -> dict[str, object]:
+    import zipfile
+
+    with zipfile.ZipFile(root / "latest_shot.zip") as archive:
+        loaded = json.loads(archive.read("manifest.json"))
+    assert isinstance(loaded, dict)
+    return loaded
