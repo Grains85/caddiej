@@ -61,6 +61,7 @@ import logging
 from collections import deque
 from collections.abc import Awaitable, Callable
 from dataclasses import replace
+from typing import Any
 from uuid import UUID
 
 from caddiej.core.event_bus import EventBus
@@ -167,9 +168,11 @@ class PlayFlow:
         club_distances: ClubDistanceProvider | None = None,
         lock_ack_seconds: float = LOCK_ACK_SECONDS,
         progress_max_seconds: float = PROGRESS_MAX_SECONDS,
+        diagnostics: Any = None,
     ) -> None:
         self._floor = floor
         self._publish = publish
+        self._diagnostics = diagnostics
         # Where the player's carries come from, asked fresh every time a
         # recommendation is wanted. None means nobody has measured a bag, and
         # the floor then shows a distance with no club beside it rather than a
@@ -510,6 +513,13 @@ class PlayFlow:
         self._last_trigger_id = event.trigger_id or None
         self._triggers.append((event.trigger_id, event.monotonic_ns))
         self._strike_id = event.event_id
+        self._diagnostic(
+            "note_strike",
+            strike_id=str(event.event_id),
+            trigger_id=event.trigger_id,
+            monotonic_seconds=event.monotonic_ns / 1_000_000_000,
+            occurred_at=event.occurred_at,
+        )
         self._shot_id = None
         logger.info(
             "shot_detected",
@@ -926,6 +936,15 @@ class PlayFlow:
             None if result.is_empty else result,
         )
 
+    def _diagnostic(self, method: str, /, *args: object, **kwargs: object) -> None:
+        journal = self._diagnostics
+        if journal is None:
+            return
+        try:
+            getattr(journal, method)(*args, **kwargs)
+        except Exception:
+            logger.exception("diagnostics_note_failed")
+
     def _log_shot_completed(self, shot: Shot, trigger_id: str | None) -> None:
         """One line that ties a shot id to the trigger capture is using."""
 
@@ -953,6 +972,13 @@ class PlayFlow:
                     "coaching_detail": "the diagnosis carried no floor text",
                 },
             )
+            self._diagnostic(
+                "note_hud",
+                str(shot_id),
+                "skipped",
+                text,
+                "the diagnosis carried no floor text",
+            )
             return
         if not self._is_current(shot_id):
             # About a shot the player has moved on from. Showing it would
@@ -965,6 +991,13 @@ class PlayFlow:
                     "coaching_detail": "a newer strike or shot owns the floor",
                 },
             )
+            self._diagnostic(
+                "note_hud",
+                str(shot_id),
+                "superseded",
+                text,
+                "a newer strike or shot owns the floor",
+            )
             return
         if self._result_readable:
             # The result is inside the window it is guaranteed. Coaching waits
@@ -975,9 +1008,17 @@ class PlayFlow:
             logger.info(
                 "play_advice_waiting_for_result", extra={"shot_id": str(shot_id)}
             )
+            self._diagnostic(
+                "note_hud",
+                str(shot_id),
+                "unavailable",
+                text,
+                "waiting for the result window",
+            )
             return
         self._floor.show_advice(text, severity, result)
         self._shown_advice = (shot_id, text, severity, result)
+        self._diagnostic("note_hud", str(shot_id), "success", text, "shown on the floor")
         # The last step of the shot that is visible to the player, and so the
         # one a hardware test needs in the log: everything before it can be
         # working with nothing on the projector.
@@ -1005,6 +1046,8 @@ class PlayFlow:
             "play_advice_dropped",
             extra={"shot_id": str(held[0]), "coaching_detail": why},
         )
+        status = "superseded" if "newer" in why else "cancelled"
+        self._diagnostic("note_hud", str(held[0]), status, held[1], why)
 
     async def _release_pending_advice(self) -> None:
         """Show coaching that waited out the result's window, if it still holds."""

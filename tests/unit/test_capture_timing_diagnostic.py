@@ -18,22 +18,10 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from tests.unit.sheet_support import placeholder_sheet, sheet_cells
-from tests.unit.test_coach_protee import DRIVER, Coach, a_reply
-from tests.unit.test_release_evidence import BEHIND, SIDE, Bay, aimed
+from tests.unit.capture_bay import BEHIND, SIDE, Bay, aimed
 
-from caddiej.coaching.fakes import ScriptedProvider
 from caddiej.config import Settings
-from caddiej.domain.events import (
-    AnalysisCompleted,
-    AnalysisFailed,
-    AnalysisStarted,
-    ClubSelected,
-    CoachingProgress,
-    CoachingStage,
-    ShotDetected,
-    SwingFramesReady,
-)
+from caddiej.domain.events import ShotDetected
 from caddiej.domain.media import SwingCapture
 from caddiej.swing_capture.store import (
     DIAGNOSTIC_DIRECTORY,
@@ -190,61 +178,30 @@ class TestProductionIsUntouched:
             for key, value in metadata(diagnostic).items()
             if key != DIAGNOSTIC_KEY
         }
+        plain_meta = metadata(plain)
+        assert stripped["configuration"]["retain_diagnostic_timeline"] is True
+        assert plain_meta["configuration"]["retain_diagnostic_timeline"] is False
         for key in ("cameras", "selection_interval", "configuration", "cameras_ready"):
-            assert stripped[key] == metadata(plain)[key], key
+            left = stripped[key]
+            right = plain_meta[key]
+            if key == "configuration":
+                left = {
+                    name: value
+                    for name, value in left.items()
+                    if name != "retain_diagnostic_timeline"
+                }
+                right = {
+                    name: value
+                    for name, value in right.items()
+                    if name != "retain_diagnostic_timeline"
+                }
+            assert left == right, key
 
     async def test_phase_selection_is_unchanged(self, tmp_path) -> None:
         _, plain, _, diagnostic = await two_bays(tmp_path)
 
         for camera_id in (*BODY, "impact"):
             assert aimed(diagnostic, camera_id) == aimed(plain, camera_id)
-
-    async def test_the_sheet_the_request_and_the_coaching_are_unchanged(
-        self, tmp_path
-    ) -> None:
-        async def coached(bay: Bay) -> tuple[ScriptedProvider, Coach]:
-            provider = ScriptedProvider(replies=(a_reply(),))
-            coach = Coach(provider, max_images=16)
-            await coach.service.open()
-            await coach.service.on_club_selected(ClubSelected(club=DRIVER))
-            detected = ShotDetected(trigger_id="71", source="protee_log")
-            await coach.service.on_shot_detected(detected)
-            capture = await bay.strike(detected)
-            assert capture is not None
-            await coach.service.on_swing_frames(SwingFramesReady(capture=capture))
-            await coach.service.aclose()
-            return provider, coach
-
-        plain_provider, plain = await coached(Bay(tmp_path / "plain"))
-        diagnostic_provider, diagnostic = await coached(
-            Bay(tmp_path / "diagnostic", diagnostic_timeline_shots=3)
-        )
-
-        assert plain_provider.calls == diagnostic_provider.calls == 1
-        plain_request = plain_provider.requests[0]
-        request = diagnostic_provider.requests[0]
-        assert len(request.images) == len(plain_request.images) == 1
-        assert [image.data for image in request.images] == [
-            image.data for image in plain_request.images
-        ]
-        assert sheet_cells(request.images[0].data) == sheet_cells(
-            plain_request.images[0].data
-        )
-        assert request.system == plain_request.system
-        assert request.instructions == plain_request.instructions
-        assert request.evidence == plain_request.evidence
-        assert request.schema == plain_request.schema
-        assert DIAGNOSTIC_DIRECTORY not in request.evidence
-        assert [
-            (event.advice.cue, event.advice.kind)
-            for event in diagnostic.bus.of(AnalysisCompleted)
-        ] == [
-            (event.advice.cue, event.advice.kind)
-            for event in plain.bus.of(AnalysisCompleted)
-        ]
-        assert [r.status for r in diagnostic.results] == [
-            r.status for r in plain.results
-        ]
 
 
 # --- bounded, and inside the ordinary lifecycle ------------------------------
@@ -361,125 +318,3 @@ class TestItSaysSo:
         assert not [
             r for r in caplog.records if "diagnostic_timeline" in r.getMessage()
         ]
-
-
-# --- the dry run spares the paid call and only the call ------------------------
-
-
-class RecordingSheet:
-    def __init__(self) -> None:
-        self.calls = 0
-
-    async def __call__(self, capture: SwingCapture, cells: Any) -> Any:
-        self.calls += 1
-        return await placeholder_sheet(capture, cells)
-
-
-async def a_coached_bay_shot(
-    tmp_path: Path, *, dry_run: bool, with_provider: bool = True
-) -> tuple[Bay, Coach, SwingCapture, RecordingSheet, object | None]:
-    provider = ScriptedProvider(replies=(a_reply(),)) if with_provider else None
-    sheet = RecordingSheet()
-    bay = Bay(tmp_path, diagnostic_timeline_shots=3, announce_progress=True)
-    coach = Coach(
-        provider, max_images=16, evidence_sheet=sheet, diagnostic_dry_run=dry_run
-    )
-    await coach.service.open()
-    await coach.service.on_club_selected(ClubSelected(club=DRIVER))
-    detected = ShotDetected(trigger_id="71", source="protee_log")
-    await coach.service.on_shot_detected(detected)
-    capture = await bay.strike(detected)
-    assert capture is not None
-    await coach.service.on_swing_frames(SwingFramesReady(capture=capture))
-    await coach.service.aclose()
-    return bay, coach, capture, sheet, provider
-
-
-class TestTheDryRun:
-    def test_it_is_off_by_default(self) -> None:
-        assert Settings.model_construct().coaching_diagnostic_dry_run is False
-
-    async def test_it_suppresses_the_request(self, tmp_path, caplog) -> None:
-        caplog.set_level("INFO")
-        _, coach, capture, _, provider = await a_coached_bay_shot(
-            tmp_path, dry_run=True
-        )
-
-        assert isinstance(provider, ScriptedProvider)
-        assert provider.calls == 0
-        assert coach.service.calls == 0
-        assert coach.service.images_sent == 0
-        skipped = [
-            r for r in caplog.records if r.getMessage() == "coaching_request_skipped"
-        ]
-        assert [r.coaching_reason for r in skipped] == ["diagnostic_dry_run"]
-        assert "coaching_request_started" not in [
-            r.getMessage() for r in caplog.records
-        ]
-        assert "coaching_diagnostic_dry_run_enabled" in [
-            r.getMessage() for r in caplog.records
-        ]
-        payload = metadata(capture)
-        assert payload["provider_image_count"] == 0
-        assert payload["coach_request"]["diagnostic_dry_run"] is True
-        assert payload["coach_request"]["sent"] is False
-        assert payload["coach_request"]["would_send_images"] == 1
-
-    async def test_it_does_not_suppress_the_capture_all_values_or_selection(
-        self, tmp_path
-    ) -> None:
-        plain = await Bay(tmp_path / "plain").shot()
-        _, _, capture, _, _ = await a_coached_bay_shot(tmp_path / "dry", dry_run=True)
-
-        assert capture.cameras == plain.cameras
-        assert capture.metrics is not None and capture.metrics.ok
-        assert (capture.directory / "metrics" / "all_values.jpg").is_file()
-        for camera_id in (*BODY, "impact"):
-            assert aimed(capture, camera_id) == aimed(plain, camera_id)
-        assert DIAGNOSTIC_KEY in metadata(capture)
-
-    async def test_it_does_not_suppress_the_evidence_sheet(self, tmp_path) -> None:
-        _, _, dry_capture, dry_sheet, _ = await a_coached_bay_shot(
-            tmp_path / "dry", dry_run=True
-        )
-        _, _, live_capture, live_sheet, _ = await a_coached_bay_shot(
-            tmp_path / "live", dry_run=False
-        )
-
-        assert dry_sheet.calls == live_sheet.calls == 1
-        dry = metadata(dry_capture)["evidence_sheet"]
-        live = metadata(live_capture)["evidence_sheet"]
-        assert dry["ok"] is True
-        assert [c["cell_id"] for c in dry["cells"]] == [
-            c["cell_id"] for c in live["cells"]
-        ]
-        assert [c["frame_id"] for c in dry["cells"]] == [
-            c["frame_id"] for c in live["cells"]
-        ]
-
-    async def test_the_floor_sees_what_any_shot_without_a_coach_line_sees(
-        self, tmp_path
-    ) -> None:
-        """No lesson, no "analysing", no failure: the floor and Ball Status get
-        the same events as a ProTee shot with no provider configured."""
-
-        bay, dry, _, _, _ = await a_coached_bay_shot(tmp_path / "dry", dry_run=True)
-        _, none, _, _, _ = await a_coached_bay_shot(
-            tmp_path / "none", dry_run=False, with_provider=False
-        )
-
-        assert [type(e) for e in dry.bus.events] == [type(e) for e in none.bus.events]
-        assert not dry.bus.of(AnalysisStarted)
-        assert not dry.bus.of(AnalysisCompleted)
-        assert not dry.bus.of(AnalysisFailed)
-        assert not [
-            e
-            for e in dry.bus.of(CoachingProgress)
-            if e.stage is not CoachingStage.CAPTURING
-        ]
-        capturing = [
-            e
-            for e in bay.published
-            if isinstance(e, CoachingProgress) and e.stage is CoachingStage.CAPTURING
-        ]
-        assert len(capturing) == 1, "the capture still announces itself"

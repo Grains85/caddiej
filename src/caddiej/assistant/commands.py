@@ -10,9 +10,9 @@ What belongs here is bounded by one rule, which is §2 restated for this
 boundary: **a command reachable from an assistant is in the enrichment tier.**
 It may not influence shot ingestion, floor state, scoring, session recording, or
 anything else with a latency guarantee. `set_training_focus` qualifies because
-it changes which measured fault coaching leans towards on subsequent shots and
-nothing else — no shot already in flight changes, nothing recomputes, and if it
-hung for thirty seconds a player could still hit the next ball and read correct
+it only stores a preference. Ideal Swing does not use an old fault name as its
+focus. No shot already in flight changes, nothing recomputes, and if it hung
+for thirty seconds a player could still hit the next ball and read correct
 numbers off the floor.
 
 What is deliberately absent, and why, because the empty space is the design:
@@ -30,7 +30,7 @@ What is deliberately absent, and why, because the empty space is the design:
 import logging
 
 from caddiej.assistant.contract import Availability, TrainingFocusResult
-from caddiej.coaching.service import AnalysisService
+from caddiej.assistant.reads import CoachingPort
 from caddiej.domain.coaching import CoachingFocus
 
 logger = logging.getLogger(__name__)
@@ -88,7 +88,7 @@ def parse_focus(value: str | None) -> CoachingFocus | None:
 class CommandFacade:
     """Everything an assistant is allowed to change."""
 
-    def __init__(self, coaching: AnalysisService) -> None:
+    def __init__(self, coaching: CoachingPort) -> None:
         self._coaching = coaching
 
     def set_training_focus(self, value: str | None) -> TrainingFocusResult:
@@ -99,18 +99,17 @@ class CommandFacade:
         the operator may turn coaching on later, and silently discarding the
         request would be worse than storing it.
 
-        The question asked is whether shots are being coached at all, not
-        whether a language model is involved. With no provider configured
-        CaddieJ still names the fault and words it from a template, and the
-        preference biases exactly that choice, so reporting `unavailable` in
-        the default configuration would be false.
+        The result reports the focus coaching actually kept. Ideal Swing does
+        not take an old fault name, so the stored focus stays empty and the
+        call is not reported as a change.
         """
 
         focus = parse_focus(value)
         previous = self._coaching.preferred_focus
         self._coaching.set_preferred_focus(focus)
+        applied = self._coaching.preferred_focus
 
-        changed = focus is not previous
+        changed = applied is not previous
         logger.info(
             "assistant_training_focus_set",
             extra={
@@ -125,7 +124,7 @@ class CommandFacade:
                 if self._coaching.is_coaching
                 else Availability.UNAVAILABLE
             ),
-            training_focus=None if focus is None else focus.value,
+            training_focus=None if applied is None else applied.value,
             previous_focus=None if previous is None else previous.value,
             changed=changed,
         )

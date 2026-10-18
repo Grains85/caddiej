@@ -1,0 +1,23 @@
+# Swing evidence. Apply with the vision extra:
+#
+#   python -m pip install -e ".[vision]" -c constraints/vision.txt
+#
+# MediaPipe 0.10.35 depends on opencv-contrib-python and does not cap it.
+# Unconstrained, pip currently selects OpenCV 5, and a second cv2 package
+# such as opencv-python-headless can replace that module. This file pins one
+# OpenCV 4 distribution, which is the package MediaPipe asks for, so the
+# resolver installs it once.
+#
+# These versions were resolved together on a clean virtual environment.
+# opencv-contrib-python 4.14.0.94, mediapipe 0.10.35, numpy 2.5.4, and
+# matplotlib 3.11.2 publish Windows (win_amd64, cp312) and macOS wheels.
+# absl-py and flatbuffers are pure Python.
+
+mediapipe==0.10.35
+opencv-contrib-python==4.14.0.94
+numpy==2.5.4
+matplotlib==3.11.2
+absl-py==2.5.1
+flatbuffers==25.12.19
+sounddevice==0.5.6
+pillow==12.3.0

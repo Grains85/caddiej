@@ -234,36 +234,25 @@ Off by default. Needs FFmpeg on `PATH`. See [Swing video](video.md).
 
 ## Coaching
 
-On by default, and offline by default. See [Coaching](coaching.md).
+Ideal Swing 2.9. A shot is assessed only when vision calls are on. See
+[Coaching](coaching.md) and [Swing reference](swing-reference.md).
 
 | Variable | Default | What it does |
 | --- | --- | --- |
-| `COACHING_ENABLED` | `true` | Whether a fault is named at all. |
-| `COACHING_DIAGNOSTIC_DRY_RUN` | `false` | Diagnostic. ProTee coaching captures, selects, reads the All Values still and draws the evidence sheet, then makes no model request (`coaching_request_skipped` with `diagnostic_dry_run`). `false` is production. |
-| `COACHING_PROVIDER` | `none` | `none` (measured faults only), `scripted` (answers from inside the process), or `openai`. |
+| `COACHING_ENABLED` | `true` | Whether Ideal Swing coaching is assembled. Vision calls stay off until `COACHING_VISION_CALLS` is set. |
+| `COACHING_PROVIDER` | `none` | `none` (no model), `scripted` (answers from inside the process), or `openai`. |
 | `COACHING_MODEL` | `gpt-5-mini` | Which model to ask. |
 | `COACHING_API_KEY` | *(blank)* | **Credential.** Never logged, never committed. |
 | `COACHING_API_BASE` | *(blank)* | Any endpoint implementing OpenAI's Responses API, including a local one. |
-| `COACHING_SEND_FRAMES` | `false` | Whether frames of your swing go to the provider. A privacy decision. |
-| `COACHING_FRAME_WIDTH` | `512` | How large those frames are, if sent. |
-| `COACHING_FOCUS` | *(blank)* | What you are working on: `face_control`, `path`, `strike`, `low_point`, `speed`, `launch`, `spin`, `consistency`, `tempo`, `posture`, `early_extension`, `sway`. |
-| `COACHING_SEVERITY_FINE` | `0.25` | Below this severity, nothing is said. |
-| `COACHING_BASELINE_WINDOW` | `40` | How many of your own recent shots per club define what is normal. |
-| `COACHING_QUEUE_SIZE` | `2` | Shots still worth coaching. Deliberately short. |
-| `COACHING_CLIP_WAIT` | `8.0` | How long to wait for the swing clip before coaching from numbers alone. |
-| `COACHING_TIMEOUT` | `8.0` | How long one call to the provider gets. |
-| `COACHING_BUDGET_SECONDS` | `20.0` | The whole budget from shot to line, retries included. |
-| `COACHING_RETRY_LIMIT` | `1` | Retries after a failed call. |
-| `COACHING_MIN_INTERVAL` | `8.0` | A floor on how often a call can be made. |
-| `COACHING_CALL_LIMIT` | `60` | A ceiling on calls for one run. |
-| `COACHING_MAX_OUTPUT_TOKENS` | `120` | Enough for a cue id, a short sentence and a confidence. |
-| `COACHING_MAX_IMAGES` | `16` | Hard ceiling on swing images sent with one request (the All Values still is not counted). Keep it at `SWING_CAPTURE_SELECTED_FRAMES`: below it the aimed stills are thinned evenly. |
-| `COACHING_VISUAL_CUES` | `true` | Whether visual cues may be offered when frames were sent. |
-| `COACHING_TRIGGER` | `auto` | What starts coaching. `protee` coaches every ProTee strike from its swing capture plus the All Values still, with no GSPro needed; `gspro` waits for a measured GSPro shot. `auto` is `protee` whenever `SWING_CAPTURE_ENABLED=true`. |
-| `COACHING_PROTEE_MAX_OUTPUT_TOKENS` | `10000` | Output ceiling for the ProTee request, which returns every All Values reading, every swing checkpoint score and the line. On a reasoning model it covers the reasoning too. A full reply is about 2500–3000 tokens; the rest is room for reasoning. A reply that hits the ceiling is refused whole. |
-| `COACH_OPENAI_TIMEOUT_SECONDS` | `30` | Seconds one attempt at the ProTee request may take, passed to the OpenAI SDK. Up to 120. Replaces `COACHING_TIMEOUT` on the ProTee path only. |
-| `COACH_OPENAI_BUDGET_SECONDS` | `45` | Seconds for every attempt and the wait between them, from when the capture is queued. At least the timeout, up to 300. A timed-out attempt is retried only when a full attempt still fits; a quick failure such as a 503 is retried within `COACHING_RETRY_LIMIT`. Replaces `COACHING_BUDGET_SECONDS` on the ProTee path only. |
-| `COACHING_REASONING_EFFORT` | `low` | `minimal`, `low`, `medium` or `high`, sent on the ProTee request for reasoning models such as the default `gpt-5-mini`. Empty sends nothing, which non-reasoning models require. With nothing sent, `gpt-5-mini` reasons at medium, and that shares the output ceiling. |
+| `COACHING_FRAME_WIDTH` | `512` | Width of stills extracted from a recorded camera clip. The evidence pipeline does not use this. |
+| `COACHING_CALL_LIMIT` | `60` | A ceiling on vision calls for one run. |
+| `COACHING_EVIDENCE_BUDGET` | `24` | How many timeline frames the evidence pipeline may keep for one coached shot. This is not `SWING_CAPTURE_SELECTED_FRAMES` (published replay stills, default 16) and not `SWING_CAPTURE_DIAGNOSTIC_TIMELINE_SHOTS` (how many shots keep a full timeline, default 0). |
+| `COACHING_EVIDENCE_ALLOCATION` | `dtl_primary` | `dtl_only` (24/0), `dtl_primary` (20 down-the-line and 4 face-on), `balanced` (12/12), or `fo_primary` (8/16), scaled when the budget is not 24. |
+| `COACHING_VISION_CALLS` | `false` | When true, a captured shot is assessed against Ideal Swing 2.9. When false, no model is called and no line is spoken in its place. |
+| `COACHING_IMAGE_DETAIL` | `high` | `low`, `high`, or `auto`. `high` is the default so hands, shaft and hips stay readable. It uses more tokens per image than `low`. It does not change the image count. |
+| `COACHING_FEEDBACK` | `observed` | `exact`, `observed`, or `worded`. All three use Ideal Swing 2.9 and the same session. `exact` speaks the stored correction. `observed` may prefix the assessment observation when it checks out. `worded` adds a second text call for that observation. A model does not rewrite the correction. |
+| `COACH_OPENAI_TIMEOUT_SECONDS` | `30` | Seconds one vision attempt may take, passed to the OpenAI SDK. Up to 120. |
+| `COACH_OPENAI_BUDGET_SECONDS` | `45` | Seconds that bound the attempt. At least the timeout, up to 300. |
 | `FLOOR_COACH_CUE_IMAGE` | `false` | Draw the cue graphic on the floor. Off until real artwork exists. |
 
 ## Speech
@@ -401,15 +390,37 @@ CaddieJ does not create. See [Swing capture](swing-capture.md) and
 | `SWING_CAPTURE_STATIC_DURATION_SECONDS` | `1.5` | How long a static pass runs. |
 | `SWING_CAPTURE_STATIC_FPS` | `2.0` | How often a static panel is sampled. |
 | `SWING_CAPTURE_FPS` | `10` | How often a dynamic screenshot is requested outside the downswing stretch. Each still is due at a fixed time from the burst's start, so this is the achieved rate on average; each still may be up to one Windows timer tick (15.6 ms) late. |
-| `SWING_CAPTURE_DOWNSWING_FPS` | `20` | The body replays' rate inside the downswing stretch, from the top to the release. Extra stills are candidates only: the number kept, the sheet and the request are unchanged. `0`, or anything not faster than `SWING_CAPTURE_FPS`, turns it off. A slow OBS skips stills rather than queueing them; `swing_capture_cadence` logs what each shot achieved. |
+| `SWING_CAPTURE_DOWNSWING_FPS` | `20` | The body replays' rate inside the downswing stretch, from the top to the release. Extra stills are candidates only: `SWING_CAPTURE_SELECTED_FRAMES` and `COACHING_EVIDENCE_BUDGET` are unchanged. `0`, or anything not faster than `SWING_CAPTURE_FPS`, turns it off. A slow OBS skips stills rather than queueing them; `swing_capture_cadence` logs what each shot achieved. |
 | `SWING_CAPTURE_DOWNSWING_DELAY_SECONDS` | `3.3` | When the downswing stretch starts, in seconds from the strike, like the burst. |
 | `SWING_CAPTURE_DOWNSWING_DURATION_SECONDS` | `1.1` | How long it lasts. 3.3-4.4 s held the top to the release on every real capture measured, with a margin for tempo. Clipped to the dynamic burst. |
 | `SWING_CAPTURE_OUTPUT_DIR` | `media/latest_swing` | The one production swing on disk. Replaced whole on the next shot. |
 | `SWING_CAPTURE_SELECTED_FRAMES` | `16` | Total stills kept for one shot, across every panel. Body panels share what remains after one still is reserved for each static panel. A calibrated body camera takes at most one still per aimed moment: eight down the line, seven face-on. |
 | `SWING_CAPTURE_DEBUG_KEEP_SHOTS` | `0` | Extra copies under `media/swing_debug`. `0` is production. |
 | `SWING_CAPTURE_EVIDENCE_KEEP` | `3` | Shot directories kept under `media/swing_shots`, from 3 to 40. `3` is production. A diagnostic timeline request larger than this raises the keep to match, still capped at 40. |
-| `SWING_CAPTURE_DIAGNOSTIC_TIMELINE_SHOTS` | `0` | Timing diagnostic. For the next N published shots of this run (`0`–`40`), every Swing Behind and Swing Side screenshot the burst already took is also written under the shot's `diagnostic/` directory, with its timing in `metadata.json` under `diagnostic_timeline`. No extra OBS request, never sent to a model or drawn on the sheet. `0` is production. `20` keeps 20 shot directories (about 261 MB when each one has a full timeline). |
+| `SWING_CAPTURE_DIAGNOSTIC_TIMELINE_SHOTS` | `0` | Timing diagnostic. For the next N published shots of this run (`0`–`40`), every Swing Behind and Swing Side screenshot the burst already took is also written under the shot's `diagnostic/` directory and kept in full. `0` is production and does not raise shot retention. With `COACHING_VISION_CALLS=true` the same timeline is still written so the evidence pipeline can read it, and frames the package did not select are removed afterwards. The pose model is not downloaded. |
 | `SWING_CAPTURE_IMAGE_WIDTH` | `0` | Scale each still to this width, aspect ratio kept. `0` means the source's own resolution; otherwise 8–4096. |
 | `COACH_METRICS_CAPTURE_ENABLED` | `false` | Take one still of ProTee's All Values grid after each strike, for the coach to read the numbers from. Separate from `SWING_CAPTURE_SELECTED_FRAMES`. Needs swing capture on. |
 | `COACH_METRICS_SOURCE` | `All Values` | OBS source showing the All Values panel. Captured at its own resolution, so the digits stay legible. |
 | `COACH_METRICS_CAPTURE_DELAY_SECONDS` | `3.0` | Seconds after the strike to take the still, 0–15. One retry a second later if the still is unusable or identical to the previous shot's. |
+
+## Session diagnostics
+
+One report per shot, written after coaching. A failure to write a report does not change the cue or the spoken line. After each finished shot, `media/diagnostics/latest_shot.zip` is replaced with that shot. `caddiej --check-config` prints the path. A manual session zip is still available with `python -m caddiej --export-diagnostics`.
+
+These settings keep different things:
+
+- **Diagnostic metadata** is `report.json` and `report.md`: what was captured, which frames were selected, what the model returned, which cue was chosen, and how long it took.
+- **Raw GPT retention** is `gpt_request.json` and `gpt_response.json`. It is controlled by `DIAGNOSTICS_RETAIN_PAYLOADS`. The files do not contain API keys or image bytes. The size cap is `DIAGNOSTICS_PAYLOAD_MAX_BYTES`.
+- **Selected evidence images** are the frames chosen for that shot, copied into the diagnostic shot folder. Capture cleanup can delete the originals. `DIAGNOSTICS_KEEP_SHOTS` is how many of those copies are kept. Frames that were not selected are not copied.
+- **Automatic ZIP export** writes `latest_shot.zip` for the newest finished shot only. `DIAGNOSTICS_INCLUDE_IMAGES` includes the copied frames. The zip does not contain other shots.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `DIAGNOSTICS_ENABLED` | `true` | Write the shot report, the contact sheet, and the latest-shot zip. |
+| `DIAGNOSTICS_DIR` | `media/diagnostics` | Where the session folder and `latest_shot.zip` are kept. |
+| `DIAGNOSTICS_KEEP_SESSIONS` | `1` | How many session folders to retain. `1` keeps the session in progress and removes older session folders. |
+| `DIAGNOSTICS_KEEP_SHOTS` | `3` | How many detailed shot folders to keep in the current session, including their copied images and payloads. |
+| `DIAGNOSTICS_RETAIN_PAYLOADS` | `true` | Write the raw model request and response next to the report. Image bytes and API keys are omitted. |
+| `DIAGNOSTICS_PAYLOAD_MAX_BYTES` | `1500000` | Largest payload file that is kept. A larger one is omitted and the report says so. |
+| `DIAGNOSTICS_AUTO_EXPORT_LATEST` | `true` | Replace `latest_shot.zip` when a shot finishes. An older shot cannot replace a newer shot's zip. |
+| `DIAGNOSTICS_INCLUDE_IMAGES` | `true` | Put the copied evidence frames inside `latest_shot.zip`. The shot folder still keeps them when this is off. |

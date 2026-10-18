@@ -381,33 +381,23 @@ def test_video_that_is_switched_off_touches_no_disk(tmp_path) -> None:
 
 
 class TestCoachingIsWiredToTheCameraItWasConfiguredWith:
-    """The clip-to-model path was unreachable in every configuration.
+    """The application builds one coach, and it does not call a model until asked.
 
-    `_build_coaching` chose its frame extractor with `video if
-    video.is_available else None`, and it runs in the construction pass —
-    ninety lines before `await video.open()`, which is what sets
-    `is_available`. So it was always false, coaching always got `None`, and
-    no camera frame could reach a model however the bay was set up. Every
-    test that exercised clip frames handed the extractor to the constructor
-    itself, so the wiring was the one part never covered.
-
-    `enabled` is the right question here because it is settled by
-    configuration. Whether a camera is filming *now* is a question for the
-    moment a clip is wanted, and video answers that one by producing the clip
-    or refusing it.
+    Swing stills arrive later, on the capture event. Vision calls stay off
+    unless `COACHING_VISION_CALLS` is set. The timeout is the configured
+    OpenAI timeout.
     """
 
     @staticmethod
     def built(tmp_path, **overrides: object):
-        settings = Settings(
-            _env_file=None,  # type: ignore[call-arg]
-            VIDEO_MEDIA_ROOT=str(tmp_path / "media"),
-            SWING_CAPTURE_OUTPUT_DIR=str(tmp_path / "capture"),
-            HISTORY_DATABASE_PATH=str(tmp_path / "history.db"),
-            COACHING_ENABLED=True,
-            COACHING_SEND_FRAMES=True,
-            **overrides,  # type: ignore[arg-type]
-        )
+        values: dict[str, object] = {
+            "VIDEO_MEDIA_ROOT": str(tmp_path / "media"),
+            "SWING_CAPTURE_OUTPUT_DIR": str(tmp_path / "capture"),
+            "HISTORY_DATABASE_PATH": str(tmp_path / "history.db"),
+            "COACHING_ENABLED": True,
+        }
+        values.update(overrides)
+        settings = Settings(_env_file=None, **values)  # type: ignore[arg-type]
 
         async def publish(event) -> None:
             return None
@@ -426,21 +416,25 @@ class TestCoachingIsWiredToTheCameraItWasConfiguredWith:
         video, coaching, _history = self.built(tmp_path, VIDEO_ENABLED=True)
 
         assert video.is_available is False, "nothing has been opened yet"
-        assert coaching._frames is video
+        assert coaching._vision_calls is False
+        assert coaching._image_detail == "high"
 
     def test_a_bay_with_no_camera_is_not_told_to_wait_for_one(self, tmp_path) -> None:
         _video, coaching, _history = self.built(tmp_path, VIDEO_ENABLED=False)
 
-        assert coaching._frames is None
+        assert coaching._vision_calls is False
 
     def test_the_replay_screenshots_are_wired_too(self, tmp_path) -> None:
         _video, coaching, _history = self.built(
             tmp_path,
             SWING_CAPTURE_ENABLED=True,
             SWING_CAPTURE_PANEL_SWING_SOURCE="CaddieJ Swing",
+            COACHING_VISION_CALLS=True,
         )
 
-        assert coaching._capture_stills is not None
+        assert coaching._vision_calls is True
+        assert coaching._evidence_budget == 24
+        assert coaching._evidence_allocation == "dtl_primary"
 
     def test_the_protee_request_gets_its_own_timeout(self, tmp_path) -> None:
         _video, coaching, _history = self.built(
@@ -449,30 +443,20 @@ class TestCoachingIsWiredToTheCameraItWasConfiguredWith:
             COACH_OPENAI_BUDGET_SECONDS=40,
         )
 
-        assert coaching._protee_timeout == 25.0
-        assert coaching._protee_budget == 40.0
-        assert coaching._timeout == 8.0, "COACHING_TIMEOUT stays the GSPro path's"
+        assert coaching._timeout == 25.0
 
     def test_advice_is_wired_to_history_too(self, tmp_path) -> None:
-        """The same bug, one line below, and it cost the whole coaching record.
-
-        `record=history.record_advice if history.is_available else None` runs
-        in the same construction pass, and `history.open()` is eighty lines
-        further down. So every coaching line was published, spoken and
-        projected, and none of it was written to the database — leaving a
-        session whose shots were all recorded and whose advice was all
-        missing, with nothing saying why.
-        """
-
         _video, coaching, history = self.built(tmp_path, HISTORY_ENABLED=True)
 
         assert history.is_available is False, "nothing has been opened yet"
-        assert coaching._record is not None
+        assert coaching._enabled is True
 
     def test_history_switched_off_records_nothing(self, tmp_path) -> None:
-        _video, coaching, _history = self.built(tmp_path, HISTORY_ENABLED=False)
+        _video, coaching, _history = self.built(
+            tmp_path, HISTORY_ENABLED=False, COACHING_ENABLED=False
+        )
 
-        assert coaching._record is None
+        assert coaching._enabled is False
 
 
 def test_speech_that_is_switched_off_builds_no_engine_at_all(tmp_path) -> None:

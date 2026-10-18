@@ -160,7 +160,7 @@ class FloorMetric:
 
     Already formatted, including its unit and the launch monitor's own
     direction word, because the floor is the last place a number should be
-    converted. See `caddiej.coaching.metrics_strip` for why.
+    converted. The floor displays the text it is given.
     """
 
     label: str

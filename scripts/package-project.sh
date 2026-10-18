@@ -18,6 +18,17 @@ should_prune_path() {
   local rel="$1"
   local base="${rel##*/}"
 
+  # Review code and metadata, not recordings or previously generated archives.
+  # Case-insensitive patterns also work with the system Bash 3.2 on macOS.
+  case "$base" in
+    *.[mM][pP]4|*.[mM][oO][vV]|*.[mM]4[vV]|*.[aA][vV][iI]|*.[mM][kK][vV]|*.[wW][eE][bB][mM]|*.[wW][mM][vV]|*.[mM][pP][gG]|*.[mM][pP][eE][gG]|*.[mM][tT][sS]|*.[mM]2[tT][sS])
+      return 0
+      ;;
+    *.[zZ][iI][pP]|*.[zZ][iI][pP][xX]|*.7[zZ]|*.[rR][aA][rR]|*.[tT][aA][rR]|*.[gG][zZ]|*.[tT][gG][zZ]|*.[bB][zZ]2|*.[tT][bB][zZ]2|*.[xX][zZ]|*.[tT][xX][zZ]|*.[zZ][sS][tT]|*.[iI][sS][oO]|*.[dD][mM][gG]|*.[wW][hH][lL])
+      return 0
+      ;;
+  esac
+
   case "$base" in
     .env)
       return 0
@@ -68,27 +79,41 @@ find_packaged_files() {
   find "$REPO_ROOT" -mindepth 1 \
     \( -name .git -o -name .venv -o -name media -o -name dist -o -name build \
        -o -name .pytest_cache -o -name .mypy_cache -o -name .ruff_cache \
-       -o -name .caddiej \) -prune -o \
+       -o -name .caddiej -o -name __pycache__ -o -name "*.egg-info" \
+       -o -path "$REPO_ROOT/research/temporal_evidence/_deps" \) -prune -o \
     -type f -print0
 }
 
 collect_packaged_files() {
-  local rel path
-
+  # main freezes this manifest once, so every stage uses the same selection.
+  if [[ -n "${PACKAGED_MANIFEST:-}" ]]; then
+    cat "$PACKAGED_MANIFEST"
+    return
+  fi
+  local rel path candidates
+  candidates="$(mktemp)" || return 1
+  # Do not use process substitution here: it hides a failed find command.
+  if ! find_packaged_files > "$candidates"; then
+    rm -f "$candidates"
+    return 1
+  fi
   while IFS= read -r -d '' path; do
     rel="${path#"${REPO_ROOT}/"}"
     if should_prune_path "$rel"; then
       continue
     fi
-    printf '%s\0' "$rel"
-  done < <(find_packaged_files)
+    if ! printf '%s\0' "$rel"; then
+      rm -f "$candidates"
+      return 1
+    fi
+  done < "$candidates"
+  rm -f "$candidates"
 }
 
 is_text_review_file() {
   local rel="$1"
   local base="${rel##*/}"
   local ext="${base##*.}"
-  local ext_lower
 
   case "$base" in
     .env.example|.gitignore|.editorconfig|LICENSE|Makefile|Dockerfile)
@@ -98,9 +123,9 @@ is_text_review_file() {
 
   [[ "$base" == "$ext" ]] && return 1
 
-  ext_lower="$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"
-  case "$ext_lower" in
-    py|md|toml|json|yaml|yml|html|css|js|ts|sh|cfg|ini|txt)
+  # Bash 3.2 compatible, without spawning tr for every file.
+  case "$ext" in
+    [pP][yY]|[mM][dD]|[tT][oO][mM][lL]|[jJ][sS][oO][nN]|[yY][aA][mM][lL]|[yY][mM][lL]|[hH][tT][mM][lL]|[cC][sS][sS]|[jJ][sS]|[tT][sS]|[sS][hH]|[cC][fF][gG]|[iI][nN][iI]|[tT][xX][tT])
       return 0
       ;;
   esac
@@ -199,26 +224,77 @@ check_private_key_block() {
 }
 
 run_security_check() {
-  local rel abs base
-
+  local rel scan_list key_matches
+  scan_list="$REVIEW_TEMP_DIR/scan.nul"
+  key_matches="$REVIEW_TEMP_DIR/private-key-paths.txt"
   printf 'Running lightweight secret scan on files to be packaged...\n'
 
-  while IFS= read -r -d '' rel; do
-    abs="${REPO_ROOT}/${rel}"
-    [[ -f "$abs" ]] || continue
-
-    base="${rel##*/}"
-    [[ "$base" == ".env.example" ]] && continue
-
-    check_private_key_block "$abs" || return 1
-    check_assignment_secret "$abs" 'OPENAI_API_KEY' '^(export[[:space:]]+)?[[:space:]]*(OPENAI_API_KEY)[[:space:]]*=[[:space:]]*(.*)$' || return 1
-    check_assignment_secret "$abs" 'OBS_PASSWORD' '^(export[[:space:]]+)?[[:space:]]*(OBS_PASSWORD)[[:space:]]*=[[:space:]]*(.*)$' || return 1
-    check_assignment_secret "$abs" 'AWS_SECRET_ACCESS_KEY' '^(export[[:space:]]+)?[[:space:]]*(AWS_SECRET_ACCESS_KEY)[[:space:]]*=[[:space:]]*(.*)$' || return 1
-    check_assignment_secret "$abs" 'COACHING_API_KEY' '^(export[[:space:]]+)?[[:space:]]*(COACHING_API_KEY)[[:space:]]*=[[:space:]]*(.*)$' || return 1
-    check_assignment_secret "$abs" 'ASSISTANT_API_TOKEN' '^(export[[:space:]]+)?[[:space:]]*(ASSISTANT_API_TOKEN)[[:space:]]*=[[:space:]]*(.*)$' || return 1
-    check_assignment_secret "$abs" 'LIGHTING_APPLICATION_KEY' '^(export[[:space:]]+)?[[:space:]]*(LIGHTING_APPLICATION_KEY)[[:space:]]*=[[:space:]]*(.*)$' || return 1
-  done < <(collect_packaged_files)
-
+  # One awk pass over each file; xargs batches paths within the OS argument
+  # limit. Prefix ./ so leading '-' and '=' in filenames stay literal paths.
+  # Only paths/pattern names are printed, never matching secret values.
+  if ! (
+    cd "$REPO_ROOT" || exit 1
+    while IFS= read -r -d '' rel; do
+      [[ "${rel##*/}" == ".env.example" ]] && continue
+      printf './%s\0' "$rel"
+    done < <(collect_packaged_files) > "$scan_list"
+    # grep -a also finds key blocks after NUL bytes in binary assets. Some
+    # system awk implementations cannot match those bytes reliably.
+    if ! LC_ALL=C xargs -0 sh -c '
+      grep -alE "BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY" "$@"
+      result=$?
+      [ "$result" -le 1 ]
+    ' sh < "$scan_list" > "$key_matches"; then
+      printf 'ERROR: Could not complete private-key scan.\n' >&2
+      exit 1
+    fi
+    if [[ -s "$key_matches" ]]; then
+      while IFS= read -r rel; do
+        printf 'ERROR: Possible secret detected (PRIVATE KEY block) in %s\n' "$rel" >&2
+      done < "$key_matches"
+      exit 1
+    fi
+    # Scan arbitrary binary assets as bytes, not as locale-dependent UTF-8.
+    LC_ALL=C xargs -0 awk '
+        function placeholder(value, lower) {
+          if (value == "" || index(value, "...") ||
+              value ~ /^the-key-from-/ || value ~ /^</ ||
+              index(value, "your-") || index(value, "YOUR_")) return 1
+          lower = tolower(value)
+          return lower ~ /^(changeme|change-me|placeholder|example|your-key-here|your_key_here|insert-key-here|insert_key_here|xxx|xxxxx|redacted|none|n\/a|na|todo|tbd|secret|do-not-log)$/
+        }
+        function report(pattern) {
+          printf "ERROR: Possible secret detected (%s) in %s\n", pattern, FILENAME > "/dev/stderr"
+          bad = 1
+        }
+        FILENAME ~ /(^|\/)\.env\.example$/ { next }
+        /^[[:space:]]*#/ { next }
+        # Preserve the original scan scope for Python keyword arguments and
+        # tuple entries; these are not dotenv-style assignments.
+        FILENAME ~ /\.py$/ && /,[[:space:]]*$/ { next }
+        {
+          line = $0
+          sub(/^(export[[:space:]]+)?[[:space:]]*/, "", line)
+          if (line !~ /^(OPENAI_API_KEY|OBS_PASSWORD|AWS_SECRET_ACCESS_KEY|COACHING_API_KEY|ASSISTANT_API_TOKEN|LIGHTING_APPLICATION_KEY)[[:space:]]*=/) next
+          name = line
+          sub(/[[:space:]]*=.*$/, "", name)
+          sub(/^[^=]*=[[:space:]]*/, "", line)
+          sub(/#.*/, "", line)
+          sub(/[[:space:]]+$/, "", line)
+          sub(/^[[:space:]]+/, "", line)
+          sub(/,$/, "", line)
+          sub(/"$/, "", line)
+          sub(/^"/, "", line)
+          # Single quotes are represented with an octal escape for bash.
+          sub(/\047$/, "", line)
+          sub(/^\047/, "", line)
+          if (!placeholder(line)) report(name)
+        }
+        END { exit bad ? 1 : 0 }
+      ' < "$scan_list"
+  ); then
+    return 1
+  fi
   printf 'Secret scan passed.\n'
 }
 
@@ -414,14 +490,12 @@ ensure_archive_backends() {
 }
 
 create_archive_zip() {
-  local rel
-
-  while IFS= read -r -d '' rel; do
-    (
-      cd "$REPO_ROOT" || exit 1
-      zip -q "$ARCHIVE_PATH" "$rel"
-    )
-  done < <(collect_packaged_files)
+  # A single zip process avoids repeatedly reopening and rewriting the archive.
+  # main rejects newline-containing paths, as both ZIP backends use line lists.
+  (
+    cd "$REPO_ROOT" || exit 1
+    collect_packaged_files | tr '\0' '\n' | zip -q -1 "$ARCHIVE_PATH" -@
+  )
 }
 
 create_archive_powershell() {
@@ -469,7 +543,7 @@ try {
   )
   try {
     Get-Content -LiteralPath $listFile | ForEach-Object {
-      $relUnix = ($_ -replace '\\', '/').Trim()
+      $relUnix = ($_ -replace '\\', '/')
       if ($relUnix -eq '') {
         return
       }
@@ -485,7 +559,7 @@ try {
         $zip,
         $full,
         $relUnix,
-        [System.IO.Compression.CompressionLevel]::Optimal
+        [System.IO.Compression.CompressionLevel]::Fastest
       )
     }
   } finally {
@@ -724,16 +798,35 @@ count_text_bundle_files() {
 }
 
 main() {
-  local text_file_count archive_file_count text_size archive_size
+  local text_file_count archive_file_count text_size archive_size rel
+
+  # Keep temporary manifests outside the source tree and clean them on failure.
+  REVIEW_TEMP_DIR="$(mktemp -d)"
+  trap 'rm -rf -- "$REVIEW_TEMP_DIR"' EXIT
+  if ! collect_packaged_files > "$REVIEW_TEMP_DIR/packaged.nul"; then
+    printf 'ERROR: File collection failed; packaging stopped.\n' >&2
+    exit 1
+  fi
+  if [[ ! -s "$REVIEW_TEMP_DIR/packaged.nul" ]]; then
+    printf 'ERROR: No files selected; packaging stopped.\n' >&2
+    exit 1
+  fi
+  PACKAGED_MANIFEST="$REVIEW_TEMP_DIR/packaged.nul"
+  while IFS= read -r -d '' rel; do
+    if [[ "$rel" == *$'\n'* || "$rel" == *$'\r'* ]]; then
+      printf 'ERROR: Review bundles cannot represent filenames containing line breaks.\n' >&2
+      exit 1
+    fi
+  done < "$PACKAGED_MANIFEST"
 
   mkdir -p "${REPO_ROOT}/dist"
   rm -f "$TEXT_BUNDLE_PATH" "$ARCHIVE_PATH"
 
   ensure_archive_backends
-  run_security_check
+  run_security_check || abort_packaging 'secret scan failed'
   create_text_bundle
   verify_text_bundle
-  create_archive
+  create_archive || abort_packaging 'archive creation failed'
   verify_archive
 
   text_file_count="$(count_text_bundle_files)"

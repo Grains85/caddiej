@@ -38,7 +38,6 @@ from caddiej.adapters.api.server import AssistantServer, api_url, create_api_app
 from caddiej.assistant.commands import CommandFacade
 from caddiej.assistant.contract import SubsystemPayload
 from caddiej.assistant.reads import ReadFacade
-from caddiej.coaching.service import AnalysisService
 from caddiej.core.events import Event
 from caddiej.domain.coaching import (
     Advice,
@@ -60,6 +59,7 @@ from caddiej.domain.shot import (
 from caddiej.mcp.client import CaddieJClient, CaddieJUnreachable
 from caddiej.mcp.server import ToolFailure, tool_handlers
 from caddiej.persistence.service import build_history_service
+from caddiej.swing_reference.live import ReferenceLiveCoach
 
 pytestmark = [
     pytest.mark.integration,
@@ -132,7 +132,7 @@ class Running:
 
     tools: dict[str, object]
     history: object
-    coaching: AnalysisService
+    coaching: ReferenceLiveCoach
     play: PlayFlow
     url: str
 
@@ -157,7 +157,7 @@ async def running(tmp_path: Path) -> AsyncIterator[Running]:
         enabled=True, path=tmp_path / "history.sqlite3", player_name="Johan"
     )
     await history.open()
-    coaching = AnalysisService(publish=silent, record=history.record_advice)
+    coaching = ReferenceLiveCoach(silent, None, vision_calls=True)
     await coaching.open()
     play = PlayFlow(floor=NullFloor(), publish=silent)
 
@@ -291,14 +291,10 @@ async def test_the_one_mutation_reaches_coaching_from_outside(
     answer = await running.call("set_training_focus", focus="Early Extension")
 
     assert answer["availability"] == "ok"
-    assert answer["training_focus"] == "early_extension"
-    assert answer["changed"] is True
-    # The whole point of the round trip: it landed on the real service.
-    assert running.coaching.preferred_focus is CoachingFocus.EARLY_EXTENSION
-    # And is visible to the next question.
-    assert (await running.call("get_caddiej_status"))[
-        "training_focus"
-    ] == "early_extension"
+    assert answer["training_focus"] is None
+    assert answer["changed"] is False
+    assert running.coaching.preferred_focus is None
+    assert (await running.call("get_caddiej_status"))["training_focus"] is None
 
 
 async def test_a_focus_caddiej_does_not_know_never_reaches_it(

@@ -45,9 +45,9 @@ By default, nothing. Shot history, swing video and rendered speech are all local
 files. Two settings send data outward, both off by default and both documented
 where they are set:
 
-- `COACHING_PROVIDER=openai` sends the measurements of a shot, and the fault
-  CaddieJ measured, to the configured endpoint.
-- `COACHING_SEND_FRAMES=true` additionally sends frames of your swing video.
+- `COACHING_PROVIDER=openai` with `COACHING_VISION_CALLS=true` sends the
+  selected swing frames and the Ideal Swing assessment request to the
+  configured endpoint. Vision calls are off unless that switch is set.
 
 ## Reporting a vulnerability
 

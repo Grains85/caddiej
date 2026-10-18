@@ -99,6 +99,17 @@ class AdviceRequest:
     reasoning_effort: str | None = None
     """For reasoning models only. None leaves the provider's default."""
 
+    strict_schema: bool = True
+    """Whether the provider should ask for strict schema adherence.
+
+    The swing-reference schema is a general JSON Schema contract and is not
+    an OpenAI strict-mode schema. That call sets this false and validates
+    the reply locally."""
+
+    prefix: str = ""
+    """Stable text placed before the shot. Identical across shots so a provider
+    that caches prompt prefixes can reuse it. Empty for a one-off request."""
+
 
 @dataclass(frozen=True, slots=True)
 class ProviderReply:
@@ -114,6 +125,10 @@ class ProviderReply:
     input_tokens: int | None = None
     output_tokens: int | None = None
     reasoning_tokens: int | None = None
+    cached_tokens: int | None = None
+    """Input tokens the provider reported as read from its prompt cache.
+
+    None when the provider did not say. Never inferred."""
     """The part of `output_tokens` a reasoning model spent thinking. It counts
     against `max_output_tokens` like the visible reply does."""
 

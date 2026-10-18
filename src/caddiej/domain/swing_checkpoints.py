@@ -1,22 +1,8 @@
-"""What CaddieJ scores about a golf swing, and what it concludes from the scores.
+"""Checkpoint names carried on stored swing-score rows.
 
-Swing Score V3 rated thirteen coarse criteria on a six-step scale, and on real
-hardware the model rated nearly all of them `good`. "takeaway_sync = good"
-says almost nothing a player can use, and a rubric that is mostly `good` hands
-the lesson to whatever ProTee printed.
-
-V4 scores concrete checkpoints instead: one observable geometric property of
-one position of the swing -- hip depth at delivery, the trail shoulder's
-direction at the start of the downswing, the lead arm's structure in the
-release -- each on 0 to 100 as a distance from a functional professional
-range, read from one named picture, from one named camera, at a moment the
-model itself said that picture shows. CaddieJ then does everything else:
-phases, the Swing Score, the faults, the one thing to work on, and whether the
-player fixed it.
-
-This module is vocabulary only. The catalogue (which checkpoint, read from
-where, weighted how) is in `coaching/checkpoints.py`; the faults in
-`coaching/swing_faults.py`; the arithmetic in `coaching/mechanics.py`.
+The live coach does not score a swing from this vocabulary. Ideal Swing 2.9
+in `config/ideal_swing.json` is the coaching reference. These names remain so
+an older stored row can still be read.
 """
 
 from dataclasses import dataclass

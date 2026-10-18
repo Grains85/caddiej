@@ -8,7 +8,6 @@ from typing import Annotated, Literal, Self
 from pydantic import AliasChoices, BeforeValidator, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from caddiej.domain.coaching import SEVERITY_FINE
 from caddiej.domain.cues import CapturePanel, PanelKind, PanelView, VisualClaim
 
 
@@ -746,21 +745,13 @@ class Settings(BaseSettings):
         validation_alias="VIDEO_DRAIN_TIMEOUT",
     )
 
-    # Coaching. On by default, and safely so: with no provider configured this is
-    # arithmetic over the shots hit so far, offline and instant, and it produces
-    # the fault line on the floor. Nothing here reaches a network until
-    # COACHING_PROVIDER is set to something.
+    # Ideal Swing 2.9. On by default, but a shot is not assessed and nothing
+    # reaches a network until COACHING_VISION_CALLS is set and a provider is
+    # configured. There is no separate arithmetic coach.
     coaching_enabled: bool = Field(default=True, validation_alias="COACHING_ENABLED")
-    # Diagnostic, off in production. ProTee coaching does everything up to the
-    # request -- capture, All Values, frame selection, the evidence sheet --
-    # and then makes no call, so a capture-calibration session costs nothing.
-    coaching_diagnostic_dry_run: bool = Field(
-        default=False, validation_alias="COACHING_DIAGNOSTIC_DRY_RUN"
-    )
-    # "none" asks no model at all and is the default, so a fresh checkout coaches
-    # from templates and costs nothing. "scripted" answers from a fixed script
-    # inside the process, which is how the whole path — prompt, validation,
-    # floor — gets exercised on a machine with no credentials.
+    # "none" asks no model and is the default. "scripted" answers from inside
+    # the process, which exercises delivery on a machine with no credentials.
+    # "openai" is the vision assessment.
     coaching_provider: Literal["none", "openai", "scripted"] = Field(
         default="none",
         validation_alias="COACHING_PROVIDER",
@@ -779,133 +770,62 @@ class Settings(BaseSettings):
     # For an OpenAI-compatible endpoint, including a local one. Blank uses the
     # provider's own.
     coaching_api_base: str = Field(default="", validation_alias="COACHING_API_BASE")
-    # Whether swing frames are sent to the provider. Off by default, and that is
-    # a privacy decision rather than a cost one: these are pictures of somebody
-    # in their own home, and sending them somewhere should be a choice a person
-    # made. With this off, coaching works from the measurements alone.
-    coaching_send_frames: bool = Field(
-        default=False,
-        validation_alias="COACHING_SEND_FRAMES",
-    )
+    # Width of stills extracted from a recorded camera clip. The evidence
+    # pipeline does not use this; it reads the capture timeline.
     coaching_frame_width: int = Field(
         default=512,
         gt=0,
         validation_alias="COACHING_FRAME_WIDTH",
     )
-    # What the player is working on. Held to unless something else is markedly
-    # worse, so a session reads as a lesson rather than as a list of whatever
-    # went wrong last.
-    coaching_focus: str = Field(default="", validation_alias="COACHING_FOCUS")
-    # Below this, nothing is said. Raising it makes CaddieJ quieter and more
-    # worth listening to; lowering it makes it a nag.
-    coaching_severity_fine: float = Field(
-        default=SEVERITY_FINE,
-        ge=0.0,
-        le=1.0,
-        validation_alias="COACHING_SEVERITY_FINE",
-    )
-    # How many of the player's own recent shots per club define their normal.
-    coaching_baseline_window: int = Field(
-        default=40,
-        ge=1,
-        validation_alias="COACHING_BASELINE_WINDOW",
-    )
-    # Short on purpose. Advice for three swings ago is worse than none, so this
-    # is a queue of shots still worth coaching, not a backlog.
-    coaching_queue_size: int = Field(
-        default=2,
-        ge=1,
-        validation_alias="COACHING_QUEUE_SIZE",
-    )
-    # How long to wait for the clip of a swing before coaching from the numbers.
-    # Must exceed the post-impact window plus extraction, or frames never arrive.
-    coaching_clip_wait: float = Field(
-        default=8.0,
-        gt=0,
-        validation_alias="COACHING_CLIP_WAIT",
-    )
-    coaching_timeout: float = Field(
-        default=8.0,
-        gt=0,
-        validation_alias="COACHING_TIMEOUT",
-    )
-    # The whole budget from shot to line, retries included. Past this the player
-    # has hit another ball and the answer is worthless however good it is.
-    coaching_budget_seconds: float = Field(
-        default=20.0,
-        gt=0,
-        validation_alias="COACHING_BUDGET_SECONDS",
-    )
-    coaching_retry_limit: int = Field(
-        default=1,
-        ge=0,
-        validation_alias="COACHING_RETRY_LIMIT",
-    )
-    # A floor on how often a call can be made. Nobody hits two balls this close
-    # together, so reaching it means a replay or a bug — and this is what stops
-    # either of them spending money quickly.
-    coaching_min_interval: float = Field(
-        default=8.0,
-        ge=0,
-        validation_alias="COACHING_MIN_INTERVAL",
-    )
-    # A hard ceiling for one run of CaddieJ. Roughly a long practice session,
-    # after which coaching falls back to templates and says so in health.
+    # A hard ceiling for one run of CaddieJ. Past it, further vision calls are
+    # refused and the round continues.
     coaching_call_limit: int = Field(
         default=60,
         ge=0,
         validation_alias="COACHING_CALL_LIMIT",
     )
-    # Enough for two short strings and a number. The ceiling is what makes the
-    # cost of a shot predictable, so it is deliberately tight.
-    coaching_max_output_tokens: int = Field(
-        default=120,
-        gt=0,
-        validation_alias="COACHING_MAX_OUTPUT_TOKENS",
+    # How many original frames the evidence pipeline may keep for one shot.
+    # The sampler and choose_frames run at this budget. Nothing afterwards
+    # drops the earliest or the latest of what they kept.
+    coaching_evidence_budget: int = Field(
+        default=24,
+        ge=1,
+        le=60,
+        validation_alias="COACHING_EVIDENCE_BUDGET",
     )
-    # Raised from 6 after the first hardware session, where six was the
-    # binding constraint on whether a swing could be diagnosed at all: the
-    # capture wrote a takeaway and a face-on top to disk and this cap dropped
-    # both before the request. Sixteen matches SWING_CAPTURE_SELECTED_FRAMES:
-    # below it the capture's aimed stills are thinned evenly on the way to the
-    # model, which is how aiming gets undone. The ceiling still exists because
-    # the cost of a shot has to stay predictable.
-    coaching_max_images: int = Field(
-        default=16,
-        ge=0,
-        le=16,
-        validation_alias="COACHING_MAX_IMAGES",
+    # View weights at a 24-image budget: dtl_primary is 20 down-the-line and
+    # 4 face-on. A different budget scales those weights.
+    coaching_evidence_allocation: Literal[
+        "dtl_only", "dtl_primary", "balanced", "fo_primary"
+    ] = Field(
+        default="dtl_primary",
+        validation_alias="COACHING_EVIDENCE_ALLOCATION",
     )
-    coaching_visual_cues: bool = Field(
-        default=True,
-        validation_alias="COACHING_VISUAL_CUES",
+    # Paid vision assessment of a live shot against Ideal Swing 2.9. Off until
+    # set. While off, a shot is not coached and no older fault line is spoken.
+    coaching_vision_calls: bool = Field(
+        default=False,
+        validation_alias="COACHING_VISION_CALLS",
     )
-    # What starts a coaching job. `protee` coaches every ProTee strike from its
-    # swing capture and the All Values still, with no GSPro involved; `gspro`
-    # waits for a measured GSPro shot as before. `auto` is `protee` whenever
-    # swing capture is on, because that is what the ProTee path is built from.
-    coaching_trigger: Literal["auto", "protee", "gspro"] = Field(
-        default="auto",
-        validation_alias="COACHING_TRIGGER",
+    # How closely the vision model looks at each swing still. `high` is the
+    # default because hand, shaft and hip relationships are small in the frame.
+    # It costs more tokens per image than `low`. `auto` leaves the provider's
+    # own choice. The capture's selected-frame cap still limits how many go.
+    coaching_image_detail: Literal["low", "high", "auto"] = Field(
+        default="high",
+        validation_alias="COACHING_IMAGE_DETAIL",
     )
-    # The ProTee reply carries every All Values reading as well as the line, so
-    # it needs far more room than the two strings the GSPro path returns. On a
-    # reasoning model this ceiling covers the reasoning as well as the JSON. A
-    # full reply with every metric read is about 500-750 tokens, and every
-    # checkpoint scored adds about 2000 more; the rest is room for low-effort
-    # reasoning over seven images. 2000 ran out on the bay.
-    coaching_protee_max_output_tokens: int = Field(
-        default=10000,
-        gt=0,
-        le=16000,
-        validation_alias="COACHING_PROTEE_MAX_OUTPUT_TOKENS",
+    # How the approved sentence is delivered. All three use the same reference,
+    # assessment, ranking and session. `exact` speaks the stored correction.
+    # `observed` may place the assessment's own observation in front of it when
+    # that observation checks out. `worded` asks a second, text-only call for
+    # that observation. None of them lets a model rewrite the correction.
+    coaching_feedback: Literal["exact", "observed", "worded"] = Field(
+        default="observed",
+        validation_alias="COACHING_FEEDBACK",
     )
-    # The ProTee request is one multimodal call carrying the swing stills, the
-    # All Values grid and a long structured reply, so it is slower than the GSPro
-    # path's two short strings. These replace COACHING_TIMEOUT and
-    # COACHING_BUDGET_SECONDS on that path only. The timeout is per attempt,
-    # passed to the OpenAI SDK; the budget bounds every attempt and the wait
-    # between them, measured from when the capture is queued for coaching.
+    # The vision request is one multimodal call. The timeout is per attempt,
+    # passed to the OpenAI SDK; the budget bounds the attempt.
     coach_openai_timeout: float = Field(
         default=30.0,
         gt=0,
@@ -918,19 +838,6 @@ class Settings(BaseSettings):
         le=300,
         validation_alias="COACH_OPENAI_BUDGET_SECONDS",
     )
-    # Sent on the ProTee request only, and only for reasoning models: one that
-    # does not reason refuses the parameter, so set it empty for those. `low`
-    # because the default model, gpt-5-mini, reasons at medium when nothing is
-    # sent. Copying a grid and choosing from a fixed list does not need that,
-    # and its reasoning shares the output ceiling with the reply.
-    #
-    # Which values a model accepts is the API's business and not ours: gpt-5-mini
-    # takes `minimal` and refuses `none`, gpt-5.4-mini the other way round. Empty
-    # means send nothing, which leaves the model's own default in charge and is
-    # therefore the one setting whose behaviour can change without us.
-    coaching_reasoning_effort: Literal[
-        "", "none", "minimal", "low", "medium", "high"
-    ] = Field(default="low", validation_alias="COACHING_REASONING_EFFORT")
     floor_coach_cue_image: bool = Field(
         default=False,
         validation_alias="FLOOR_COACH_CUE_IMAGE",
@@ -1443,14 +1350,58 @@ class Settings(BaseSettings):
     # Timing diagnostic, off in production. For the next N published shots of
     # this run, every screenshot the burst already took of the down-the-line
     # and face-on replays is also written under the shot's own `diagnostic/`
-    # directory, with its timing. Nothing extra is asked of OBS, and nothing
-    # extra reaches the model or the sheet. N cannot exceed the retention cap.
+    # directory, with its timing. Nothing extra is asked of OBS. The evidence
+    # pipeline reads this timeline when vision calls are on. N cannot exceed
+    # the retention cap.
     # The shot directories are then kept at least until N of them fit.
     swing_capture_diagnostic_timeline_shots: int = Field(
         default=0,
         ge=0,
         le=40,
         validation_alias="SWING_CAPTURE_DIAGNOSTIC_TIMELINE_SHOTS",
+    )
+    # Shot reports for a real session. Written after coaching, off the path
+    # that speaks. The last few shots keep their selected images here, so
+    # capture cleanup can drop its own copies. Raw model JSON is kept, with
+    # credentials and image bytes removed, and the newest finished shot is
+    # also written to latest_shot.zip.
+    diagnostics_enabled: bool = Field(
+        default=True,
+        validation_alias="DIAGNOSTICS_ENABLED",
+    )
+    diagnostics_dir: LocalPath = Field(
+        default=Path("media/diagnostics"),
+        validation_alias="DIAGNOSTICS_DIR",
+    )
+    diagnostics_keep_sessions: int = Field(
+        default=1,
+        ge=1,
+        le=100,
+        validation_alias="DIAGNOSTICS_KEEP_SESSIONS",
+    )
+    diagnostics_keep_shots: int = Field(
+        default=3,
+        ge=1,
+        le=500,
+        validation_alias="DIAGNOSTICS_KEEP_SHOTS",
+    )
+    diagnostics_retain_payloads: bool = Field(
+        default=True,
+        validation_alias="DIAGNOSTICS_RETAIN_PAYLOADS",
+    )
+    diagnostics_payload_max_bytes: int = Field(
+        default=1_500_000,
+        ge=1024,
+        le=20_000_000,
+        validation_alias="DIAGNOSTICS_PAYLOAD_MAX_BYTES",
+    )
+    diagnostics_auto_export_latest: bool = Field(
+        default=True,
+        validation_alias="DIAGNOSTICS_AUTO_EXPORT_LATEST",
+    )
+    diagnostics_include_images: bool = Field(
+        default=True,
+        validation_alias="DIAGNOSTICS_INCLUDE_IMAGES",
     )
     # How often. This is a screenshot rate, not a camera frame rate: ProTee
     # films at 120 fps and nothing here can recover that. Ten a second is dense
@@ -1558,13 +1509,6 @@ class Settings(BaseSettings):
             return ""
         return self.coach_metrics_source.strip()
 
-    def resolved_coaching_trigger(self) -> Literal["protee", "gspro"]:
-        """`auto` is ProTee whenever swing capture is on."""
-
-        if self.coaching_trigger == "auto":
-            return "protee" if self.swing_capture_enabled else "gspro"
-        return self.coaching_trigger
-
     @model_validator(mode="after")
     def _check_swing_capture(self) -> Self:
         """Refuse a width OBS would refuse, rather than failing every still.
@@ -1579,18 +1523,6 @@ class Settings(BaseSettings):
             raise ValueError(
                 "SWING_CAPTURE_IMAGE_WIDTH must be 0 (the source's own "
                 f"resolution) or at least 8 pixels, got {width}"
-            )
-        wall = max(
-            self.swing_capture_initial_delay_seconds
-            + self.swing_capture_duration_seconds,
-            self.swing_capture_static_delay_seconds
-            + self.swing_capture_static_duration_seconds,
-        )
-        if self.swing_capture_enabled and wall >= self.coaching_clip_wait:
-            raise ValueError(
-                "swing capture wall time "
-                f"({wall:.1f}s) must be less than COACHING_CLIP_WAIT "
-                f"({self.coaching_clip_wait:.1f}s)"
             )
         reveals = self.floor_top_impact_enabled or self.floor_shot_video_enabled
         if (

@@ -139,6 +139,10 @@ OBS for that.
 
 ## Windows launch, logs, and health
 
+The vision install, the pose model, and a saved-swing check are in
+[Windows validation](windows-validation.md). The commands in this section
+start the bay after that install exists.
+
 Start from the repository directory that contains `.env`. JSON lines go
 to stderr; Tee-Object keeps a durable copy. Logging is already
 non-blocking inside CaddieJ — the file is for inspection after the
@@ -477,8 +481,8 @@ SPEECH_VOICE=bm_george
 choice for this stage: the model's whole job here is wording, and a larger one
 would cost more for the same two short strings. `COACHING_API_KEY` goes in
 `.env` and nowhere else — never on a command line, never in a log, never pasted
-into a chat window. Leave `COACHING_SEND_FRAMES` at `false` for this stage:
-measurements first, pictures in E6.
+into a chat window. Vision calls stay off until `COACHING_VISION_CALLS=true`.
+That switch sends the selected swing timeline, not a separate frame flag.
 
 **What to expect from this stage on passive hardware, honestly.** The ProTee log
 carries no ball or club measurements at all, and `currentRound.dat` carries a
@@ -649,14 +653,16 @@ Only after E5, and only after `--check-video-frames` has extracted four
 inspectable stills from a real CaddieJ clip.
 
 ```
-VIDEO_ENABLED=true
-VIDEO_CAMERA_VIEW=face_on
-COACHING_SEND_FRAMES=true
+COACHING_ENABLED=true
+COACHING_VISION_CALLS=true
+COACHING_EVIDENCE_BUDGET=24
+COACHING_EVIDENCE_ALLOCATION=dtl_primary
 ```
 
-Check that `COACHING_MODEL` accepts images before relying on this; a
-text-only model will refuse the request and `coaching_unavailable` will say so
-in `coaching_reason`, with the templated line still on the floor.
+`COACHING_SEND_FRAMES` is gone. The coach reads the capture timeline
+(down-the-line and face-on), not a separate “send frames” switch. Check that
+`COACHING_MODEL` accepts images before relying on this; a text-only model
+refuses the request and the shot continues without a spoken line.
 
 Set `VIDEO_CAMERA_VIEW` to where the camera actually is. Nothing can work it out
 from the footage, and left `unknown` the model is told so and keeps off anything
@@ -778,14 +784,12 @@ Prove the production path without a golf shot, then one real ball.
 
 ```bash
 cd /c/Users/johan/git/caddiej
-caddiej --check-coach-cues
-caddiej --check-coach
 caddiej --check-swing-capture
 ```
 
-`--check-coach` runs `diagnose()`, evidence rendering, the configured
-provider, validation, cue selection and `AnalysisService`. It does not
-bypass that code. Then start CaddieJ and hit one full swing:
+`--check-coach` and `--check-coach-cues` have been removed with Coach V1.
+Ideal Swing coaching runs when `COACHING_ENABLED` and `COACHING_VISION_CALLS`
+are on. Then start CaddieJ and hit one full swing:
 
 ```bash
 caddiej 2>&1 | tee caddiej-coach-$(date +%Y%m%d-%H%M%S).log
@@ -811,11 +815,13 @@ One identity should trace:
 | Floor | `play_advice_shown`, or `play_advice_suppressed` |
 | Speech | `speech_started` / `speech_completed`, or `speech_suppressed` |
 
-`--check-coach` calls the real provider when one is configured. It does not
-draw on the projector and it does not speak. `caddiej --check-speech` is the
-Kokoro / `bm_george` check. `SWING_CAPTURE_CAMERA_1_SOURCE` is not read;
-panels come from `SWING_CAPTURE_PANEL_*_SOURCE`. An enabled capture with no
-panel logs `swing_capture_skipped` and coaching continues from the numbers.
+The event names in the table above are from Coach V1. The live coach logs
+`swing_evidence_ready` when the package is built and `coaching_feedback_timing`
+when the shot finishes. Both carry `shot_id` and `coaching_capture_id`.
+`caddiej --check-speech` is the Kokoro / `bm_george` check.
+`SWING_CAPTURE_CAMERA_1_SOURCE` is not read; panels come from
+`SWING_CAPTURE_PANEL_*_SOURCE`. An enabled capture with no panel logs
+`swing_capture_skipped`.
 
 A newer ball must produce `coaching_advice_ignored` / `SUPERSEDED` rather
 than a stale line, and `speech` for the older shot must not start after

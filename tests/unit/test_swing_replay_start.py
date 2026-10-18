@@ -16,13 +16,8 @@ is all replay, and dropped requests in the middle.
 
 from __future__ import annotations
 
-import hashlib
-import json
-from pathlib import Path
-
 import pytest
 
-from caddiej.coaching.benchmark import capture_timing, timing_report
 from caddiej.swing_capture import (
     CapturedFrame,
     active_interval,
@@ -30,7 +25,6 @@ from caddiej.swing_capture import (
     select,
 )
 from caddiej.swing_capture.select import package_quota, take_evenly
-from caddiej.swing_capture.store import METADATA_NAME
 
 BEHIND = (
     (0.516, 83873), (0.625, 83243), (0.735, 81688), (0.844, 80745),
@@ -168,91 +162,6 @@ class TestTheRealShot:
         assert quota == {"swing_behind": 3, "swing_side": 2, "impact": 1}
         assert sent["swing_behind"] == pytest.approx((1.938, 3.61, 4.406))
         assert sent["swing_side"] == pytest.approx((1.938, 4.406))
-
-
-class TestTheBenchmarkReadsTheSelector:
-    """`--check-coach-request` re-runs the selector over a stored timeline.
-
-    The stored shot is the real one as it was kept before the fix: two of its
-    behind stills and one side still are the spinner, and the provider sent
-    the first of each.
-    """
-
-    def a_stored_shot(self, root: Path) -> Path:
-        kept = {
-            "swing_behind": (0.516, 1.828, 3.063, 4.406),
-            "swing_side": (0.516, 3.063, 4.406),
-        }
-        cameras = [
-            {
-                "camera_id": name,
-                "kind": "dynamic",
-                "captured_frames": len(timeline),
-                "frames": [{"offset_seconds": offset} for offset in kept[name]],
-                "timeline": [
-                    {
-                        "index": index,
-                        "offset_seconds": offset,
-                        "bytes": size,
-                        "sha256": hashlib.sha256(f"{name}{index}".encode()).hexdigest(),
-                        "changed": True,
-                    }
-                    for index, (offset, size) in enumerate(timeline, start=1)
-                ],
-            }
-            for name, timeline in (("swing_behind", BEHIND), ("swing_side", SIDE))
-        ]
-        metadata = {
-            "started_at": "2026-10-02T18:47:05.029749+00:00",
-            "completed_at": "2026-10-02T18:47:10.055977+00:00",
-            "selection_interval": {
-                "start_seconds": 0.516,
-                "end_seconds": 4.406,
-                "detected": False,
-            },
-            "configuration": {
-                "initial_delay_seconds": 0.5,
-                "duration_seconds": 4.0,
-                "fps": 10.0,
-            },
-            "cameras": cameras,
-        }
-        (root / METADATA_NAME).write_text(json.dumps(metadata), encoding="utf-8")
-        return root
-
-    def test_the_selector_start_is_reported_and_the_spinner_is_named(
-        self, tmp_path: Path
-    ) -> None:
-        timing = capture_timing(self.a_stored_shot(tmp_path))
-
-        assert timing is not None
-        assert timing.selector is not None
-        assert timing.selector.detected is True
-        assert timing.selector.start_seconds == pytest.approx(REPLAY_STARTS)
-        assert timing.selector.pre_replay_frames == LOADING_STILLS
-        reselected = {window.panel_id: window.reselected for window in timing.windows}
-        assert reselected["swing_behind"] == pytest.approx((1.938, 2.703, 3.61, 4.406))
-        # Three moments across this camera's own interval, not three of the
-        # four the other camera was asked for. Each panel is aimed separately
-        # now: the bay's two replays are not synchronised, so a moment chosen
-        # for one of them is the wrong moment in the other.
-        assert reselected["swing_side"] == pytest.approx((1.938, 3.172, 4.406))
-        report = timing_report(
-            timing,
-            (
-                "swing_behind_01",
-                "swing_behind_03",
-                "swing_behind_04",
-                "swing_side_01",
-                "swing_side_03",
-            ),
-        )
-        assert "authoritative" in report
-        assert "1.938-4.406 s, after 13 pre-replay stills" in report
-        assert "swing_behind_01 0.516 s [PRE-REPLAY, SENT TO THE MODEL]" in report
-        assert "swing_behind_02 1.828 s [PRE-REPLAY]" in report
-        assert "swing_side_01 0.516 s [PRE-REPLAY, SENT TO THE MODEL]" in report
-        assert "the selector keeps today: 1.938, 2.703, 3.61, 4.406" in report
 
 
 class TestTheDetector:

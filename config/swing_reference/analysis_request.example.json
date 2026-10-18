@@ -1,0 +1,23 @@
+{
+  "schema_name": "swing_assessment_v2",
+  "reference_version": "2.9-timing-first",
+  "shot_id": "documentation-example-no-images",
+  "context": {
+    "club_type": "unknown",
+    "shot_type": "unknown",
+    "distance_yards": null,
+    "handedness": "unknown",
+    "target_line": "unknown",
+    "evidence_context": "unknown"
+  },
+  "frames": [],
+  "impact": {
+    "status": "unresolved",
+    "classification": "unknown",
+    "reason": "No images supplied."
+  },
+  "stage_uncertainties": [],
+  "warnings": [
+    "Documentation example: no player images attached."
+  ]
+}

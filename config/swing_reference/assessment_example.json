@@ -1,0 +1,574 @@
+{
+  "schema_version": "swing_assessment_v2",
+  "reference_version": "2.9-timing-first",
+  "shot_id": "documentation-example-no-images",
+  "findings": [
+    {
+      "checkpoint_id": "setup.grip",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.posture",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.upper_body_tilt",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.hip_hinge",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.knee_flex",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.ball_distance",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.lead_weight_target",
+      "status": "reference_only",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "Source target retained, not measurable from photos.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.ball_position_driver",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.ball_position_iron",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.ball_position_wedge",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.stance_width",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.foot_flare",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.arm_hang",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.trail_arm",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.shaft_direction",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.hands_forward",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.clubface_alignment",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.body_alignment",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "setup.alignment_sticks",
+      "status": "reference_only",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "Source target retained, not measurable from photos.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "takeaway.hand_path",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "takeaway.hand_position",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "takeaway.clubhead_position",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "takeaway.clubface_tilt",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "halfway_back.hand_depth",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "halfway_back.shaft_direction",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "halfway_back.arm_shaft_angle",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "top.hip_turn",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "top.shoulder_turn",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "top.centering",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "top.lead_arm_plane",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "top.hand_depth",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "top.shaft_line",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "top.lead_wrist",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "top.clubface_arm",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "top.width",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "top.length",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "top.trail_load_target",
+      "status": "reference_only",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "Source target retained, not measurable from photos.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "top.trail_knee",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "transition.hands_lower",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "transition.shaft_shallowing",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "transition.lower_body_shift",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "transition.lead_loading",
+      "status": "reference_only",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "Source target retained, not measurable from photos.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "transition.rotation_timing",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "delivery.shaft_direction",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "delivery.hip_timing",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "delivery.arm_shaft_angle",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "delivery.trail_arm",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "delivery.hip_depth",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "impact.hip_opening",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "impact.chest_opening",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "impact.arm_stack",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "impact.hands_ahead",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "impact.lead_load_target",
+      "status": "reference_only",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "Source target retained, not measurable from photos.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "post_impact.clubhead_outside",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "post_impact.face_rotation",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "post_impact.body_arc",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "post_impact.arm_extension",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "post_impact.exit_line",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "finish.shaft_ears",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "finish.trail_unload_target",
+      "status": "reference_only",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "Source target retained, not measurable from photos.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "finish.balance",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    },
+    {
+      "checkpoint_id": "finish.body_position",
+      "status": "unknown",
+      "problem": null,
+      "severity": null,
+      "certainty": null,
+      "observation": "No player frames supplied.",
+      "evidence_frames": []
+    }
+  ],
+  "ranking_status": "insufficient_evidence",
+  "primary_checkpoint_id": null,
+  "secondary_checkpoint_ids": [],
+  "ranking_note": "No player images were supplied. Nothing about swing quality or the absence of faults can be concluded.",
+  "warnings": [
+    "Documentation example, not an assessment of a real shot."
+  ],
+  "coaching": null,
+  "positive_feedback": null
+}

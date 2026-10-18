@@ -121,13 +121,12 @@ phrasing reaches the speaker, but only through the non-real-time, cached path
 this rule already permits — and the floor, which is real time, is never waiting
 on it.
 
-Coaching (§9) is the worked example of this split, and the shape it took is
-worth copying. It is not "a feature that uses AI"; it is a deterministic feature
-that a model is allowed to reword. Naming the fault is arithmetic and lives in
-the core, so the floor is correct before anything can hang. The model receives
-that verdict and returns two strings, one of which must be chosen from a fixed
-list. Nothing reads its answer as anything other than text to display, so the
-thirty-second test is passed by construction rather than by care.
+Coaching (§9) is the worked example of this split. The floor does not wait for
+it. A shot is assessed only when vision calls are switched on. The golf
+instruction is Ideal Swing 2.9, in `config/ideal_swing.json`. The model returns
+an assessment of the selected images. Validation, ranking and the session then
+choose one approved correction from that file. A failure publishes no line, and
+the next shot still plays.
 
 ---
 
@@ -1077,208 +1076,145 @@ Four rules shape the subsystem.
   a set of stills that missed the replay is only interpretable next to the
   timings that produced it.
 
-Selection decodes nothing. There is no JPEG decoder in the dependency set and
-this is not a reason to add one, so the only question asked of a still is
-whether its bytes differ from its neighbour's — which finds "the part of the
-window where something moved", not impact and not the swing. Both cameras are
-then selected against one timeline so the kept frames are the same moments seen
-twice. When the trimming finds nothing, a uniform spread across the whole window
-is the answer and the metadata says so; that fallback is the normal case, not
-the error case.
+Capture selection and evidence selection are different jobs, with different
+settings.
 
-The frames are timestamped, ordered, and carry their pixel size, which is what
-makes a later normalized annotation drawable. Phase classification and
-annotation rendering are §9's to build; this subsystem's contract ends at
-"stills exist, here they are".
+**Capture selection** (`SWING_CAPTURE_SELECTED_FRAMES`, default 16) chooses the
+published stills of the replay. It compares JPEG bytes and does not decode
+them. The question it answers is which screenshots of ProTee's window changed,
+not where impact was and not which images the coach should see. When that
+comparison finds nothing, a uniform spread is kept and the metadata says so.
+
+**Evidence selection** (`COACHING_EVIDENCE_BUDGET`, default 24, with
+`COACHING_EVIDENCE_ALLOCATION=dtl_primary`) runs later, in `swing_evidence`,
+and only for a shot that is being coached. It reads the diagnostic timeline of
+the two body cameras, decodes each JPEG once, and keeps a budgeted set. The
+default split is 20 down-the-line (`swing_behind`) and 4 face-on
+(`swing_side`).
+
+`SWING_CAPTURE_DIAGNOSTIC_TIMELINE_SHOTS` (default 0) is a timing diagnostic.
+It retains the full timeline for that many shots. With vision calls on, the
+same timeline is written so evidence selection can read it, and frames the
+package did not keep are removed afterwards unless the diagnostic setting is
+retaining the full timeline.
+
+The capture contract ends at "stills exist, and the timeline is on disk". What
+those pictures mean is §9.
 
 ---
 
 ## 9. Swing analysis and coaching (**Implemented**)
 
-Coaching turns a shot into one short line on the floor: what the fault was, and
-one thing to do about it. It is the first subsystem where a language model
-touches something a player reads, so the boundaries around it are the point.
+There is one coach. Ideal Swing 2.9, in `config/ideal_swing.json`, is the only
+golf-technical source of truth. The model assesses the selected images against
+that reference. It does not invent the correction. Validation, ranking and the
+session decide which stored correction is shown and spoken.
 
-### Two tiers, and the model is the second one
+Vision calls are off by default (`COACHING_VISION_CALLS=false`,
+`COACHING_PROVIDER=none`). A captured shot is then not assessed, and no older
+fault line is spoken in its place. Turning vision calls on does not by itself
+spend money: the provider must also be configured.
 
-The subsystem is split in two, and the split is what makes the rest safe.
-
-**Naming the fault is arithmetic.** `coaching/faults.py` holds a table of what
-can be wrong with a golf shot — face, path, strike, low point, speed, launch,
-spin, start line, curve — each with a tolerance, a scale, an ideal that varies by
-club, and a pair of labels for its two directions. `diagnose` scores every fault
-that the shot actually measured, against both a fixed band and the player's own
-recent shots with that club, and picks the worst one. It is offline, instant,
-free, and deterministic: the same shot always produces the same verdict. This
-tier alone puts a fault on the floor, and it is what a fresh checkout runs as.
-
-**Wording it is the model's only job.** The model is handed the faults CaddieJ
-already measured and asked to pick one and phrase it. It cannot introduce a
-fault that was not measured, it cannot set the severity of one that was, and it
-cannot write the words on the floor — those come from CaddieJ's own templates,
-and the model chooses among them by name. What it genuinely contributes is the
-spoken sentence, which is the part that reads like a person rather than a
-readout.
-
-The consequence is that every failure has the same shape. A missing key, a
-refused request, a timeout, a malformed reply, an answer that arrives after the
-next shot: all of them end with the templated line still on the floor, a row
-recorded saying what happened, and a counter moved in `health()`. Nothing
-raises, and nothing reaches the application.
-
-### Every shot gets one line, and it is one of two kinds
-
-A threshold that decides whether to speak at all produces a coach who appears
-only when something is wrong, which teaches a player to dread it. So the
-threshold decides *what kind* of line a shot gets rather than whether it gets
-one. `AdviceKind` in `domain/coaching.py` holds the three answers:
-
-- **`CORRECTION`** — a measured fault above `COACHING_SEVERITY_FINE`.
-- **`REINFORCEMENT`** — everything measured is inside its band. The line names
-  what worked and asks for it again, which is the only form of praise that
-  teaches anything.
-- **`NONE`** — nothing about the shot could be judged. Silence, and the only
-  silence left.
-
-`NONE` is a separate value rather than a severity of zero, and that is the whole
-reason the enum exists: a shot nobody can judge and a shot with nothing wrong
-with it are different facts, and no single number can carry both without lying
-about one of them. The distinction is load-bearing in the mode CaddieJ actually
-runs in — a shot read from GSPro's round file carries a ball speed and little
-else, so early in a session there is genuinely nothing to say.
-
-### One focus, kept long enough to learn
-
-`coaching/session.py` holds what the coach remembers between one shot and the
-next, and it is deliberately not a second history. A handful of numbers per
-focus, in this process, discarded when the run ends. Shot history is in SQLite
-and answers what happened; this answers what to say next, which has a much
-shorter horizon and is never queried while somebody is standing over a ball.
-
-Three rules, and they are the whole of it. **One focus at a time, and it is
-sticky** — adopted on a correction, kept until another fault is markedly worse
-or the same focus has come back clean three times, at which point it has been
-learned. **The trend is per focus, not per shot**, including the shots nothing
-was said about, which is what makes "the face has been coming down from six
-degrees to one and a half" a fact rather than an impression. **Improvement is
-CaddieJ's arithmetic**, not a model's judgement: a shot materially better than
-the trend behind it is a reinforcement, and the model is told so rather than
-asked to work it out.
-
-`SessionProgress` is passed *into* `diagnose` rather than reached for, so naming
-a fault stays a pure function of a shot, a baseline and a snapshot. It is taken
-before the shot is folded in, for the same reason a shot is not in its own
-baseline: a trend that already contains the shot being judged has nothing left
-to say about it.
-
-### The flow
+### From a swing to a line
 
 ```
-ShotCompleted ──▶ diagnose (arithmetic, on the event path)
-                    │
-                    ├──▶ ShotDiagnosed ──▶ floor shows the fault, now
-                    │
-                    └──▶ queue ──▶ worker
-                                     │  wait briefly for SwingClipReady
-                                     │  extract frames (only if configured)
-                                     │  cache lookup
-                                     ├──▶ AnalysisStarted
-                                     │      provider ──▶ strict validation
-                                     ├──▶ AnalysisCompleted ──▶ floor rewords
-                                     └──▶ AnalysisFailed    ──▶ floor unchanged
+ShotDetected
+    └── swing_capture photographs ProTee's replay through OBS
+            └── SwingFramesReady
+                    └── ReferenceLiveCoach, only if vision calls are on
+                            ├── swing_evidence builds SwingEvidencePackage
+                            ├── the provider assesses those images
+                            ├── validation, ranking, session
+                            ├── AnalysisCompleted → floor and speech
+                            └── AnalysisFailed    → no line, round continues
 ```
 
-The event path does arithmetic and nothing else. `on_shot_completed` diagnoses,
-publishes, enqueues, and returns; it touches no network, no disk and no model.
-Everything slow is in the worker, which is why the fault is on the floor before
-anything can go wrong.
+The event handler starts that work and returns. A newer shot cancels the one
+in flight. A reply for a shot that is no longer the latest is discarded.
+`PlayFlow` drops a line whose shot is no longer current.
 
-### There is no catching up
+### What each package does
 
-History queues hundreds of shots, because a shot recorded late is still a shot
-recorded. Coaching is the opposite: advice about three swings ago is worse than
-silence, because the player has moved on and would map the words onto the wrong
-swing. So the queue is short, the newest shot displaces the oldest waiting one,
-a reply that arrives after the next shot is discarded rather than shown, and
-`PlayFlow` drops any line whose shot is no longer the current one.
+**`swing_capture`** photographs named OBS panels of ProTee's own replay.
+CaddieJ does not open ProTee's cameras. Capture selection keeps
+`SWING_CAPTURE_SELECTED_FRAMES` published stills by comparing JPEG bytes. When
+a shot will be coached, the full down-the-line and face-on timeline is also
+written under `diagnostic/`. The shot directory is pinned while evidence is
+reading it, so retention cannot delete it mid-analysis, and unpinned
+afterwards.
 
-### What stops it being expensive
+**`swing_evidence`** is the only production evidence pipeline.
 
-Cost is bounded in five independent ways, because any one of them can be got
-wrong. A **session ceiling** on total calls. A **minimum interval** between
-them, since nobody hits two balls eight seconds apart and reaching it means a
-replay or a bug. A **tight output ceiling**, because the answer is two short
-strings and a number. A **cache** keyed on a quantised fingerprint of the
-diagnosis, so the same swing is not paid for twice. And **frames off by
-default** — that one is a privacy decision more than a cost one.
+- `images` decodes each timeline JPEG once and refuses a missing, non-4, or
+  duplicated OpenCV install.
+- `motion` measures frame differences, Farneback optical flow, temporal
+  coverage, scene cuts and duplicate frames, and proposes a motion-weighted
+  set.
+- `stages` runs MediaPipe Pose Landmarker when the local model is installed.
+  A missing model, a bad checksum, or a detector failure leaves that camera's
+  stages unresolved. Nothing invents a stage.
+- `impact` estimates contact from the decoded frames with OpenCV. An estimate
+  is not reported as confirmed contact.
+- `assemble` applies stage-aware and impact-aware selection inside
+  `COACHING_EVIDENCE_BUDGET` and `COACHING_EVIDENCE_ALLOCATION`, and builds
+  `SwingEvidencePackage` with camera identity, timestamps, selection reasons,
+  stage uncertainty and impact confidence.
+- `pose_model` resolves `CADDIEJ_POSE_MODEL` or `models/pose_landmarker_full.task`
+  and checks the checksum. It never downloads.
+- `ready` prepares OpenCV, the Matplotlib font cache MediaPipe needs, MediaPipe
+  itself, and one pose landmarker, then closes that landmarker. The live
+  application starts this on a background thread when coaching and vision
+  calls are both on. Each detection still creates its own landmarker: video
+  mode is not shared across threads or shots, and its timestamps cannot
+  restart. A failure is logged as `evidence_warmup` and reported on coach
+  health. It does not stop ProTee or GSPro.
 
-### The provider is a port
+**`swing_reference`** is the live coach and the saved-swing command. It loads
+Ideal Swing 2.9, builds the vision request from the package, validates the
+assessment, ranks candidate corrections, and applies the feedback strategy.
+`observed`, the default, may place one checked observation in front of the
+stored correction. `exact` speaks only the correction. `worded` asks a second,
+text-only call for the observation. None of them lets the model rewrite the
+correction.
 
-`coaching/provider.py` defines what a provider is: one method, four neutral
-errors, and no vendor types. `adapters/openai/` is the only file that knows what
-the OpenAI SDK looks like, and the SDK is an optional dependency, so CaddieJ
-runs, coaches and films with nothing installed. The distinction the four errors
-draw is not which error occurred but what to do about it — try again, try again
-later, or stop asking — because that is the only thing the service acts on. The
-SDK's own retries are switched off: a retry inside one call cannot be counted
-against a budget or abandoned when a newer shot arrives.
+**`swing_session`** remembers the focus across shots in this process. Shot
+history in SQLite is a separate record of what happened.
 
-`ScriptedProvider` and `DemoProvider` implement the same port, which is what
-makes `COACHING_PROVIDER=scripted` a real demo mode: a simulated round produces
-coaching lines end to end on a machine with no credentials and no internet.
+**`coaching`** is the provider port and the factory that chooses `none`,
+`scripted`, or `openai`. `adapters/openai/` is the only package that knows the
+OpenAI SDK. The SDK is optional. `ScriptedProvider` answers inside the process,
+which is how tests exercise delivery without a network.
 
-### Nothing it says can change what CaddieJ does
+### What a picture is allowed to carry
 
-The strongest statement in this section. `AnalysisCompleted` carries two strings
-and a number; it has no field that could name an action. `PlayFlow` subscribes
-to it, shows the text, times it out, and reads no branch from it. There is no
-path by which a sentence a model wrote can affect the simulator, the floor's
-geometry, the score, or anything else. Coaching is advisory data attached to a
-shot, and the type system says so.
+The package sent to the model contains the selected image bytes, the camera
+(`swing_behind` or `swing_side`), the timestamp, the accepted stage label when
+one was detected, the unresolved stages, and the impact estimate with its
+confidence. Club, shot type and handedness stay unknown until a caller supplies
+them. A stage that the detector did not accept is not labelled as if it had
+been.
 
-### Testing without an account
+### What stops a failure from stopping the round
 
-Every provider failure is a class, so the awkward cases are arranged rather than
-hoped for: a hung provider, a rate limit with a `Retry-After`, a refusal, a
-reply that breaks each validation rule, an answer that arrives after the next
-shot. The OpenAI adapter is tested against a stand-in for the SDK with the same
-exception hierarchy — which also proves it works when the SDK is absent. No test
-in the suite can reach the network or spend anything, and `test_coaching_config`
-exists to keep that true by accident-proofing the defaults.
+Evidence, the provider and speech each catch their own failures. A missing
+pose model, a bad image, an OpenCV refusal, a provider error, a rejected
+assessment, or a speech error publishes `AnalysisFailed` or stays silent. The
+next shot is still processed. Temporary diagnostic files that the package did
+not keep are deleted after the package exists, and a file that is still open
+is left for a later prune. The structured log carries the exception type and
+message (`reference_evidence_failed`, `evidence_warmup`). It does not carry
+the API key.
 
-### What a picture is allowed to prove
-
-With frames sent, the model may name a video-only focus — tempo, posture, early
-extension, sway — instead of a measured fault. That is the one place it
-contributes an observation rather than wording, and three limits are stated to
-it explicitly, because a model not told them fills the gap in plausibly:
-
-- **Where the camera is** (`VIDEO_CAMERA_VIEW`). Not detectable from footage;
-  somebody put it on a tripod. Face-on shows sway and posture and cannot show
-  plane; down-the-line is the reverse. The default is `unknown`, and the model is
-  told that rather than allowed to assume.
-- **When each still was taken**, signed against impact, plus whether that impact
-  time was measured or estimated (`TimeQuality`).
-- **That no swing position was detected.** Frames are chosen by seeking to time
-  offsets. A still is therefore offered as "0.45 seconds before impact" and
-  never as "the top of the backswing", because labelling a seek offset as a
-  swing position is how a model comes to describe a position nobody showed it.
-
-A picture may not contradict or restate a measurement. Vision gives qualitative
-biomechanics; the launch monitor gives quantitative facts, and where they
-disagree the instrument wins.
+`health()` reports `evidence_status`. While vision calls are off the status is
+`not_requested`. After warmup it is `ready`, `degraded` (motion can run, stages
+stay unresolved), `unavailable` (OpenCV is missing or wrong), or `starting`.
 
 ### What is deliberately not built
 
-- **Markerless club and body tracking.** The frame seam exists and the
-  video-only focuses (tempo, posture, early extension, sway) are already in the
-  vocabulary, gated on frames having been sent. What is missing is the tracking
-  that would make them measurable rather than a model's impression.
-- **Cross-session baselines.** A baseline is the current session's shots with
-  the current club. Comparing tonight to last month needs a decision about what
-  counts as the same player, not more code.
-- **Anything reading a model's answer.** See above. This is a constraint, not a
-  gap.
+- A second coaching engine, or a measured-fault catalog that speaks when the
+  vision coach is off.
+- Downloading the pose model during a shot or at application startup.
+- Sharing one MediaPipe landmarker between cameras or between shots.
 
 ---
 
@@ -2006,8 +1942,19 @@ Runtime dependencies today are `pydantic-settings` for typed configuration and
 `pytest-asyncio`. Optional features may add optional dependencies, and CaddieJ
 must run without them: `[ai]` brings the OpenAI SDK, `[tts]` brings Kokoro and
 PortAudio bindings, `[hue]` brings an async HTTP client, `[mcp]` brings the MCP
-SDK. Each is confined to one package, imported inside the branch of the factory
-that selects it, and the default test run installs none of them.
+SDK, and `[vision]` brings OpenCV 4, MediaPipe and Pillow. Each is confined to
+one package, imported inside the branch of the factory that selects it, and the
+default test run installs none of them.
+
+`[vision]` has one extra constraint. MediaPipe 0.10.35 depends on
+`opencv-contrib-python` and does not cap it, so an unconstrained install can
+select OpenCV 5 or leave two packages that both provide `cv2`. The supported
+install is `python -m pip install -e ".[vision]" -c constraints/vision.txt`.
+That file pins one OpenCV 4 distribution, `opencv-contrib-python==4.14.0.94`,
+together with the MediaPipe release that was resolved against it. The evidence
+pipeline refuses to run when `cv2` is missing, is not 4.x, or comes from more
+than one installed distribution. The pose model is a separate file, installed
+by `scripts/install-pose-model.py`, and is not a pip dependency.
 
 `[mcp]` is the odd one and worth stating: it is needed only in the process an
 assistant runtime starts, not in the process that runs the golf simulator, which
@@ -2080,10 +2027,9 @@ Degrading is always better than stopping.
 7. **Third-party upload is opt-in and explicit.** No audio, video, or shot data
    leaves the machine unless a feature that does so is configured on. Coaching
    is the first feature that can: it sends nothing until `COACHING_PROVIDER` is
-   set, and even then sends only measurements until `COACHING_SEND_FRAMES` is
-   turned on as well. Frames are behind a second switch because they are
-   pictures of somebody in their own home, which is a different decision from
-   sending a launch angle.
+   set and `COACHING_VISION_CALLS` is turned on as well. Frames are behind that
+   second switch because they are pictures of somebody in their own home, which
+   is a different decision from sending a launch angle.
 8. **Camera data is sensitive.** Recording is off by default, everything written
    lives under one user-owned root that is ignored by git, and nothing uploads
    anything. Retention and upload have conservative defaults and are documented
@@ -2162,21 +2108,39 @@ src/caddiej/
 │   ├── diagnose.py      # one real recording and one real cut, on demand
 │   └── fakes.py         # a fake FFmpeg, for tests that need no binary
 ├── coaching/
-│   ├── faults.py        # what can be wrong with a golf shot, and how badly
-│   ├── baseline.py      # what is normal for this player, with this club
-│   ├── diagnose.py      # the one thing worth saying, by arithmetic alone
-│   ├── session.py       # the sticky focus, and how it has been going
-│   ├── templates.py     # CaddieJ's own words for every fault
 │   ├── provider.py      # what a model provider is, in neutral terms
-│   ├── evidence.py      # the diagnosis, rendered for a prompt
-│   ├── prompt.py        # the instructions and the schema a reply must fit
-│   ├── validate.py      # what CaddieJ will and will not say out loud
-│   ├── cache.py         # the same swing is not paid for twice
-│   ├── frames.py        # the FrameSource seam, and which moments to ask for
-│   ├── factory.py       # choosing a provider from configuration
-│   ├── service.py       # AnalysisService: queue, budgets, events, fail-soft
-│   ├── diagnose.py      # one real request to the real provider, in prose
+│   ├── factory.py       # choosing none / scripted / openai
 │   └── fakes.py         # scripted providers, including the demo mode
+├── swing_evidence/
+│   ├── assemble.py      # one shot becomes a SwingEvidencePackage
+│   ├── images.py        # one JPEG decode, and the OpenCV 4 guard
+│   ├── motion.py        # differences, optical flow, coverage, selection
+│   ├── stages.py        # MediaPipe swing stages; unresolved when absent
+│   ├── impact.py        # OpenCV impact estimate and its confidence
+│   ├── pose_model.py    # local model path and checksum, never a download
+│   ├── ready.py         # startup warmup and readiness status
+│   ├── workers.py       # ordered parallel map for image work
+│   └── contracts.py     # package, stages, impact, provenance
+├── swing_reference/
+│   ├── live.py          # the live coach: newest shot, cancel, health
+│   ├── evidence.py      # timeline to package, pin, release unselected
+│   ├── model.py         # Ideal Swing 2.9 loaded from config/ideal_swing.json
+│   ├── request.py       # the vision request built from a package
+│   ├── pipeline.py      # validate, rank, session, one approved line
+│   ├── validate.py      # what an assessment must contain
+│   ├── rank.py          # which correction the reference allows
+│   ├── feedback.py      # exact / observed / worded
+│   ├── corrections.py   # the stored correction for the chosen focus
+│   ├── package.py       # read a saved SwingEvidencePackage
+│   ├── timing.py        # per-shot coaching trace
+│   ├── session.py       # the live session handed to the coach
+│   ├── research.py      # path to the research package the session can load
+│   └── command.py       # analyze one saved swing, no live hardware
+├── swing_session/
+│   ├── engine.py        # one focus across the shots of this process
+│   ├── models.py        # session state
+│   ├── progress.py      # how the current focus has been going
+│   └── replay.py        # replay a saved session without a model call
 ├── speech/
 │   ├── audio.py         # rendered speech as PCM, and the WAV it is written as
 │   ├── envelope.py      # how loud a rendered line is, moment by moment

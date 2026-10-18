@@ -67,6 +67,24 @@ for N timelines retains at least N shots, and neither input may pass this."""
 DIAGNOSTIC_DIRECTORY = "diagnostic"
 DIAGNOSTIC_KEY = "diagnostic_timeline"
 
+# Shot directories whose full timeline is still being read. Pruning skips them
+# and tries again after the reader lets go.
+_PINNED: set[str] = set()
+
+
+def pin_evidence(path: Path) -> None:
+    """Keep this shot directory until `unpin_evidence`. A locked file is separate."""
+
+    _PINNED.add(Path(path).resolve().as_posix())
+
+
+def unpin_evidence(path: Path) -> None:
+    _PINNED.discard(Path(path).resolve().as_posix())
+
+
+def evidence_is_pinned(path: Path) -> bool:
+    return Path(path).resolve().as_posix() in _PINNED
+
 _REPLACE_ATTEMPTS = 8
 _REPLACE_PAUSE = 0.05
 # `latest_swing` is for looking at. A handle held open in it is a person
@@ -278,7 +296,12 @@ class LatestSwingStore:
         }
         metrics = _write_metrics(staging, record.metrics)
         payload = _metadata(record, frames, metrics)
-        diagnostic = _write_diagnostic(staging, record, frames)
+        diagnostic = _write_diagnostic(
+            staging,
+            record,
+            frames,
+            retain_full=bool(record.configuration.get("retain_diagnostic_timeline")),
+        )
         if diagnostic is not None:
             payload[DIAGNOSTIC_KEY] = diagnostic
         (staging / METADATA_NAME).write_text(
@@ -369,7 +392,7 @@ class LatestSwingStore:
             reverse=True,
         )
         for extra in shots[self._evidence_keep :]:
-            if extra == keep:
+            if extra == keep or evidence_is_pinned(extra):
                 continue
             if not _try_remove(extra):
                 logger.info(
@@ -545,6 +568,8 @@ def _write_diagnostic(
     staging: Path,
     record: CaptureRecord,
     frames: dict[str, tuple[SwingFrame, ...]],
+    *,
+    retain_full: bool = False,
 ) -> dict[str, object] | None:
     """Every screenshot of the timing diagnostic, beside the shot's evidence.
 
@@ -664,8 +689,10 @@ def _write_diagnostic(
         "detail": (
             "offset_seconds is when the screenshot was requested, from the "
             "burst's offset zero; cameras asked in the same tick share it. "
-            "Diagnostic only: never sent to a model or drawn on a sheet."
+            "The evidence pipeline reads this timeline. Unselected frames are "
+            "removed after the package is built unless retain_full is set."
         ),
+        "retain_full": retain_full,
         "cameras": entries,
     }
 

@@ -1,0 +1,697 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CaddieJ new ideal-swing assessment; not the old VisualAssessmentResult",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "swing_assessment_v2"
+      ]
+    },
+    "reference_version": {
+      "type": "string",
+      "enum": [
+        "2.9-timing-first"
+      ]
+    },
+    "shot_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "checkpoint_id": {
+            "type": "string",
+            "enum": [
+              "setup.grip",
+              "setup.posture",
+              "setup.upper_body_tilt",
+              "setup.hip_hinge",
+              "setup.knee_flex",
+              "setup.ball_distance",
+              "setup.lead_weight_target",
+              "setup.ball_position_driver",
+              "setup.ball_position_iron",
+              "setup.ball_position_wedge",
+              "setup.stance_width",
+              "setup.foot_flare",
+              "setup.arm_hang",
+              "setup.trail_arm",
+              "setup.shaft_direction",
+              "setup.hands_forward",
+              "setup.clubface_alignment",
+              "setup.body_alignment",
+              "setup.alignment_sticks",
+              "takeaway.hand_path",
+              "takeaway.hand_position",
+              "takeaway.clubhead_position",
+              "takeaway.clubface_tilt",
+              "halfway_back.hand_depth",
+              "halfway_back.shaft_direction",
+              "halfway_back.arm_shaft_angle",
+              "top.hip_turn",
+              "top.shoulder_turn",
+              "top.centering",
+              "top.lead_arm_plane",
+              "top.hand_depth",
+              "top.shaft_line",
+              "top.lead_wrist",
+              "top.clubface_arm",
+              "top.width",
+              "top.length",
+              "top.trail_load_target",
+              "top.trail_knee",
+              "transition.hands_lower",
+              "transition.shaft_shallowing",
+              "transition.lower_body_shift",
+              "transition.lead_loading",
+              "transition.rotation_timing",
+              "delivery.shaft_direction",
+              "delivery.hip_timing",
+              "delivery.arm_shaft_angle",
+              "delivery.trail_arm",
+              "delivery.hip_depth",
+              "impact.hip_opening",
+              "impact.chest_opening",
+              "impact.arm_stack",
+              "impact.hands_ahead",
+              "impact.lead_load_target",
+              "post_impact.clubhead_outside",
+              "post_impact.face_rotation",
+              "post_impact.body_arc",
+              "post_impact.arm_extension",
+              "post_impact.exit_line",
+              "finish.shaft_ears",
+              "finish.trail_unload_target",
+              "finish.balance",
+              "finish.body_position"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "near_reference",
+              "deviation",
+              "unknown",
+              "not_applicable",
+              "reference_only",
+              "described"
+            ]
+          },
+          "problem": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "above_belt",
+                  "above_plane",
+                  "abrupt_rollover",
+                  "across_line",
+                  "arched",
+                  "arm_run_on",
+                  "away_from_target",
+                  "behind",
+                  "behind_clubhead",
+                  "below_belt",
+                  "below_plane",
+                  "bowed",
+                  "cannot_settle",
+                  "closed",
+                  "collapsed",
+                  "crowded",
+                  "cupped",
+                  "disconnected",
+                  "early_opening",
+                  "excessive_angle",
+                  "excessive_away",
+                  "excessive_flattening",
+                  "excessive_forward",
+                  "excessive_turn",
+                  "excessively_forward",
+                  "excessively_open",
+                  "falls_sideways",
+                  "falls_toward_ball",
+                  "folds_early",
+                  "fully_straight_trail",
+                  "incomplete_backswing",
+                  "inside",
+                  "inside_early",
+                  "inside_reference",
+                  "insufficient_angle",
+                  "insufficient_shift",
+                  "insufficient_turn",
+                  "inward",
+                  "laid_off",
+                  "left",
+                  "lift_instead_of_hinge",
+                  "locked",
+                  "locked_straight",
+                  "missing_lead_flare",
+                  "missing_trail_flare",
+                  "mixed_lines",
+                  "more_closed_than_reference",
+                  "more_open_than_reference",
+                  "no_visible_shift",
+                  "open",
+                  "opened_too_early",
+                  "outside",
+                  "outside_reference",
+                  "outward",
+                  "reaching",
+                  "released_high",
+                  "remain_behind",
+                  "remains_trailward",
+                  "reversed_stack",
+                  "right",
+                  "rounded",
+                  "steepening",
+                  "still_turned_back",
+                  "straightened_early",
+                  "strong_side",
+                  "stuck_behind",
+                  "too_close",
+                  "too_deep",
+                  "too_far",
+                  "too_far_back",
+                  "too_far_forward",
+                  "too_flat",
+                  "too_flexed",
+                  "too_folded",
+                  "too_level",
+                  "too_narrow",
+                  "too_shallow",
+                  "too_square_or_closed",
+                  "too_steep",
+                  "too_straight",
+                  "too_upright",
+                  "too_wide",
+                  "toward_ball",
+                  "toward_target",
+                  "turn_finishes_too_early",
+                  "turn_stalls",
+                  "upper_body_leads",
+                  "weak_side"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "minor",
+                  "clear",
+                  "large"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "certainty": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "high",
+                  "medium",
+                  "low"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "observation": {
+            "type": "string"
+          },
+          "evidence_frames": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "camera_id": {
+                  "type": "string",
+                  "enum": [
+                    "swing_behind",
+                    "swing_side"
+                  ]
+                },
+                "relative_file": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "capture_tick": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "timestamp_seconds": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "camera_id",
+                "relative_file",
+                "capture_tick",
+                "timestamp_seconds"
+              ]
+            }
+          }
+        },
+        "required": [
+          "checkpoint_id",
+          "status",
+          "problem",
+          "severity",
+          "certainty",
+          "observation",
+          "evidence_frames"
+        ]
+      },
+      "minItems": 62,
+      "maxItems": 62
+    },
+    "ranking_status": {
+      "type": "string",
+      "enum": [
+        "unique_primary",
+        "tied",
+        "no_supported_deviation",
+        "insufficient_evidence"
+      ]
+    },
+    "primary_checkpoint_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "setup.grip",
+            "setup.posture",
+            "setup.upper_body_tilt",
+            "setup.hip_hinge",
+            "setup.knee_flex",
+            "setup.ball_distance",
+            "setup.ball_position_driver",
+            "setup.ball_position_iron",
+            "setup.ball_position_wedge",
+            "setup.stance_width",
+            "setup.foot_flare",
+            "setup.arm_hang",
+            "setup.trail_arm",
+            "setup.shaft_direction",
+            "setup.hands_forward",
+            "setup.clubface_alignment",
+            "setup.body_alignment",
+            "takeaway.hand_path",
+            "takeaway.hand_position",
+            "takeaway.clubhead_position",
+            "takeaway.clubface_tilt",
+            "halfway_back.hand_depth",
+            "halfway_back.shaft_direction",
+            "halfway_back.arm_shaft_angle",
+            "top.hip_turn",
+            "top.shoulder_turn",
+            "top.centering",
+            "top.lead_arm_plane",
+            "top.hand_depth",
+            "top.shaft_line",
+            "top.lead_wrist",
+            "top.clubface_arm",
+            "top.width",
+            "top.length",
+            "top.trail_knee",
+            "transition.hands_lower",
+            "transition.shaft_shallowing",
+            "transition.lower_body_shift",
+            "transition.rotation_timing",
+            "delivery.shaft_direction",
+            "delivery.hip_timing",
+            "delivery.arm_shaft_angle",
+            "delivery.trail_arm",
+            "delivery.hip_depth",
+            "impact.hip_opening",
+            "impact.chest_opening",
+            "impact.arm_stack",
+            "impact.hands_ahead",
+            "post_impact.clubhead_outside",
+            "post_impact.face_rotation",
+            "post_impact.body_arc",
+            "post_impact.arm_extension",
+            "finish.balance",
+            "finish.body_position"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "secondary_checkpoint_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "setup.grip",
+          "setup.posture",
+          "setup.upper_body_tilt",
+          "setup.hip_hinge",
+          "setup.knee_flex",
+          "setup.ball_distance",
+          "setup.ball_position_driver",
+          "setup.ball_position_iron",
+          "setup.ball_position_wedge",
+          "setup.stance_width",
+          "setup.foot_flare",
+          "setup.arm_hang",
+          "setup.trail_arm",
+          "setup.shaft_direction",
+          "setup.hands_forward",
+          "setup.clubface_alignment",
+          "setup.body_alignment",
+          "takeaway.hand_path",
+          "takeaway.hand_position",
+          "takeaway.clubhead_position",
+          "takeaway.clubface_tilt",
+          "halfway_back.hand_depth",
+          "halfway_back.shaft_direction",
+          "halfway_back.arm_shaft_angle",
+          "top.hip_turn",
+          "top.shoulder_turn",
+          "top.centering",
+          "top.lead_arm_plane",
+          "top.hand_depth",
+          "top.shaft_line",
+          "top.lead_wrist",
+          "top.clubface_arm",
+          "top.width",
+          "top.length",
+          "top.trail_knee",
+          "transition.hands_lower",
+          "transition.shaft_shallowing",
+          "transition.lower_body_shift",
+          "transition.rotation_timing",
+          "delivery.shaft_direction",
+          "delivery.hip_timing",
+          "delivery.arm_shaft_angle",
+          "delivery.trail_arm",
+          "delivery.hip_depth",
+          "impact.hip_opening",
+          "impact.chest_opening",
+          "impact.arm_stack",
+          "impact.hands_ahead",
+          "post_impact.clubhead_outside",
+          "post_impact.face_rotation",
+          "post_impact.body_arc",
+          "post_impact.arm_extension",
+          "finish.balance",
+          "finish.body_position"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "ranking_note": {
+      "type": "string"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "coaching": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "checkpoint_id": {
+              "type": "string",
+              "enum": [
+                "setup.grip",
+                "setup.posture",
+                "setup.upper_body_tilt",
+                "setup.hip_hinge",
+                "setup.knee_flex",
+                "setup.ball_distance",
+                "setup.ball_position_driver",
+                "setup.ball_position_iron",
+                "setup.ball_position_wedge",
+                "setup.stance_width",
+                "setup.foot_flare",
+                "setup.arm_hang",
+                "setup.trail_arm",
+                "setup.shaft_direction",
+                "setup.hands_forward",
+                "setup.clubface_alignment",
+                "setup.body_alignment",
+                "takeaway.hand_path",
+                "takeaway.hand_position",
+                "takeaway.clubhead_position",
+                "takeaway.clubface_tilt",
+                "halfway_back.hand_depth",
+                "halfway_back.shaft_direction",
+                "halfway_back.arm_shaft_angle",
+                "top.hip_turn",
+                "top.shoulder_turn",
+                "top.centering",
+                "top.lead_arm_plane",
+                "top.hand_depth",
+                "top.shaft_line",
+                "top.lead_wrist",
+                "top.clubface_arm",
+                "top.width",
+                "top.length",
+                "top.trail_knee",
+                "transition.hands_lower",
+                "transition.shaft_shallowing",
+                "transition.lower_body_shift",
+                "transition.rotation_timing",
+                "delivery.shaft_direction",
+                "delivery.hip_timing",
+                "delivery.arm_shaft_angle",
+                "delivery.trail_arm",
+                "delivery.hip_depth",
+                "impact.hip_opening",
+                "impact.chest_opening",
+                "impact.arm_stack",
+                "impact.hands_ahead",
+                "post_impact.clubhead_outside",
+                "post_impact.face_rotation",
+                "post_impact.body_arc",
+                "post_impact.arm_extension",
+                "finish.balance",
+                "finish.body_position"
+              ]
+            },
+            "rule_id": {
+              "type": "string",
+              "enum": [
+                "setup.grip.neutralize_weak",
+                "setup.grip.neutralize_strong",
+                "setup.posture.unround_posture",
+                "setup.posture.soften_arch",
+                "setup.upper_body_tilt.add_away_tilt",
+                "setup.upper_body_tilt.reduce_excess_tilt",
+                "setup.hip_hinge.hinge_forward",
+                "setup.hip_hinge.reduce_forward_fold",
+                "setup.knee_flex.reduce_crouch",
+                "setup.knee_flex.add_soft_flex",
+                "setup.ball_distance.create_space",
+                "setup.ball_distance.reduce_reach",
+                "setup.ball_position_driver.reference_too_far_back",
+                "setup.ball_position_driver.reference_too_far_forward",
+                "setup.ball_position_iron.move_ball_forward",
+                "setup.ball_position_iron.reference_too_far_forward",
+                "setup.ball_position_wedge.reference_too_far_back",
+                "setup.ball_position_wedge.reference_too_far_forward",
+                "setup.stance_width.widen_narrow_stance",
+                "setup.stance_width.narrow_wide_stance",
+                "setup.foot_flare.allow_outward_flare",
+                "setup.arm_hang.restore_natural_hang",
+                "setup.arm_hang.reference_crowded",
+                "setup.trail_arm.soften_elbow",
+                "setup.trail_arm.restore_arm_stack",
+                "setup.shaft_direction.lower_high_handle",
+                "setup.shaft_direction.reference_below_belt",
+                "setup.hands_forward.reduce_forward_press",
+                "setup.hands_forward.reference_behind",
+                "setup.clubface_alignment.aim_at_target",
+                "setup.body_alignment.restore_parallel",
+                "takeaway.hand_path.follow_body_turn",
+                "takeaway.hand_path.hinge_without_hand_lift",
+                "takeaway.hand_position.reference_outside_reference",
+                "takeaway.hand_position.reference_inside_reference",
+                "takeaway.clubhead_position.keep_head_in_front",
+                "takeaway.clubhead_position.reference_outside",
+                "takeaway.clubface_tilt.reference_more_open_than_reference",
+                "takeaway.clubface_tilt.reference_more_closed_than_reference",
+                "halfway_back.hand_depth.follow_turn_for_depth",
+                "halfway_back.hand_depth.reference_too_deep",
+                "halfway_back.shaft_direction.avoid_flat_backswing",
+                "halfway_back.shaft_direction.reference_too_steep",
+                "halfway_back.arm_shaft_angle.build_the_l",
+                "halfway_back.arm_shaft_angle.reference_excessive_angle",
+                "top.hip_turn.let_hips_turn",
+                "top.hip_turn.limit_excess_turn",
+                "top.hip_turn.spread_turn_with_backswing",
+                "top.shoulder_turn.complete_body_turn",
+                "top.shoulder_turn.limit_excess_turn",
+                "top.centering.turn_without_drifting",
+                "top.centering.reference_toward_target",
+                "top.lead_arm_plane.lower_the_arm_plane",
+                "top.lead_arm_plane.reference_below_plane",
+                "top.hand_depth.finish_around_the_body",
+                "top.hand_depth.recheck_depth_after_address_hinge",
+                "top.hand_depth.reference_too_deep",
+                "top.shaft_line.undo_extra_layoff",
+                "top.shaft_line.stop_run_on_across_line",
+                "top.lead_wrist.flatten_cupped_open_top",
+                "top.lead_wrist.flatten_bowed_closed_top",
+                "top.clubface_arm.recheck_weak_grip",
+                "top.clubface_arm.recheck_strong_grip",
+                "top.clubface_arm.square_with_flat_wrist",
+                "top.clubface_arm.square_with_less_bow",
+                "top.width.retain_arm_width",
+                "top.length.start_down_before_run_on",
+                "top.length.complete_curtailed_backswing",
+                "top.trail_knee.retain_soft_knee",
+                "transition.hands_lower.lower_in_front",
+                "transition.hands_lower.reference_outward",
+                "transition.shaft_shallowing.repair_high_top_first",
+                "transition.shaft_shallowing.repair_top_before_extra_drop",
+                "transition.lower_body_shift.move_lead_hip_targetward",
+                "transition.lower_body_shift.reference_upper_body_leads",
+                "transition.lower_body_shift.reference_away_from_target",
+                "transition.rotation_timing.allow_arms_before_opening",
+                "delivery.shaft_direction.match_lowering_and_turn",
+                "delivery.shaft_direction.repair_takeaway_before_extra_drop",
+                "delivery.hip_timing.match_arms_to_hips",
+                "delivery.hip_timing.reference_still_turned_back",
+                "delivery.arm_shaft_angle.establish_backswing_hinge",
+                "delivery.trail_arm.lower_trail_arm_in_front",
+                "delivery.trail_arm.reference_straightened_early",
+                "delivery.hip_depth.keep_pelvis_back",
+                "impact.hip_opening.continue_turn_after_delivery",
+                "impact.hip_opening.reference_excessively_open",
+                "impact.chest_opening.reference_closed",
+                "impact.chest_opening.reference_excessively_open",
+                "impact.arm_stack.recheck_weak_grip_before_arm_throw",
+                "impact.arm_stack.reference_fully_straight_trail",
+                "impact.hands_ahead.recheck_grip_before_forward_handle",
+                "impact.hands_ahead.reference_excessive_forward",
+                "post_impact.clubhead_outside.reference_inside_early",
+                "post_impact.face_rotation.recheck_weak_grip",
+                "post_impact.body_arc.continue_turn_after_delivery",
+                "post_impact.arm_extension.recheck_hinge_with_early_release",
+                "finish.balance.reference_falls_toward_ball",
+                "finish.balance.reference_falls_sideways",
+                "finish.balance.reference_cannot_settle",
+                "finish.body_position.finish_over_lead_leg"
+              ]
+            },
+            "feedback": {
+              "type": "string",
+              "minLength": 1
+            },
+            "correction": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "checkpoint_id",
+            "rule_id",
+            "feedback",
+            "correction"
+          ]
+        }
+      ]
+    },
+    "positive_feedback": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "checkpoint_id": {
+              "type": "string",
+              "enum": [
+                "setup.posture",
+                "setup.hip_hinge",
+                "setup.knee_flex",
+                "setup.arm_hang",
+                "setup.trail_arm",
+                "setup.shaft_direction",
+                "setup.body_alignment",
+                "takeaway.hand_path",
+                "takeaway.hand_position",
+                "takeaway.clubhead_position",
+                "takeaway.clubface_tilt",
+                "halfway_back.hand_depth",
+                "halfway_back.shaft_direction",
+                "top.hip_turn",
+                "top.centering",
+                "top.lead_arm_plane",
+                "top.hand_depth",
+                "top.shaft_line",
+                "top.lead_wrist",
+                "top.clubface_arm",
+                "transition.hands_lower",
+                "transition.shaft_shallowing",
+                "delivery.shaft_direction",
+                "delivery.hip_timing",
+                "delivery.arm_shaft_angle",
+                "delivery.trail_arm",
+                "post_impact.clubhead_outside",
+                "post_impact.face_rotation",
+                "post_impact.body_arc",
+                "post_impact.arm_extension",
+                "finish.balance"
+              ]
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "checkpoint_id",
+            "text"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "reference_version",
+    "shot_id",
+    "findings",
+    "ranking_status",
+    "primary_checkpoint_id",
+    "secondary_checkpoint_ids",
+    "ranking_note",
+    "warnings",
+    "coaching",
+    "positive_feedback"
+  ]
+}

@@ -6,8 +6,6 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-import direct_visual_test as dv
-import pytest
 import testhelprunner as helper
 from PIL import Image
 
@@ -169,7 +167,7 @@ def test_open_commands_point_at_the_generated_sheets(tmp_path: Path) -> None:
 
 
 def test_real_capture_layout_is_eligible_and_debug_names_the_skip(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path,
 ) -> None:
     shots = tmp_path / "swing_shots"
     labels = tmp_path / "labels"
@@ -192,21 +190,6 @@ def test_real_capture_layout_is_eligible_and_debug_names_the_skip(
         write_images=False,
     )
     before = _capture_files(real)
-    calls: list[str] = []
-
-    def boom(name: str):
-        def _called(*_args, **_kwargs):
-            calls.append(name)
-            raise AssertionError(name)
-
-        return _called
-
-    monkeypatch.setattr(dv, "send_openai", boom("openai"))
-    import simple_visual_classifier as simple
-    import simple_visual_classifier_contact_anchor as anchored
-
-    monkeypatch.setattr(simple, "execute", boom("simple"))
-    monkeypatch.setattr(anchored, "execute", boom("anchor"))
     text = helper.debug(shots_root=shots, labels_root=labels)
     assert "20261009T162747-1-2d14b82f ELIGIBLE" in text
     assert f"{old.name} SKIPPED: before validation cutoff" in text
@@ -220,7 +203,6 @@ def test_real_capture_layout_is_eligible_and_debug_names_the_skip(
     assert not (labels / real.name / "contact_label.json").exists()
     result = helper.review(shots_root=shots, labels_root=labels)
     assert result["shot_id"] == real.name
-    assert calls == []
     assert _capture_files(real) == before
     assert (old / "metadata.json").is_file()
     assert (incomplete / "metadata.json").is_file()
@@ -229,31 +211,13 @@ def test_real_capture_layout_is_eligible_and_debug_names_the_skip(
     )
 
 
-def test_no_openai_request_and_no_classifier_run(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_no_openai_request_and_no_classifier_run(tmp_path: Path) -> None:
     shots = tmp_path / "shots"
     labels = tmp_path / "labels"
     _shot(shots / _OLDER, started_at="2026-10-09T17:00:00+00:00")
-    calls: list[str] = []
-
-    def boom(name: str):
-        def _called(*_args, **_kwargs):
-            calls.append(name)
-            raise AssertionError(name)
-
-        return _called
-
-    monkeypatch.setattr(dv, "send_openai", boom("openai"))
-    import simple_visual_classifier as simple
-    import simple_visual_classifier_contact_anchor as anchored
-
-    monkeypatch.setattr(simple, "execute", boom("simple"))
-    monkeypatch.setattr(anchored, "execute", boom("anchor"))
     helper.review(shots_root=shots, labels_root=labels)
     helper.label_current(contact_tick=1, shots_root=shots, labels_root=labels)
     helper.reset(labels_root=labels)
-    assert calls == []
     source = Path(helper.__file__).read_text(encoding="utf-8")
     lowered = source.lower()
     assert "openai" not in lowered

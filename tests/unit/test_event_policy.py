@@ -66,11 +66,11 @@ def test_decoration_is_what_may_miss_a_strike() -> None:
 
 
 def test_enrichment_subscribers_may_drop_stale_shot_work() -> None:
-    assert SUBSCRIBER_DELIVERY[("coaching", ShotCompleted)] is Delivery.DROP
+    assert SUBSCRIBER_DELIVERY[("reference-coach", ShotCompleted)] is Delivery.DROP
     assert SUBSCRIBER_DELIVERY[("video", ShotCompleted)] is Delivery.DROP
-    assert delivery_for("coaching", ShotCompleted) is Delivery.DROP
+    assert delivery_for("reference-coach", ShotCompleted) is Delivery.DROP
     assert delivery_for("video", ShotCompleted) is Delivery.DROP
-    assert delivery_for("coaching", SwingClipReady) is Delivery.DROP
+    assert delivery_for("reference-coach", SwingClipReady) is Delivery.DROP
 
 
 def test_state_notifications_coalesce() -> None:
@@ -194,6 +194,9 @@ def test_every_event_with_a_policy_has_somebody_listening() -> None:
         "ShotMessageRejected": "as above",
         "SimulatorAcknowledgedShot": "as above",
         "SimulatorReportedError": "as above",
+        "SwingClipReady": "the extracted file is the artifact; Ideal Swing "
+        "reads the capture timeline, not this clip",
+        "SwingClipFailed": "as above",
     }
 
     subscribe = re.compile(r"\.subscribe\(\s*([A-Z]\w+)\s*,")

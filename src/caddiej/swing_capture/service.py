@@ -45,7 +45,7 @@ from collections.abc import Awaitable, Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 from uuid import UUID, uuid4
 
 from caddiej.adapters.obs import CAPTURE_SCENE, ObsResourceNotFoundError
@@ -212,6 +212,8 @@ class SwingCaptureService:
         sleep: Sleep = asyncio.sleep,
         announce_progress: bool = False,
         diagnostic_timeline_shots: int = 0,
+        evidence_timeline: bool = False,
+        diagnostics: Any = None,
     ) -> None:
         if diagnostic_timeline_shots < 0:
             raise ValueError("diagnostic_timeline_shots must be >= 0")
@@ -300,6 +302,11 @@ class SwingCaptureService:
         # down only when a shot reaches the disk, so a capture superseded by a
         # newer strike does not use one up.
         self._diagnostic_remaining = diagnostic_timeline_shots
+        self._diagnostics = diagnostics
+        # Every coached shot keeps the body screenshots until evidence
+        # selection has read them. This does not spend the diagnostic budget
+        # and does not raise how many shot directories are kept.
+        self._evidence_timeline = evidence_timeline
         self._burst_clock: dict[UUID, datetime] = {}
         self._cadence: dict[UUID, dict[str, Cadence]] = {}
 
@@ -581,6 +588,13 @@ class SwingCaptureService:
             logger.info(
                 "swing_capture_cancelled", extra={"shot_trigger_id": trigger_id}
             )
+            self._diag_capture(
+                status="cancelled",
+                reason="capture was cancelled",
+                trigger_id=trigger_id,
+                strike_id=None if strike_id is None else str(strike_id),
+                capture_id=str(capture_id),
+            )
             raise
         except Exception as error:
             self.captures_failed += 1
@@ -591,6 +605,13 @@ class SwingCaptureService:
                     "shot_trigger_id": trigger_id,
                     "swing_capture_id": str(capture_id),
                 },
+            )
+            self._diag_capture(
+                status="failed",
+                reason=f"{type(error).__name__}: {error}"[:300],
+                trigger_id=trigger_id,
+                strike_id=None if strike_id is None else str(strike_id),
+                capture_id=str(capture_id),
             )
             self._barren_capture(trigger_id)
         finally:
@@ -927,7 +948,7 @@ class SwingCaptureService:
             (start + length for start, length, _rate in windows.values()), default=0.0
         )
         began = self._monotonic()
-        if self._diagnostic_remaining:
+        if self._diagnostic_remaining or self._evidence_timeline:
             self._burst_clock[capture_id] = self._now()
         logger.info(
             "swing_capture_started",
@@ -1146,7 +1167,8 @@ class SwingCaptureService:
         """
 
         chosen, intervals, combined, phases = self._select_panels(tracks)
-        diagnostic = self._diagnostic_remaining > 0
+        countdown = self._diagnostic_remaining > 0
+        diagnostic = countdown or self._evidence_timeline
         cadence = self._cadence.get(capture_id, {})
         cameras = tuple(
             self._result(
@@ -1291,8 +1313,20 @@ class SwingCaptureService:
         if publication is None:
             return
         capture = publication.capture
-        if diagnostic:
+        if countdown:
             self._diagnostic_retained(trigger_id, capture, cameras)
+        elif self._evidence_timeline:
+            logger.info(
+                "swing_capture_evidence_timeline_retained",
+                extra={
+                    "shot_trigger_id": trigger_id,
+                    "swing_capture_id": str(capture.capture_id),
+                    "swing_capture_directory": str(capture.directory),
+                    "swing_capture_detail": (
+                        "body screenshots kept until evidence selection finishes"
+                    ),
+                },
+            )
         if publication.latest_ok:
             logger.info(
                 "swing_capture_latest_published",
@@ -1548,6 +1582,13 @@ class SwingCaptureService:
                         "swing_capture_detail": str(error)[:300],
                     },
                 )
+                self._diag_capture(
+                    status="failed",
+                    reason=f"the capture could not be stored: {error}"[:300],
+                    trigger_id=record.trigger_id,
+                    strike_id=None if record.strike_id is None else str(record.strike_id),
+                    capture_id=str(record.capture_id),
+                )
                 return None
 
             if generation != self._generation:
@@ -1559,6 +1600,13 @@ class SwingCaptureService:
                         "shot_trigger_id": record.trigger_id,
                         "swing_capture_id": str(record.capture_id),
                     },
+                )
+                self._diag_capture(
+                    status="superseded",
+                    reason="a newer shot replaced this capture",
+                    trigger_id=record.trigger_id,
+                    strike_id=None if record.strike_id is None else str(record.strike_id),
+                    capture_id=str(record.capture_id),
                 )
                 return None
 
@@ -1577,6 +1625,13 @@ class SwingCaptureService:
                             f"the evidence directory could not be written: {error}"
                         )[:300],
                     },
+                )
+                self._diag_capture(
+                    status="failed",
+                    reason=f"the evidence directory could not be written: {error}"[:300],
+                    trigger_id=record.trigger_id,
+                    strike_id=None if record.strike_id is None else str(record.strike_id),
+                    capture_id=str(record.capture_id),
                 )
                 return None
 
@@ -1602,6 +1657,7 @@ class SwingCaptureService:
                 else round(self._downswing.end - self._downswing.start, 6)
             ),
             "selected_frames": self._selected,
+            "retain_diagnostic_timeline": self._diagnostic_remaining > 0,
             "static_delay_seconds": self._static_delay,
             "static_duration_seconds": self._static_duration,
             "static_fps": self._static_fps,
@@ -1623,6 +1679,29 @@ class SwingCaptureService:
                 for panel in self._panels
             ],
         }
+
+    def _diag_capture(
+        self,
+        *,
+        status: str,
+        reason: str,
+        trigger_id: str,
+        strike_id: str | None,
+        capture_id: str,
+    ) -> None:
+        journal = self._diagnostics
+        if journal is None:
+            return
+        try:
+            journal.note_capture_outcome(
+                status=status,
+                reason=reason,
+                trigger_id=trigger_id,
+                strike_id=strike_id,
+                capture_id=capture_id,
+            )
+        except Exception:
+            logger.exception("diagnostics_note_failed")
 
     async def _note_shot(self, trigger_id: str, shot_id: str) -> None:
         """Write the shot id next to the capture once both exist."""
@@ -1873,8 +1952,10 @@ def build_swing_capture_service(
     command_timeout: float = 10.0,
     shutdown_timeout: float = 5.0,
     announce_progress: bool = False,
-    diagnostic_timeline_shots: int = 0,
-) -> SwingCaptureService:
+        diagnostic_timeline_shots: int = 0,
+        evidence_timeline: bool = False,
+        diagnostics: Any = None,
+    ) -> SwingCaptureService:
     """Assemble the subsystem from plain values, so tests need no `Settings`."""
 
     return SwingCaptureService(
@@ -1909,4 +1990,6 @@ def build_swing_capture_service(
         shutdown_timeout=shutdown_timeout,
         announce_progress=announce_progress,
         diagnostic_timeline_shots=diagnostic_timeline_shots,
+        evidence_timeline=evidence_timeline,
+        diagnostics=diagnostics,
     )

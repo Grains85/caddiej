@@ -19,9 +19,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-import direct_visual_test as coach
 from PIL import Image, ImageDraw, ImageFont
 
+SHOTS = (
+    Path(__file__).resolve().parents[1] / "temporal_evidence" / "fresh_v2" / "shots"
+)
 LABELS = Path(__file__).resolve().parent / "results" / "contact_labels"
 LABEL_SOURCE = "manual_visual_review"
 SHEET_COLUMNS = 4
@@ -223,6 +225,20 @@ def load_contact_label(
     return raw
 
 
+def _find_shot(shot_id: str, shots: Path) -> Path:
+    direct = shots / shot_id
+    if (direct / "metadata.json").is_file():
+        return direct
+    matches = [
+        path
+        for path in shots.iterdir()
+        if path.is_dir() and shot_id in path.name and (path / "metadata.json").is_file()
+    ]
+    if len(matches) == 1:
+        return matches[0]
+    raise FileNotFoundError(f"no saved swing named {shot_id} under {shots}")
+
+
 def run(
     shot_id: str,
     *,
@@ -235,9 +251,9 @@ def run(
 
     if contact_tick is not None and contact_between is not None:
         raise SystemExit("pass only one of --contact-tick and --contact-between")
-    shots = coach.SHOTS if shots_root is None else shots_root
+    shots = SHOTS if shots_root is None else shots_root
     labels = LABELS if labels_root is None else labels_root
-    shot = coach.find_shot(shot_id, shots)
+    shot = _find_shot(shot_id, shots)
     meta = json.loads((shot / "metadata.json").read_text(encoding="utf-8"))
     frames = replay_frames(meta)
     destination = labels / shot.name

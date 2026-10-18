@@ -1,0 +1,3021 @@
+{
+  "schema_version": "ideal_swing_reference_v2",
+  "version": "2.9-timing-first",
+  "language": "en",
+  "scope": {
+    "primary": "A normal full iron swing by a right-handed player, using this selected reference for a controlled draw. The intended draw is context, not evidence of the observed ball flight.",
+    "extensions": [
+      "Driver: ball position at address only; no full driver-swing reference.",
+      "Wedge shots of 60–120 yards: ball position at address only; not all wedge shots."
+    ],
+    "handedness": "Right-handed players only. Lead means left and trail means right. Do not silently mirror the reference for a left-handed player or guess handedness.",
+    "default_context": "iron",
+    "contexts": {
+      "iron": {
+        "club_type": "iron",
+        "shot_type": "stock",
+        "handedness": "right"
+      },
+      "driver_setup_only": {
+        "club_type": "driver",
+        "handedness": "right",
+        "checkpoints": [
+          "setup.ball_position_driver"
+        ]
+      },
+      "distance_wedge_setup_only": {
+        "club_type": "wedge",
+        "shot_type": "distance_wedge",
+        "distance_yards": [
+          60,
+          120
+        ],
+        "handedness": "right",
+        "checkpoints": [
+          "setup.ball_position_wedge"
+        ]
+      }
+    }
+  },
+  "cameras": {
+    "DTL": "swing_behind",
+    "FO": "swing_side"
+  },
+  "assessment": {
+    "statuses": [
+      "near_reference",
+      "deviation",
+      "unknown",
+      "not_applicable",
+      "reference_only",
+      "described"
+    ],
+    "severity": {
+      "minor": "A small visible difference from the local ideal; the main body/club relationship is still present.",
+      "clear": "An obvious difference from the local ideal, but not as pronounced as this checkpoint's large_deviation_anchor.",
+      "large": "A pronounced visible difference that matches this checkpoint's large_deviation_anchor. Support it with the actual images, not an inferred effect on the shot."
+    },
+    "certainty": [
+      "high",
+      "medium",
+      "low"
+    ],
+    "ranking": "Compare only visual deviations with high or medium certainty. Rank their visible size using the local ideal and large_deviation_anchor. Do not rank by cue availability, number of sources, raw pixel distance or guessed shot effect. Confidence tells how sure the observation is, not how large the fault is. A unique primary cannot have lower severity than another eligible deviation. If their extent cannot be compared reliably, return tied. If no visual finding has high/medium certainty, return insufficient_evidence. If at least one visual point is supported but none has an eligible deviation, return no_supported_deviation; this does not clear the unobserved parts of the swing.",
+    "coaching": "When there is one primary problem, use at most one stored rule for that checkpoint and its reported problem. Every extra when.requires observation must also match independently with high/medium certainty. Copy the stored feedback and correction exactly. If no rule matches, or matching rules conflict, return coaching null and explain why in ranking_note. Do not switch to a smaller problem just to obtain a cue. All rules require the stated player context, camera, swing position and contact evidence, regardless of their source.",
+    "reference_only": "Do not assign severity, choose a primary problem or give a correction for reference_only, practice_context_only or description_only checkpoints.",
+    "status_meanings": {
+      "near_reference": "The required images directly show the intended body/club relationship. Merely failing to detect a fault is not enough.",
+      "deviation": "The required images directly show one of this checkpoint's named problems.",
+      "unknown": "The necessary camera view, player context, body/club detail, position or movement sequence is missing or unclear. This means unassessed, not correct or faulty.",
+      "not_applicable": "Known club, shot or handedness falls outside the checkpoint's stated context.",
+      "reference_only": "Knowledge about weight/pressure or practice habits that cannot be graded from these swing images. Do not score or coach it.",
+      "described": "A visible description for a description_only point. It has no severity and does not enter the problem ranking."
+    },
+    "positive_feedback": "Optionally return one stored positive_feedback text for a visual checkpoint marked near_reference with high/medium certainty. Use that checkpoint_id and copy the text exactly into the separate positive_feedback field. Otherwise return null. This praises the current visible position or movement; do not claim improvement without comparable earlier images."
+  },
+  "instructions": [
+    "Use this selected ideal and its seven checklist parts. Read terminology for direction and golf terms. A checkpoint uses its section's accepted stages and local at position unless observe.at gives a more specific position. Do not import old fault categories.",
+    "Look up observe.context, or scope.default_context if absent, in scope.contexts. Compare those requirements with the known player context. A default describes the rule's scope; it does not prove the player used an iron. Missing context means unknown; a known mismatch means not_applicable. Do not mirror handedness.",
+    "Inspect the actual attached images. Match each image to its exact camera_id, relative_file, capture_tick and timestamp_seconds. A filename identifies an image but does not prove a swing phase or movement. Use cameras to map DTL and FO.",
+    "An accepted frame.stage is only a broad phase label. To assess a checkpoint, also see its specific at position. Do not invent a missing stage or use a later body position as evidence of an earlier one.",
+    "For sequence checkpoints, observe.sequence_sections lists the permitted comparison sections. Include the target position plus the earlier/later images needed for the claim. For example, setup can provide a baseline for a top comparison without either image changing its stage label.",
+    "The listed camera views are alternatives: use one adequate view for each judgment. To assess movement, use distinct changing frames from that same camera, in time order, covering the movement claimed. Two frames alone do not prove a complete action or a five-second hold.",
+    "Do not construct a movement sequence from different cameras, frozen replays or different swings. Matching capture ticks do not establish synchronization. Separate the player's normal swing from drills and coach demonstrations.",
+    "Use near_reference only when the intended relationship is directly visible. If a needed detail, viewing angle, baseline or motion interval is missing, use unknown even if no fault is apparent. For deviation, use only the problem keys belonging to that checkpoint.",
+    "For alignment relative to a target, the actual target direction must be known; the camera name is insufficient. Other points need the landmarks relevant to their own judgment. Do not infer grip, wrist shape or movement from ball flight or from a different checkpoint.",
+    "Impact points require actual visible club-to-ball contact. IMPACT_REGION or estimated first ball movement alone is insufficient. Arm crossing or club release after contact cannot establish what happened at contact. Other motion claims also need enough frames to cover the claimed action.",
+    "Do not invent precise angles, 3D paths, foot-pressure percentages or anatomical diagnoses from ordinary images. Source angles are guides, not image-measurement cutoffs. The written large-deviation anchors are qualitative. Non-visual points never enter problem ranking.",
+    "If several descriptions overlap at one checkpoint, report one main local problem there. Assess hip turn, hand position, grip, wrist and face separately. Seeing one does not prove another or establish a cause. Do not count overlapping observations as several independent causes.",
+    "Keep observation certainty separate from deviation size. Allow the small outward clubhead offset in takeaway, slightly steeper shaft halfway back and some right-knee straightening described by the ideal. A compact backswing alone is not a fault.",
+    "Follow assessment.ranking, assessment.coaching and assessment.positive_feedback. Coaching feelings such as keeping the back toward the target longer are not literal commands to freeze the torso or pull the arms behind the body.",
+    "Return all 62 checkpoint IDs exactly once. Use reference_only for non-visual weight/pressure and practice points. For description_only points, use described when visible and unknown otherwise; never rank them. Unknown and not_applicable have null problem, severity and certainty, without invented evidence.",
+    "The stored coaching includes transcript-based paraphrases and corrections written from the ideal. Use the stored wording. A short rehearsal or setup adjustment may express the target, but do not invent extra cues, a drill program, a causal diagnosis or promised shot results. Every stored player-facing message starts with the swing moment it concerns, before the body part or action. A correction may target an earlier phase than the observed fault; use the correction's own timing, not the primary checkpoint's phase. Do not omit the timing when presenting the stored wording."
+  ],
+  "phases": [
+    {
+      "id": "setup",
+      "name": "Setup",
+      "sections": [
+        {
+          "id": "setup",
+          "stages": [
+            "SETUP"
+          ],
+          "at": "The settled address position before the club starts moving back.",
+          "checkpoints": [
+            {
+              "id": "setup.grip",
+              "ideal": "At address, the V between the thumb and index finger of each visible hand points between the chin and the right shoulder. Judge only V shapes that can actually be seen.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "weak_side": "The visible thumb/index-finger V shapes point to the left of the chin-to-right-shoulder area.",
+                  "strong_side": "The visible thumb/index-finger V shapes point beyond the right shoulder."
+                },
+                "large_deviation_anchor": "Readable hand V shapes lie conspicuously outside the area between the chin and right shoulder toward either the left side or beyond the right shoulder; do not invent hidden hand orientation."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.grip.neutralize_weak",
+                    "when": {
+                      "problems": [
+                        "weak_side"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, the visible thumb-and-index-finger V shapes point too far toward your left side.",
+                    "correction": "Before you start the swing, adjust the hands on the grip so their V shapes point between your chin and right shoulder."
+                  },
+                  {
+                    "id": "setup.grip.neutralize_strong",
+                    "when": {
+                      "problems": [
+                        "strong_side"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, the visible thumb-and-index-finger V shapes point beyond your right shoulder.",
+                    "correction": "Before you start the swing, adjust the hands on the grip so their V shapes point back between your chin and right shoulder."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "setup.posture",
+              "ideal": "Bend forward from the hips. The head, neck and back follow a relaxed, broadly continuous line, without a pronounced rounded upper back or an exaggerated lower-back arch.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "rounded": "The upper back is noticeably rounded rather than following a relaxed head-neck-back line.",
+                  "arched": "The lower back has a noticeably exaggerated inward arch at address."
+                },
+                "large_deviation_anchor": "A pronounced upper-back rounding or lower-back arch is directly visible. Judge posture only; do not diagnose the spine."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.posture.unround_posture",
+                    "when": {
+                      "problems": [
+                        "rounded"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your upper back is noticeably rounded.",
+                    "correction": "Before you start the swing, stand with a longer, relaxed head-neck-back line, then bend forward from the hips without forcing the shoulders back."
+                  },
+                  {
+                    "id": "setup.posture.soften_arch",
+                    "when": {
+                      "problems": [
+                        "arched"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your lower back is held in a pronounced arch.",
+                    "correction": "Before you start the swing, soften the lower-back arch and settle into a less rigid address posture."
+                  }
+                ],
+                "positive_feedback": "Before you start the swing, your head, neck and back follow a relaxed line without pronounced rounding or lower-back arching."
+              }
+            },
+            {
+              "id": "setup.upper_body_tilt",
+              "ideal": "Viewed face-on at address, tilt the upper body slightly away from the target so the right shoulder is lower than the left. Source targets are about 7–10 degrees in the video and 7–15 in the checklist; these are guides, not angles to measure from an ordinary image.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "toward_target": "Upper body leans toward the target.",
+                  "too_level": "The upper body has no visible tilt away from the target; the right shoulder is not lower as in the reference.",
+                  "excessive_away": "The upper body leans markedly farther away from the target than the slight reference tilt."
+                },
+                "large_deviation_anchor": "Tilt is clearly toward the target or grossly exaggerated away; do not classify 11-15 degrees as a fault just because the video used a narrower target."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.upper_body_tilt.add_away_tilt",
+                    "when": {
+                      "problems": [
+                        "too_level",
+                        "toward_target"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your upper body is too level or leans toward the target.",
+                    "correction": "Before you start the swing, add a little tilt away from the target and let the left hip sit slightly toward the target."
+                  },
+                  {
+                    "id": "setup.upper_body_tilt.reduce_excess_tilt",
+                    "when": {
+                      "problems": [
+                        "excessive_away"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your upper body tilts too far away from the target.",
+                    "correction": "Before you start the swing, reduce the away tilt slightly while retaining a small tilt away."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "setup.hip_hinge",
+              "ideal": "At address, bend forward mainly at the hip joints, rather than standing almost upright or folding the chest excessively toward the ground. The source mentions a waist angle of about 135 degrees, but does not define a reliable image measurement.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "too_upright": "The torso stays noticeably too upright, with too little forward bend at the hips.",
+                  "too_folded": "The torso is folded noticeably too far toward the ground at address."
+                },
+                "large_deviation_anchor": "The overall address is nearly upright or excessively folded compared with the reference; no invented degree cutoff."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.hip_hinge.hinge_forward",
+                    "when": {
+                      "problems": [
+                        "too_upright"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, you are standing too upright.",
+                    "correction": "Before you start the swing, bend farther forward from the hips while keeping the knees softly flexed."
+                  },
+                  {
+                    "id": "setup.hip_hinge.reduce_forward_fold",
+                    "when": {
+                      "problems": [
+                        "too_folded"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, you are bent too far forward.",
+                    "correction": "Before you start the swing, stand slightly taller by reducing the hip hinge; keep the arms hanging naturally."
+                  }
+                ],
+                "positive_feedback": "Before you start the swing, you bend forward from the hips without standing too upright or folding too far down."
+              }
+            },
+            {
+              "id": "setup.knee_flex",
+              "ideal": "At address, keep a small, comfortable bend in both knees. Avoid straight, rigid-looking legs and a deep squat.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "too_straight": "Knees are held almost straight.",
+                  "too_flexed": "Knees are deeply flexed compared with the reference."
+                },
+                "large_deviation_anchor": "Clearly locked-straight knees or a deep crouch, rather than moderate flex."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.knee_flex.reduce_crouch",
+                    "when": {
+                      "problems": [
+                        "too_flexed"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, you are crouching too much through the knees.",
+                    "correction": "Before you start the swing, reduce the knee bend and hinge more from the hips rather than sitting down."
+                  },
+                  {
+                    "id": "setup.knee_flex.add_soft_flex",
+                    "when": {
+                      "problems": [
+                        "too_straight"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your knees are almost straight.",
+                    "correction": "Before you start the swing, add a little knee flex without dropping into a deep crouch."
+                  }
+                ],
+                "positive_feedback": "Before you start the swing, your knees have a small, comfortable bend at address."
+              }
+            },
+            {
+              "id": "setup.ball_distance",
+              "ideal": "Stand far enough from the ball for the arms to hang freely, with a visible gap between hands and thighs, without reaching outward. The video's spread-thumb-and-little-finger gesture illustrates an approximate gap, not an exact measurement.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "too_far": "The player stands so far from the ball that the arms visibly reach outward.",
+                  "too_close": "The player stands so close to the ball that the hands are cramped against the thighs."
+                },
+                "large_deviation_anchor": "Clear crowding or reach affecting the whole address; do not score a small gap difference as large."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.ball_distance.create_space",
+                    "when": {
+                      "problems": [
+                        "too_close"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, you are standing too close to let the arms hang comfortably.",
+                    "correction": "Before you start the swing, move slightly farther from the ball, then recheck the natural arm hang and hip hinge."
+                  },
+                  {
+                    "id": "setup.ball_distance.reduce_reach",
+                    "when": {
+                      "problems": [
+                        "too_far"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "setup.arm_hang",
+                          "status": "deviation",
+                          "problem": "reaching"
+                        }
+                      ]
+                    },
+                    "feedback": "Before you start the swing, you stand far enough from the ball that the arms have to reach outward.",
+                    "correction": "Before you start the swing, move slightly closer until the arms can hang below the shoulders without reaching."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "setup.lead_weight_target",
+              "ideal": "The reference asks for about 55 percent of body weight on the left side at address. Ordinary images cannot establish this percentage.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "reference_only"
+              },
+              "deviations": {
+                "problems": {},
+                "large_deviation_anchor": null
+              },
+              "coaching": null
+            },
+            {
+              "id": "setup.ball_position_driver",
+              "ideal": "For driver setup only, the ball is approximately below the left armpit when viewed face-on. This checkpoint does not define the rest of a driver swing.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "visual",
+                "context": "driver_setup_only"
+              },
+              "deviations": {
+                "problems": {
+                  "too_far_back": "Ball clearly behind the position below the left armpit.",
+                  "too_far_forward": "Ball clearly ahead of the position below the left armpit."
+                },
+                "large_deviation_anchor": "The ball is plainly displaced from the vertical below the left armpit, into another part of the stance; both landmarks must be visible."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.ball_position_driver.reference_too_far_back",
+                    "when": {
+                      "problems": [
+                        "too_far_back"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your driver ball position is behind the position below your left armpit.",
+                    "correction": "Before you start the swing, move the ball toward the target until it sits approximately below your left armpit; keep your normal address tilt."
+                  },
+                  {
+                    "id": "setup.ball_position_driver.reference_too_far_forward",
+                    "when": {
+                      "problems": [
+                        "too_far_forward"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your driver ball position is farther toward the target than the position below your left armpit.",
+                    "correction": "Before you start the swing, move the ball away from the target until it sits approximately below your left armpit; keep your normal address tilt."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "setup.ball_position_iron",
+              "ideal": "At iron address, the ball is approximately below the left ear when viewed face-on.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "visual",
+                "context": "iron"
+              },
+              "deviations": {
+                "problems": {
+                  "too_far_back": "Ball clearly behind the position below the left ear.",
+                  "too_far_forward": "Ball clearly ahead of the position below the left ear."
+                },
+                "large_deviation_anchor": "The ball is plainly displaced from the vertical below the left ear, into another part of the stance; both landmarks must be visible."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.ball_position_iron.move_ball_forward",
+                    "when": {
+                      "problems": [
+                        "too_far_back"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your iron ball position is too far back, behind the position below your left ear.",
+                    "correction": "Before you start the swing, check the grip and upper-body tilt, then move the ball toward the target until it sits approximately below your left ear."
+                  },
+                  {
+                    "id": "setup.ball_position_iron.reference_too_far_forward",
+                    "when": {
+                      "problems": [
+                        "too_far_forward"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your iron ball position is farther toward the target than the position below your left ear.",
+                    "correction": "Before you start the swing, settle into your normal address, then move the ball back until it sits approximately below your left ear."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "setup.ball_position_wedge",
+              "ideal": "For a 60–120-yard distance-wedge shot, the ball is approximately below the right ear when viewed face-on. Do not apply this target to every wedge shot.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "visual",
+                "context": "distance_wedge_setup_only"
+              },
+              "deviations": {
+                "problems": {
+                  "too_far_back": "Ball clearly behind the position below the right ear.",
+                  "too_far_forward": "Ball clearly ahead of the position below the right ear."
+                },
+                "large_deviation_anchor": "For the applicable wedge setup, the ball is plainly displaced from the vertical below the right ear, into another part of the stance; both landmarks must be visible."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.ball_position_wedge.reference_too_far_back",
+                    "when": {
+                      "problems": [
+                        "too_far_back"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, the ball is behind the position below your right ear.",
+                    "correction": "Before you start the swing, move the ball toward the target until it sits approximately below your right ear for this wedge setup."
+                  },
+                  {
+                    "id": "setup.ball_position_wedge.reference_too_far_forward",
+                    "when": {
+                      "problems": [
+                        "too_far_forward"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, the ball is farther toward the target than the position below your right ear.",
+                    "correction": "Before you start the swing, move the ball back until it sits approximately below your right ear for this wedge setup."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "setup.stance_width",
+              "ideal": "For an iron, stand with the feet slightly wider apart than the shoulders when viewed face-on.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "visual",
+                "context": "iron"
+              },
+              "deviations": {
+                "problems": {
+                  "too_narrow": "Stance is visibly narrow relative to the shoulders.",
+                  "too_wide": "Stance is visibly broad relative to the shoulders."
+                },
+                "large_deviation_anchor": "Stance is grossly narrow or wide compared with the shoulder-width reference."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.stance_width.widen_narrow_stance",
+                    "when": {
+                      "problems": [
+                        "too_narrow"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your feet are too close together for the iron reference.",
+                    "correction": "Before you start the swing, move the feet slightly farther apart until they are just wider than the shoulders."
+                  },
+                  {
+                    "id": "setup.stance_width.narrow_wide_stance",
+                    "when": {
+                      "problems": [
+                        "too_wide"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your feet are too far apart for the iron reference.",
+                    "correction": "Before you start the swing, bring the feet slightly closer together until they are just wider than the shoulders."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "setup.foot_flare",
+              "ideal": "At address, turn both feet slightly outward: the left toes toward the target and the right toes away from it. The checklist gives about 25 degrees for the left foot and 10 for the right; do not measure these angles precisely from the image.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "missing_lead_flare": "The left toes are not turned slightly toward the target as in the reference.",
+                  "missing_trail_flare": "The right toes are not turned slightly away from the target as in the reference.",
+                  "inward": "A foot points inward instead of outward."
+                },
+                "large_deviation_anchor": "Clear inward orientation opposite to the reference. Exact foot angles are not measured from this view."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.foot_flare.allow_outward_flare",
+                    "when": {
+                      "problems": [
+                        "missing_lead_flare",
+                        "missing_trail_flare",
+                        "inward"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, one or both feet point too straight ahead or inward instead of slightly outward.",
+                    "correction": "Before you start the swing, turn the affected foot slightly outward: left toes toward the target, right toes away from it."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "setup.arm_hang",
+              "ideal": "Viewed from behind along the target direction, the hands hang approximately below the shoulders. The arms are neither reaching toward the ball nor squeezed against the thighs.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "reaching": "Hands are held outward toward the ball, away from the vertical line below the shoulders.",
+                  "crowded": "Hands are crowded inward against the body."
+                },
+                "large_deviation_anchor": "Pronounced reach or crowding destroys the natural hanging-arm relationship."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.arm_hang.restore_natural_hang",
+                    "when": {
+                      "problems": [
+                        "reaching"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "setup.hip_hinge",
+                          "status": "deviation",
+                          "problem": "too_upright"
+                        }
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your arms reach outward rather than hanging below the shoulders.",
+                    "correction": "Before you start the swing, bend from the hips and lower the arms so the hands can hang more naturally below the shoulders."
+                  },
+                  {
+                    "id": "setup.arm_hang.reference_crowded",
+                    "when": {
+                      "problems": [
+                        "crowded"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your hands are crowded against the body.",
+                    "correction": "Before you start the swing, give the arms enough space to hang naturally below the shoulders, with a comfortable gap from the thighs."
+                  }
+                ],
+                "positive_feedback": "Before you start the swing, your hands hang approximately below the shoulders at address."
+              }
+            },
+            {
+              "id": "setup.trail_arm",
+              "ideal": "At address, the right elbow has a slight bend. In a correctly aligned down-the-line view, a small part of the left arm is visible above the right arm.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "locked": "The right elbow looks rigidly straight rather than slightly bent.",
+                  "reversed_stack": "In a correctly aligned rear view, the right arm appears above and covers the left arm, rather than allowing a little left arm to show above it."
+                },
+                "large_deviation_anchor": "A clearly locked arm combined with a reversed arm relationship; occlusion alone is unknown."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.trail_arm.soften_elbow",
+                    "when": {
+                      "problems": [
+                        "locked"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your right arm is locked straight.",
+                    "correction": "Before you start the swing, soften the right elbow rather than holding the arm rigidly straight."
+                  },
+                  {
+                    "id": "setup.trail_arm.restore_arm_stack",
+                    "when": {
+                      "problems": [
+                        "reversed_stack"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "setup.body_alignment",
+                          "status": "deviation",
+                          "problem": "open"
+                        }
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your right arm appears above the left arm, and the shoulders are also turned toward the target.",
+                    "correction": "Before you start the swing, soften the right elbow and align the shoulders parallel to the target line; from the correctly aligned rear view, a little left arm should show above the right."
+                  }
+                ],
+                "positive_feedback": "Before you start the swing, your right elbow has a small bend, with a little left arm visible above the right in the rear view."
+              }
+            },
+            {
+              "id": "setup.shaft_direction",
+              "ideal": "At address, imagine extending the shaft upward beyond the grip. That line points approximately toward the belt buckle in the down-the-line image.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "above_belt": "An imaginary upward extension of the shaft points clearly above the belt buckle.",
+                  "below_belt": "An imaginary upward extension of the shaft points clearly below the belt buckle."
+                },
+                "large_deviation_anchor": "Shaft extension clearly misses the belt region; camera distortion must be excluded."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.shaft_direction.lower_high_handle",
+                    "when": {
+                      "problems": [
+                        "above_belt"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, an upward extension of your shaft points above the belt buckle.",
+                    "correction": "Before you start the swing, lower the hands slightly until the shaft's upward extension points approximately toward the belt buckle."
+                  },
+                  {
+                    "id": "setup.shaft_direction.reference_below_belt",
+                    "when": {
+                      "problems": [
+                        "below_belt"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, an upward extension of your shaft points below the belt buckle.",
+                    "correction": "Before you start the swing, adjust the handle so the shaft's upward extension points toward the belt buckle, while keeping the arms hanging naturally."
+                  }
+                ],
+                "positive_feedback": "Before you start the swing, the upward extension of your shaft points approximately toward the belt buckle at address."
+              }
+            },
+            {
+              "id": "setup.hands_forward",
+              "ideal": "At address, the hands sit slightly toward the target, approximately in front of the inside of the left thigh in the face-on image.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "behind": "The hands sit clearly farther away from the target than the position in front of the inner left thigh.",
+                  "excessively_forward": "The hands are pushed clearly farther toward the target than the position in front of the inner left thigh."
+                },
+                "large_deviation_anchor": "The hands are plainly displaced from the inner-left-thigh position, either back away from the target or excessively toward it; a small offset is not large."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.hands_forward.reduce_forward_press",
+                    "when": {
+                      "problems": [
+                        "excessively_forward"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your hands are pushed too far toward the target.",
+                    "correction": "Before you start the swing, bring the hands back slightly until they sit approximately in front of the inside of the left thigh."
+                  },
+                  {
+                    "id": "setup.hands_forward.reference_behind",
+                    "when": {
+                      "problems": [
+                        "behind"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your hands sit too far back rather than slightly toward the target.",
+                    "correction": "Before you start the swing, move the hands slightly toward the target until they sit approximately in front of the inside of the left thigh."
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "alignment",
+      "name": "Alignment",
+      "sections": [
+        {
+          "id": "alignment",
+          "stages": [
+            "SETUP"
+          ],
+          "at": "The settled address position, with the actual target direction known.",
+          "checkpoints": [
+            {
+              "id": "setup.clubface_alignment",
+              "ideal": "At address, aim the striking face of the club at the intended target. Assess this only when the actual target direction is known and the face is readable.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "left": "Face visibly points left of the known target line.",
+                  "right": "Face visibly points right of the known target line."
+                },
+                "large_deviation_anchor": "Clearly misdirected face against a visible target-line reference; do not infer the target from the shot outcome."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.clubface_alignment.aim_at_target",
+                    "when": {
+                      "problems": [
+                        "left",
+                        "right"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your clubface is not aimed at the intended target.",
+                    "correction": "Before you start the swing, aim the face at the actual target before adjusting the swing path."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "setup.body_alignment",
+              "ideal": "At address, the feet, knees, hips and shoulders are approximately parallel to the ball-to-target line. The body stands beside that line; the feet do not need to point directly at the target itself.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "closed": "The body lines are visibly turned away from the target compared with a line parallel to the known ball-to-target direction.",
+                  "open": "The body lines are visibly turned toward the target compared with a line parallel to the known ball-to-target direction.",
+                  "mixed_lines": "The feet and shoulders visibly point in different directions instead of lying approximately parallel to the target line."
+                },
+                "large_deviation_anchor": "The body lines are plainly angled across the known target-line parallel. Standing beside the target line, rather than on it, is normal."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "setup.body_alignment.restore_parallel",
+                    "when": {
+                      "problems": [
+                        "open",
+                        "closed",
+                        "mixed_lines"
+                      ]
+                    },
+                    "feedback": "Before you start the swing, your feet and body are not aligned parallel to the intended target line.",
+                    "correction": "Before you start the swing, aim the clubface at the target, then align feet, knees, hips and shoulders parallel to the ball-to-target line."
+                  }
+                ],
+                "positive_feedback": "Before you start the swing, your feet and body line up approximately parallel to the known target line."
+              }
+            },
+            {
+              "id": "setup.alignment_sticks",
+              "ideal": "The coach recommends alignment sticks in every practice session. An image can show sticks being used now, but cannot show whether the player uses them every session.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "practice_context_only"
+              },
+              "deviations": {
+                "problems": {},
+                "large_deviation_anchor": null
+              },
+              "coaching": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "backswing",
+      "name": "Backswing",
+      "sections": [
+        {
+          "id": "takeaway",
+          "stages": [
+            "BACKSWING"
+          ],
+          "at": "The first time the shaft is approximately horizontal as the club moves back.",
+          "checkpoints": [
+            {
+              "id": "takeaway.hand_path",
+              "ideal": "From address to the first shaft-horizontal position going back, the hands move inward around the body together with the body turn. They are not pushed outward toward the ball or lifted early just to raise the clubhead.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "setup",
+                  "takeaway"
+                ],
+                "baseline_section": "setup"
+              },
+              "deviations": {
+                "problems": {
+                  "outward": "Hands move clearly outward toward the ball.",
+                  "disconnected": "The hands start moving back while the torso shows no accompanying turn.",
+                  "lift_instead_of_hinge": "Hands rise early to lift the clubhead rather than the clubhead rising through wrist hinge while the hands remain relatively low."
+                },
+                "large_deviation_anchor": "A sustained outward hand move or clear separation from the turn across distinct frames."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "takeaway.hand_path.follow_body_turn",
+                    "when": {
+                      "problems": [
+                        "outward",
+                        "disconnected"
+                      ]
+                    },
+                    "feedback": "As you start the backswing, your hand motion does not follow the body turn.",
+                    "correction": "As you start the backswing, let the body turn start the takeaway and carry the hands inward around you, instead of moving the arms independently."
+                  },
+                  {
+                    "id": "takeaway.hand_path.hinge_without_hand_lift",
+                    "when": {
+                      "problems": [
+                        "lift_instead_of_hinge"
+                      ]
+                    },
+                    "feedback": "As you start the backswing, you raise the hands early to lift the clubhead.",
+                    "correction": "As you start the backswing, keep the hands relatively low as they move with the turn; hinge the wrists gradually upward to raise the clubhead."
+                  }
+                ],
+                "positive_feedback": "As you start the backswing, your hands move inward around the body together with the backswing turn."
+              }
+            },
+            {
+              "id": "takeaway.hand_position",
+              "ideal": "When the shaft first reaches horizontal going back, the hands appear over approximately the outer part of the left thigh in the down-the-line image. This is an overlap in the image, not physical contact with the thigh.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "outside_reference": "At the first shaft-horizontal position going back, the hands appear clearly farther toward the ball than the outer left-thigh region in the rear view.",
+                  "inside_reference": "At the first shaft-horizontal position going back, the hands appear clearly farther toward the body than the outer left-thigh region in the rear view."
+                },
+                "large_deviation_anchor": "At first shaft-horizontal going back, the hands plainly miss the outer-left-thigh region in a correctly aligned rear image. The thigh must be identifiable."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "takeaway.hand_position.reference_outside_reference",
+                    "when": {
+                      "problems": [
+                        "outside_reference"
+                      ]
+                    },
+                    "feedback": "In the backswing, when the shaft first reaches horizontal, your hands appear too far toward the ball relative to the outer left thigh.",
+                    "correction": "In the backswing, when the shaft first reaches horizontal, move the hands less toward the ball so they overlap the outer left-thigh region in the rear-view image at this position."
+                  },
+                  {
+                    "id": "takeaway.hand_position.reference_inside_reference",
+                    "when": {
+                      "problems": [
+                        "inside_reference"
+                      ]
+                    },
+                    "feedback": "In the backswing, when the shaft first reaches horizontal, your hands appear too far toward the body relative to the outer left thigh.",
+                    "correction": "In the backswing, when the shaft first reaches horizontal, leave a little more space between the hands and body so the hands overlap the outer left-thigh region in the rear-view image at this position."
+                  }
+                ],
+                "positive_feedback": "In the backswing, when the shaft first reaches horizontal, at first shaft-horizontal going back, your hands overlap the outer-left-thigh region in the rear view."
+              }
+            },
+            {
+              "id": "takeaway.clubhead_position",
+              "ideal": "When the shaft first reaches horizontal going back, the clubhead overlaps the hands or appears slightly farther toward the ball than the hands in the down-the-line image. A small outward offset is allowed.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "inside": "At the first shaft-horizontal position going back, the clubhead appears clearly to the body side of the hands.",
+                  "outside": "At the first shaft-horizontal position going back, the clubhead appears markedly farther toward the ball than the hands; a small offset is allowed."
+                },
+                "large_deviation_anchor": "Clear separation from the hand position in the down-the-line image, not the small outside offset explicitly shown as acceptable."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "takeaway.clubhead_position.keep_head_in_front",
+                    "when": {
+                      "problems": [
+                        "inside"
+                      ]
+                    },
+                    "feedback": "In the backswing, when the shaft first reaches horizontal, the clubhead has moved too far behind the hands toward your body.",
+                    "correction": "In the backswing, when the shaft first reaches horizontal, let the hands move inward with the body turn while the clubhead rises and stays over the hands or slightly toward the ball in the rear-view image."
+                  },
+                  {
+                    "id": "takeaway.clubhead_position.reference_outside",
+                    "when": {
+                      "problems": [
+                        "outside"
+                      ]
+                    },
+                    "feedback": "In the backswing, when the shaft first reaches horizontal, the clubhead is too far toward the ball compared with the hands.",
+                    "correction": "In the backswing, when the shaft first reaches horizontal, reduce that outward movement until the clubhead overlaps the hands or sits only slightly toward the ball in the rear-view image."
+                  }
+                ],
+                "positive_feedback": "In the backswing, when the shaft first reaches horizontal, at first shaft-horizontal going back, your clubhead overlaps the hands or sits slightly toward the ball in the rear view."
+              }
+            },
+            {
+              "id": "takeaway.clubface_tilt",
+              "ideal": "When the shaft first reaches horizontal going back, the clubface leading edge has approximately the same tilt as the torso in the down-the-line image. The leading edge itself must be visible.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "more_open_than_reference": "At first shaft-horizontal going back, the readable face is more open than the local target of its leading edge matching torso tilt.",
+                  "more_closed_than_reference": "At first shaft-horizontal going back, the readable face is more closed than the local target of its leading edge matching torso tilt."
+                },
+                "large_deviation_anchor": "The visible face clearly departs from the leading-edge-to-torso tilt relationship. The face itself must be readable; clubhead path alone is insufficient."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "takeaway.clubface_tilt.reference_more_open_than_reference",
+                    "when": {
+                      "problems": [
+                        "more_open_than_reference"
+                      ]
+                    },
+                    "feedback": "In the backswing, when the shaft first reaches horizontal, your clubface is more open than the torso-tilt reference.",
+                    "correction": "In the backswing, when the shaft first reaches horizontal, keep the grip unchanged and reduce the face opening until the visible leading edge has approximately the same tilt as the torso."
+                  },
+                  {
+                    "id": "takeaway.clubface_tilt.reference_more_closed_than_reference",
+                    "when": {
+                      "problems": [
+                        "more_closed_than_reference"
+                      ]
+                    },
+                    "feedback": "In the backswing, when the shaft first reaches horizontal, your clubface is more closed than the torso-tilt reference.",
+                    "correction": "In the backswing, when the shaft first reaches horizontal, keep the grip unchanged and reduce the face closing until the visible leading edge has approximately the same tilt as the torso."
+                  }
+                ],
+                "positive_feedback": "In the backswing, when the shaft first reaches horizontal, at first shaft-horizontal going back, the clubface leading edge has approximately the same tilt as the torso."
+              }
+            }
+          ]
+        },
+        {
+          "id": "halfway_back",
+          "stages": [
+            "BACKSWING"
+          ],
+          "at": "The left arm is approximately horizontal during the backswing, not the downswing.",
+          "checkpoints": [
+            {
+              "id": "halfway_back.hand_depth",
+              "ideal": "When the left arm reaches approximately horizontal going back, the hands overlap the upper-arm/biceps region in the down-the-line image. Judge this image overlap rather than inventing a 3D distance.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "too_shallow": "With the left arm horizontal going back, the hands appear clearly toward the ball from the upper-arm/biceps region in the rear view.",
+                  "too_deep": "With the left arm horizontal going back, the hands appear clearly behind the upper-arm/biceps region, farther around the body, in the rear view."
+                },
+                "large_deviation_anchor": "At left-arm horizontal going back, the hands plainly miss the upper-arm/biceps region in the rear image, beyond a small positional variation."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "halfway_back.hand_depth.follow_turn_for_depth",
+                    "when": {
+                      "problems": [
+                        "too_shallow"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "takeaway.hand_path",
+                          "status": "deviation",
+                          "problem": "outward"
+                        }
+                      ]
+                    },
+                    "feedback": "During the backswing, when the left arm is horizontal, your hands are too far toward the ball in the rear-view image; the earlier outward hand movement is also visible.",
+                    "correction": "As you start the backswing, let the hands move inward with the body turn rather than lifting them toward the ball. By left-arm horizontal, they should overlap the upper-arm/biceps region in the rear view."
+                  },
+                  {
+                    "id": "halfway_back.hand_depth.reference_too_deep",
+                    "when": {
+                      "problems": [
+                        "too_deep"
+                      ]
+                    },
+                    "feedback": "During the backswing, when the left arm is horizontal, your hands appear too far behind the upper-arm/biceps region in the rear-view image.",
+                    "correction": "During the backswing, when the left arm is horizontal, keep the hands more in front of the torso so they overlap the upper-arm/biceps region, instead of pulling them farther behind the body."
+                  }
+                ],
+                "positive_feedback": "During the backswing, when the left arm is horizontal, with the left arm horizontal going back, your hands overlap the upper-arm/biceps region in the rear view."
+              }
+            },
+            {
+              "id": "halfway_back.shaft_direction",
+              "ideal": "When the left arm is approximately horizontal going back, extend the shaft line down toward the ground. It points at the ball or slightly to the body side of the ball in the down-the-line image. The latter slightly steeper position is allowed.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "too_flat": "With the left arm horizontal going back, the shaft is too flat and its extended ground line points clearly beyond the ball, away from the player.",
+                  "too_steep": "With the left arm horizontal going back, the shaft is markedly more upright than the ball-pointing or slightly body-side-pointing reference."
+                },
+                "large_deviation_anchor": "At left-arm horizontal going back, the extended shaft line plainly departs from pointing at the ball or slightly to its body side. A small body-side offset is allowed."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "halfway_back.shaft_direction.avoid_flat_backswing",
+                    "when": {
+                      "problems": [
+                        "too_flat"
+                      ]
+                    },
+                    "feedback": "During the backswing, when the left arm is horizontal, your shaft is too flat: its extended line points to the far side of the ball.",
+                    "correction": "During the backswing, when the left arm is horizontal, hinge the wrists gradually upward until the shaft line points at the ball or slightly to its body side in the rear-view image."
+                  },
+                  {
+                    "id": "halfway_back.shaft_direction.reference_too_steep",
+                    "when": {
+                      "problems": [
+                        "too_steep"
+                      ]
+                    },
+                    "feedback": "During the backswing, when the left arm is horizontal, your shaft is too upright compared with the ball-pointing reference.",
+                    "correction": "During the backswing, when the left arm is horizontal, reduce the shaft's upright tilt until its extended line points at the ball or only slightly to its body side; keep the hands moving with the turn."
+                  }
+                ],
+                "positive_feedback": "During the backswing, when the left arm is horizontal, with the left arm horizontal going back, the extended shaft line points at the ball or slightly to its body side."
+              }
+            },
+            {
+              "id": "halfway_back.arm_shaft_angle",
+              "ideal": "When the left arm is approximately horizontal going back, the left arm and shaft form an approximate L, with roughly a right angle between them in the face-on image.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "insufficient_angle": "With the left arm horizontal going back, the arm and shaft remain too nearly in one straight line instead of forming an approximate right-angle L.",
+                  "excessive_angle": "With the left arm horizontal going back, the angle between arm and shaft is much tighter than the approximate right-angle L."
+                },
+                "large_deviation_anchor": "The L relationship is clearly absent, rather than a small projected angle difference."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "halfway_back.arm_shaft_angle.build_the_l",
+                    "when": {
+                      "problems": [
+                        "insufficient_angle"
+                      ]
+                    },
+                    "feedback": "During the backswing, when the left arm is horizontal, the angle between that arm and the shaft is too open to form the reference L.",
+                    "correction": "During the backswing, when the left arm is horizontal, hinge the wrists progressively upward so the left arm and shaft form an approximate right-angle L, rather than raising the whole arm unit."
+                  },
+                  {
+                    "id": "halfway_back.arm_shaft_angle.reference_excessive_angle",
+                    "when": {
+                      "problems": [
+                        "excessive_angle"
+                      ]
+                    },
+                    "feedback": "During the backswing, when the left arm is horizontal, the angle between that arm and the shaft is much tighter than a right angle.",
+                    "correction": "During the backswing, when the left arm is horizontal, reduce the wrist hinge until the arm and shaft form an approximate right-angle L at this position."
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "top",
+          "stages": [
+            "TRANSITION"
+          ],
+          "at": "The completed backswing just before the hands change direction into the downswing.",
+          "checkpoints": [
+            {
+              "id": "top.hip_turn",
+              "ideal": "Compare address with the completed backswing: the pelvis has visibly turned away from the target. The source target is about 45 degrees, not an exact image cutoff. The hips turn gradually with the backswing rather than finishing early and stopping while the arms continue.",
+              "observe": {
+                "views": [
+                  "DTL",
+                  "FO"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "at": "Compare address with the completed backswing. To judge turn_finishes_too_early, also show the hips stopping their turn early while the arms continue; a top still alone is insufficient.",
+                "sequence_sections": [
+                  "setup",
+                  "takeaway",
+                  "halfway_back",
+                  "top"
+                ],
+                "baseline_section": "setup"
+              },
+              "deviations": {
+                "problems": {
+                  "insufficient_turn": "Pelvis remains visibly close to address orientation.",
+                  "excessive_turn": "The pelvis has visibly turned much farther away from the target than the selected top reference.",
+                  "turn_finishes_too_early": "The pelvis finishes most of its turn early, then visibly stops turning while the arms continue a substantial distance to the top."
+                },
+                "large_deviation_anchor": "The pelvis barely turns from address or turns obviously beyond the reference top. For early completion, show a sustained early stop in hip rotation while the arms still travel a substantial distance. A spoken angle reached early is insufficient."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "top.hip_turn.let_hips_turn",
+                    "when": {
+                      "problems": [
+                        "insufficient_turn"
+                      ]
+                    },
+                    "feedback": "During the backswing, your pelvis has barely turned from its address orientation.",
+                    "correction": "During the backswing, let the hips turn farther away from the target during the backswing, with the arms following the body turn rather than moving behind you on their own."
+                  },
+                  {
+                    "id": "top.hip_turn.limit_excess_turn",
+                    "when": {
+                      "problems": [
+                        "excessive_turn"
+                      ]
+                    },
+                    "feedback": "During the backswing, your pelvis turns noticeably farther back than the selected top-of-backswing reference.",
+                    "correction": "During the backswing, finish the hip turn earlier, near the reference top position, rather than continuing to turn to make the backswing longer."
+                  },
+                  {
+                    "id": "top.hip_turn.spread_turn_with_backswing",
+                    "when": {
+                      "problems": [
+                        "turn_finishes_too_early"
+                      ]
+                    },
+                    "feedback": "During the backswing, your hips finish turning early, then stop while the arms continue back.",
+                    "correction": "During the backswing, spread the hip turn through the backswing so the body and arms keep moving together, rather than using up the hip turn immediately."
+                  }
+                ],
+                "positive_feedback": "During the backswing, your hips make a substantial turn away from their address direction during the backswing."
+              }
+            },
+            {
+              "id": "top.shoulder_turn",
+              "ideal": "Compare address with the completed backswing: the chest and shoulders have made a substantial turn away from the target, about 90 degrees in the checklist. This is body rotation, not the angle between the left arm and the spine.",
+              "observe": {
+                "views": [
+                  "DTL",
+                  "FO"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "setup",
+                  "halfway_back",
+                  "top"
+                ],
+                "baseline_section": "setup"
+              },
+              "deviations": {
+                "problems": {
+                  "insufficient_turn": "Chest remains visibly near address orientation.",
+                  "excessive_turn": "The chest and shoulders visibly continue turning beyond the selected completed-backswing reference."
+                },
+                "large_deviation_anchor": "Hands reach the top while the chest has barely turned, or there is an unmistakable overrun."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "top.shoulder_turn.complete_body_turn",
+                    "when": {
+                      "problems": [
+                        "insufficient_turn"
+                      ]
+                    },
+                    "feedback": "During the backswing, your chest and shoulders have not turned far enough from their address direction.",
+                    "correction": "During the backswing, complete the chest-and-shoulder turn while keeping space between hands and chest; let the turn carry the hands into the top position."
+                  },
+                  {
+                    "id": "top.shoulder_turn.limit_excess_turn",
+                    "when": {
+                      "problems": [
+                        "excessive_turn"
+                      ]
+                    },
+                    "feedback": "During the backswing, your chest and shoulders keep turning past the selected top-of-backswing reference.",
+                    "correction": "During the backswing, change direction from the completed reference turn rather than adding another upper-body turn to lengthen the backswing."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "top.centering",
+              "ideal": "During the backswing, turn largely within the stance rather than continuing to slide the head and pelvis sideways. A small initial move toward the right side is allowed; the head and hips do not need to stay perfectly still.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "setup",
+                  "halfway_back",
+                  "top"
+                ],
+                "baseline_section": "setup"
+              },
+              "deviations": {
+                "problems": {
+                  "away_from_target": "Body slides markedly away from the target.",
+                  "toward_target": "Body slides markedly toward the target during the backswing."
+                },
+                "large_deviation_anchor": "Across the backswing, the head and pelvis keep sliding clearly sideways from their address positions rather than largely turning within the stance. Ordinary movement during rotation is allowed."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "top.centering.turn_without_drifting",
+                    "when": {
+                      "problems": [
+                        "away_from_target"
+                      ]
+                    },
+                    "feedback": "During the backswing, your body keeps drifting away from the target.",
+                    "correction": "During the backswing, allow the initial move to the right side, then turn more centrally instead of continuing to slide away."
+                  },
+                  {
+                    "id": "top.centering.reference_toward_target",
+                    "when": {
+                      "problems": [
+                        "toward_target"
+                      ]
+                    },
+                    "feedback": "During the backswing, your head and pelvis slide noticeably toward the target.",
+                    "correction": "During the backswing, reduce that slide and turn more centrally within the stance; make the move toward the left side as the downswing begins instead."
+                  }
+                ],
+                "positive_feedback": "During the backswing, after the small initial move to the right side, you turn without continuing to slide sideways."
+              }
+            },
+            {
+              "id": "top.lead_arm_plane",
+              "ideal": "At the top, the left arm lies approximately along the shoulder line in the down-the-line image, rather than noticeably above or below it.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "above_plane": "At the top, the left arm lies clearly above the shoulder line in the rear-view image.",
+                  "below_plane": "At the top, the left arm lies clearly below the shoulder line in the rear-view image."
+                },
+                "large_deviation_anchor": "Arm direction clearly diverges from the shoulder line in the down-the-line image; no exact angular cutoff."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "top.lead_arm_plane.lower_the_arm_plane",
+                    "when": {
+                      "problems": [
+                        "above_plane"
+                      ]
+                    },
+                    "feedback": "At the top of the backswing, your left arm lies noticeably above the shoulder line in the rear-view image.",
+                    "correction": "At the top of the backswing, finish with the left arm a little lower, closer to the shoulder line, instead of adding extra lift at the top."
+                  },
+                  {
+                    "id": "top.lead_arm_plane.reference_below_plane",
+                    "when": {
+                      "problems": [
+                        "below_plane"
+                      ]
+                    },
+                    "feedback": "At the top of the backswing, your left arm lies noticeably below the shoulder line in the rear-view image.",
+                    "correction": "At the top of the backswing, finish with the left arm a little higher toward the shoulder line, keeping space between the hands and chest as the body turns."
+                  }
+                ],
+                "positive_feedback": "At the top of the backswing, your left arm lies approximately along the shoulder line in the rear view."
+              }
+            },
+            {
+              "id": "top.hand_depth",
+              "ideal": "At the top, an imaginary vertical line down from the hands reaches approximately the heels in the down-the-line image. Both the hands and heels must be visible.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "too_shallow": "At the top, the hands appear clearly toward the ball from a vertical line above the heels in the rear view.",
+                  "too_deep": "At the top, the hands appear clearly behind a vertical line above the heels in the rear view."
+                },
+                "large_deviation_anchor": "At the top, a vertical line down from the hands plainly misses the heel region in the rear image. Both hands and heels must be visible."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "top.hand_depth.finish_around_the_body",
+                    "when": {
+                      "problems": [
+                        "too_shallow"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "setup.hip_hinge",
+                          "status": "near_reference"
+                        }
+                      ]
+                    },
+                    "feedback": "At the top of the backswing, your hands appear too far toward the ball compared with the vertical line above the heels.",
+                    "correction": "At the top of the backswing, let the turn carry the hands lower and farther around the body until they sit approximately above the heels in the rear-view image."
+                  },
+                  {
+                    "id": "top.hand_depth.recheck_depth_after_address_hinge",
+                    "when": {
+                      "problems": [
+                        "too_shallow"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "setup.hip_hinge",
+                          "status": "deviation",
+                          "problem": "too_folded"
+                        }
+                      ]
+                    },
+                    "feedback": "At the top of the backswing, your hands appear too far toward the ball; your address also bends too far forward at the hips.",
+                    "correction": "Before you start the swing, stand slightly taller by reducing the hip bend, then check the hand position above the heels again before pulling the arms farther behind you."
+                  },
+                  {
+                    "id": "top.hand_depth.reference_too_deep",
+                    "when": {
+                      "problems": [
+                        "too_deep"
+                      ]
+                    },
+                    "feedback": "At the top of the backswing, your hands appear farther behind you than the vertical line above the heels.",
+                    "correction": "At the top of the backswing, reduce how far the arms travel behind the torso until the hands sit approximately above the heels in the rear-view image."
+                  }
+                ],
+                "positive_feedback": "At the top of the backswing, your hands sit approximately above the heels in the rear view."
+              }
+            },
+            {
+              "id": "top.shaft_line",
+              "ideal": "At the top, the shaft approximately follows the projected line from the ball through the hands in the down-the-line image. Compare visible lines in the image; do not substitute a different generic top-of-swing target.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "across_line": "At the top, the visible shaft diverges clearly to the across-the-line side of the local ball-to-hands line; use the aligned right-handed rear view and the terminology definition.",
+                  "laid_off": "At the top, the visible shaft diverges clearly to the laid-off side of the local ball-to-hands line; use the aligned right-handed rear view and the terminology definition."
+                },
+                "large_deviation_anchor": "At the top, the fully visible shaft markedly diverges from the ball-to-hands line in a correctly aligned rear image."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "top.shaft_line.undo_extra_layoff",
+                    "when": {
+                      "problems": [
+                        "laid_off"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "top.hand_depth",
+                          "status": "deviation",
+                          "problem": "too_shallow"
+                        }
+                      ]
+                    },
+                    "feedback": "At the top of the backswing, your shaft is laid off, away from the ball-to-hands reference line; the hands also sit too far toward the ball.",
+                    "correction": "At the top of the backswing, lower the hands and bring the shaft back toward the line drawn from the ball through the hands in the rear-view image; do not add more lay-off."
+                  },
+                  {
+                    "id": "top.shaft_line.stop_run_on_across_line",
+                    "when": {
+                      "problems": [
+                        "across_line"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "top.length",
+                          "status": "deviation",
+                          "problem": "arm_run_on"
+                        }
+                      ]
+                    },
+                    "feedback": "At the top of the backswing, your arms continue back after the body turn finishes, taking the shaft across the selected top reference line.",
+                    "correction": "At the top of the backswing, start down from the earlier completed body turn, before the extra arm travel carries the shaft across that line."
+                  }
+                ],
+                "positive_feedback": "At the top of the backswing, your shaft follows approximately the ball-to-hands line in the rear view."
+              }
+            },
+            {
+              "id": "top.lead_wrist",
+              "ideal": "At the top with the reference neutral grip, the back of the left hand and the left forearm form a broadly straight line. The wrist is neither visibly cupped backward nor bowed forward.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "cupped": "At the top, the back of the left hand bends visibly toward the back of the forearm, rather than staying broadly in line with it.",
+                  "bowed": "At the top, the left wrist bends visibly in the opposite direction to cupping, so the back of the hand and forearm are no longer broadly in line."
+                },
+                "large_deviation_anchor": "Pronounced visible bend with the wrist clearly resolved; do not assume a hidden wrist shape."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "top.lead_wrist.flatten_cupped_open_top",
+                    "when": {
+                      "problems": [
+                        "cupped"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "top.clubface_arm",
+                          "status": "deviation",
+                          "problem": "open"
+                        },
+                        {
+                          "checkpoint_id": "setup.grip",
+                          "status": "near_reference"
+                        }
+                      ]
+                    },
+                    "feedback": "At the top of the backswing, your left wrist bends backward and the clubface is also open compared with the left arm.",
+                    "correction": "At the top of the backswing, reduce the backward bend until the left hand and forearm are broadly in line, then check that the face matches the left arm; avoid a last-second opposite wrist bend to rescue the face."
+                  },
+                  {
+                    "id": "top.lead_wrist.flatten_bowed_closed_top",
+                    "when": {
+                      "problems": [
+                        "bowed"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "top.clubface_arm",
+                          "status": "deviation",
+                          "problem": "closed"
+                        },
+                        {
+                          "checkpoint_id": "top.shaft_line",
+                          "status": "deviation",
+                          "problem": "laid_off"
+                        },
+                        {
+                          "checkpoint_id": "setup.grip",
+                          "status": "near_reference"
+                        }
+                      ]
+                    },
+                    "feedback": "At the top of the backswing, your left wrist bends forward, the face is closed and the shaft is laid off.",
+                    "correction": "At the top of the backswing, ease the wrist toward a straight hand-to-forearm line and bring the shaft back toward the ball-to-hands reference line; check the face again rather than adding more forward wrist bend."
+                  }
+                ],
+                "positive_feedback": "At the top of the backswing, the back of your left hand is broadly in line with the forearm."
+              }
+            },
+            {
+              "id": "top.clubface_arm",
+              "ideal": "At the top with the reference neutral grip, the visible leading-edge direction of the clubface approximately matches the left-arm direction in the down-the-line image. Both must be readable.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "open": "At the top, the readable clubface is clearly more open than the local reference of its leading edge matching the left-arm direction.",
+                  "closed": "At the top, the readable clubface is clearly more closed than the local reference of its leading edge matching the left-arm direction."
+                },
+                "large_deviation_anchor": "Clearly divergent face and left-arm orientation with both resolved; do not infer from grip alone."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "top.clubface_arm.recheck_weak_grip",
+                    "when": {
+                      "problems": [
+                        "open"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "setup.grip",
+                          "status": "deviation",
+                          "problem": "weak_side"
+                        }
+                      ]
+                    },
+                    "feedback": "At the top of the backswing, the face is open compared with the left arm; at address, the grip V shapes also point too far toward your left side.",
+                    "correction": "Before you start the swing, adjust the grip V shapes to point between your chin and right shoulder, then check the face against the left arm at the top again."
+                  },
+                  {
+                    "id": "top.clubface_arm.recheck_strong_grip",
+                    "when": {
+                      "problems": [
+                        "closed"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "setup.grip",
+                          "status": "deviation",
+                          "problem": "strong_side"
+                        }
+                      ]
+                    },
+                    "feedback": "At the top of the backswing, the face is closed compared with the left arm; at address, the grip V shapes also point beyond your right shoulder.",
+                    "correction": "Before you start the swing, adjust the grip V shapes to point between your chin and right shoulder, then check the face against the left arm at the top again."
+                  },
+                  {
+                    "id": "top.clubface_arm.square_with_flat_wrist",
+                    "when": {
+                      "problems": [
+                        "open"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "top.lead_wrist",
+                          "status": "deviation",
+                          "problem": "cupped"
+                        },
+                        {
+                          "checkpoint_id": "setup.grip",
+                          "status": "near_reference"
+                        }
+                      ]
+                    },
+                    "feedback": "At the top of the backswing, your left wrist bends backward and the clubface is also open compared with the left arm.",
+                    "correction": "At the top of the backswing, reduce the backward bend until the left hand and forearm are broadly in line, then check that the face matches the left arm; avoid a last-second opposite wrist bend to rescue the face."
+                  },
+                  {
+                    "id": "top.clubface_arm.square_with_less_bow",
+                    "when": {
+                      "problems": [
+                        "closed"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "top.lead_wrist",
+                          "status": "deviation",
+                          "problem": "bowed"
+                        },
+                        {
+                          "checkpoint_id": "top.shaft_line",
+                          "status": "deviation",
+                          "problem": "laid_off"
+                        },
+                        {
+                          "checkpoint_id": "setup.grip",
+                          "status": "near_reference"
+                        }
+                      ]
+                    },
+                    "feedback": "At the top of the backswing, your left wrist bends forward, the face is closed and the shaft is laid off.",
+                    "correction": "At the top of the backswing, ease the wrist toward a straight hand-to-forearm line and bring the shaft back toward the ball-to-hands reference line; check the face again rather than adding more forward wrist bend."
+                  }
+                ],
+                "positive_feedback": "At the top of the backswing, the clubface leading edge approximately matches the left-arm direction in the rear view."
+              }
+            },
+            {
+              "id": "top.width",
+              "ideal": "At the top, keep visible space between the hands and the head/chest instead of folding the arms tightly against the upper body.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "collapsed": "At the top, the arms fold tightly and the hands crowd against the head or chest instead of leaving visible space."
+                },
+                "large_deviation_anchor": "Hands are crowded against the head/torso with an obvious loss of arm width."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "top.width.retain_arm_width",
+                    "when": {
+                      "problems": [
+                        "collapsed"
+                      ]
+                    },
+                    "feedback": "At the top of the backswing, your arms fold inward and the hands crowd the chest.",
+                    "correction": "At the top of the backswing, keep more space between the hands and chest instead of pulling the right arm behind you early."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "top.length",
+              "ideal": "Finish the body turn, then change direction without the arms continuing back on their own. Do not label a compact swing incomplete unless the sequence also shows an independently restricted hip turn. There is no universal shaft-angle or clubhead-height cutoff.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "halfway_back",
+                  "top",
+                  "transition"
+                ]
+              },
+              "deviations": {
+                "problems": {
+                  "arm_run_on": "Hands and arms visibly continue after the body has reached its established top position, extending the backswing beyond that position.",
+                  "incomplete_backswing": "Direction changes unusually early with the arms well short of the reference top and an independently observed restricted pelvis turn; a compact-looking swing alone is insufficient."
+                },
+                "large_deviation_anchor": "A clear additional arm run-on substantially changes the top position after the body turn has settled; compare a sequence, not shaft length in one still. An incomplete backswing needs a clearly curtailed arm travel and independently restricted pelvis turn, not a universal shaft-angle or clubhead-height cutoff."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "top.length.start_down_before_run_on",
+                    "when": {
+                      "problems": [
+                        "arm_run_on"
+                      ]
+                    },
+                    "feedback": "As you finish the backswing and start down, your arms keep travelling back after the body has finished its backswing turn.",
+                    "correction": "As you finish the backswing and start down, change direction when the body turn is complete, before the arms add extra travel; make the transition smoothly rather than rushing it."
+                  },
+                  {
+                    "id": "top.length.complete_curtailed_backswing",
+                    "when": {
+                      "problems": [
+                        "incomplete_backswing"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "top.hip_turn",
+                          "status": "deviation",
+                          "problem": "insufficient_turn"
+                        }
+                      ]
+                    },
+                    "feedback": "As you finish the backswing and start down, you start down before the arms reach the reference top, and a restricted hip turn is also visible.",
+                    "correction": "As you finish the backswing and start down, allow a fuller hip and body turn with the arms following, then change direction; do not lengthen the swing by adding arm travel after the body stops."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "top.trail_load_target",
+              "ideal": "At the top, the checklist asks for about 80 percent of body weight on the right side; the video calls this pressure. Neither percentage can be measured from ordinary images, and weight and pressure are not identical measurements.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "reference_only"
+              },
+              "deviations": {
+                "problems": {},
+                "large_deviation_anchor": null
+              },
+              "coaching": null
+            },
+            {
+              "id": "top.trail_knee",
+              "ideal": "As the hips turn back, the right knee may straighten somewhat but does not become visibly rigid and fully straight throughout the end of the backswing.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "setup",
+                  "halfway_back",
+                  "top"
+                ],
+                "baseline_section": "setup"
+              },
+              "deviations": {
+                "problems": {
+                  "locked_straight": "The right knee becomes fully straight and keeps a rigid appearance through the observed end of the backswing; some ordinary straightening alone is allowed."
+                },
+                "large_deviation_anchor": "A clear sustained rigid-straight appearance is visible with hip, knee and ankle unobscured; a single nearly straight frame is insufficient, and joint loading is not inferred."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "top.trail_knee.retain_soft_knee",
+                    "when": {
+                      "problems": [
+                        "locked_straight"
+                      ]
+                    },
+                    "feedback": "During the final part of the backswing, your right knee becomes rigidly straight at the top.",
+                    "correction": "During the final part of the backswing, keep the right knee soft as you turn back; allow some natural straightening without locking it out."
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "downswing",
+      "name": "Downswing",
+      "sections": [
+        {
+          "id": "transition",
+          "stages": [
+            "TRANSITION",
+            "DOWNSWING"
+          ],
+          "at": "The change from backswing to downswing and the first lowering of the arms; use the top and later belt-height position as context.",
+          "checkpoints": [
+            {
+              "id": "transition.hands_lower",
+              "ideal": "From the top into the downswing, lower the hands into the space in front of the torso without immediately throwing them toward the ball or pulling them farther behind the body. The straight-down coaching feel is not a measured straight 3D path.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "top",
+                  "transition",
+                  "delivery"
+                ]
+              },
+              "deviations": {
+                "problems": {
+                  "outward": "Hands are thrown outward toward the ball as they start down.",
+                  "remain_behind": "As the arms lower, the hands remain behind the torso instead of entering the space in front of it."
+                },
+                "large_deviation_anchor": "Across the initial lowering sequence, the hands move conspicuously toward the ball or remain clearly behind the torso instead of entering the space in front."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "transition.hands_lower.lower_in_front",
+                    "when": {
+                      "problems": [
+                        "remain_behind"
+                      ]
+                    },
+                    "feedback": "As you start the downswing from the top, your hands remain behind the torso rather than lowering into the space in front of it.",
+                    "correction": "As you start the downswing from the top, lower the hands and arms into the space in front of the torso."
+                  },
+                  {
+                    "id": "transition.hands_lower.reference_outward",
+                    "when": {
+                      "problems": [
+                        "outward"
+                      ]
+                    },
+                    "feedback": "As you start the downswing from the top, your hands move sharply toward the ball.",
+                    "correction": "As you start the downswing from the top, lower the hands into the space in front of the torso without immediately pushing them toward the ball or pulling them farther behind you."
+                  }
+                ],
+                "positive_feedback": "As you start the downswing from the top, your hands lower into the space in front of the torso as the downswing begins."
+              }
+            },
+            {
+              "id": "transition.shaft_shallowing",
+              "ideal": "As the hands lower from the top, the shaft becomes less upright and moves toward the delivery line used when the hands approach belt height. It does not become more upright or drop far below that line.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "top",
+                  "transition",
+                  "delivery"
+                ]
+              },
+              "deviations": {
+                "problems": {
+                  "steepening": "The shaft becomes visibly more upright as the hands start down instead of becoming less upright toward delivery.",
+                  "excessive_flattening": "As the hands lower, the shaft drops markedly flatter than the intended pre-contact delivery line."
+                },
+                "large_deviation_anchor": "Across the change of direction, the shaft becomes plainly more upright or drops markedly below the intended pre-contact line. A steep-looking top still alone is insufficient."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "transition.shaft_shallowing.repair_high_top_first",
+                    "when": {
+                      "problems": [
+                        "steepening"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "top.lead_arm_plane",
+                          "status": "deviation",
+                          "problem": "above_plane"
+                        },
+                        {
+                          "checkpoint_id": "top.hand_depth",
+                          "status": "deviation",
+                          "problem": "too_shallow"
+                        }
+                      ]
+                    },
+                    "feedback": "As you start the downswing from the top, the shaft becomes more upright as you start down; at the top, the left arm is also too high and the hands too far toward the ball.",
+                    "correction": "At the top of the backswing, finish with the left arm lower and the hands farther around the body, nearer the line above the heels; do not add a backward loop of the hands to flatten the shaft."
+                  },
+                  {
+                    "id": "transition.shaft_shallowing.repair_top_before_extra_drop",
+                    "when": {
+                      "problems": [
+                        "excessive_flattening"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "top.lead_arm_plane",
+                          "status": "deviation",
+                          "problem": "above_plane"
+                        },
+                        {
+                          "checkpoint_id": "top.hand_depth",
+                          "status": "deviation",
+                          "problem": "too_shallow"
+                        }
+                      ]
+                    },
+                    "feedback": "As you start the downswing from the top, the shaft drops too flat during the downswing; the top also has a high left arm and hands too far toward the ball.",
+                    "correction": "At the top of the backswing, finish with the left arm lower and the hands farther around the body, nearer the line above the heels; as the downswing begins, lower them in front of the torso rather than looping them behind you."
+                  }
+                ],
+                "positive_feedback": "As you start the downswing from the top, your shaft becomes less upright as the hands lower toward the pre-contact position."
+              }
+            },
+            {
+              "id": "transition.lower_body_shift",
+              "ideal": "As the arms start down, the pelvis moves toward the target while the head and chest stay relatively farther back. The upper body does not lunge toward the target ahead of the pelvis.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "top",
+                  "transition",
+                  "delivery"
+                ]
+              },
+              "deviations": {
+                "problems": {
+                  "no_visible_shift": "Lower body does not visibly move toward the target in the observed transition.",
+                  "upper_body_leads": "Head and upper body slide toward the target ahead of the pelvis.",
+                  "away_from_target": "Pelvis moves away from the target.",
+                  "insufficient_shift": "From the top through the initial lowering, the pelvis moves only minimally toward the target and stays conspicuously near its top position before turning through."
+                },
+                "large_deviation_anchor": "Across a complete same-camera interval, pelvis remains conspicuously near or away from its top location while the arms lower, or the upper body slides markedly ahead of the pelvis. No centimetre/inch threshold is inferred."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "transition.lower_body_shift.move_lead_hip_targetward",
+                    "when": {
+                      "problems": [
+                        "no_visible_shift",
+                        "insufficient_shift"
+                      ]
+                    },
+                    "feedback": "As you start the downswing from the top, your pelvis makes little or no visible move toward the target before turning through.",
+                    "correction": "As you start the downswing from the top, move the left hip toward the target as the arms lower, keeping the upper body from lunging ahead; then continue turning through."
+                  },
+                  {
+                    "id": "transition.lower_body_shift.reference_upper_body_leads",
+                    "when": {
+                      "problems": [
+                        "upper_body_leads"
+                      ]
+                    },
+                    "feedback": "As you start the downswing from the top, your upper body slides toward the target ahead of the pelvis.",
+                    "correction": "As you start the downswing from the top, let the pelvis move toward the target while the upper body stays relatively back, instead of driving the head and chest forward first."
+                  },
+                  {
+                    "id": "transition.lower_body_shift.reference_away_from_target",
+                    "when": {
+                      "problems": [
+                        "away_from_target"
+                      ]
+                    },
+                    "feedback": "As you start the downswing from the top, your pelvis moves away from the target in transition.",
+                    "correction": "As you start the downswing from the top, reverse that slide: move the left hip toward the target as the arms begin lowering, keeping the upper body from lunging ahead."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "transition.lead_loading",
+              "ideal": "During the change from backswing to downswing, weight/pressure moves toward the left side. Images may show the separate pelvis movement but cannot measure the load under either foot.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "reference_only"
+              },
+              "deviations": {
+                "problems": {},
+                "large_deviation_anchor": null
+              },
+              "coaching": null
+            },
+            {
+              "id": "transition.rotation_timing",
+              "ideal": "Move toward the left side and let the arms lower in front of the torso. Do not turn the torso markedly toward the target while the hands stay high and the later shaft delivery is independently confirmed to be too steep. Do not infer this timing fault from open shoulders alone.",
+              "observe": {
+                "views": [
+                  "DTL",
+                  "FO"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "top",
+                  "transition",
+                  "delivery"
+                ]
+              },
+              "deviations": {
+                "problems": {
+                  "early_opening": "The torso turns markedly toward the target while the hands remain high; later frames independently show the shaft too upright before contact."
+                },
+                "large_deviation_anchor": "The sequence plainly shows the torso turning toward the target with hands still high, plus a separately visible too-upright shaft before contact. Open shoulders alone are insufficient."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "transition.rotation_timing.allow_arms_before_opening",
+                    "when": {
+                      "problems": [
+                        "early_opening"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "delivery.shaft_direction",
+                          "status": "deviation",
+                          "problem": "too_steep"
+                        }
+                      ]
+                    },
+                    "feedback": "As you start the downswing from the top, your torso turns toward the target while the hands remain high, and the later shaft delivery is also too upright.",
+                    "correction": "As you start the downswing from the top, feel your back facing the target a little longer while you move toward the left side and lower the arms in front; keep turning rather than freezing the torso."
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "delivery",
+          "stages": [
+            "DOWNSWING"
+          ],
+          "at": "Before contact, when the hands approach belt height on the downswing. A checkpoint-specific observe.at can require an earlier timing comparison.",
+          "checkpoints": [
+            {
+              "id": "delivery.shaft_direction",
+              "ideal": "Before contact, with the hands near belt height, extend the shaft line down toward the ground in the down-the-line image. It points toward the ball or slightly to the far side of it, away from the player, close to the address shaft line.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "too_steep": "With the hands near belt height before contact, the shaft is too upright and its extended ground line points clearly to the player side of the ball.",
+                  "too_flat": "With the hands near belt height before contact, the shaft sits conspicuously flatter and below the intended ball-pointing or slightly far-side-pointing line."
+                },
+                "large_deviation_anchor": "At the correct pre-contact hand height, the extended shaft line plainly misses the ball-pointing or slightly far-side-pointing reference. A small far-side offset is allowed."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "delivery.shaft_direction.match_lowering_and_turn",
+                    "when": {
+                      "problems": [
+                        "too_steep"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "delivery.hip_timing",
+                          "status": "deviation",
+                          "problem": "opened_too_early"
+                        },
+                        {
+                          "checkpoint_id": "top.hand_depth",
+                          "status": "near_reference"
+                        },
+                        {
+                          "checkpoint_id": "top.lead_arm_plane",
+                          "status": "near_reference"
+                        }
+                      ]
+                    },
+                    "feedback": "During the downswing, before contact as the hands approach belt height, your shaft is too upright and the hips have already turned through while the hands remain high.",
+                    "correction": "During the downswing, before contact as the hands approach belt height, move toward the left side and let the arms lower in front as the hips turn; check that the shaft line points toward the ball or slightly to its far side when the hands reach belt height."
+                  },
+                  {
+                    "id": "delivery.shaft_direction.repair_takeaway_before_extra_drop",
+                    "when": {
+                      "problems": [
+                        "too_flat"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "takeaway.hand_path",
+                          "status": "deviation",
+                          "problem": "outward"
+                        },
+                        {
+                          "checkpoint_id": "halfway_back.shaft_direction",
+                          "status": "deviation",
+                          "problem": "too_flat"
+                        },
+                        {
+                          "checkpoint_id": "top.shaft_line",
+                          "status": "deviation",
+                          "problem": "laid_off"
+                        }
+                      ]
+                    },
+                    "feedback": "During the downswing, before contact as the hands approach belt height, your shaft arrives too flat; earlier images also show outward-moving hands, a flat backswing shaft and a laid-off top.",
+                    "correction": "As you start the backswing, start with the hands moving inward with the body turn while the clubhead stays over the hands or slightly toward the ball; as the downswing begins, lower the hands in front instead of pulling them behind you."
+                  }
+                ],
+                "positive_feedback": "During the downswing, before contact as the hands approach belt height, with the hands near belt height, the shaft line points toward the ball or slightly to its far side."
+              }
+            },
+            {
+              "id": "delivery.hip_timing",
+              "ideal": "During the downswing, compare the moment the thigh line returns approximately parallel to the target line with the hand height. The hands should be around belt height then. Continue the normal hip opening after this point.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "at": "Find the downswing moment when the thigh line returns approximately parallel to the target line, as at address, and compare hand height then. Use this moment even if the hands are still high; do not wait for belt height and miss the timing error.",
+                "sequence_sections": [
+                  "transition",
+                  "delivery"
+                ]
+              },
+              "deviations": {
+                "problems": {
+                  "opened_too_early": "The thigh line returns to or passes its address direction while the hands are still noticeably high near chest or shoulder height.",
+                  "still_turned_back": "The hands reach belt height while the thighs remain clearly turned away from the target instead of returning toward their address direction."
+                },
+                "large_deviation_anchor": "A changing sequence shows thighs back to their address direction while hands remain near shoulder height, or thighs still turned back when hands reach belt height. Normal later hip opening does not count."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "delivery.hip_timing.match_arms_to_hips",
+                    "when": {
+                      "problems": [
+                        "opened_too_early"
+                      ]
+                    },
+                    "feedback": "During the downswing, your thighs have already returned to their address direction while the hands are still near chest or shoulder height.",
+                    "correction": "During the downswing, let the hands lower toward belt height as the thighs return toward their address direction. Keep moving toward the left side, then continue turning through contact."
+                  },
+                  {
+                    "id": "delivery.hip_timing.reference_still_turned_back",
+                    "when": {
+                      "problems": [
+                        "still_turned_back"
+                      ]
+                    },
+                    "feedback": "During the downswing, when the hands reach belt height, your thighs are still turned away from the target.",
+                    "correction": "During the downswing, let the thighs return toward their address direction as the hands reach belt height. Then continue turning toward the target through contact."
+                  }
+                ],
+                "positive_feedback": "During the downswing, as the thighs return toward their address direction, your hands are near belt height when the thigh line returns approximately to its address direction."
+              }
+            },
+            {
+              "id": "delivery.arm_shaft_angle",
+              "ideal": "As the hands lower from above belt height, a clear angle remains between the left arm and shaft. The club does not straighten into line with the arm while the hands are still high. Assess the earlier movement, not just a later position close to the ball.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "transition",
+                  "delivery"
+                ],
+                "at": "Follow the left-arm/shaft angle as the hands lower from above belt height. Judge whether the angle straightens while the hands are still high, not just how it looks near the ball."
+              },
+              "deviations": {
+                "problems": {
+                  "released_high": "The shaft straightens markedly toward the line of the left arm while the hands are still high, before they reach belt height."
+                },
+                "large_deviation_anchor": "The left arm and shaft have become nearly straight in line while the hands are still clearly above belt height."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "delivery.arm_shaft_angle.establish_backswing_hinge",
+                    "when": {
+                      "problems": [
+                        "released_high"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "halfway_back.arm_shaft_angle",
+                          "status": "deviation",
+                          "problem": "insufficient_angle"
+                        }
+                      ]
+                    },
+                    "feedback": "During the early downswing, while the hands are still above belt height, the club straightens into line with the left arm while the hands are still high; the backswing also lacks the reference L.",
+                    "correction": "During the backswing, when the left arm is horizontal, form an approximate right-angle L between the left arm and shaft, then check when that angle opens during the downswing."
+                  }
+                ],
+                "positive_feedback": "During the early downswing, while the hands are still above belt height, an angle remains between your left arm and shaft while the hands lower from their high position."
+              }
+            },
+            {
+              "id": "delivery.trail_arm",
+              "ideal": "As the hands lower toward the ball, the right elbow remains somewhat bent and the right arm moves down into the space in front of the torso. It does not straighten early or remain behind the torso.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "transition",
+                  "delivery"
+                ]
+              },
+              "deviations": {
+                "problems": {
+                  "straightened_early": "The right arm visibly becomes straight before the hands approach the pre-contact belt-height position.",
+                  "stuck_behind": "Across the lowering sequence, right elbow and arm visibly remain behind the torso instead of moving into the space in front of it."
+                },
+                "large_deviation_anchor": "The right arm is rigidly straight well before contact, or stays clearly behind the torso across the lowering sequence. Both arm and torso must be visible."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "delivery.trail_arm.lower_trail_arm_in_front",
+                    "when": {
+                      "problems": [
+                        "stuck_behind"
+                      ]
+                    },
+                    "feedback": "During the downswing, before contact as the hands approach belt height, your right arm stays behind the torso as the hands lower.",
+                    "correction": "During the downswing, before contact as the hands approach belt height, bring the bent right arm down in front of the body as you move toward the left side; avoid throwing it straight to catch up."
+                  },
+                  {
+                    "id": "delivery.trail_arm.reference_straightened_early",
+                    "when": {
+                      "problems": [
+                        "straightened_early"
+                      ]
+                    },
+                    "feedback": "During the downswing, before contact as the hands approach belt height, your right arm becomes straight too early, before the hands reach the pre-contact belt-height position.",
+                    "correction": "During the downswing, before contact as the hands approach belt height, keep a small bend in the right elbow as the hands approach the ball; let the arm extend later through the strike."
+                  }
+                ],
+                "positive_feedback": "During the downswing, before contact as the hands approach belt height, your right elbow stays somewhat bent as the arm lowers in front of the torso."
+              }
+            },
+            {
+              "id": "delivery.hip_depth",
+              "ideal": "Compare with address in the same down-the-line camera. As the hands lower, the pelvis stays back from the ball rather than moving conspicuously toward it. This is distance toward the ball, not the separate sideways shift toward the target.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "setup",
+                  "transition",
+                  "delivery"
+                ],
+                "baseline_section": "setup"
+              },
+              "deviations": {
+                "problems": {
+                  "toward_ball": "Pelvis visibly moves toward the ball and loses earlier depth during the downswing."
+                },
+                "large_deviation_anchor": "Compared with address in the same camera, the pelvis plainly moves toward the ball during the downswing; a single later still cannot establish the movement."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "delivery.hip_depth.keep_pelvis_back",
+                    "when": {
+                      "problems": [
+                        "toward_ball"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "top.hand_depth",
+                          "status": "near_reference"
+                        },
+                        {
+                          "checkpoint_id": "top.lead_arm_plane",
+                          "status": "near_reference"
+                        }
+                      ]
+                    },
+                    "feedback": "During the downswing, from the top until the hands approach belt height, your pelvis moves closer to the ball than it was at address.",
+                    "correction": "During the downswing, from the top until the hands approach belt height, turn the hips without pushing the pelvis closer to the ball. Keep space in front of the thighs for the arms to lower."
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "impact",
+      "name": "Impact",
+      "sections": [
+        {
+          "id": "impact",
+          "stages": [
+            "IMPACT_REGION"
+          ],
+          "at": "The moment actual club-to-ball contact is visible. Estimated ball movement or an IMPACT_REGION label alone does not confirm it.",
+          "checkpoints": [
+            {
+              "id": "impact.hip_opening",
+              "ideal": "At visibly confirmed contact, the pelvis has turned slightly toward the target compared with its address orientation. No exact rotation angle is measured.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "too_square_or_closed": "At actual contact, the pelvis is still in its address direction or turned away from the target, rather than slightly toward it.",
+                  "excessively_open": "At actual contact, the pelvis has turned conspicuously farther toward the target than the slight reference opening."
+                },
+                "large_deviation_anchor": "At actual contact, the pelvis clearly remains turned away from the target or has turned far beyond the slight-open reference. Judge qualitative orientation, not exact degrees."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "impact.hip_opening.continue_turn_after_delivery",
+                    "when": {
+                      "problems": [
+                        "too_square_or_closed"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "delivery.shaft_direction",
+                          "status": "near_reference"
+                        },
+                        {
+                          "checkpoint_id": "top.clubface_arm",
+                          "status": "near_reference"
+                        },
+                        {
+                          "checkpoint_id": "setup.body_alignment",
+                          "status": "near_reference"
+                        },
+                        {
+                          "checkpoint_id": "transition.lower_body_shift",
+                          "status": "near_reference"
+                        },
+                        {
+                          "checkpoint_id": "post_impact.body_arc",
+                          "status": "deviation",
+                          "problem": "turn_stalls"
+                        }
+                      ]
+                    },
+                    "feedback": "At ball contact, your pelvis has not turned slightly toward the target; just after contact, the body turn also stops.",
+                    "correction": "During the last part of the downswing, after the shaft has returned to the intended pre-contact line, keep the hips and torso turning through contact and into the follow-through."
+                  },
+                  {
+                    "id": "impact.hip_opening.reference_excessively_open",
+                    "when": {
+                      "problems": [
+                        "excessively_open"
+                      ]
+                    },
+                    "feedback": "At ball contact, your pelvis has turned too far toward the target compared with the selected reference.",
+                    "correction": "For the moment of ball contact, rehearse with the pelvis only slightly turned toward the target at contact, then keep turning through rather than stopping the hips."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "impact.chest_opening",
+              "ideal": "At visibly confirmed contact, the chest faces approximately as it did at address or has turned slightly toward the target. The video describes relatively square shoulders and the checklist a slightly open chest; do not treat these as identical axes or fault a small difference.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "closed": "At actual contact, the chest is clearly still turned away from the target compared with its address direction.",
+                  "excessively_open": "At actual contact, the chest is conspicuously farther turned toward the target than the square-to-slightly-open reference."
+                },
+                "large_deviation_anchor": "At actual contact, the chest clearly remains turned away from the target or has turned far beyond the slightly-open reference. Small differences between square and slightly open are allowed."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "impact.chest_opening.reference_closed",
+                    "when": {
+                      "problems": [
+                        "closed"
+                      ]
+                    },
+                    "feedback": "At ball contact, your chest is still turned away from the target relative to its address direction.",
+                    "correction": "For the moment of ball contact, in a slow rehearsal, let the chest return toward its address direction or slightly toward the target by contact, then keep turning through."
+                  },
+                  {
+                    "id": "impact.chest_opening.reference_excessively_open",
+                    "when": {
+                      "problems": [
+                        "excessively_open"
+                      ]
+                    },
+                    "feedback": "At ball contact, your chest has turned too far toward the target compared with the selected reference.",
+                    "correction": "For the moment of ball contact, in a slow rehearsal, reduce the chest turn by contact to approximately its address direction or slightly toward the target, then keep turning through."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "impact.arm_stack",
+              "ideal": "At visibly confirmed contact in the down-the-line image, the right arm appears below the left arm and the right elbow still has a small bend.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "reversed_stack": "At actual contact in the rear view, the right arm appears clearly above the left arm.",
+                  "fully_straight_trail": "At actual contact, the right elbow is fully straight rather than retaining a small bend."
+                },
+                "large_deviation_anchor": "Clearly reversed arm stacking or locked right arm at the visually confirmed contact frame."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "impact.arm_stack.recheck_weak_grip_before_arm_throw",
+                    "when": {
+                      "problems": [
+                        "reversed_stack"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "setup.grip",
+                          "status": "deviation",
+                          "problem": "weak_side"
+                        },
+                        {
+                          "checkpoint_id": "top.clubface_arm",
+                          "status": "deviation",
+                          "problem": "open"
+                        }
+                      ]
+                    },
+                    "feedback": "At ball contact, the right arm appears above the left arm; a weak address grip and an open face at the top are also visible.",
+                    "correction": "Before starting the backswing, adjust the grip V shapes to point between your chin and right shoulder. Then check the face at the top and the club through contact again; avoid adding a late hand flip."
+                  },
+                  {
+                    "id": "impact.arm_stack.reference_fully_straight_trail",
+                    "when": {
+                      "problems": [
+                        "fully_straight_trail"
+                      ]
+                    },
+                    "feedback": "At ball contact, your right arm is fully straight.",
+                    "correction": "For the moment of ball contact, rehearse with a little softness in the right elbow, allowing the arm to extend through the ball rather than locking it before contact."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "impact.hands_ahead",
+              "ideal": "At visibly confirmed iron contact, the hands are slightly farther toward the target than the clubhead in the face-on image. Do not judge a later frame after the clubhead has released past the hands.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "visual",
+                "context": "iron"
+              },
+              "deviations": {
+                "problems": {
+                  "behind_clubhead": "At actual iron contact, the clubhead is visibly farther toward the target than the hands in the face-on view.",
+                  "excessive_forward": "At actual iron contact, the hands are conspicuously farther toward the target than the clubhead, beyond the slight-forward reference."
+                },
+                "large_deviation_anchor": "At visually confirmed iron contact, clubhead clearly leads the hands or hands are conspicuously beyond the slight-forward reference. Require readable hand/shaft geometry; a normal release after contact does not qualify."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "impact.hands_ahead.recheck_grip_before_forward_handle",
+                    "when": {
+                      "problems": [
+                        "behind_clubhead"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "setup.grip",
+                          "status": "deviation",
+                          "problem": "weak_side"
+                        },
+                        {
+                          "checkpoint_id": "top.clubface_arm",
+                          "status": "deviation",
+                          "problem": "open"
+                        },
+                        {
+                          "checkpoint_id": "post_impact.face_rotation",
+                          "status": "deviation",
+                          "problem": "abrupt_rollover"
+                        }
+                      ]
+                    },
+                    "feedback": "At ball contact, the clubhead is farther toward the target than the hands; a weak address grip and an open face at the top are also visible.",
+                    "correction": "Before starting the backswing, adjust the grip V shapes to point between your chin and right shoulder. Then check the face at the top and the club through contact again; avoid adding a late hand flip."
+                  },
+                  {
+                    "id": "impact.hands_ahead.reference_excessive_forward",
+                    "when": {
+                      "problems": [
+                        "excessive_forward"
+                      ]
+                    },
+                    "feedback": "At ball contact, your hands are much farther toward the target than the clubhead, beyond the slight-forward reference.",
+                    "correction": "For the moment of ball contact, rehearse with the hands only slightly toward the target relative to the clubhead; let the club release through rather than pushing the handle farther forward."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "impact.lead_load_target",
+              "ideal": "At contact, the checklist asks for most body weight on the left side. Ordinary images cannot measure that weight distribution.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "reference_only"
+              },
+              "deviations": {
+                "problems": {},
+                "large_deviation_anchor": null
+              },
+              "coaching": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "post_impact",
+      "name": "Post Impact",
+      "sections": [
+        {
+          "id": "post_impact",
+          "stages": [
+            "FOLLOW_THROUGH"
+          ],
+          "at": "Soon after contact, before the arms fold into the completed finish.",
+          "checkpoints": [
+            {
+              "id": "post_impact.clubhead_outside",
+              "ideal": "Soon after contact, before the arms fold into the finish, the clubhead appears farther toward the ball/target-line side than the hands in the down-the-line image. Judge clubhead location, not which way the face points.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "visual"
+              },
+              "deviations": {
+                "problems": {
+                  "inside_early": "Soon after contact, before the arms fold into the finish, the clubhead is clearly on the body side of the hands in the rear-view image."
+                },
+                "large_deviation_anchor": "At the correct early post-contact position, the clubhead is unmistakably on the body side of the hands in the rear image. A later normal wrap around the body does not count."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "post_impact.clubhead_outside.reference_inside_early",
+                    "when": {
+                      "problems": [
+                        "inside_early"
+                      ]
+                    },
+                    "feedback": "Immediately after ball contact, before the arms fold into the finish, the clubhead has already moved to the body side of the hands in the rear-view image.",
+                    "correction": "Immediately after ball contact, before the arms fold into the finish, rehearse the early follow-through with the clubhead on the ball/target-line side of the hands, then let the club continue naturally around the body."
+                  }
+                ],
+                "positive_feedback": "Immediately after ball contact, before the arms fold into the finish, the clubhead stays on the ball/target-line side of the hands in the rear view."
+              }
+            },
+            {
+              "id": "post_impact.face_rotation",
+              "ideal": "Across sharp frames before and after contact, the clubface turns progressively rather than suddenly rolling over. Normal release is allowed; the face must remain readable to assess its rotation.",
+              "observe": {
+                "views": [
+                  "DTL",
+                  "FO"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "delivery",
+                  "impact",
+                  "post_impact"
+                ]
+              },
+              "deviations": {
+                "problems": {
+                  "abrupt_rollover": "Face visibly rolls over abruptly across the strike region."
+                },
+                "large_deviation_anchor": "Large abrupt orientation change clearly shown by the face itself across distinct, sharp frames."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "post_impact.face_rotation.recheck_weak_grip",
+                    "when": {
+                      "problems": [
+                        "abrupt_rollover"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "setup.grip",
+                          "status": "deviation",
+                          "problem": "weak_side"
+                        },
+                        {
+                          "checkpoint_id": "top.clubface_arm",
+                          "status": "deviation",
+                          "problem": "open"
+                        }
+                      ]
+                    },
+                    "feedback": "Through the strike, from just before to just after contact, the face rolls over abruptly; a weak address grip and an open face at the top are also visible.",
+                    "correction": "Before starting the backswing, adjust the grip V shapes to point between your chin and right shoulder. Then check the face at the top and the club through contact again; avoid adding a late hand flip."
+                  }
+                ],
+                "positive_feedback": "Through the strike, from just before to just after contact, your visible clubface turns progressively through the strike without an abrupt rollover."
+              }
+            },
+            {
+              "id": "post_impact.body_arc",
+              "ideal": "Through contact and into the follow-through, the hips and torso continue turning while the club travels around the body. They do not visibly stop for a sustained interval while the club moves on alone.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "delivery",
+                  "impact",
+                  "post_impact"
+                ]
+              },
+              "deviations": {
+                "problems": {
+                  "turn_stalls": "Body visibly stops turning while the club continues independently."
+                },
+                "large_deviation_anchor": "Clear sustained body-turn stall through the observed region, not an inference from one arm position."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "post_impact.body_arc.continue_turn_after_delivery",
+                    "when": {
+                      "problems": [
+                        "turn_stalls"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "delivery.shaft_direction",
+                          "status": "near_reference"
+                        },
+                        {
+                          "checkpoint_id": "top.clubface_arm",
+                          "status": "near_reference"
+                        },
+                        {
+                          "checkpoint_id": "setup.body_alignment",
+                          "status": "near_reference"
+                        },
+                        {
+                          "checkpoint_id": "transition.lower_body_shift",
+                          "status": "near_reference"
+                        }
+                      ]
+                    },
+                    "feedback": "Through contact and into the early follow-through, your hips and torso stop turning even though the shaft had returned close to the intended pre-contact line.",
+                    "correction": "During the last part of the downswing, after the shaft has returned to the intended pre-contact line, keep the hips and torso turning through contact and into the follow-through."
+                  }
+                ],
+                "positive_feedback": "Through contact and into the early follow-through, your hips and torso keep turning as the club travels around the body after contact."
+              }
+            },
+            {
+              "id": "post_impact.arm_extension",
+              "ideal": "Immediately after contact, the arms extend away from the chest before folding later into the finish. The left elbow does not fold sharply into the body straight after the ball.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "impact",
+                  "post_impact"
+                ]
+              },
+              "deviations": {
+                "problems": {
+                  "folds_early": "The left elbow folds sharply inward toward the chest immediately after contact instead of the arms extending through first."
+                },
+                "large_deviation_anchor": "Pronounced immediate folding instead of the demonstrated extension, clearly shown across frames."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "post_impact.arm_extension.recheck_hinge_with_early_release",
+                    "when": {
+                      "problems": [
+                        "folds_early"
+                      ],
+                      "requires": [
+                        {
+                          "checkpoint_id": "delivery.arm_shaft_angle",
+                          "status": "deviation",
+                          "problem": "released_high"
+                        },
+                        {
+                          "checkpoint_id": "halfway_back.arm_shaft_angle",
+                          "status": "deviation",
+                          "problem": "insufficient_angle"
+                        }
+                      ]
+                    },
+                    "feedback": "Immediately after ball contact, your left arm folds into the body too early; the club also straightens too early during the downswing and the backswing lacks the reference L.",
+                    "correction": "During the backswing, when the left arm is horizontal, form the approximate right-angle L between the left arm and shaft before making the backswing longer; then check the club's release and arm extension through the ball."
+                  }
+                ],
+                "positive_feedback": "Immediately after ball contact, before the arms fold into the finish, your arms extend away from the chest immediately after contact before folding later."
+              }
+            },
+            {
+              "id": "post_impact.exit_line",
+              "ideal": "In the down-the-line view, compare the club's early follow-through line with the projected reference line through the hands at the top. Describe the relationship only; this checkpoint has no scored fault or correction.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": true,
+                "mode": "description_only",
+                "sequence_sections": [
+                  "top",
+                  "post_impact"
+                ]
+              },
+              "deviations": {
+                "problems": {},
+                "large_deviation_anchor": null
+              },
+              "coaching": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "follow_through",
+      "name": "Follow Through",
+      "sections": [
+        {
+          "id": "finish",
+          "stages": [
+            "FINISH"
+          ],
+          "at": "The completed follow-through. Use a real changing sequence to assess settling and balance; a frozen replay is insufficient.",
+          "checkpoints": [
+            {
+              "id": "finish.shaft_ears",
+              "ideal": "In the full-finish reference, the shaft overlaps the ear region in the down-the-line image. The source video says Rose does not reach that full finish in the example. Describe only; do not score it as a fault.",
+              "observe": {
+                "views": [
+                  "DTL"
+                ],
+                "sequence": false,
+                "mode": "description_only"
+              },
+              "deviations": {
+                "problems": {},
+                "large_deviation_anchor": null
+              },
+              "coaching": null
+            },
+            {
+              "id": "finish.trail_unload_target",
+              "ideal": "The checklist asks for the right side to be unloaded in the finish. A raised right heel is visible, but does not prove zero weight or measure foot pressure.",
+              "observe": {
+                "views": [
+                  "DTL",
+                  "FO"
+                ],
+                "sequence": false,
+                "mode": "reference_only"
+              },
+              "deviations": {
+                "problems": {},
+                "large_deviation_anchor": null
+              },
+              "coaching": null
+            },
+            {
+              "id": "finish.balance",
+              "ideal": "Settle into a stable completed finish without falling or taking a recovery step. The video asks for a five-second hold; verify that duration only when a real changing sequence covers it, not from a still or frozen replay.",
+              "observe": {
+                "views": [
+                  "DTL",
+                  "FO"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "finish"
+                ]
+              },
+              "deviations": {
+                "problems": {
+                  "falls_toward_ball": "Body continues falling toward the ball.",
+                  "falls_sideways": "Body loses balance sideways rather than settling.",
+                  "cannot_settle": "Player visibly fails to settle into a held finish."
+                },
+                "large_deviation_anchor": "Visible falling, recovery steps or collapse across the sequence. A short clip ending is unknown, not a failed five-second hold."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "finish.balance.reference_falls_toward_ball",
+                    "when": {
+                      "problems": [
+                        "falls_toward_ball"
+                      ]
+                    },
+                    "feedback": "At the end of the swing, you keep falling toward the ball instead of settling into a stable finish.",
+                    "correction": "On the next swing, reduce speed and length so you can finish without falling toward the ball. Gradually restore speed once you can hold that finish."
+                  },
+                  {
+                    "id": "finish.balance.reference_falls_sideways",
+                    "when": {
+                      "problems": [
+                        "falls_sideways"
+                      ]
+                    },
+                    "feedback": "At the end of the swing, you lose balance sideways instead of settling into a stable finish.",
+                    "correction": "On the next swing, reduce speed and length until you can finish without taking a recovery step. Gradually restore speed while keeping that balance."
+                  },
+                  {
+                    "id": "finish.balance.reference_cannot_settle",
+                    "when": {
+                      "problems": [
+                        "cannot_settle"
+                      ]
+                    },
+                    "feedback": "At the end of the swing, you do not settle into a finish you can hold.",
+                    "correction": "On the next swing, use a controlled pace that lets you settle into the finish and hold it for five seconds. Restore speed gradually while keeping that control."
+                  }
+                ],
+                "positive_feedback": "As you settle into the finish, you settle into a stable finish without falling or taking a recovery step."
+              }
+            },
+            {
+              "id": "finish.body_position",
+              "ideal": "During the completed finish, the pelvis and torso settle over the left leg rather than staying or moving back over the right leg. The right heel may lift, but heel position alone does not establish body position or foot pressure.",
+              "observe": {
+                "views": [
+                  "FO"
+                ],
+                "sequence": true,
+                "mode": "visual",
+                "sequence_sections": [
+                  "post_impact",
+                  "finish"
+                ]
+              },
+              "deviations": {
+                "problems": {
+                  "remains_trailward": "Across the completed follow-through, pelvis and torso visibly retreat or remain over the right leg rather than settling over the left leg."
+                },
+                "large_deviation_anchor": "Across a real finish sequence, the pelvis and torso plainly stay or move back over the right leg. Both feet and torso must be visible; heel position alone is insufficient."
+              },
+              "coaching": {
+                "rules": [
+                  {
+                    "id": "finish.body_position.finish_over_lead_leg",
+                    "when": {
+                      "problems": [
+                        "remains_trailward"
+                      ]
+                    },
+                    "feedback": "As you settle into the finish, your body finishes back over the right leg.",
+                    "correction": "As you settle into the finish, move into a finish over the left leg and let the right heel lift, with the right foot free to make a light toe tap."
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "terminology": {
+    "lead / trail": "For this right-handed reference, lead means left and trail means right. Toward the target and toward the ball are different directions.",
+    "FO / DTL": "FO is face-on, looking at the front of the player (swing_side). DTL is down the line, looking from behind approximately along the target direction (swing_behind).",
+    "projection / overlap": "Two features line up in the 2D camera image. They do not need to touch or occupy the same 3D position.",
+    "inside / outside": "For club and hand position in a DTL image, inside means toward the player and outside means toward the ball/target-line side. Use the checkpoint landmarks; this is not a measured ball-flight path.",
+    "square / open / closed body": "Square means approximately parallel to the target line as at address. Open means turned toward the target; closed means still turned away from it. Judge the named body part, not another part.",
+    "clubface open / closed": "Compare the visible face with the local reference in that checkpoint. Do not infer face orientation from the club path or ball flight.",
+    "steep / shallow shaft": "Steep means more upright; shallow/flat means less upright in the specified camera view. Compare at the same named swing position, not across different phases.",
+    "cupped / bowed wrist": "Cupped means the back of the left hand bends toward the back of the forearm. Bowed means it bends the opposite way. Flat means the back of the hand and forearm are broadly in line.",
+    "across the line / laid off": "At the top in this right-handed DTL view, across the line is the shaft diverging to the right of the local reference line; laid off is divergence to the left. Camera alignment and the local ball-to-hands reference are required.",
+    "release / arm run-on": "Release is the club straightening and turning through the strike. Arm run-on means the arms keep travelling back after the body turn has finished.",
+    "large_deviation_anchor": "A written description of a clearly large departure at one checkpoint. It is a qualitative comparison, not a measured angle or proof of ball-flight effect."
+  }
+}

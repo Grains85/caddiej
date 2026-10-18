@@ -18,12 +18,12 @@ from uuid import uuid4
 
 import pytest
 
-from caddiej.coaching.frames import DEFAULT_OFFSETS, offsets_for
 from caddiej.domain.media import CameraView, ClipRef, TimeQuality
 from caddiej.video.diagnose import jpeg_size, probe_video_frames
 from caddiej.video.fakes import FakeRun, finished_mp4
 from caddiej.video.frames import FrameExtractor
 from caddiej.video.layout import MediaLayout
+from caddiej.video.offsets import DEFAULT_OFFSETS, offsets_for
 
 RECORDED = datetime(2026, 8, 29, 19, 24, 14, tzinfo=UTC)
 IMPACT = datetime(2026, 8, 29, 19, 24, 11, tzinfo=UTC)

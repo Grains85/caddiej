@@ -16,7 +16,6 @@ from pathlib import Path
 from uuid import uuid4
 
 from tests.unit.test_capture_scene import PANELS
-from tests.unit.test_coach_protee import Coach, a_reply
 from tests.unit.test_obs_client import CAPTURE, _Bay, _client
 from tests.unit.test_play_flow import (
     Clock,
@@ -29,19 +28,15 @@ from tests.unit.test_play_flow import (
 from tests.unit.test_swing_capture import Clock as CaptureClock
 from tests.unit.test_swing_capture import an_impact
 
-from caddiej.coaching.fakes import BrokenProvider, ScriptedProvider
-from caddiej.coaching.provider import ProviderUnavailableError
 from caddiej.core.delivery import Delivery
 from caddiej.domain.coaching import AdviceFailure
 from caddiej.domain.event_policy import EVENT_DELIVERY, delivery_for
 from caddiej.domain.events import (
     AnalysisCompleted,
     AnalysisFailed,
-    AnalysisStarted,
     CoachingProgress,
     CoachingStage,
     Event,
-    ShotCompleted,
     ShotDetected,
     ShotDiagnosed,
     ShotIngested,
@@ -288,37 +283,6 @@ class TestBallStatusAndTheResultAreUntouched:
 
 
 class TestTheRealPipelineAnnouncesItsStages:
-    async def test_analyzing_goes_out_with_the_request_and_coaching_with_the_reply(
-        self, tmp_path: Path
-    ) -> None:
-        coach = Coach(ScriptedProvider(replies=(a_reply(),)))
-
-        detected = await coach.run(tmp_path)
-
-        events = coach.bus.events
-        progress = coach.bus.of(CoachingProgress)
-        assert [event.stage for event in progress] == [ANALYZING, COACHING]
-        assert {event.shot_id for event in progress} == {detected.event_id}
-        assert {event.trigger_id for event in progress} == {"16"}
-        started = next(
-            i for i, e in enumerate(events) if isinstance(e, AnalysisStarted)
-        )
-        completed = next(
-            i for i, e in enumerate(events) if isinstance(e, AnalysisCompleted)
-        )
-        analyzing, coaching = (events.index(event) for event in progress)
-        assert started < analyzing < coaching < completed
-        assert not coach.bus.of(ShotCompleted), "no GSPro shot was needed"
-
-    async def test_a_request_that_never_answers_never_claims_to_be_coaching(
-        self, tmp_path: Path
-    ) -> None:
-        coach = Coach(BrokenProvider(ProviderUnavailableError("down")))
-
-        await coach.run(tmp_path)
-
-        assert [e.stage for e in coach.bus.of(CoachingProgress)] == [ANALYZING]
-
     async def test_swing_capture_announces_capturing_before_its_burst(
         self, tmp_path: Path
     ) -> None:

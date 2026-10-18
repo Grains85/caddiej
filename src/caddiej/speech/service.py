@@ -32,6 +32,7 @@ import time
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 from uuid import UUID
 
 from caddiej.core.event_bus import EventBus
@@ -135,6 +136,7 @@ class SpeechService:
         drain_timeout_seconds: float = 5.0,
         gain: float = 1.0,
         monotonic: Callable[[], float] = time.monotonic,
+        diagnostics: Any = None,
     ) -> None:
         if queue_size < 1:
             raise ValueError("queue_size must hold at least one utterance")
@@ -162,6 +164,7 @@ class SpeechService:
             raise ValueError(f"gain must be above zero and at most {MAX_GAIN}")
         self._gain = gain
         self._monotonic = monotonic
+        self._diagnostics = diagnostics
 
         self._waiting: list[_Job] = []
         self._strike_id: UUID | None = None
@@ -439,6 +442,12 @@ class SpeechService:
                     "speech_detail": "speech is not available",
                 },
             )
+            self._diagnostic_tts(
+                utterance.shot_id,
+                status="skipped" if not self._enabled else "failed",
+                detail="speech is not available",
+                monotonic_seconds=None,
+            )
             return False
 
         text = self._clean(utterance.text)
@@ -452,6 +461,12 @@ class SpeechService:
                     "coaching_reason": "refused",
                     "speech_detail": "empty_or_too_long",
                 },
+            )
+            self._diagnostic_tts(
+                utterance.shot_id,
+                status="skipped",
+                detail="empty_or_too_long",
+                monotonic_seconds=None,
             )
             return False
 
@@ -478,6 +493,12 @@ class SpeechService:
         self._interrupt_for(job)
         self._arrived.set()
         accepted = any(waiting is job for waiting in self._waiting)
+        self._diagnostic_tts(
+            job.utterance.shot_id,
+            status="success" if accepted else "failed",
+            detail="queued" if accepted else "not accepted onto the speech queue",
+            monotonic_seconds=job.queued_monotonic if accepted else None,
+        )
         if accepted:
             # The gap between a line being ready and a line being audible is
             # where everything slow happens — a voice loading, a render, a queue
@@ -515,6 +536,27 @@ class SpeechService:
             )
             return ""
         return collapsed
+
+    def _diagnostic_tts(
+        self,
+        shot_id: UUID | None,
+        *,
+        status: str,
+        detail: str,
+        monotonic_seconds: float | None,
+    ) -> None:
+        journal = self._diagnostics
+        if journal is None or shot_id is None:
+            return
+        try:
+            journal.note_tts(
+                str(shot_id),
+                status=status,
+                detail=detail,
+                monotonic_seconds=monotonic_seconds,
+            )
+        except Exception:
+            logger.exception("diagnostics_note_failed")
 
     def _supersede(self, arriving: _Job) -> list[_Job]:
         """Waiting lines the new one makes pointless.
@@ -918,6 +960,7 @@ def build_speech_service(
     open_timeout_seconds: float = 90.0,
     drain_timeout_seconds: float = 5.0,
     gain: float = 1.0,
+    diagnostics: Any = None,
 ) -> SpeechService:
     """Assemble speech from plain values, so tests need no `Settings`."""
 
@@ -946,4 +989,5 @@ def build_speech_service(
         open_timeout_seconds=open_timeout_seconds,
         drain_timeout_seconds=drain_timeout_seconds,
         gain=gain,
+        diagnostics=diagnostics,
     )

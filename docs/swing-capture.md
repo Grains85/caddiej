@@ -335,70 +335,22 @@ kept. `timeline` has one entry per screenshot: its offset, a short SHA-256,
 its size in bytes and pixels, whether it changed from the one before, and
 whether it was kept. Each kept frame names its `captured_index` and hash, so
 you can match it to its place in the burst. No image bytes are stored there.
-`settled` only means something for a static panel. After coaching
-sends pictures, `provider_images` lists the image that was actually sent (the
-evidence sheet, or the All Values still alone), `provider_frame_ids` names
-every original it carried, and `evidence_sheet.cells` is the table from each
-printed cell ID to its original frame.
+`settled` only means something for a static panel. After coaching sends
+pictures, `evidence_package.json` lists the frames that were selected, why
+each one was kept, and the impact estimate.
 
-## The Swing Evidence Sheet
+## Evidence sent to coaching
 
-The model is sent **one image per shot**: every selected still, the impact
-graphic and the All Values grid, drawn side by side onto one canvas and stored
-beside the originals as `swing_evidence.jpg`. Seventeen separate images ran
-two real requests out of the 30 s timeout; one image is about 4,100 input
-tokens instead of an estimated 31,700.
+The one-image evidence sheet is gone. Ideal Swing coaching reads the full
+capture timeline and sends the frames chosen by the shared evidence pipeline.
+The image budget is `COACHING_EVIDENCE_BUDGET` (default 24, 20 down-the-line
+and 4 face-on). `SWING_CAPTURE_SELECTED_FRAMES` is the smaller set stored with
+the capture. It is not the set sent to the model.
 
-**The originals stay the evidence.** The sheet is a derived transport file.
-Nothing on disk is downscaled, replaced or merged, and every checkpoint, fault
-and root cause keeps the id of the original frame it was read from
-(`swing_behind_08`), never a cell ID. A screen that wants "the picture behind
-this fault" resolves that id with `frame_path`, or a printed ID with
-`original_for_cell`, and opens the full-resolution original.
-
-| Cell | Original | Kind |
-| --- | --- | --- |
-| `DTL_P1` … `DTL_P8` | `swing_behind_NN`, aimed at setup … release | body, down the line (blue) |
-| `FO_P1`, `FO_P3` … `FO_P8` | `swing_side_NN`, aimed at setup, backswing … release | body, face on (green) |
-| `IMPACT` | `impact_01` | ProTee graphic (grey) |
-| `ALL_VALUES` | `all_values` | numbers only (brown) |
-
-A cell's P-number is the moment it was **aimed** at, printed as `~transition
-@3.8s` on that camera's own clock. A still with no aim keeps its file position
-(`DTL_03`). The model still says what each cell shows, the reply is translated
-from cell IDs to frame ids before anything reads it, and every existing check
-then runs unchanged: a cell shown at another moment is `phase_conflict`, a
-cell from the wrong camera is `view` or `view_mismatch`, the impact graphic is
-`view_unknown`, and `ALL_VALUES` is `metrics_frame` and can never be the
-floor's picture.
-
-**Size is the model's limit, not a choice.** gpt-5-mini fits every image
-inside 2048 × 2048 before reading it (measured), so a bigger canvas would only
-be shrunk by the API. The layout searches every arrangement for the one that
-keeps the smallest cell largest. On the bay that is 2048 × 1679 px: down the
-line 3 × 3 at 291 × 429 px per still (sources 1002 × 1480), face on 3 × 3 at
-370 × 433 (sources 1272 × 1490), impact 370 × 163, and All Values a full-width
-strip 2032 × 173 (source 5102 × 435). JPEG quality 90 with 4:4:4 colour,
-about 950 KB, drawn in about 0.15 s. Nothing is stretched, enlarged or
-cropped.
-
-**What that costs.** Each swing still reaches the model at about 0.29 of its
-captured size, where separately it was read at full size (every still already
-fits inside 2048). Fine detail — a shaft against the screen, a lead wrist
-angle — is softer than it was. That is the price of one image; the phase and
-view checks above are what keep it from becoming a confident wrong score.
-
-If the sheet cannot be drawn (no Pillow, unreadable files), the All Values
-still goes alone: the numbers are read and every checkpoint is null. It never
-falls back to seventeen images. The sheet is pruned with its shot, and
-`latest_swing` gets a copy only while it still holds that shot.
-
-Benchmark a stored shot without hitting a ball — one real request, never part
-of the test suite:
-
-```shell
-caddiej --check-coach --benchmark-evidence media/swing_shots/<shot>
-```
+Selected frames, the reason each one was kept, detected stages, and the impact
+estimate are written beside the shot as `evidence_package.json`. Original
+JPEGs stay on disk. Unselected frames can be deleted after the package is
+built. Nothing in that package is a composite sheet.
 
 No shot measurements. Those belong to the passive observers and to
 [shot history](history.md), and a second, staler copy of them here would be a
@@ -406,11 +358,9 @@ second place to be wrong.
 
 ## Tuning it after the first shot
 
-`SwingFramesReady` is what coaching reads. Each still is listed to the model
-by its cell ID with its label, `SWING_BEHIND / DOWN_THE_LINE`,
-`SWING_SIDE / FACE_ON`, `IMPACT`, or `DELIVERY`, and open
-`swing_evidence.jpg` to see exactly what it was shown. The timing of the burst
-is still a first guess.
+`SwingFramesReady` is what coaching reads. The model is shown the frames named
+in `evidence_package.json`, not a composite sheet. The timing of the burst is
+still a first guess.
 
 The first check is by eye. Hit one shot, open `media/latest_swing`, and look
 at whether the frames cover the swing. If it has a `STALE.json`, look in the
@@ -455,14 +405,11 @@ goes into `metadata.json` under `diagnostic_timeline`:
 - its size, digest and whether it changed;
 - whether it was selected, as which file and for which phase.
 
-Nothing extra is asked of OBS, and nothing under `diagnostic/` reaches the
-sheet or the model. A strike superseded by a newer one does not use up a
+Nothing extra is asked of OBS. With `COACHING_VISION_CALLS=true` the evidence
+pipeline reads this timeline and keeps `COACHING_EVIDENCE_BUDGET` frames; the
+rest are removed after the package is built unless this setting is retaining
+the full timeline. A strike superseded by a newer one does not use up a
 shot, and the shots are pruned like any other. The log says
 `swing_capture_diagnostic_timeline_enabled` at start-up and
 `swing_capture_diagnostic_timeline_retained` for each shot, with
 `swing_capture_diagnostic_complete` true when every captured still is on disk.
-
-`COACHING_DIAGNOSTIC_DRY_RUN=true` keeps such a session free. The shot is
-captured, selected and drawn on the sheet as usual. The coach then logs
-`coaching_request_skipped` with `diagnostic_dry_run` instead of calling the
-provider, and the floor sees what it sees for any shot without a coach line.

@@ -12,10 +12,10 @@ Three decisions worth stating.
 cannot abandon when a newer shot arrives. Retrying is the service's business
 because only the service knows whether the answer is still wanted.
 
-**Images go as data URLs at low detail.** Low detail is a fixed, small number of
-tokens per image, and what a coach reads from a swing frame — where the hands
-are, whether the hips have moved — survives it. High detail would multiply the
-cost of every shot for resolution nobody is using.
+**Image detail comes from the request.** When an image does not name one, the
+provider default remains low. A swing-reference call sets high, because hands,
+shaft and hips are small in the frame. High detail uses more input tokens per
+image. It does not change how many images are sent.
 
 **The reply is parsed and handed on unvalidated.** Whether a coaching line is
 acceptable is a golf question, answered in `coaching/validate.py`. A provider
@@ -124,7 +124,7 @@ class OpenAIAdviceProvider:
         try:
             response = await self._connect().responses.create(
                 model=self._model,
-                instructions=request.system,
+                instructions=_instructions(request),
                 input=[
                     {
                         "role": "user",
@@ -140,7 +140,7 @@ class OpenAIAdviceProvider:
                         "type": "json_schema",
                         "name": request.schema_name,
                         "schema": dict(request.schema),
-                        "strict": True,
+                        "strict": request.strict_schema,
                     }
                 },
                 max_output_tokens=request.max_output_tokens,
@@ -159,6 +159,7 @@ class OpenAIAdviceProvider:
             input_tokens=_usage(response, "input_tokens"),
             output_tokens=_usage(response, "output_tokens"),
             reasoning_tokens=_reasoning_tokens(response),
+            cached_tokens=_cached_tokens(response),
         )
 
     def _image_parts(self, images: tuple[ImageInput, ...]) -> list[dict[str, str]]:
@@ -183,6 +184,20 @@ class OpenAIAdviceProvider:
         self._client = None
         if client is not None:
             await client.close()
+
+
+def _instructions(request: AdviceRequest) -> str:
+    """System text, with the stable reference prefix first when one was given.
+
+    The prefix does not include the shot. Providers that cache an identical
+    prompt prefix, including OpenAI's automatic prompt cache for long prompts,
+    can reuse it. This SDK build has no prompt-cache parameter, so the reuse
+    is the prefix order itself.
+    """
+
+    if not request.prefix:
+        return request.system
+    return f"{request.prefix}\n\n{request.system}"
 
 
 def _announce(image: ImageInput) -> str:
@@ -237,6 +252,12 @@ def _usage(response: Any, field: str) -> int | None:
 def _reasoning_tokens(response: Any) -> int | None:
     details = getattr(getattr(response, "usage", None), "output_tokens_details", None)
     value = getattr(details, "reasoning_tokens", None)
+    return int(value) if isinstance(value, int) else None
+
+
+def _cached_tokens(response: Any) -> int | None:
+    details = getattr(getattr(response, "usage", None), "input_tokens_details", None)
+    value = getattr(details, "cached_tokens", None)
     return int(value) if isinstance(value, int) else None
 
 

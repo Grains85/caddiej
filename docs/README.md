@@ -13,6 +13,9 @@
 - [First hardware validation](hardware-validation.md) — the first real
   ProTee VX + GSPro session: minimal `.env`, Windows commands, health
   fields, and what only hardware can answer.
+- [Windows validation](windows-validation.md) — clean environment, OpenCV and
+  MediaPipe, a saved swing, then the live coach. Paid vision calls stay off
+  until the last, optional step.
 - [Shot history](history.md) — the SQLite file, what is in it, and what is not.
 
 ## Optional integrations
@@ -24,17 +27,11 @@ it. None is required to hit a ball and see it on the floor.
   FFmpeg.
 - [Swing capture](swing-capture.md) — stills of the two Swing Video panels
   ProTee already draws, read back through OBS. Needs two cropped OBS sources.
-- [Coach V1](coach-v1.md) — cue taxonomy, evidence provenance, multimodal
-  capture, and the production coaching path. Implemented; awaiting hardware
-  validation.
-- [Swing Score](swing-score.md) — the P1–P9 checkpoint model: what a 0–100
-  checkpoint score means, phase scores, Swing Score V4, the fault library, the
-  root cause, and the session lesson.
-- [Coach benchmark](coach-benchmark.md) — replaying one stored shot against
-  candidate models, with no side effects, and measuring where the request's
-  tokens and the capture's seconds go.
-- [Coaching](coaching.md) — naming the one thing worth fixing, and optionally
-  letting a model word it. Needs `.[ai]` only for the second part.
+- [Coaching](coaching.md) — Ideal Swing 2.9, from a captured swing to one
+  spoken correction.
+- [Swing reference](swing-reference.md) — the live path, the evidence budget,
+  and how to install MediaPipe. Vision calls stay off until
+  `COACHING_VISION_CALLS=true`.
 - [Speech](speech.md) — saying the coached line out loud, locally. Needs
   `.[tts]`.
 - [Lighting](lighting.md) — the room reacting while CaddieJ talks. Needs

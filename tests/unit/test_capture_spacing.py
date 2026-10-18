@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from tests.unit.capture_bay import BEHIND, SIDE
 from tests.unit.test_capture_cadence import (
     BODY,
     DOWNSWING,
@@ -31,7 +32,6 @@ from tests.unit.test_capture_cadence import (
     offsets,
 )
 from tests.unit.test_downswing_phase_regression import Sequence, kept
-from tests.unit.test_release_evidence import BEHIND, SIDE
 
 from caddiej.domain.cues import PanelView
 from caddiej.domain.swing_phase import SwingPhase

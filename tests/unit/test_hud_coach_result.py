@@ -24,7 +24,6 @@ from uuid import UUID, uuid4
 import pytest
 from fastapi.testclient import TestClient
 from tests.unit.test_capture_scene import a_burst
-from tests.unit.test_coach_result_on_floor import a_score
 from tests.unit.test_hud_overlay_js import CLIENT_JS, FLOOR_CSS, INDEX_HTML, STATE_JS
 from tests.unit.test_hud_server import drain_received, text_frame
 from tests.unit.test_obs_client import _Bay
@@ -49,12 +48,17 @@ from caddiej.domain.events import (
 )
 from caddiej.domain.play import PlayFlow
 from caddiej.domain.ports import CoachingResult
+from caddiej.domain.swing_score import SwingScore
 from caddiej.floor import FloorService
 from caddiej.floor.layout import layout_from_tees
 from caddiej.floor.presenter import FloorPresenter
 from caddiej.swing_capture.store import frame_files
 
 STALE = "65530f0bf338"
+
+
+def a_score(value: int) -> SwingScore:
+    return SwingScore(value=value, components=(), available_weight=100)
 
 
 def a_floor() -> tuple[FloorService, PlayFlow]:

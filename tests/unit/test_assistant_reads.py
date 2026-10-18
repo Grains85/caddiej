@@ -526,10 +526,10 @@ async def test_status_reports_no_session_when_history_is_off(
     assert without_history.reads.status().session_id is None
 
 
-async def test_status_reports_the_training_focus(tmp_path: Path) -> None:
+async def test_status_does_not_report_an_old_fault_name(tmp_path: Path) -> None:
     ready = await boundary(tmp_path, preferred_focus=CoachingFocus.PATH)
     try:
-        assert ready.reads.status().training_focus == "path"
+        assert ready.reads.status().training_focus is None
     finally:
         await ready.coaching.aclose()
         await ready.play.aclose()

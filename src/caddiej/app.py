@@ -4,6 +4,7 @@ import asyncio
 import logging
 from collections.abc import Awaitable, Callable
 from dataclasses import asdict
+from uuid import uuid4
 
 from caddiej.adapters.api import (
     AssistantServer,
@@ -32,21 +33,19 @@ from caddiej.adapters.protee import (
 from caddiej.assistant.commands import CommandFacade
 from caddiej.assistant.contract import SubsystemPayload
 from caddiej.assistant.reads import ReadFacade, SubsystemProbe, subsystem_probe
-from caddiej.coaching import AnalysisService, FrameSource
 from caddiej.coaching.factory import build_provider
 from caddiej.config import Settings
 from caddiej.core import AsyncEventBus
 from caddiej.core.events import Event
+from caddiej.diagnostics.journal import DiagnosticJournal
 from caddiej.domain import (
     ClubDistanceProfile,
     ClubDistanceProvider,
-    CoachingFocus,
     PlayFlow,
     StaticClubDistances,
 )
 from caddiej.domain.event_policy import delivery_for, queue_size_for
 from caddiej.domain.events import LinkState
-from caddiej.domain.media import CameraView
 from caddiej.effects import EffectDirector, build_effect_director, obs_clients
 from caddiej.floor import (
     FloorLayout,
@@ -68,8 +67,9 @@ from caddiej.speech import SpeechService, build_speech_service
 from caddiej.swing_capture import (
     SwingCaptureService,
     build_swing_capture_service,
-    read_labeled_stills,
 )
+from caddiej.swing_evidence.ready import start_evidence_warmup
+from caddiej.swing_reference.live import ReferenceLiveCoach
 from caddiej.video import (
     CaptureProfile,
     VideoService,
@@ -86,6 +86,17 @@ async def run(settings: Settings | None = None) -> None:
     """Serve the floor overlay until the process is asked to stop."""
 
     resolved = settings or Settings()
+    diagnostics = DiagnosticJournal(
+        resolved.diagnostics_dir,
+        session_id=str(uuid4()),
+        enabled=resolved.diagnostics_enabled,
+        keep_sessions=resolved.diagnostics_keep_sessions,
+        keep_shots=resolved.diagnostics_keep_shots,
+        retain_payloads=resolved.diagnostics_retain_payloads,
+        payload_max_bytes=resolved.diagnostics_payload_max_bytes,
+        auto_export=resolved.diagnostics_auto_export_latest,
+        include_images=resolved.diagnostics_include_images,
+    )
 
     event_bus = AsyncEventBus(policy=delivery_for, queue_size=queue_size_for)
     floor = FloorService()
@@ -104,6 +115,7 @@ async def run(settings: Settings | None = None) -> None:
         shot_result_max_duration=resolved.floor_shot_result_max_duration,
         club_distances=_build_club_distances(resolved),
         progress_max_seconds=_progress_ceiling(resolved),
+        diagnostics=diagnostics,
     )
     play.subscribe(event_bus)
 
@@ -127,11 +139,18 @@ async def run(settings: Settings | None = None) -> None:
     # Before coaching, because it is one of the two things that can put a
     # picture of a swing in front of a model and coaching has to be told which
     # of them exist.
-    swing_capture = _build_swing_capture(resolved, event_bus.publish)
-    coaching = _build_coaching(
-        resolved, event_bus.publish, history, video, swing_capture
+    swing_capture = _build_swing_capture(
+        resolved, event_bus.publish, diagnostics=diagnostics
     )
-    speech = _build_speech(resolved, event_bus.publish)
+    coaching = _build_coaching(
+        resolved,
+        event_bus.publish,
+        history,
+        video,
+        swing_capture,
+        diagnostics=diagnostics,
+    )
+    speech = _build_speech(resolved, event_bus.publish, diagnostics=diagnostics)
     lighting = _build_lighting(resolved)
     effects = _build_effects(resolved, floor, speech, lighting)
     shot_video = _build_reveal(
@@ -192,7 +211,7 @@ async def run(settings: Settings | None = None) -> None:
             # naming faults from templates, which is the default configuration
             # and not a degraded one.
             "coaching": lambda: SubsystemPayload(
-                enabled=resolved.coaching_enabled,
+                enabled=resolved.coaching_enabled and resolved.coaching_vision_calls,
                 available=coaching.is_coaching,
             ),
             "speech": subsystem_probe(speech.health),
@@ -214,6 +233,8 @@ async def run(settings: Settings | None = None) -> None:
         # start disables itself so a locked file never stops someone hitting
         # balls.
         await history.open()
+        if history.session_id is not None:
+            diagnostics.bind_session(str(history.session_id))
 
         await event_bus.start()
         logger.info("event_bus_started")
@@ -224,10 +245,13 @@ async def run(settings: Settings | None = None) -> None:
         await video.open()
         video.subscribe(event_bus)
 
-        # After video, because whether frames can be sent depends on whether a
-        # camera actually started. Opening cannot fail loudly either: a missing
-        # key or a missing SDK leaves coaching working from its templates.
+        # After video. Opening cannot fail loudly: a missing key leaves the
+        # coach unable to call a model, and evidence warmup runs beside it
+        # without holding startup. A warmup failure is logged and does not
+        # stop the round.
         await coaching.open()
+        if resolved.coaching_enabled and resolved.coaching_vision_calls:
+            start_evidence_warmup()
         coaching.subscribe(event_bus)
 
         # After coaching, because it is the only subsystem nothing else waits on.
@@ -390,6 +414,7 @@ async def run(settings: Settings | None = None) -> None:
             if supervisor.failure is not None:
                 raise supervisor.failure
     finally:
+        diagnostics.close()
         await event_bus.stop(resolved.shutdown_timeout)
         logger.info("event_bus_stopped")
         # After the bus, so that every shot it still had queued has been offered
@@ -411,7 +436,7 @@ async def _close_subsystems(
     effects: EffectDirector,
     speech: SpeechService,
     lighting: LightingService,
-    coaching: AnalysisService,
+    coaching: ReferenceLiveCoach,
     video: VideoService,
 ) -> None:
     """Take the subsystems apart in the order that keeps a shot whole."""
@@ -542,80 +567,41 @@ def _build_coaching(
     history: HistoryService,
     video: VideoService,
     swing_capture: SwingCaptureService,
-) -> AnalysisService:
-    """Assemble coaching, with whichever of its optional inputs are present.
+    diagnostics: DiagnosticJournal | None = None,
+) -> ReferenceLiveCoach:
+    """The one live coach: Ideal Swing 2.9 on the captured DTL and FO stills.
 
-    All of them are genuinely optional and behave differently by their absence
-    rather than by a flag: with no camera it coaches from the numbers, with no
-    history it coaches without keeping a record, and with neither it still
-    names the fault on the floor.
-
-    Two things can produce pictures and they are not equivalent. A clip is
-    footage from a camera somebody placed, so the angle and the frame rate are
-    known and impact has a position in it. A swing capture is screenshots of
-    the launch monitor's own replay window, which supports a smaller claim but
-    needs no camera at all — and a bay with no dedicated swing camera, which
-    is the common case, has only that.
+    Vision calls stay off until `COACHING_VISION_CALLS` is set. History, video
+    and swing capture stay in the signature because the application still owns
+    them; this coach reads the capture the swing service already published.
     """
 
-    provider = build_provider(
-        settings.coaching_provider,
-        model=settings.coaching_model,
-        api_key=settings.coaching_api_key.get_secret_value(),
-        api_base=settings.coaching_api_base,
-    )
-    # `enabled`, not `is_available`. This runs in the construction pass, long
-    # before `video.open()`, so `is_available` is still false for every
-    # configuration — which left coaching with no frame extractor at all and
-    # the entire clip-to-model path unreachable. Whether a camera is filming
-    # is a question for the moment a clip is wanted, and video answers it
-    # then by publishing the clip or refusing it.
-    frames: FrameSource | None = video if video.enabled else None
-    stills = read_labeled_stills if swing_capture.enabled else None
-    # `enabled` for the same reason, and it was the same bug: `history.open()`
-    # is well below this line, so `is_available` was false here whatever the
-    # configuration said and coaching was handed no recorder at all. Every
-    # line the model wrote was published, spoken and projected, and none of it
-    # was ever written down. `record_advice` already declines when history
-    # turned out to be unavailable, so asking the settled question is both
-    # correct and the only one that can be answered yet.
-    record = history.record_advice if settings.history_enabled else None
-    return AnalysisService(
-        publish=publish,
-        provider=provider,
-        frames=frames,
-        capture_stills=stills,
-        record=record,
-        enabled=settings.coaching_enabled,
-        send_frames=settings.coaching_send_frames,
-        camera_view=CameraView(settings.video_camera_view),
-        preferred_focus=_coaching_focus(settings.coaching_focus),
-        severity_fine=settings.coaching_severity_fine,
-        baseline_window=settings.coaching_baseline_window,
-        queue_size=settings.coaching_queue_size,
-        clip_wait_seconds=settings.coaching_clip_wait,
-        timeout_seconds=settings.coaching_timeout,
-        total_budget_seconds=settings.coaching_budget_seconds,
-        retry_limit=settings.coaching_retry_limit,
-        min_interval_seconds=settings.coaching_min_interval,
-        session_call_limit=settings.coaching_call_limit,
-        max_output_tokens=settings.coaching_max_output_tokens,
-        visual_cues=settings.coaching_visual_cues,
-        max_images=settings.coaching_max_images,
-        drain_timeout_seconds=settings.shutdown_timeout,
-        trigger=settings.resolved_coaching_trigger(),
-        protee_max_output_tokens=settings.coaching_protee_max_output_tokens,
-        protee_timeout_seconds=settings.coach_openai_timeout,
-        protee_budget_seconds=settings.coach_openai_budget,
-        reasoning_effort=settings.coaching_reasoning_effort or None,
-        record_coach=(
-            history.record_coach_result if settings.history_enabled else None
+    del history, video, swing_capture
+    return ReferenceLiveCoach(
+        publish,
+        build_provider(
+            settings.coaching_provider,
+            model=settings.coaching_model,
+            api_key=settings.coaching_api_key.get_secret_value(),
+            api_base=settings.coaching_api_base,
         ),
-        diagnostic_dry_run=settings.coaching_diagnostic_dry_run,
+        enabled=settings.coaching_enabled,
+        vision_calls=settings.coaching_vision_calls,
+        image_detail=settings.coaching_image_detail,
+        feedback=settings.coaching_feedback,
+        evidence_budget=settings.coaching_evidence_budget,
+        evidence_allocation=settings.coaching_evidence_allocation,
+        timeout_seconds=settings.coach_openai_timeout,
+        call_limit=settings.coaching_call_limit,
+        diagnostics=diagnostics,
     )
 
 
-def _build_speech(settings: Settings, publish: Publish) -> SpeechService:
+def _build_speech(
+    settings: Settings,
+    publish: Publish,
+    diagnostics: DiagnosticJournal | None = None,
+) -> SpeechService:
     """Assemble the voice, or something that stays quiet in its place.
 
     Nothing else in the application takes a reference to this, which is the
@@ -643,6 +629,7 @@ def _build_speech(settings: Settings, publish: Publish) -> SpeechService:
         render_timeout_seconds=settings.speech_render_timeout,
         open_timeout_seconds=settings.speech_open_timeout,
         drain_timeout_seconds=settings.shutdown_timeout,
+        diagnostics=diagnostics,
     )
 
 
@@ -752,16 +739,25 @@ def _build_reveal(
 def _progress_ceiling(settings: Settings) -> float:
     """How long a coaching stage may stay on the floor with no word after it.
 
-    The capture wait plus the longest budget either path can spend, plus a
-    margin: a job still running past that has already been abandoned by the
-    coach, and its bar would otherwise outlive it.
+    The capture window plus the vision budget, plus a margin: a job still
+    running past that has already been abandoned, and its bar would otherwise
+    outlive it.
     """
 
-    budget = max(settings.coach_openai_budget, settings.coaching_budget_seconds)
-    return settings.coaching_clip_wait + budget + 5.0
+    wall = max(
+        settings.swing_capture_initial_delay_seconds
+        + settings.swing_capture_duration_seconds,
+        settings.swing_capture_static_delay_seconds
+        + settings.swing_capture_static_duration_seconds,
+    )
+    return wall + settings.coach_openai_budget + 5.0
 
 
-def _build_swing_capture(settings: Settings, publish: Publish) -> SwingCaptureService:
+def _build_swing_capture(
+    settings: Settings,
+    publish: Publish,
+    diagnostics: DiagnosticJournal | None = None,
+) -> SwingCaptureService:
     """Assemble swing capture, pointed at the configured OBS sources.
 
     The third user of the same `ObsClient` factory. A hidden window capture is
@@ -798,15 +794,19 @@ def _build_swing_capture(settings: Settings, publish: Publish) -> SwingCaptureSe
         capture_scene=settings.swing_capture_scene,
         command_timeout=settings.obs_connect_timeout,
         shutdown_timeout=settings.shutdown_timeout,
-        announce_progress=settings.coaching_enabled,
+        announce_progress=settings.coaching_enabled and settings.coaching_vision_calls,
         diagnostic_timeline_shots=settings.swing_capture_diagnostic_timeline_shots,
+        evidence_timeline=(
+            settings.coaching_enabled and settings.coaching_vision_calls
+        ),
+        diagnostics=diagnostics,
     )
 
 
 def _build_assistant_api(
     settings: Settings,
     history: HistoryService,
-    coaching: AnalysisService,
+    coaching: ReferenceLiveCoach,
     play: PlayFlow,
     subsystems: dict[str, SubsystemProbe],
 ) -> AssistantServer | None:
@@ -922,18 +922,6 @@ async def _stop_assistant_api(
         await asyncio.wait_for(task, timeout)
     except Exception:
         logger.debug("assistant_api_stopped_untidily", exc_info=True)
-
-
-def _coaching_focus(name: str) -> CoachingFocus | None:
-    """What the player is working on, if they named something recognisable."""
-
-    if not name:
-        return None
-    try:
-        return CoachingFocus(name.strip().lower())
-    except ValueError:
-        logger.warning("coaching_focus_unknown", extra={"coaching_focus": name})
-        return None
 
 
 def _floor_calibration(settings: Settings) -> RectangularCalibration:

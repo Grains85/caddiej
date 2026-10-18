@@ -47,7 +47,6 @@ from caddiej.assistant.contract import (
     StatusResult,
     SubsystemPayload,
 )
-from caddiej.coaching.service import AnalysisService
 from caddiej.domain.coaching import CoachingFocus, band_for
 from caddiej.domain.play import PlayFlow
 from caddiej.domain.shot import BallLaunch, ClubDelivery, Detection, Handedness
@@ -68,6 +67,18 @@ field. The HUD's `/healthz` takes the opposite approach and publishes whole
 health dataclasses, which is why its shape is not something anybody can depend
 on.
 """
+
+
+class CoachingPort(Protocol):
+    """What the assistant may ask coaching. Not a golf rule."""
+
+    @property
+    def is_coaching(self) -> bool: ...
+
+    @property
+    def preferred_focus(self) -> CoachingFocus | None: ...
+
+    def set_preferred_focus(self, focus: CoachingFocus | None) -> None: ...
 
 
 class HealthReport(Protocol):
@@ -107,7 +118,7 @@ class ReadFacade:
     def __init__(
         self,
         history: HistoryService,
-        coaching: AnalysisService,
+        coaching: CoachingPort,
         play: PlayFlow,
         version: str,
         subsystems: Mapping[str, SubsystemProbe] | None = None,

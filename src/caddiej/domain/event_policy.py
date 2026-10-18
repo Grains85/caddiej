@@ -91,13 +91,10 @@ EVENT_DELIVERY: dict[type[Event], Delivery] = {
 }
 
 SUBSCRIBER_DELIVERY: dict[tuple[str, type[Event]], Delivery] = {
-    ("coaching", ShotCompleted): DROP,
-    ("coaching", SwingClipReady): DROP,
-    ("coaching", SwingClipFailed): DROP,
-    # Pictures for a shot that may already have been superseded. Droppable for
-    # the same reason as the clip: losing them costs a coaching line its
-    # imagery, never the shot.
-    ("coaching", SwingFramesReady): DROP,
+    # The reference coach retires a line when the next shot completes. Losing
+    # that notice costs a stale line, never the shot. The publisher is the
+    # ProTee observer and must not wait on evidence processing.
+    ("reference-coach", ShotCompleted): DROP,
     ("video", ShotCompleted): DROP,
     # The clip's anchor. Droppable for the same reason as the shot itself: the
     # publisher is the ProTee log observer that also feeds the floor, and it
@@ -106,9 +103,8 @@ SUBSCRIBER_DELIVERY: dict[tuple[str, type[Event]], Delivery] = {
     ("video", ShotDetected): DROP,
     ("speech", AnalysisCompleted): COALESCE,
     # The ProTee log observer publishes the strike and must never wait on a
-    # coaching queue or a voice: losing one costs a stale line being retired
-    # by the next event instead of this one, never a shot.
-    ("coaching", ShotDetected): DROP,
+    # voice: losing one costs a stale line being retired by the next event
+    # instead of this one, never a shot.
     ("speech", ShotDetected): DROP,
     ("lighting", SpeechStarted): COALESCE,
     ("lighting", SpeechCompleted): COALESCE,
@@ -138,7 +134,7 @@ SUBSCRIBER_DELIVERY: dict[tuple[str, type[Event]], Delivery] = {
 QUEUE_SIZES: dict[str, int] = {
     "play": 64,
     "history": 128,
-    "coaching": 16,
+    "reference-coach": 16,
     "video": 16,
     "speech": 8,
     "lighting": 8,

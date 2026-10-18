@@ -39,9 +39,9 @@ def test_the_default_provider_is_no_provider() -> None:
 
 
 def test_coaching_itself_is_on_by_default() -> None:
-    # Because the deterministic tier costs nothing and is the thing that puts a
-    # fault on the floor. "Off" would make a fresh checkout look broken.
+    # The coach is present, and vision calls stay off until they are asked for.
     assert settings().coaching_enabled is True
+    assert settings().coaching_vision_calls is False
 
 
 def test_there_is_no_key_in_the_repository() -> None:
@@ -73,7 +73,7 @@ def test_the_demo_provider_needs_no_key_and_no_network() -> None:
     assert provider.name == "demo"
 
 
-def test_an_unknown_provider_coaches_from_templates_rather_than_guessing() -> None:
+def test_an_unknown_provider_is_not_constructed() -> None:
     assert build_provider(kind="anthropic", model="claude") is None
 
 
@@ -171,40 +171,21 @@ def test_an_empty_model_is_refused(monkeypatch: pytest.MonkeyPatch) -> None:
         settings()
 
 
-def test_the_queue_is_bounded(monkeypatch: pytest.MonkeyPatch) -> None:
-    config = settings()
-
-    assert config.coaching_queue_size >= 1
-    # Short on purpose. Advice for three swings ago is worse than silence.
-    assert config.coaching_queue_size <= 4
-
-
-def test_there_is_a_timeout_and_it_is_shorter_than_a_golfer_s_patience() -> None:
-    config = settings()
-
-    assert 0 < config.coaching_timeout <= 30
-
-
 def test_a_session_has_a_ceiling_on_what_it_can_spend() -> None:
     config = settings()
 
     assert config.coaching_call_limit > 0
-    assert config.coaching_max_output_tokens > 0
-
-
-def test_frames_are_not_sent_unless_asked_for() -> None:
-    # Images cost more than text and are the easy way to make an evening
-    # expensive without noticing.
-    assert settings().coaching_send_frames is False
+    assert config.coaching_evidence_budget == 24
+    assert config.coaching_evidence_allocation == "dtl_primary"
+    assert config.coaching_vision_calls is False
+    assert config.coaching_feedback == "observed"
 
 
 @pytest.mark.parametrize(
     ("name", "value"),
     [
-        ("COACHING_QUEUE_SIZE", "0"),
-        ("COACHING_TIMEOUT", "0"),
         ("COACHING_CALL_LIMIT", "-1"),
-        ("COACHING_SEVERITY_FINE", "2.0"),
+        ("COACHING_EVIDENCE_BUDGET", "0"),
     ],
 )
 def test_a_setting_that_would_break_coaching_is_refused_at_startup(

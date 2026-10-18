@@ -322,8 +322,8 @@ def test_the_mutation_answers_over_http(client: TestClient, subject: Boundary) -
     )
 
     assert response.status_code == 200
-    assert response.json()["training_focus"] == "path"
-    assert subject.reads.status().training_focus == "path"
+    assert response.json()["training_focus"] is None
+    assert subject.reads.status().training_focus is None
 
 
 def test_the_mutation_refuses_a_focus_it_does_not_know(client: TestClient) -> None:

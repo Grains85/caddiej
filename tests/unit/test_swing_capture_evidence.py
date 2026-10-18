@@ -21,24 +21,11 @@ import sys
 from pathlib import Path
 
 import pytest
-from tests.unit.sheet_support import sheet_cells
-from tests.unit.test_coach_protee import (
-    ALL_VALUES,
-    DRIVER,
-    Coach,
-    ConcurrentClock,
-    a_reply,
-)
+from tests.unit.capture_bay import ALL_VALUES, ConcurrentClock
 from tests.unit.test_swing_capture import a_jpeg
 
-from caddiej.coaching.fakes import ScriptedProvider
 from caddiej.domain.cues import CapturePanel, PanelKind, PanelView, VisualClaim
-from caddiej.domain.events import (
-    AnalysisCompleted,
-    ClubSelected,
-    ShotDetected,
-    SwingFramesReady,
-)
+from caddiej.domain.events import ShotDetected, SwingFramesReady
 from caddiej.domain.media import SwingCapture
 from caddiej.domain.swing_phase import SwingPhase
 from caddiej.swing_capture import LatestSwingStore, SwingCaptureService
@@ -637,38 +624,3 @@ class TestLatestSwingOnWindows:
         assert after is not None and after.published == rig.latest
         assert rig.latest_metadata()["trigger_id"] == "41"
         assert not list(rig.latest.parent.glob(".latest_swing.*"))
-
-
-# 15 -----------------------------------------------------------------------
-
-
-class TestCoachStillRuns:
-    async def test_a_locked_latest_still_reaches_all_values_and_advice(
-        self, tmp_path, locked_latest
-    ) -> None:
-        locked_latest["locked"] = False
-        rig = Rig(tmp_path, ReplayObs())
-        await rig.shot("39")
-        locked_latest["locked"] = True
-
-        provider = ScriptedProvider(replies=(a_reply(),))
-        coach = Coach(provider)
-        await coach.service.open()
-        await coach.service.on_club_selected(ClubSelected(club=DRIVER))
-        detected = ShotDetected(trigger_id="40", source="protee_log")
-        await coach.service.on_shot_detected(detected)
-
-        capture = await rig.strike(detected)
-        assert capture is not None and capture.published is None
-        await coach.service.on_swing_frames(SwingFramesReady(capture=capture))
-        await coach.service.aclose()
-
-        assert provider.calls == 1
-        images = provider.requests[0].images
-        assert len(images) == 1, "one evidence sheet"
-        cells = sheet_cells(images[0].data)
-        assert len(cells) == 9, "eight swing stills and the All Values still"
-        assert cells[-1] == "ALL_VALUES"
-        completed = coach.bus.of(AnalysisCompleted)
-        assert len(completed) == 1
-        assert completed[0].shot_id == detected.event_id

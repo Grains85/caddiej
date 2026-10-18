@@ -20,8 +20,8 @@ from caddiej.assistant.commands import (
     parse_focus,
 )
 from caddiej.assistant.contract import Availability
-from caddiej.coaching.service import AnalysisService
 from caddiej.domain.coaching import CoachingFocus
+from caddiej.swing_reference.live import ReferenceLiveCoach
 
 # No module-level asyncio mark: half of this file is synchronous validation, and
 # `asyncio_mode = auto` already runs the rest.
@@ -99,26 +99,25 @@ def test_the_legal_values_exclude_saying_nothing() -> None:
 # --- the mutation ---------------------------------------------------------
 
 
-async def test_setting_a_focus_reaches_coaching(subject: Boundary) -> None:
+async def test_an_old_fault_name_is_not_stored(subject: Boundary) -> None:
     result = subject.commands.set_training_focus("path")
 
-    assert result.training_focus == "path"
-    assert result.changed is True
-    assert subject.coaching.preferred_focus is CoachingFocus.PATH
+    assert result.training_focus is None
+    assert result.changed is False
+    assert subject.coaching.preferred_focus is None
 
 
-async def test_setting_a_focus_reports_what_it_changed_from(
-    subject: Boundary,
-) -> None:
+async def test_changing_the_name_still_stores_nothing(subject: Boundary) -> None:
     subject.commands.set_training_focus("path")
 
     result = subject.commands.set_training_focus("strike")
 
-    assert result.previous_focus == "path"
-    assert result.training_focus == "strike"
+    assert result.previous_focus is None
+    assert result.training_focus is None
+    assert result.changed is False
 
 
-async def test_setting_the_same_focus_twice_changes_nothing_the_second_time(
+async def test_setting_the_same_name_twice_changes_nothing(
     subject: Boundary,
 ) -> None:
     subject.commands.set_training_focus("path")
@@ -126,76 +125,65 @@ async def test_setting_the_same_focus_twice_changes_nothing_the_second_time(
     result = subject.commands.set_training_focus("path")
 
     assert result.changed is False
-    assert result.training_focus == "path"
+    assert result.training_focus is None
 
 
 async def test_a_null_focus_clears_the_preference(subject: Boundary) -> None:
-    subject.commands.set_training_focus("path")
-
     result = subject.commands.set_training_focus(None)
 
     assert result.training_focus is None
-    assert result.previous_focus == "path"
+    assert result.previous_focus is None
     assert subject.coaching.preferred_focus is None
 
 
 async def test_a_bad_focus_changes_nothing(subject: Boundary) -> None:
-    subject.commands.set_training_focus("path")
-
     with pytest.raises(FocusRejected):
         subject.commands.set_training_focus("nonsense")
 
-    assert subject.coaching.preferred_focus is CoachingFocus.PATH
+    assert subject.coaching.preferred_focus is None
 
 
 async def test_the_change_is_reported_as_unavailable_when_coaching_is_off(
     tmp_path: Path,
 ) -> None:
-    # Setting a preference nothing will read is not a success. It still takes
-    # effect, because the operator may switch coaching on later and silently
-    # discarding the request would be worse.
     ready = await boundary(tmp_path)
     try:
         commands = CommandFacade(
-            AnalysisService(publish=ready.coaching._publish, enabled=False)
+            ReferenceLiveCoach(ready.coaching._publish, None, enabled=False)
         )
 
         result = commands.set_training_focus("path")
 
         assert result.availability is Availability.UNAVAILABLE
-        assert result.training_focus == "path"
+        assert result.training_focus is None
     finally:
         await ready.coaching.aclose()
         await ready.play.aclose()
         await ready.history.aclose()
 
 
-async def test_coaching_without_a_model_is_not_reported_as_unavailable(
-    subject: Boundary,
-) -> None:
-    """The default configuration, and it must not read as broken.
+async def test_vision_calls_make_the_command_available(tmp_path: Path) -> None:
+    """A shot is coached only when vision calls are on."""
 
-    With no provider configured CaddieJ still names the fault and words it from
-    a template, and the preference biases exactly that choice. Answering
-    `unavailable` here would tell an assistant the feature did not work when it
-    did.
-    """
+    ready = await boundary(tmp_path, vision_calls=True)
+    try:
+        result = ready.commands.set_training_focus("path")
 
-    assert subject.coaching.is_available is False
-
-    result = subject.commands.set_training_focus("path")
-
-    assert result.availability is Availability.OK
+        assert ready.coaching.is_coaching is True
+        assert result.availability is Availability.OK
+        assert result.training_focus is None
+    finally:
+        await ready.coaching.aclose()
+        await ready.play.aclose()
+        await ready.history.aclose()
 
 
-async def test_the_read_facade_reports_the_change_afterwards(
-    subject: Boundary,
-) -> None:
+async def test_the_read_facade_does_not_invent_a_focus(subject: Boundary) -> None:
     assert subject.reads.status().training_focus is None
 
     subject.commands.set_training_focus("early_extension")
 
-    assert subject.reads.status().training_focus == "early_extension"
+    assert subject.reads.status().training_focus is None
 
 
 # --- what is not here -----------------------------------------------------

@@ -28,7 +28,9 @@ media/
 # Isolated diagnostic output — extracted stills of a person in their garage.
 .caddiej/
 
-# Pose landmarker weights downloaded by the stage-3 research prototype.
+# Pose landmarker weights. Provision with scripts/install-pose-model.py.
+# The checksum is checked there. The file is not part of the repository.
+models/*.task
 research/direct_visual_coach/models/*.task
 
 # Fresh-swing validation: preserved shot directories and the sheets built from them.

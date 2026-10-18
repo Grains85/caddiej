@@ -2,8 +2,7 @@
 
 Not a fake façade. The point of these tests is that the projections are right
 and that absence is classified correctly, and both of those questions are only
-worth asking against a real SQLite history and a real `AnalysisService` — a fake
-history would agree with whatever the façade believed about it.
+worth asking against a real SQLite history and the production coach.
 
 What is faked is only what would be slow or external: coaching has no provider,
 so nothing is asked of a model, and the clock is a counter.
@@ -17,13 +16,13 @@ from pathlib import Path
 from caddiej.assistant.commands import CommandFacade
 from caddiej.assistant.contract import SubsystemPayload
 from caddiej.assistant.reads import ReadFacade, SubsystemProbe
-from caddiej.coaching.service import AnalysisService
 from caddiej.core.events import Event
 from caddiej.domain.coaching import CoachingFocus
 from caddiej.domain.events import ShotCompleted
 from caddiej.domain.play import PlayFlow
 from caddiej.domain.shot import Shot
 from caddiej.persistence.service import HistoryService, build_history_service
+from caddiej.swing_reference.live import ReferenceLiveCoach
 
 
 class NullFloor:
@@ -67,7 +66,7 @@ class Boundary:
     reads: ReadFacade
     commands: CommandFacade
     history: HistoryService
-    coaching: AnalysisService
+    coaching: ReferenceLiveCoach
     play: PlayFlow
     ticks: list[float]
 
@@ -99,6 +98,7 @@ async def boundary(
     mutation_enabled: bool = True,
     player_name: str | None = "Johan",
     preferred_focus: CoachingFocus | None = None,
+    vision_calls: bool = False,
     version: str = "0.1.0",
     subsystems: dict[str, SubsystemProbe] | None = None,
 ) -> Boundary:
@@ -109,15 +109,13 @@ async def boundary(
     )
     await history.open()
 
-    coaching = AnalysisService(
-        publish=silent,
-        provider=None,
-        record=history.record_advice if history.is_available else None,
-        preferred_focus=preferred_focus,
+    del preferred_focus
+    coaching = ReferenceLiveCoach(
+        silent,
+        None,
+        enabled=True,
+        vision_calls=vision_calls,
     )
-    # Opened, because an unopened service is genuinely not coaching anything and
-    # these tests are about a CaddieJ that is running. With no provider it starts
-    # its worker, asks nothing of a model, and coaches from templates.
     await coaching.open()
     play = PlayFlow(floor=NullFloor(), publish=silent)
 

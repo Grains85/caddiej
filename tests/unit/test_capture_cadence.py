@@ -26,14 +26,11 @@ from statistics import mean
 from typing import Any
 
 import pytest
-from tests.unit.sheet_support import sheet_cells
-from tests.unit.test_coach_protee import ALL_VALUES, DRIVER, Coach, a_reply
-from tests.unit.test_release_evidence import BEHIND, IMPACT, PANELS, SIDE, BayObs
+from tests.unit.capture_bay import ALL_VALUES, BEHIND, PANELS, SIDE, BayObs
 
 from caddiej.adapters.obs import ObsResourceNotFoundError
-from caddiej.coaching.fakes import ScriptedProvider
 from caddiej.config import Settings
-from caddiej.domain.events import ClubSelected, ShotDetected, SwingFramesReady
+from caddiej.domain.events import ShotDetected, SwingFramesReady
 from caddiej.domain.media import SwingCapture
 from caddiej.domain.swing_phase import SwingPhase
 from caddiej.swing_capture import LatestSwingStore, SwingCaptureService
@@ -459,40 +456,6 @@ class TestNothingDownstreamMoves:
                 assert fast_error <= 0.025 + TICK, phase
                 if slow_error is not None:
                     assert fast_error <= slow_error + 1e-9, phase
-
-    async def test_one_sheet_one_image_and_all_values_once(self, tmp_path) -> None:
-        async def coached(burst: Burst) -> ScriptedProvider:
-            provider = ScriptedProvider(replies=(a_reply(),))
-            coach = Coach(provider, max_images=16)
-            await coach.service.open()
-            await coach.service.on_club_selected(ClubSelected(club=DRIVER))
-            detected = ShotDetected(trigger_id="91", source="protee_log")
-            await coach.service.on_shot_detected(detected)
-            capture = await burst.strike(detected)
-            assert capture is not None
-            await coach.service.on_swing_frames(SwingFramesReady(capture=capture))
-            await coach.service.aclose()
-            return provider
-
-        slow_burst = Burst(tmp_path / "slow", downswing_fps=0.0)
-        fast_burst = Burst(tmp_path / "fast")
-        slow = await coached(slow_burst)
-        fast = await coached(fast_burst)
-
-        assert slow.calls == fast.calls == 1
-        assert len(fast.requests[0].images) == len(slow.requests[0].images) == 1
-        cells = sheet_cells(fast.requests[0].images[0].data)
-        slow_cells = sheet_cells(slow.requests[0].images[0].data)
-        assert len(cells) == 17, "sixteen stills and All Values"
-        assert len(slow_cells) == 15, "two downswing aims dropped at ten a second"
-        assert set(slow_cells) < set(cells)
-        fast_schema, slow_schema = fast.requests[0].schema, slow.requests[0].schema
-        assert fast_schema.keys() == slow_schema.keys()
-        assert fast_schema["properties"].keys() == slow_schema["properties"].keys()
-        assert fast_schema["$defs"]["phase"] == slow_schema["$defs"]["phase"]
-        for burst in (slow_burst, fast_burst):
-            assert burst.obs.taken[ALL_VALUES] == 1
-            assert burst.obs.taken[IMPACT] == 3
 
     async def test_the_newest_shot_still_wins(self, tmp_path) -> None:
         burst = Burst(tmp_path)

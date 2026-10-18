@@ -17,7 +17,6 @@ import argparse
 import importlib.util
 import os
 import shutil
-from collections.abc import Callable
 from pathlib import Path
 
 from pydantic import SecretStr, ValidationError
@@ -113,106 +112,123 @@ def build_parser() -> argparse.ArgumentParser:
         "--check-video-frames",
         action="store_true",
         help=(
-            "extract the production coaching stills from the newest recorded "
-            "swing clip, to prove the analysis video path works, then exit"
+            "extract stills from the newest recorded swing clip, to prove "
+            "FFmpeg can read it, then exit"
         ),
     )
-    parser.add_argument(
-        "--check-coach",
+    reference = parser.add_argument_group(
+        "swing reference",
+        "Options for --analyze-reference-swing. The command reads a saved "
+        "SwingEvidencePackage. It does not call a model unless "
+        "--reference-call-model is set.",
+    )
+    reference.add_argument(
+        "--analyze-reference-swing",
         action="store_true",
         help=(
-            "run one synthetic shot through the production coaching pipeline "
-            "(diagnose, evidence, OpenAI if configured, validate, cue, speech), "
-            "then exit; no golf shot is required"
+            "assess one saved SwingEvidencePackage with ideal swing 2.9 and "
+            "the coaching engine, then exit"
         ),
     )
-    parser.add_argument(
-        "--check-coach-cues",
-        action="store_true",
-        help=(
-            "print the Coach V1 cue table and the admissible set for "
-            "synthetic full-swing, putting, left-handed and observe-mode shots, "
-            "then exit"
-        ),
+    reference.add_argument(
+        "--reference-package",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help="evidence_package.json, or a directory that contains it",
     )
-    parser.add_argument(
-        "--check-coach-request",
-        action="store_true",
-        help=(
-            "measure the ProTee coach request built from the newest stored shot "
-            "(prompt, evidence, schema, every image's size and estimated tokens) "
-            "and the capture's own timing, then exit; makes no API call"
-        ),
-    )
-    parser.add_argument(
-        "--benchmark-coach",
-        action="store_true",
-        help=(
-            "replay one stored shot's evidence against one or more OpenAI "
-            "configurations and print latency, tokens and cost per run, then "
-            "exit; no golf shot, and nothing is written, published or spoken"
-        ),
-    )
-    benchmark = parser.add_argument_group(
-        "coach benchmark",
-        "Options for --benchmark-coach and --check-coach-request. Lists are "
-        "comma-separated; every combination of models, efforts and details runs.",
-    )
-    benchmark.add_argument(
-        "--benchmark-evidence",
+    reference.add_argument(
+        "--reference-shot-dir",
         type=Path,
         default=None,
         metavar="DIR",
+        help="raw capture directory the package's relative_file values are under",
+    )
+    reference.add_argument(
+        "--reference-output",
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help="where request, image index, decision and session state are written",
+    )
+    reference.add_argument(
+        "--reference-mock",
+        default=None,
+        metavar="PATH",
         help=(
-            "a stored shot directory under media/swing_shots; default the newest. "
-            "With --check-coach, the one real request is made from that shot"
+            "a saved assessment JSON, or 'insufficient' for a reply that "
+            "scores nothing; no model call"
         ),
     )
-    benchmark.add_argument(
-        "--benchmark-models",
-        type=_names,
-        default=None,
-        metavar="LIST",
-        help="models to compare; default COACHING_MODEL",
+    reference.add_argument(
+        "--reference-call-model",
+        action="store_true",
+        help="make one vision-model request with the configured coaching model",
     )
-    benchmark.add_argument(
-        "--benchmark-efforts",
-        type=_choices(("omit", "none", "minimal", "low", "medium", "high")),
-        default=None,
-        metavar="LIST",
+    reference.add_argument(
+        "--reference-delivered",
+        action="store_true",
         help=(
-            "reasoning efforts: omit (send no parameter at all), none, minimal, "
-            "low, medium, high; default COACHING_REASONING_EFFORT. Models differ "
-            "on which they accept, and one that refuses a value says so"
+            "record that the golfer was told the previous line; without this "
+            "the next request does not claim the cue was delivered"
         ),
     )
-    benchmark.add_argument(
-        "--benchmark-detail",
-        type=_choices(("low", "high", "auto")),
-        default=None,
-        metavar="LIST",
-        help="image detail for the swing frames; default low, as in production",
-    )
-    benchmark.add_argument(
-        "--benchmark-repeats",
-        type=_bounded_int(1, 20),
+    reference.add_argument(
+        "--reference-sequence",
+        type=int,
         default=1,
         metavar="N",
-        help="runs per configuration, so variance is visible (1-20, default 1)",
+        help="session sequence for this shot; a repeated or older value is ignored",
     )
-    benchmark.add_argument(
-        "--benchmark-max-output-tokens",
-        type=_bounded_int(1, 16000),
+    reference.add_argument(
+        "--reference-state",
+        type=Path,
         default=None,
-        metavar="N",
-        help="output ceiling per request; default COACHING_PROTEE_MAX_OUTPUT_TOKENS",
+        metavar="PATH",
+        help="session_state.json from an earlier reference analysis",
     )
-    benchmark.add_argument(
-        "--benchmark-timeout",
-        type=_bounded_float(0.1, 300.0),
+    reference.add_argument(
+        "--reference-previous",
+        type=Path,
         default=None,
-        metavar="SECONDS",
-        help="per-request timeout; default COACH_OPENAI_TIMEOUT_SECONDS",
+        metavar="PATH",
+        help="previous coaching context JSON; only the active focus and delivered cue",
+    )
+    reference.add_argument(
+        "--reference-shot-id",
+        default=None,
+        help="shot id for --reference-mock insufficient; default is the package id",
+    )
+    reference.add_argument("--reference-club", default="unknown")
+    reference.add_argument("--reference-shot-type", default="unknown")
+    reference.add_argument("--reference-distance", type=float, default=None)
+    reference.add_argument("--reference-handedness", default="unknown")
+    reference.add_argument("--reference-target", default="unknown")
+    reference.add_argument("--reference-evidence-context", default="unknown")
+    parser.add_argument(
+        "--export-diagnostics",
+        action="store_true",
+        help=(
+            "write a zip of the latest diagnostic session, or of "
+            "--diagnostics-session, then exit"
+        ),
+    )
+    parser.add_argument(
+        "--diagnostics-session",
+        default=None,
+        help="session id to export; omit for the newest session",
+    )
+    parser.add_argument(
+        "--diagnostics-output",
+        type=Path,
+        default=None,
+        metavar="ZIP",
+        help="where to write the diagnostic zip",
+    )
+    parser.add_argument(
+        "--diagnostics-include-images",
+        action="store_true",
+        help="copy the selected evidence frames into the zip when the files still exist",
     )
     parser.add_argument(
         "--log-level",
@@ -223,58 +239,6 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     return parser
-
-
-def _names(raw: str) -> tuple[str, ...]:
-    """A comma-separated list, each item once, none of them empty."""
-
-    items = tuple(dict.fromkeys(item.strip() for item in raw.split(",")))
-    if not items or any(not item for item in items):
-        raise argparse.ArgumentTypeError(
-            f"expected a comma-separated list, got {raw!r}"
-        )
-    return items
-
-
-def _choices(allowed: tuple[str, ...]) -> Callable[[str], tuple[str, ...]]:
-    def parse(raw: str) -> tuple[str, ...]:
-        items = tuple(item.lower() for item in _names(raw))
-        unknown = [item for item in items if item not in allowed]
-        if unknown:
-            raise argparse.ArgumentTypeError(
-                f"{', '.join(unknown)} not one of {', '.join(allowed)}"
-            )
-        return items
-
-    return parse
-
-
-def _bounded_int(low: int, high: int) -> Callable[[str], int]:
-    def parse(raw: str) -> int:
-        try:
-            value = int(raw)
-        except ValueError:
-            raise argparse.ArgumentTypeError(f"{raw!r} is not a whole number") from None
-        if not low <= value <= high:
-            raise argparse.ArgumentTypeError(f"{value} is not between {low} and {high}")
-        return value
-
-    return parse
-
-
-def _bounded_float(low: float, high: float) -> Callable[[str], float]:
-    def parse(raw: str) -> float:
-        try:
-            value = float(raw)
-        except ValueError:
-            raise argparse.ArgumentTypeError(f"{raw!r} is not a number") from None
-        if not low <= value <= high:
-            raise argparse.ArgumentTypeError(
-                f"{value:g} is not between {low:g} and {high:g}"
-            )
-        return value
-
-    return parse
 
 
 def resolve_log_level(requested: str | None) -> str:
@@ -354,6 +318,7 @@ def describe(settings: Settings, root: Path | None = None) -> str:
         f"  Shot history         {_history(settings, here)}",
         f"  Swing video          {_video(settings, here)}",
         f"  Coaching             {_coaching(settings)}",
+        *_diagnostics_lines(settings, here),
         f"  Speech               {_speech(settings)}",
         f"  Lighting             {_lighting(settings)}",
         f"  Celebrations         {_effects(settings)}",
@@ -417,15 +382,39 @@ def _video(settings: Settings, here: Path) -> str:
 def _coaching(settings: Settings) -> str:
     if not settings.coaching_enabled:
         return "off (COACHING_ENABLED=false)"
+    calls = "on" if settings.coaching_vision_calls else "off"
     if settings.coaching_provider == "none":
-        return "on, measured faults only (COACHING_PROVIDER=none)"
-    if settings.coaching_provider == "scripted":
-        return "on, scripted provider (no account, no network)"
-    key = "set" if settings.coaching_api_key.get_secret_value() else "NOT SET"
+        provider = "COACHING_PROVIDER=none"
+    elif settings.coaching_provider == "scripted":
+        provider = "scripted provider"
+    else:
+        key = "set" if settings.coaching_api_key.get_secret_value() else "NOT SET"
+        provider = (
+            f"{settings.coaching_provider} {settings.coaching_model} "
+            f"(COACHING_API_KEY {key})"
+        )
     return (
-        f"on, {settings.coaching_provider} {settings.coaching_model} "
-        f"(COACHING_API_KEY {key})"
+        f"Ideal Swing 2.9, {provider}, vision calls {calls} "
+        f"(COACHING_VISION_CALLS), image detail {settings.coaching_image_detail}, "
+        f"feedback {settings.coaching_feedback}"
     )
+
+
+def _diagnostics_lines(settings: Settings, here: Path) -> list[str]:
+    enabled = "yes" if settings.diagnostics_enabled else "no"
+    payloads = "yes" if settings.diagnostics_retain_payloads else "no"
+    auto = "yes" if settings.diagnostics_auto_export_latest else "no"
+    images = "yes" if settings.diagnostics_include_images else "no"
+    latest = _where(settings.diagnostics_dir / "latest_shot.zip", here)
+    return [
+        "  Diagnostics:",
+        f"    Enabled:               {enabled}",
+        f"    Retain GPT payloads:   {payloads}",
+        f"    Retained shots:        {settings.diagnostics_keep_shots}",
+        f"    Auto-export latest:    {auto}",
+        f"    Include images:        {images}",
+        f"    Latest ZIP:            {latest}",
+    ]
 
 
 def _speech(settings: Settings) -> str:

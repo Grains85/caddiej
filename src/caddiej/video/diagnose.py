@@ -1,15 +1,13 @@
-"""Proving, against a recorded swing, that CaddieJ can pull the coaching stills.
+"""Proving, against a recorded swing, that FFmpeg can extract stills.
 
-There are two very different reasons coaching sends no frames: the model path
-never asked for them, or the clip/decoder/offset path cannot produce them. From
-the bay those look identical, so this walks the video half on demand — find a
-production clip, reconstruct its `ClipRef` from the sidecar, apply the same
-offsets coaching uses, extract the stills through the same FFmpeg extractor —
-and says which step stopped working.
+This walks the video half on demand: find a clip, reconstruct its `ClipRef`
+from the sidecar, seek to a fixed set of positions, and extract stills through
+the same FFmpeg extractor the video subsystem uses. Those positions are a
+diagnostic. The swing assessment selects its own frames from the capture
+timeline.
 
 It inspects footage that is already on disk. It does not start a camera, a
-coaching provider, or the rest of CaddieJ. A diagnostic that invented its own
-timing or decoder would pass while the one the coach uses stayed broken.
+coaching provider, or the rest of CaddieJ.
 
 Prose rather than JSON, because it is read by a person at a terminal in the
 same session as `--check-speech`.
@@ -25,13 +23,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Protocol
 
-from caddiej.coaching.frames import DEFAULT_OFFSETS, offsets_for
 from caddiej.domain.media import CameraView, ClipRef, TimeQuality
 from caddiej.video.clips import ClipCatalog, discover_clips
 from caddiej.video.ffmpeg import is_available
 from caddiej.video.frames import build_frame_extractor
 from caddiej.video.jpeg_size import jpeg_size
 from caddiej.video.layout import MediaLayout
+from caddiej.video.offsets import DEFAULT_OFFSETS, offsets_for
 
 logger = logging.getLogger(__name__)
 

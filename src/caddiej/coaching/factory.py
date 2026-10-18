@@ -20,7 +20,7 @@ def build_provider(
     api_key: str = "",
     api_base: str = "",
 ) -> AdviceProvider | None:
-    """The provider named, or None to coach from templates alone.
+    """The provider named, or None when no model should be called.
 
     None is a supported answer rather than a failure: it is the default, and it
     is what CaddieJ runs as with no credentials anywhere on the machine.

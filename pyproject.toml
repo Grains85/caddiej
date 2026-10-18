@@ -42,6 +42,10 @@ dependencies = [
     # uvicorn's WebSocket protocol implementation; declared directly rather than
     # relying on it arriving transitively.
     "websockets>=14,<18",
+    # Checks a swing-reference assessment against the supplied JSON Schema.
+    # The relational checks live in caddiej.swing_reference; this library
+    # supplies the schema pass the reference validator already depends on.
+    "jsonschema>=4.20,<5",
 ]
 
 [project.optional-dependencies]
@@ -52,17 +56,16 @@ test = [
     "httpx>=0.27",
     "ruff>=0.11",
     "mypy>=1.13",
-    # The evidence sheet is drawn for real in its own tests.
+    # Pillow draws research contact sheets and evidence review images.
     "pillow>=10.1,<13",
 ]
-# AI coaching. Optional because CaddieJ coaches from deterministic templates with
-# nothing installed, and because a golf simulator should not require a cloud
-# account to run. Confined to caddiej.adapters.openai.
+# AI coaching. Optional because vision calls are off by default, and because a
+# golf simulator should not require a cloud account to run. Confined to
+# caddiej.adapters.openai.
 ai = [
     "openai>=1.60,<3",
-    # Composes a shot's stills into the one Swing Evidence Sheet the model is
-    # sent. The standard library cannot decode or encode a JPEG. Confined to
-    # caddiej.swing_capture.sheet, imported only when a sheet is drawn.
+    # Composes nothing by itself. Research contact sheets and the evidence
+    # review images decode JPEG with Pillow. Confined to those callers.
     "pillow>=10.1,<13",
 ]
 # Local text to speech. Optional because CaddieJ says nothing by default, and
@@ -93,12 +96,24 @@ hue = [
 mcp = [
     "mcp>=2.1,<3",
 ]
-# Local computer vision for research stills. Optional because the running
-# simulator never imports it. OpenCV is used by the temporal sampler.
-# MediaPipe is used only by the swing-stage research prototype. Its pose
-# model is downloaded on first run and is not part of this package.
+# Swing evidence. Optional because a bay that never assesses a swing does not
+# need OpenCV or MediaPipe. The live coach and the offline evidence command
+# both import it. The pose model is not a Python dependency: install it with
+# scripts/install-pose-model.py, which checks the file checksum.
+#
+# MediaPipe depends on opencv-contrib-python and does not cap the version.
+# The current release of that package is OpenCV 5, which must not replace
+# the OpenCV 4 build this pipeline was measured on. constraints/vision.txt
+# pins one OpenCV 4 distribution so a second cv2 package is not installed.
+# Install with: pip install -e ".[vision]" -c constraints/vision.txt
+vision = [
+    "opencv-contrib-python>=4.10,<5",
+    "pillow>=10.1,<13",
+    "mediapipe>=0.10.35,<0.11",
+]
+# Research commands import the production evidence package. Same vision stack.
 research = [
-    "opencv-python-headless>=4.10,<5",
+    "opencv-contrib-python>=4.10,<5",
     "pillow>=10.1,<13",
     "mediapipe>=0.10.35,<0.11",
 ]
@@ -172,4 +187,10 @@ module = [
     "mcp",
     "mcp.*",
 ]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# jsonschema is a required dependency and ships no stubs. The research
+# evidence contracts are imported only after their directory is on sys.path.
+module = ["jsonschema", "cv2", "numpy", "numpy.*", "mediapipe", "mediapipe.*"]
 ignore_missing_imports = true
